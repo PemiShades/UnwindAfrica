@@ -1,0 +1,115 @@
+/* Base styles for all slides */
+.slide-item {
+   opacity: 0;
+   transform: scale(0.98); /* Start slightly scaled down */
+   transition: opacity 0.7s ease-out, transform 0.7s ease-out; /* Slower, smoother transition */
+   position: absolute; /* Position absolute to layer them */
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: auto;
+   z-index: 1;
+   display: flex;
+   align-items: flex-start;
+   justify-content: center;
+   padding: 3rem 1rem;
+}
+
+/* Active slide styles */
+.slide-item.active {
+   opacity: 1;
+   transform: scale(1);
+   z-index: 2; /* Bring active slide to front */
+   pointer-events: auto; /* Allow interaction */
+   visibility: visible; /* Ensure it's visible for screen readers too */
+}
+
+/* Hide inactive slides more effectively, prevent interaction */
+.slide-item:not(.active) {
+   pointer-events: none; /* Prevent clicks on hidden slides */
+   visibility: hidden; /* Hide from screen readers */
+}
+
+/* For the container that holds the slides */
+.slides-wrapper {
+   position: relative; /* Needed for absolute positioning of slides */
+   /* min-height will be set dynamically by JS */
+   overflow: hidden; /* Hide content overflow during transitions */
+   /* Added transition for smooth height changes of the wrapper */
+   transition: min-height 0.5s ease-in-out;
+   padding-bottom: 0; /* Remove padding from here, it's now on slide-item */
+   padding-top: 0; /* Remove padding from here, it's now on slide-item */
+}
+
+/* The outer section wrapper maintains the background and padding */
+.dynamic-section-outer {
+   background-color: #e0f7ff; /* Matches your current background color */
+   padding-top: 3rem; /* Same as py-12 */
+   padding-bottom: 3rem; /* Same as py-12 */
+}
+
+/* Custom fonts (if 'malibu-font' and 'inter-font' are not defined globally) */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+.font-inter {
+   font-family: "Inter", sans-serif;
+}
+*/ .font-malibu {
+   /* Apply this class to your h2 if it uses malibu-font */
+   /* font-family: 'malibu-font', sans-serif; */
+   /* Example: using a default script font if 'malibu-font' is not imported */
+   font-family: cursive;
+}
+
+/* Media queries for responsiveness, matching Tailwind's md breakpoint */
+@media (min-width: 768px) {
+   .dynamic-section-outer {
+      padding-top: 5rem; /* md:py-20 */
+      padding-bottom: 5rem; /* md:py-20 */
+   }
+   .slide-item {
+      padding: 3rem 1.5rem; /* Example: adjust padding on larger screens */
+   }
+}
+
+/* Basic styling for icon wrappers */
+.icon-wrapper {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   padding: 5px;
+   overflow: hidden;
+   cursor: pointer;
+   border: 2px solid transparent; /* Default transparent border */
+   transition: all 0.3s ease-in-out; /* Smooth transition for hover/active */
+}
+
+.icon-wrapper:hover {
+   background-color: rgba(255, 255, 255, 0.1); /* Subtle hover effect */
+}
+
+/* Active state for the icon wrapper */
+
+.icon-wrapper.active {
+   border-radius: 50%;
+   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.69);
+}
+.icon-image {
+   width: 48px; /* Example size, use Tailwind w-12 */
+   height: 48px; /* Example size, use Tailwind h-12 */
+   object-fit: contain;
+}
+
+/* Content panes */
+.content-pane {
+   transition: opacity 0.3s ease-in-out;
+}
+
+.content-pane.hidden {
+   display: none; /* Hide non-active content */
+   opacity: 0;
+}
+
+.content-pane.active {
+   display: block; /* Show active content */
+   opacity: 1;
+}

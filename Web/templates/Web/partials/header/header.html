@@ -1,0 +1,21 @@
+{% load static %}
+{% include './navbar.html' %}
+<header>
+  {% include './hamburger-menu.html' with faq_link=faq_link  %}
+   <!-- templates/carousel.html -->
+  <h3 class="header-text">UNWIND AFRICA<sup class="pb-3 md:pb-5 align-super font-sans text-3xl md:text-5xl lg:text-5xl -ml-[10px] sm:-ml-[30px] md:-ml-8">&reg;</sup></h3>
+  <div class="carousel" id="carousel">
+    <div class="carousel-slide" style="background-image: url('{% static 'images/home/carousel/slide1.jpg' %}')"></div>
+    <div class="carousel-slide" style="background-image: url('{% static 'images/home/carousel/slide2.jpg' %}')"></div>
+    <div class="carousel-slide" style="background-image: url('{% static 'images/home/carousel/slide3.jpg' %}')"></div>
+
+    <!-- ✅ Global overlay that stay on top -->
+    <div class="carousel-overlay-top"></div>
+    <div class="carousel-overlay-bottom"></div>
+
+    <!-- ✅ Global text -->
+    <!-- <div class="carousel-text">UNWNIDAFRICA</div> -->
+
+    <div class="carousel-dots" id="carousel-dots"></div>
+  </div>
+</header>

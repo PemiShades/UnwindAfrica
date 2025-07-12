@@ -1,0 +1,257 @@
+{% extends 'Web/main.html' %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="head1.css">
+
+
+{% block title %} Unwind Africa {% endblock %}
+
+{% block content %}
+  <!-- <section class="sticky-scroll-wrapper"> -->
+  {% include 'Web/partials/header/header.html' with name="paul" faq_link='/about#faq' %}
+  {% include 'Web/partials/about-1.html' with name="paul" %}
+  <!-- <section class="about about-2">
+    <div class="abt-img-container">
+        <img src="{% static 'images/home/about-2.jpg' %}" class="abt-2-img">
+    </div>
+    <div class="abt-text-container">
+      <h1>Unforgettable relaxation and socialization experiences accessible to all.</h3>
+      <p>At Unwind Africa, our mission is to provide accessible, affordable and unforgettable relaxation and socialization experiences, promoting work-life balance, community building and mental well-being. We achieve this by offering flexible savings plans, exciting voucher opportunities and exceptional events, ensuring everyone can unwind, recharge and connect with others.</p>
+      <button>Learn More</button>
+    </div>
+  </section> -->
+      <section class="flex flex-col md:flex-row w-full max-w-[1200px] mx-auto min-h-[400px] py-12 md:py-16 mb-10">
+        <!-- Image Container -->
+        <div class="w-full md:w-1/2 flex justify-center items-center p-4 bg-gray-100">
+          <img src="{% static 'images/home/about-2.jpg' %}" alt="About Us" class="w-[90%] max-w-[400px] rounded-xl object-cover">
+        </div>
+
+        <!-- Text Container -->
+        <div class="w-full md:w-1/2 flex flex-col justify-center p-6 text-left md:text-left">
+          <h1 class="text-2xl md:text-4xl font-bold leading-tight mb-4">
+            Unforgettable relaxation and socialization experiences accessible to all.
+          </h1>
+          <p class="text-base md:text-lg leading-relaxed mb-6">
+            At Unwind Africa, our mission is to provide accessible, affordable and unforgettable
+            relaxation and socialization experiences, promoting work-life balance, community
+            building and mental well-being. We achieve this by offering flexible savings plans,
+            exciting voucher opportunities and exceptional events, ensuring everyone can unwind,
+            recharge and connect with others.
+          </p>
+          <button class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm md:text-base rounded-md transition">
+            Learn More
+          </button>
+        </div>
+      </section>
+
+  <section class="relative bg-white py-10 md:py-12">
+     <div class="container mx-auto px-4 md:px-6">
+        <div class="text-center mb-14 md:mb-18">
+           <h2 class="malibu-font text-[#504242] text-3xl md:text-5xl font-bold mb-4">Unwind Relaxation Plans</h2>
+           <p class="inter-font text-gray-700 text-base md:text-lg max-w-2xl mx-auto mt-4">
+              Our flexible quarterly payment plans let you enjoy benefits worth more than your payment. Bond with loved ones, create unforgettable memories and unwind in style!
+           </p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+           <!-- Card 1 -->
+           <div class="flex flex-col items-center text-black bg-white pt-7 pb-6 px-4">
+              <img src="{% static 'images/home/vip 1.jpg' %}" alt="Exclusive Access" class="w-full h-28 md:h-40 object-contain" />
+              <h3 class="text-xl md:text-2xl font-bold mb-3 text-center">Exclusive Access</h3>
+              <p class="text-black/90 text-center inter-font text-sm md:text-base">Debutante balls, orchestral performances and high-society gatherings</p>
+           </div>
+           <!-- Card 2 -->
+           <div class="flex flex-col items-center bg-white text-black pt-7 pb-6 px-4">
+              <img src="{% static 'images/home/diamond 3.jpg' %}" alt="Luxury Celebrations" class="w-full h-28 md:h-40 object-contain" />
+              <h3 class="text-xl md:text-2xl font-bold mb-3 text-center">Luxury Celebrations</h3>
+              <p class="text-black/90 text-center inter-font text-sm md:text-base">Debutante balls, orchestral performances and high-society gatherings</p>
+           </div>
+           <!-- Card 3 -->
+           <div class="flex flex-col items-center bg-white text-black pt-7 pb-6 px-4">
+              <img src="{% static 'images/home/costumer 2.jpg' %}" alt="Unforgettable Experiences" class="w-full h-28 md:h-40 object-contain" />
+              <h3 class="text-xl md:text-2xl font-bold mb-3 text-center">Unforgettable Experiences</h3>
+              <p class="text-black/90 text-center inter-font text-sm md:text-base">Private yacht cruises, sunset dinners, and VIP access to exclusive events</p>
+           </div>
+           <!-- Card 4 -->
+           <div class="flex flex-col items-center bg-white text-black pt-7 pb-6 px-4">
+              <img src="{% static 'images/home/personalized 2.jpg' %}" alt="Personalized Services" class="w-full h-28 md:h-40 object-contain" />
+              <h3 class="text-xl md:text-2xl font-bold mb-3 text-center">Personalized Services</h3>
+              <p class="text-black/90 text-center inter-font text-sm md:text-base">Tailored wellness programs, private chefs, and bespoke event planning</p>
+           </div>
+        </div>
+     </div>
+  </section> 
+
+<!--   <section class="bg-white py-8 md:py-12 overflow-hidden">
+     <div class="container mx-auto px-4 md:px-6">
+        <div class="text-center pb-4 mb-14 md:mb-18">
+           <h2 class="malibu-font text-[#504242] text-3xl md:text-5xl font-bold mb-4">Unwind Relaxation Services</h2>
+           <p class="inter-font text-gray-700 text-base md:text-lg max-w-2xl mx-auto mt-4">
+              Escape to serenity and bliss with our URS plan! Enjoy a curated selection of benefits designed to rejuvenate your mind, body, and soul.
+           </p>
+        </div>
+
+        <div class="relative w-full overflow-hidden " id="services">
+           <div class="flex w-max animate-slide gap-8 md:gap-12">
+              <div class="flex gap-8 md:gap-12">
+                 <div class="flex-shrink-0 w-[300px] md:w-[360px] flex flex-col items-center text-black bg-white pt-4 pb-6 px-4">
+                    <img src="./assets/images/99673 1.jpg" alt="Relaxation Essentials" class="w-full h-[150px] md:h-[247px] object-contain" />
+                    <h3 class="text-xl md:text-2xl font-bold mb-3 text-center">Relaxation Essentials</h3>
+                    <p class="text-black/90 text-center inter-font text-sm md:text-base">Massages, Medi Pedi session and more</p>
+                 </div>
+                 <div class="flex-shrink-0 w-[300px] md:w-[360px] flex flex-col items-center bg-white text-black pt-4 pb-6 px-4">
+                    <img src="./assets/images/14992 1.jpg" alt="Luxury Experiences" class="w-full h-[150px] md:h-[247px] object-contain" />
+                    <h3 class="text-xl md:text-2xl font-bold mb-3 text-center">Luxury Experiences</h3>
+                    <p class="text-black/90 text-center inter-font text-sm md:text-base">Private jet travel, luxury car rental and exclusive events</p>
+                 </div>
+                 <div class="flex-shrink-0 w-[300px] md:w-[360px] flex flex-col items-center bg-white text-black pt-4 pb-6 px-4">
+                    <img src="./assets/images/ziejel-luciano-OZdGPKb868Q-unsplash 1.jpg" alt="Wellness Focus" class="w-full h-[150px] md:h-[247px] object-contain" />
+                    <h3 class="text-xl md:text-2xl font-bold mb-3 text-center">Wellness Focus</h3>
+                    <p class="text-black/90 text-center inter-font text-sm md:text-base">Counseling, Therapy and mindfulness activities</p>
+                 </div>
+              </div>
+
+              <div class="flex gap-8 md:gap-12">
+                 <div class="flex-shrink-0 w-[300px] md:w-[360px] flex flex-col items-center text-black bg-white pt-4 pb-6 px-4">
+                    <img src="./assets/images/99673 1.jpg" alt="Relaxation Essentials" class="w-full h-[150px] md:h-[247px] object-contain" />
+                    <h3 class="text-xl md:text-2xl font-bold mb-3 text-center">Relaxation Essentials</h3>
+                    <p class="text-black/90 text-center inter-font text-sm md:text-base">Massages, Medi Pedi session and more</p>
+                 </div>
+
+                 <div class="flex-shrink-0 w-[300px] md:w-[360px] flex flex-col items-center bg-white text-black pt-4 pb-6 px-4">
+                    <img src="./assets/images/14992 1.jpg" alt="Luxury Experiences" class="w-full h-[150px] md:h-[247px] object-contain" />
+                    <h3 class="text-xl md:text-2xl font-bold mb-3 text-center">Luxury Experiences</h3>
+                    <p class="text-black/90 text-center inter-font text-sm md:text-base">Private jet travel, luxury car rental and exclusive events</p>
+                 </div>
+                 <div class="flex-shrink-0 w-[300px] md:w-[360px] flex flex-col items-center bg-white text-black pt-4 pb-6 px-4">
+                    <img src="./assets/images/ziejel-luciano-OZdGPKb868Q-unsplash 1.jpg" alt="Wellness Focus" class="w-full h-[150px] md:h-[247px] object-contain" />
+                    <h3 class="text-xl md:text-2xl font-bold mb-3 text-center">Wellness Focus</h3>
+                    <p class="text-black/90 text-center inter-font text-sm md:text-base">Counseling, Therapy and mindfulness activities</p>
+                 </div>
+              </div>
+           </div>
+        </div> 
+     </div> </section>-->
+
+  <!-- Team Quote Section -->
+  <section class="relative bg-[#E0F7FF] py-20 bg-center bg-cover bg-no-repeat bg-scroll md:bg-fixed" style="background-image: url('{% static "/images/home/team_quote_img.png"%}')">
+     <div class="container font-saira mx-auto px-6">
+        <div class="max-w-5xl mx-auto">
+           <h2 class="text-white text-4xl font-saira md:text-5xl  mb-8">
+              <span class="text-red text-5xl -top-4 inline-block md:-top-6 md:text-6xl mr-2">“</span>
+              We specialize in crafting unique getaways and celebrations — from private jet adventures to tranquil me-time retreats. Whether it's love, connection, or rejuvenation you're seeking,
+              our experiences are tailored to your story.
+           </h2>
+           <p class="text-gray-600 text-2xl md:text-3xl leading-relaxed mb-8"></p>
+           <div class="mt-12 flex flex-col items-end">
+              <p class="text-white text-2xl">Unwind Africa's Team</p>
+           </div>
+        </div>
+     </div>
+  </section>
+
+  <!-- discount Section -->
+  <section class="relativepy-8 md:py-10 bg-white">
+   <h2 class="malibu-font text-[#504242] text-3xl md:text-5xl text-center font-bold mb-4">UPCOMING EVENTS</h2>
+     <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 items-center gap-0">
+           <div class="flex justify-center md:justify-start">
+              <img src="{% static 'images/home/Events-1.jpg' %}" alt="Summer Promo" class="w-full h-full object-cover" />
+           </div>
+           <div class="flex">
+              <img src="{% static 'images/home/Events-2.jpg' %}" alt="Escape Promo" class="w-full h-full object-cover" />
+           </div>
+        </div>
+     </div>
+  </section>
+
+  <!-- Blog Section -->
+
+  <!-- <section class="py-8">
+     <div class="container mx-auto px-4 font-inter">
+        <article class="bg-white shadow-lg flex flex-col md:flex-row overflow-hidden mb-8">
+           <img src="./assets/images/yaroslav-muzychenko-xG-pV6Eu-bE-unsplash 1.jpg" alt="Luxury Jet" class="w-full md:w-1/2 h-64 md:h-80 object-cover" loading="lazy" />
+           <div class="p-6 flex flex-col justify-center">
+              <div class="flex items-center justify-between mb-3">
+                 <span class="bg-[#6B4F4F] text-white text-xs px-3 py-1 font-medium">Luxury</span>
+                 <span class="text-gray-500 text-xs">5 min read</span>
+              </div>
+              <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-3 leading-tight">Witness Luxury at its peak at Unwind Africa</h2>
+              <p class="text-gray-700 mb-5 text-base">We deem luxury a *sine qua non* and have therefore dedicated ourselves to the materialization of your deepest desires.</p>
+              <a
+                 href="#"
+                 class="inline-flex items-center justify-center self-start border border-gray-700 text-gray-900 px-5 py-2.5 hover:bg-gray-100 text-sm font-medium transition duration-300 ease-in-out"
+              >
+                 Read More
+              </a>
+           </div>
+        </article>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-8">
+           <article class="bg-white shadow-lg flex flex-col overflow-hidden">
+              <img src="./assets/images/yaroslav-muzychenko-xG-pV6Eu-bE-unsplash 1.jpg" alt="Luxury Jet" class="w-full h-56 object-cover" loading="lazy" />
+              <div class="p-5 flex flex-col justify-between flex-grow">
+                 <div>
+                    <div class="flex items-center justify-between mb-2">
+                       <span class="bg-[#6B4F4F] text-white text-xs px-3 py-1 font-medium">Luxury</span>
+                       <span class="text-gray-500 text-xs">5 min read</span>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-bold text-gray-900 mb-2 leading-tight">Witness Luxury at its peak at Unwind Africa</h3>
+                    <p class="text-gray-700 mb-4 text-sm">We deem luxury a *sine qua non* and have therefore dedicated ourselves to the materialization of your deepest desires.</p>
+                 </div>
+                 <a
+                    href="./pages/Blogdetail.html"
+                    class="inline-flex items-center justify-center self-start border border-gray-700 text-gray-900 px-4 py-2 hover:bg-gray-100 text-sm font-medium transition duration-300 ease-in-out"
+                 >
+                    Read More
+                 </a>
+              </div>
+           </article>
+
+           <article class="bg-white shadow-lg flex flex-col overflow-hidden">
+              <img src="./assets/images/yaroslav-muzychenko-xG-pV6Eu-bE-unsplash 1.jpg" alt="Relaxation" class="w-full h-56 object-cover" loading="lazy" />
+              <div class="p-5 flex flex-col justify-between flex-grow">
+                 <div>
+                    <div class="flex items-center justify-between mb-2">
+                       <span class="bg-[#6B4F4F] text-white text-xs px-3 py-1 font-medium">Relaxation</span>
+                       <span class="text-gray-500 text-xs">3 min read</span>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-bold text-gray-900 mb-2 leading-tight">Experience Tranquility with Unwind Africa</h3>
+                    <p class="text-gray-700 mb-4 text-sm">Discover peaceful escapes and rejuvenate your mind, body, and soul with our tailored experiences.</p>
+                 </div>
+                 <a
+                    href="./pages/Blogdetail.html"
+                    class="inline-flex items-center justify-center self-start border border-gray-700 text-gray-900 px-4 py-2 hover:bg-gray-100 text-sm font-medium transition duration-300 ease-in-out"
+                 >
+                    Read More
+                 </a>
+              </div>
+           </article>
+        </div>
+     </div>
+  </section> -->
+
+{% endblock %}
+
+
+
+
+{% load static %}
+{% include './navbar.html' %}
+<header>
+  {% include './hamburger-menu.html' with faq_link=faq_link  %}
+   <!-- templates/carousel.html -->
+  <h3 class="header-text">UNWIND AFRICA</h3>
+  <div class="carousel" id="carousel">
+    <div class="carousel-slide" style="background-image: url('{% static 'images/home/carousel/slide1.jpg' %}')"></div>
+    <div class="carousel-slide" style="background-image: url('{% static 'images/home/carousel/slide2.jpg' %}')"></div>
+    <div class="carousel-slide" style="background-image: url('{% static 'images/home/carousel/slide3.jpg' %}')"></div>
+
+    <!-- ✅ Global overlay that stay on top -->
+    <div class="carousel-overlay-top"></div>
+    <div class="carousel-overlay-bottom"></div>
+
+    <!-- ✅ Global text -->
+    <!-- <div class="carousel-text">UNWNIDAFRICA</div> -->
+
+    <div class="carousel-dots" id="carousel-dots"></div>
+  </div>
+</header>

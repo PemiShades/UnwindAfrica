@@ -1,0 +1,83 @@
+# Python Bytecode & Caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django Stuff
+db.sqlite3
+db.sqlite3-journal
+local_settings.py
+
+# Media Files (if you ever add media uploads)
+media/
+
+# Collected Static Files (output of collectstatic)
+staticfiles/
+
+# Allow source static files
+!static/
+!static/**/*
+
+# VS Code / Sublime Text
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+.Python
+
+# Environment variables / dotenv
+.env
+
+# Requirements lock files (optional)
+Pipfile.lock
+poetry.lock
+pdm.lock
+
+# Test & Coverage
+.coverage
+htmlcov/
+.tox/
+.nox/
+.cache
+pytest_cache/
+.pytest_cache/
+*.cover
+*.py,cover
+
+# Sphinx docs
+docs/_build/
+
+# Distribution / Packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+MANIFEST
+
+# OS/System files
+.DS_Store
+Thumbs.db
+
+# PyInstaller
+*.spec
+
+# Pyre / Pytype / Mypy
+.pyre/
+.pytype/
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# Logs
+*.log
+
+# WhiteNoise cache (if using CompressedManifestStaticFilesStorage)
+staticfiles.json

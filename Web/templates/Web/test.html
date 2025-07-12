@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>No Jerk Marquee</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .animate-marquee {
+      animation: marquee 20s linear infinite;
+      will-change: transform;
+    }
+
+    .marquee-wrapper {
+      position: relative;
+      overflow: hidden;
+      white-space: nowrap;
+      width: 100%;
+      height: auto;
+    }
+
+    .marquee-track {
+      display: inline-flex;
+      gap: 4rem; /* Adjust space between sentence blocks */
+      animation: scroll 20s linear infinite;
+    }
+
+    @keyframes scroll {
+      0% {
+        transform: translateX(0%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+  </style>
+</head>
+<body class="bg-white flex items-center justify-center min-h-screen">
+
+  <!-- Wrapper with fade mask effect -->
+<div class="relative w-full overflow-hidden py-8 bg-white">
+  <!-- Fade edges -->
+  <div class="pointer-events-none absolute top-0 left-0 h-full w-32 bg-gradient-to-r from-white to-transparent z-10"></div>
+  <div class="pointer-events-none absolute top-0 right-0 h-full w-32 bg-gradient-to-l from-white to-transparent z-10"></div>
+
+  <!-- Scrolling content -->
+  <div class="animate-marquee flex gap-16 w-max">
+    <div class="text-9xl font-bold text-gray-900">Curated Escapes, Thoughtfully Designed</div>
+    <div class="text-9xl font-bold text-gray-900">Adventure Awaits</div>
+    <div class="text-9xl font-bold text-gray-900">Luxury Meets Exploration</div>
+    <div class="text-9xl font-bold text-gray-900">Curated Escapes, Thoughtfully Designed</div>
+    <div class="text-9xl font-bold text-gray-900">Adventure Awaits</div>
+    <div class="text-9xl font-bold text-gray-900">Luxury Meets Exploration</div>
+  </div>
+</div>
+
+
+  <!-- <!-- ✅ Marquee Container 
+  <div class="marquee-wrapper py-8 bg-white">
+    <div class="marquee-track">
+      <!-- ✅ Full sentence group, repeated enough to fill screen twice 
+      <div class="text-4xl font-bold text-gray-900">Curated Escapes, Thoughtfully Designed</div>
+      <div class="text-4xl font-bold text-gray-900">Adventure Awaits</div>
+      <div class="text-4xl font-bold text-gray-900">Luxury Meets Exploration</div>
+      <div class="text-4xl font-bold text-gray-900">Curated Escapes, Thoughtfully Designed</div>
+      <div class="text-4xl font-bold text-gray-900">Adventure Awaits</div>
+      <div class="text-4xl font-bold text-gray-900">Luxury Meets Exploration</div>
+    </div>
+  </div> -->
+
+</body>
+</html>

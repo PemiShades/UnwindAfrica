@@ -1,0 +1,115 @@
+.inter-font {
+   font-family: "Inter", sans-serif;
+}
+.malibu-font {
+   font-family: "Malibu", san-serif;
+}
+.font-saira {
+   font-family: 'Saira', sans-serif;
+}
+
+
+.marquee-container {
+    overflow: hidden;
+    white-space: nowrap; /* CRITICAL - prevents text breaking */
+    width: 100%;
+    position: relative;
+}
+
+
+@keyframes scroll-left {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-200%); } /* Changed to -200% for complete exit */
+}
+
+.marquee-text {
+   display:inline-block;
+   white-space: nowrap; /* CRITICAL - keeps text on one line */
+    will-change: transform;
+    padding-left: 100%; /* Starts the text off-screen to the right */
+    animation: scroll-left 15s linear infinite; /* Adjust time for speed */
+}
+
+@keyframes scroll-left {
+    0% {
+        transform: translateX(0%); /* Starting position */
+    }
+    100% {
+        transform: translateX(-100%); /* Scrolls fully to the left, off-screen */
+    }
+}
+@keyframes slide {
+   0% {
+      transform: translateX(0);
+   }
+   100% {
+      transform: translateX(-50%);
+   }
+}
+/* Optional: Pause on hover */
+.marquee-container:hover .marquee-text {
+    animation-play-state: paused;
+}
+
+
+.animate-slide {
+   animation: slide 25s linear infinite;
+}
+
+.hero-section {
+   position: relative;
+   overflow: hidden;
+}
+
+.hero-slide {
+   position: absolute;
+   inset: 0;
+   opacity: 0;
+   transition: opacity 1s ease-in-out;
+   background-size: cover;
+   background-position: center;
+}
+
+.hero-slide.active {
+   opacity: 1;
+}
+
+.hero-slide::before {
+   content: "";
+   position: absolute;
+   inset: 0;
+   background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4));
+}
+
+.text-shadow {
+   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.slide {
+   opacity: 0;
+   transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+
+.slider-dot.active {
+   background-color: white;
+}
+
+.feature-icon {
+   filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.signature {
+   font-family: "Dancing Script", cursive;
+}
+
+.journal-grid {
+   display: grid;
+   grid-template-columns: repeat(3, 1fr);
+   gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+   .journal-grid {
+      grid-template-columns: 1fr;
+   }
+}

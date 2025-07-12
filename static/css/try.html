@@ -1,0 +1,373 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Multiple Scroll-Over Sections</title>
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    font-family: sans-serif;
+  }
+
+  /* The container must have enough height for all stacked scroll */
+  .sticky-scroll-wrapper {
+    height: 400vh; /* 4 viewport heights for 1 pinned + 3 scroll-overs */
+    position: relative;
+  }
+
+  .pinned-section {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    background: #111;
+    color: white;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3rem;
+  }
+
+  /* All scroll-over sections stack and scroll over pinned */
+  .scroll-over-section {
+    height: 100vh;
+    background: white;
+    color: #111;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+  }
+</style>
+</head>
+<body>
+
+  <div class="sticky-scroll-wrapper">
+    <header class="pinned-section">Sticky Hero Section</header>
+
+    <section class="scroll-over-section" style="background:#f8b500;">Scroll-Over Section 1</section>
+    <section style="background:#0099cc; color: white;">Scroll-Over Section 2</section>
+    <section  style="background:#66cc66;">Scroll-Over Section 3</section>
+  </div>
+
+</body>
+</html>
+ -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us Refined Layout</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; }
+
+    #aboutUs {
+      max-width: 1200px;
+      margin: 60px auto;
+      padding: 0 20px;
+    }
+
+    .desktop__content {
+      display: block;
+    }
+
+    .mobile__content {
+      display: none;
+    }
+
+    /* DESKTOP STRUCTURE */
+    .top-heading {
+      font-size: 3rem;
+      font-weight: bold;
+      margin-bottom: 30px;
+    }
+
+    .row {
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+    }
+
+    .left-col {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex: 1;
+    }
+
+    .left-col img {
+      width: 100%;
+      max-width: 300px;
+      border-radius: 8px;
+    }
+
+    .nature-heading {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+
+    .right-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 20px;
+    }
+
+    .meets-heading {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .description-text {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #444;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .desktop__content { display: none; }
+      .mobile__content { display: block; text-align: center; padding: 0 20px; }
+
+      .mobile__content h2.about__us--heading {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+
+      .mobile__content .about__us--spread {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .mobile__content img {
+        width: 100%;
+        max-width: 300px;
+        border-radius: 8px;
+      }
+
+      .mobile__content .heading-3 {
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+
+      .mobile__content .paragraph-2 {
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #444;
+      }
+    }
+
+
+
+    /* ===== Base styles ===== */
+.about-layout {
+  font-family: 'Saira', sans-serif;
+  padding: 40px 20px;
+  background: #fff;
+  text-align: center;
+}
+
+.about-layout__top,
+.about-layout__left,
+.about-layout__bottom,
+.about-layout__mobile-heading {
+  font-size: 3rem;
+  font-weight: bold;
+  opacity: 0;
+}
+
+.about-layout__content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.about-layout__left {
+  align-self: center;
+}
+
+.about-layout__image-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.about-layout__image {
+  width: 300px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+}
+
+.about-layout__bottom {
+  margin-top: 20px;
+}
+
+.about-layout__right {
+  max-width: 300px;
+  font-size: 1rem;
+  text-align: left;
+  line-height: 1.6;
+  color: #555;
+  opacity: 0;
+}
+
+/* ===== Animations ===== */
+@keyframes slideInUp {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animated-line {
+  animation: slideInUp 0.8s ease forwards;
+}
+
+.animated-img {
+  animation: fadeInScale 1s ease-out forwards;
+  animation-delay: 0.4s;
+}
+
+.animated-text {
+  animation: slideInUp 0.8s ease forwards;
+  animation-delay: 0.6s;
+}
+
+/* ===== Responsive ===== */
+.desktop-only {
+  display: block;
+}
+
+.about-layout__mobile-heading {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .about-layout__content {
+    flex-direction: column;
+    text-align: center;
+    gap: 30px;
+  }
+
+  .about-layout__right {
+    text-align: center;
+  }
+
+  .desktop-only {
+    display: none;
+  }
+
+  .about-layout__mobile-heading {
+    display: block;
+    margin-bottom: 20px;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+<section id="aboutUs">
+
+  <!-- ✅ Desktop Content -->
+  <div class="desktop__content">
+    <div class="top-heading">where beauty</div>
+
+    <div class="row">
+      <!-- LEFT: Image + Nature -->
+      <div class="left-col">
+        <img src="https://cdn.prod.website-files.com/676552236d16f63fb6379e5a/676552236d16f63fb6379e73_Rectangle%2050.png" alt="Relaxing Image" />
+        <div class="nature-heading">Nature</div>
+      </div>
+
+      <!-- RIGHT: Meets + Text -->
+      <div class="right-col">
+        <div class="meets-heading">Meets</div>
+        <p class="description-text">
+          We combine expert massage therapy with beauty-enhancing treatments to create a haven of relaxation. As Thailand’s premier salon, we’ll guide you to deeper rest and rejuvenation through calming therapies and tranquil spaces.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Mobile Content -->
+  <div class="mobile__content">
+    <h2 class="about__us--heading">
+      where beauty meets nature
+    </h2>
+    <div class="about__us--spread">
+      <img src="https://cdn.prod.website-files.com/676552236d16f63fb6379e5a/676552236d16f63fb6379e73_Rectangle%2050.png" alt="Relaxing Image" />
+      <div class="about__us--spread-text">
+        <h3 class="heading-3">at kalm moments</h3>
+        <p class="paragraph-2">
+          We combine expert massage therapy with beauty-enhancing treatments to create a haven of relaxation. As Thailand’s premier salon, we’ll guide you to deeper rest and rejuvenation through calming therapies and tranquil spaces.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<section class="about-layout">
+  <!-- Heading for mobile -->
+  <div class="about-layout__mobile-heading">
+    <h2 class="animated-line">THE POWER OF RELAXING</h2>
+  </div>
+
+  <!-- Heading for desktop -->
+  <div class="about-layout__top desktop-only animated-line">THE POWER</div>
+
+  <div class="about-layout__content">
+    <div class="about-layout__left desktop-only animated-line">OF</div>
+
+    <div class="about-layout__image-wrapper">
+      <img src="your-image.jpg" alt="Relax" class="about-layout__image animated-img" />
+      <div class="about-layout__bottom desktop-only animated-line">RELAXING</div>
+    </div>
+
+    <div class="about-layout__right animated-text">
+      <p>
+        Inhale calm. Exhale tension.<br />
+        Where stillness restores, and joy returns.<br />
+        Relax. Reconnect. Rise.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+</body>
+</html>
+<div class="mobile__content"><h2 class="about__us--heading" style="opacity: 1;"><div class="line-wrapperChar" style="overflow: hidden;"><div class="line" style="display: block; text-align: left; width: 100%; translate: none; rotate: none; scale: none; opacity: 1; visibility: inherit; transform: translate(0px, 0px);">where beauty meets nature</div></div></h2><div class="about__us--spread"><img src="https://cdn.prod.website-files.com/676552236d16f63fb6379e5a/676552236d16f63fb6379e73_Rectangle%2050.png" loading="lazy" sizes="(max-width: 501px) 100vw, 501px" srcset="https://cdn.prod.website-files.com/676552236d16f63fb6379e5a/676552236d16f63fb6379e73_Rectangle%252050-p-500.png 500w, https://cdn.prod.website-files.com/676552236d16f63fb6379e5a/676552236d16f63fb6379e73_Rectangle%2050.png 501w" alt="" class="image-3" style="clip-path: inset(0%);"><div class="about__us--spread-text"><h3 class="heading-3"><div class="line-wrapper" style="overflow: hidden;"><span class="line" style="display: block; text-align: start; width: 100%; translate: none; rotate: none; scale: none; opacity: 1; visibility: inherit; transform: translate(0px, 0px);">at kalm moments</span></div></h3><p class="paragraph-2" style="translate: none; rotate: none; scale: none; opacity: 1; transform: translate(0px, 0px);">We combine expert massage therapy with beauty-enhancing treatments to create a haven of relaxation. As Thailand’s premier sleep salon, we’ll guide you to deeper rest and rejuvenation through calming therapies and tranquil spaces.</p></div></div></div>

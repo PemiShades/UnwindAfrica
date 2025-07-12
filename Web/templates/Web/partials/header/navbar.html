@@ -1,0 +1,15 @@
+{% load static %}
+<nav class="{% if theme == 'dark' %}nav-dark{% endif %}">
+	<h3 class="nav-text {% if theme == 'dark' %}nav-text-dark{% endif %}">Empower your Soul</h3>
+
+	<div class="{% if theme == 'dark' %}nav_image-dark{% endif %} nav_image">
+		<a href="/">
+			<img class="mid_nav_img" src="{% static 'images/LOGO-cropped.png' %}">
+		</a>
+	</div>
+	<div class="hamburger-btn {% if theme == 'dark' %}hamburger-btn-dark{% endif %}">
+		<div></div>
+		<div></div>
+		<div></div>
+	</div>
+</nav>

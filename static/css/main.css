@@ -1,0 +1,383 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+header {
+  width: 100%;
+  height: 100%;
+  scroll-snap-align: start;
+  box-sizing: border-box;
+}
+
+section {
+  width: 100%;
+  scroll-snap-align: start;
+  box-sizing: border-box;
+  /* min-height: 100vh; Optional if you want scroll snap effect */
+}
+
+/* -----------------------------
+   ABOUT SECTIONS
+------------------------------ */
+
+.about {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden; /* Keep for now, but focus on preventing overflow with proper sizing */
+}
+
+.about-1 {
+  padding: 60px 20px;
+  background: #fff;
+  /* Removed fixed height: 100vh here to allow content to dictate height */
+  font-family: 'Saira', sans-serif;
+  text-align: center;
+}
+
+/* ABOUT-1 Animated Text Elements */
+.about-1-top,
+.about-1-bottom,
+.about-1-text {
+  font-family: "Saira", sans-serif; /* Ensure Saira font is applied */
+  display: flex;
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  white-space: nowrap; /* Prevent text from wrapping */
+  overflow: hidden; /* Hide overflowing text */
+  text-overflow: ellipsis; /* Add ellipsis if text is cut off */
+  color: #000;
+  margin-top: 20px;
+  /* Use clamp() for responsive font-size and letter-spacing */
+  /* Min size, Preferred size (based on viewport width), Max size */
+  font-size: clamp(2rem, 8vw, 6rem);
+  letter-spacing: clamp(0.5rem, 2vw, 3rem);
+}
+
+.about-1-bottom {
+  /* Adjust letter-spacing specifically for the bottom line if needed */
+  letter-spacing: clamp(1rem, 3vw, 4rem);
+  /* You can remove or adjust 'gap: 0;' if it's no longer necessary with clamp() */
+  gap: 0; /* Keeps "AFRICA" close */
+}
+
+.about-1-middle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 52px; /* Keep gap for spacing between elements */
+  flex-wrap: wrap; /* Allows items to wrap onto the next line */
+  text-align: left; /* Default text alignment */
+  max-width: 1000px; /* Limit max width for better readability */
+  margin: 0 auto; /* Center the block horizontally */
+  padding: 0 20px; /* Add horizontal padding for spacing */
+}
+
+/* IMAGE */
+.about-1-image {
+  width: 455px; /* Initial width */
+  height: 130px; /* Initial height */
+  background-color: #ccc;
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  max-width: 100%; /* Ensure image scales down on smaller screens */
+  height: auto; /* Maintain aspect ratio */
+}
+
+/* TEXT BESIDE IMAGE */
+.about-1-small-txt {
+  max-width: 300px; /* Limit max-width for readability */
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+}
+.about-1-small-txt p {
+  margin: 0; /* Remove default paragraph margins */
+}
+
+/* -----------------------------
+   ABOUT-2 SECTION (Traditional CSS - if you decide to use this instead of Tailwind)
+   *Recommendation: Stick with the Tailwind version in home.html and remove this block*
+------------------------------ */
+/*
+.about-2 {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: center;
+  flex-wrap: nowrap;
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+  padding: 60px 20px;
+  gap: 0;
+  box-sizing: border-box;
+  min-height: 400px;
+}
+
+.abt-img-container,
+.abt-text-container {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.abt-img-container {
+  background: #f3f3f3;
+}
+
+.abt-2-img {
+  width: 100%;
+  max-width: 90%;
+  height: auto;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.abt-text-container {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.abt-text-container h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.abt-text-container p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.abt-text-container button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #0077cc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.abt-text-container button:hover {
+  background-color: #005fa3;
+}
+*/
+
+/* -----------------------------
+   RESPONSIVE MEDIA QUERIES
+------------------------------ */
+
+/* Tablet and Smaller Desktops */
+@media (max-width: 1024px) {
+  /* Adjustments for .about-1 for better fit */
+  .about-1-top,
+  .about-1-bottom,
+  .about-1-text {
+    font-size: clamp(1.8rem, 7vw, 5rem); /* Slightly smaller max size */
+    letter-spacing: clamp(0.3rem, 1.5vw, 2.5rem);
+  }
+
+  .about-1-bottom {
+    letter-spacing: clamp(0.8rem, 2.5vw, 3.5rem);
+  }
+
+  .about-1-middle {
+    gap: 30px; /* Reduce gap */
+  }
+
+  .about-1-image {
+    width: 350px; /* Slightly smaller image on tablets */
+    height: auto;
+  }
+
+  /* If using traditional .about-2, adjustments for tablets */
+  /*
+  .about-2 {
+    padding: 40px 15px;
+  }
+  .abt-text-container h1 {
+    font-size: 1.8rem;
+  }
+  */
+}
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+  header {
+    height: 90vh; /* Adjust header height */
+  }
+
+  section {
+    /* min-height: 100vh; might be too restrictive on mobile */
+    height: auto; /* Let content dictate height by default */
+    padding-top: 40px; /* Add some top padding for sections */
+    padding-bottom: 40px; /* Add some bottom padding for sections */
+  }
+
+  .about-1 {
+    padding: 40px 15px; /* More padding for mobile */
+    height: auto; /* Remove fixed height */
+  }
+
+  .about-1-top,
+  .about-1-bottom,
+  .about-1-text {
+    font-size: clamp(1.5rem, 6vw, 3rem); /* Smaller font sizes for mobile */
+    letter-spacing: clamp(0.1rem, 1vw, 1.5rem);
+    margin-top: 10px; /* Reduce top margin */
+  }
+
+  .about-1-bottom {
+    letter-spacing: clamp(0.3rem, 1.5vw, 2rem);
+  }
+
+  .about-1-middle {
+    flex-direction: column; /* Stack elements vertically */
+    align-items: center; /* Center stacked elements */
+    text-align: center; /* Center text */
+    gap: 20px; /* Reduce gap between stacked elements */
+    padding: 0 15px; /* Adjust horizontal padding */
+  }
+
+  .about-1-image {
+    width: 90%; /* Make image fill most of the width */
+    max-width: 300px; /* Cap its max width */
+    height: auto;
+  }
+
+  .about-1-small-txt {
+    max-width: 90%; /* Allow text to take more width */
+    text-align: center; /* Center text on mobile */
+  }
+
+  /* If you are using the traditional .about-2 CSS */
+  /*
+  .about-2 {
+    flex-direction: column;
+    align-items: center;
+    min-height: auto;
+    padding: 30px 15px;
+  }
+
+  .abt-img-container,
+  .abt-text-container {
+    width: 100%;
+    height: auto;
+    padding: 15px;
+  }
+
+  .abt-2-img {
+    width: 100%;
+    max-width: 95%;
+  }
+
+  .abt-text-container {
+    align-items: center;
+    text-align: center;
+  }
+
+  .abt-text-container h1 {
+    font-size: 1.6rem;
+  }
+
+  .abt-text-container p {
+    font-size: 1rem;
+  }
+  */
+
+  /* Navbar and Header specific mobile adjustments */
+  nav {
+    height: 60px;
+  }
+  .header-text {
+    font-size: 2.5rem; /* Slightly larger for clarity */
+    left: 50%;
+    transform: translateX(-50%); /* Ensure true centering */
+    bottom: 50px;
+    text-align: center; /* Center text for header */
+    width: 90%; /* Give it some width constraint */
+  }
+
+  .nav-text {
+    font-size: 14px; /* Smaller font for nav */
+    margin-left: 5px; /* Adjust margin */
+  }
+
+  .image {
+    width: 50px;
+    height: 40px;
+  }
+
+  .image img {
+    width: 28px;
+    height: 30px;
+  }
+
+  .hamburger-btn {
+    width: 40px;
+    height: 30px;
+    margin-right: 5px;
+  }
+
+  .hamburger-btn div:nth-child(1) {
+    width: 40px;
+  }
+
+  .hamburger-btn div:nth-child(2) {
+    width: 25px;
+    margin-left: 15px;
+  }
+
+  .hamburger-btn div:nth-child(3) {
+    width: 15px;
+    margin-left: 25px;
+  }
+}
+
+/* Very Small Phones */
+@media (max-width: 480px) {
+  .about-1-top,
+  .about-1-bottom,
+  .about-1-text {
+    font-size: clamp(1.2rem, 5vw, 2.5rem); /* Even smaller */
+    letter-spacing: clamp(0.05rem, 0.5vw, 1rem);
+  }
+
+  .about-1-bottom {
+    letter-spacing: clamp(0.2rem, 1vw, 1.5rem);
+  }
+
+  .about-1-image {
+    width: 100%;
+    max-width: 280px; /* Ensure it doesn't get too wide */
+  }
+
+  .header-text {
+    font-size: 2rem;
+    bottom: 30px;
+  }
+}
+
+@media (max-width: 375px) {
+  .header-text {
+    font-size: 1.5rem; /* Even smaller font size for header text */
+  }
+}
+
+@media (max-width: 600px) {
+  .carousel-button {
+    padding: 0.5rem;
+  }
+}

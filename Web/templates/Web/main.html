@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	{% load static %}
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="{% static '/css/main.css' %}">	
+	<link rel="stylesheet" type="text/css" href="{% static '/css/header.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static '/css/about-1.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static '/css/marquee_section.css' %}">
+	<link href="https://fonts.googleapis.com/css2?family=Saira:wght@400;600;700&display=swap" rel="stylesheet">
+	<script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.cdnfonts.com/css/malibu" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Saira:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/index.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'css/packages_section.css' %}">
+	<title>{% block title %} {% endblock %}</title>
+</head>
+<body>
+	{% block content %}
+	{% endblock %}
+	<footer id="footer" class="relative bg-[rgba(48,43,40,1)] text-white py-8">
+        <div class="container mx-auto px-5 flex flex-col justify-center">
+          <div class="text-left md:text-2xl font-normal font-inter text-sm">Contact Us</div>
+
+          <div class="flex flex-col items-center text-center px-4">
+            <img src="{% static '/images/LOGO-cropped.png' %}" alt="Unwind Africa Logo" class="w-auto h-24 object-contain mb-4" />
+
+            <a href="mailto:Info@unwindafrica.com" class="sm:text-3xl md:text-5xl font-sans font-semibold mb-2"> Info@unwindafrica.com </a>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center py-6 md:py-12">
+                <a href="tel:+2348062067832" class="text-2xl font-semibold hover:text-green-400 transition-colors">
+                  +234 8062067832
+                </a>
+                <a href="tel:+2348051411198" class="text-2xl font-semibold hover:text-green-400 transition-colors">
+                  +234 8051411198
+                </a>
+                <a href="tel:+2348038268669" class="text-2xl font-semibold hover:text-green-400 transition-colors">
+                  +234 8038268669
+                </a>
+              </div>
+
+
+
+            <div class="flex space-x-6 mb-16">
+              <a href="#" class="  flex items-center justify-center " aria-label="Facebook">
+                <i class="fab fa-facebook-f text-xl text-blue-400"></i>
+              </a>
+              <a href="#" class="  flex items-center justify-center group" aria-label="Instagram">
+                <i class="fab fa-instagram text-xl text-pink-400"></i>
+              </a>
+              <a href="#" class="  flex items-center justify-center group" aria-label="X (Twitter)">
+                <i class="fab fa-twitter text-xl text-blue-300"></i>
+              </a>
+            </div>
+          </div>
+          <div class="last">
+            <h2 class="text-3xl sm:text-5xl md:text-9xl font-light text-center leading-full font-saira uppercase tracking-wide mb-4">
+              UNWIND AFRICA<sup class="pb-3 md:pb-5 align-super font-sans text-2xl md:text-5xl lg:text-5xl -ml-[5px] sm:-ml-[30px] md:-ml-8">&reg;</sup>
+            </h2>
+              <div class="flex flex-col md:flex-row justify-between items-center text-center md:text-left py-6 md:py-12 px-4 md:px-12">
+                <p class="text-sm md:text-2xl font-normal font-inter">
+                  &copy;<span id="year"></span> UNWINDAFRICA
+                </p>
+                <p class="text-sm md:text-2xl font-normal font-inter mt-2 md:mt-0">
+                  All rights reserved
+                </p>
+              </div>
+
+
+          </div>
+        </div>
+      </footer>
+</body>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="{% static 'javascript/main.js' %}">  </script>
+</html>
