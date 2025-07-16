@@ -10,7 +10,7 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", default=False, cast=bool)
 
 
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="unwindafrica.onrender.com" , cast=Csv())
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default=["unwindafrica.onrender.com","www.unwindafrica.com","https://www.unwindafrica.com"] , cast=Csv())
 
 # Application definition
 INSTALLED_APPS = [
