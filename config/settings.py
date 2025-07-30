@@ -2,12 +2,20 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 SECRET_KEY = os.getenv("SECRET_KEY")
+# DB_HOST = os.getenv("HOST")
+# DB_USER = os.getenv("USER")
+# DB_PASS = os.getenv("PASS")
+# DB_PORT = os.getenv("PORT")
+# DB_DATABASE = os.getenv("DATABASE")
+
 
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1")
 
@@ -67,12 +75,26 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Database (SQLite for development, update for production if needed)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+
+# Set database depending on environment
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv("DB_NAME", "postgres"),
+            'USER': os.getenv("DB_USER", "postgres"),
+            'PASSWORD': os.getenv("DB_PASS"),
+            'HOST': os.getenv("DB_HOST"),
+            'PORT': os.getenv("DB_PORT", "5432"),
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
