@@ -19,13 +19,6 @@ from .forms import PostForm, EventForm
 from datetime import date
 
 import logging
-logger = logging.getLogger(__name__)
-
-upcoming_events = Event.objects.filter(date__gte=timezone.now().date()).order_by('date')
-print(f"{upcoming_events} is upcoming_events")
-logger.warning(f"Fetched {upcoming_events.count()} upcoming events")
-for event in upcoming_events:
-    logger.warning(f"Event: {event.title}, Date: {event.date}")
 
 
 def home(request):
@@ -304,3 +297,12 @@ def delete_event(request, id):
     event = get_object_or_404(Event, id=id)
     event.delete()
     return JsonResponse({'success': True})
+
+
+logger = logging.getLogger(__name__)
+
+# upcoming_events = Event.objects.filter(date__gte=timezone.now().date()).order_by('date')
+# print(f"{upcoming_events} is upcoming_events")
+# logger.warning(f"Fetched {upcoming_events.count()} upcoming events")
+# for event in upcoming_events:
+#     logger.warning(f"Event: {event.title}, Date: {event.date}")
