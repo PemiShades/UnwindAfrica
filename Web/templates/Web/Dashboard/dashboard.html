@@ -1,0 +1,992 @@
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Saira:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.cdnfonts.com/css/malibu" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Saira:wght@600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
+
+<div x-data="{ postModal: null, eventModal: null }" @reset-modals.window="postModal = null; eventModal = null">
+<div class="max-w-6xl mx-auto p-6">
+  <div x-data="{ postModal: null, eventModal: null }">
+    <h1 class="text-3xl font-bold mb-6">📊 Dashboard</h1>
+
+    <!-- Tabs -->
+    <div class="mb-4 border-b border-gray-200">
+      <ul class="flex space-x-4 text-sm font-medium" id="tabs">
+        <li><button class="tab-btn px-4 py-2 bg-white text-blue-600 border border-b-0 rounded-t-md" data-tab="overview">Overview</button></li>
+        <li><button class="tab-btn px-4 py-2 bg-gray-100 hover:bg-white rounded-t-md" data-tab="charts">Charts</button></li>
+        <!-- <li><button class="tab-btn px-4 py-2 bg-gray-100 hover:bg-white rounded-t-md" data-tab="lists">Details</button></li> -->
+        <li><button class="tab-btn px-4 py-2 bg-gray-100 hover:bg-white rounded-t-md" data-tab="blogs">Blogs</button></li>
+        <li><button class="tab-btn px-4 py-2 bg-gray-100 hover:bg-white rounded-t-md" data-tab="events">Events</button></li>
+      </ul>
+    </div>
+
+    <!-- Tab Contents -->
+    <div class="bg-white rounded shadow p-6">
+      <!-- Overview -->
+      <div class="tab-pane" id="overview">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <!-- Blogs -->
+          <div class="p-4 bg-blue-50 rounded shadow text-center">
+            <p class="text-sm text-gray-600">Total Blogs</p>
+            <p class="text-2xl font-bold">{{ blog_count }}</p>
+          </div>
+          <div class="p-4 bg-green-50 rounded shadow text-center">
+            <p class="text-sm text-gray-600">Published</p>
+            <p class="text-2xl font-bold text-green-600">{{ published_count }}</p>
+          </div>
+          <div class="p-4 bg-red-50 rounded shadow text-center">
+            <p class="text-sm text-gray-600">Unpublished</p>
+            <p class="text-2xl font-bold text-red-600">{{ unpublished_count }}</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Events -->
+          <div class="p-4 bg-yellow-50 rounded shadow text-center">
+            <p class="text-sm text-gray-600">Total Events</p>
+            <p class="text-2xl font-bold">{{ event_count }}</p>
+          </div>
+          <div class="p-4 bg-blue-50 rounded shadow text-center">
+            <p class="text-sm text-gray-600">Upcoming</p>
+            <p class="text-2xl font-bold text-blue-600">{{ upcoming_events }}</p>
+          </div>
+          <div class="p-4 bg-gray-100 rounded shadow text-center">
+            <p class="text-sm text-gray-600">Expired</p>
+            <p class="text-2xl font-bold">{{ expired_events }}</p>
+          </div>
+        </div>
+
+
+
+        <div class="mt-4">
+          <h3 class="text-lg font-bold mb-2">Blog Categories</h3>
+          <ul class="list-disc ml-5 text-sm">
+            {% for category in category_distribution %}
+              <li>{{ category.name }} — {{ category.post_count }} posts</li>
+            {% empty %}
+              <li>No categories yet.</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Recent Blog Posts -->
+        <div class="mt-10 animate-fade-in-up" style="--delay: 0s;">
+          <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+            <i class="fas fa-blog text-indigo-500 animate-pulse"></i> Recent Blog Posts
+          </h3>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for post in recent_posts %}
+              <div 
+                class="bg-white shadow-md hover:shadow-xl rounded-xl p-4 cursor-pointer transition-all duration-300 border border-indigo-100"
+                @click="postModal = '{{ post.id }}'"
+              >
+                <h4 class="text-lg font-semibold text-indigo-700 mb-2">{{ post.title }}</h4>
+                <p class="text-sm text-gray-500">{{ post.created_at|date:"M d, Y" }}</p>
+              </div>
+
+              <!-- Modal -->
+              <div
+                x-show="postModal === '{{ post.id }}'"
+                x-transition
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+                @click.outside="postModal = null"
+              >
+                <div class="bg-white p-6 rounded-xl w-full max-w-2xl shadow-xl relative">
+                  <button
+                    class="absolute top-3 right-3 text-gray-500 hover:text-black text-xl"
+                    @click="postModal = null"
+                  >×</button>
+                  <h2 class="text-xl font-bold text-indigo-800 mb-2">{{ post.title }}</h2>
+                  <p class="text-xs text-gray-500 mb-4">{{ post.created_at|date:"M d, Y" }}</p>
+                  <div class="prose max-w-none text-sm text-gray-800">
+                    {{ post.content|linebreaks }}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Upcoming Events (again in Lists tab) -->
+        <div class="mt-10 animate-fade-in-up" style="--delay: 0.2s;">
+          <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+            <i class="fas fa-calendar-alt text-pink-500 animate-bounce"></i> Upcoming Events
+          </h3>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for event in upcoming_events_list %}
+              <div 
+                class="bg-white shadow-md hover:shadow-xl rounded-xl p-4 cursor-pointer transition-all duration-300 border border-pink-100"
+                @click="eventModal = '{{ event.id }}'"
+              >
+                <h4 class="text-lg font-semibold text-pink-700 mb-2">{{ event.title }}</h4>
+                <p class="text-sm text-gray-500">{{ event.date }}</p>
+              </div>
+
+              <!-- Modal -->
+              <div
+                x-show="eventModal === '{{ event.id }}'"
+                x-transition
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+                @click.outside="eventModal = null"
+              >
+                <div class="bg-white p-6 rounded-xl w-full max-w-2xl shadow-xl relative">
+                  <button
+                    class="absolute top-3 right-3 text-gray-500 hover:text-black text-xl"
+                    @click="eventModal = null"
+                  >×</button>
+                  <h2 class="text-xl font-bold text-pink-800 mb-2">{{ event.title }}</h2>
+                  <p class="text-xs text-gray-500 mb-4">{{ event.date }}</p>
+                  <p class="text-sm text-gray-800">{{ event.brief_text }}</p>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="tab-pane hidden" id="charts">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+          <!-- Pie Chart -->
+          <div class="bg-white p-4 rounded shadow">
+            <h3 class="text-lg font-semibold mb-2">Posts by Category</h3>
+            <canvas id="categoryChart" height="260"></canvas>
+          </div>
+
+          <!-- Line Chart -->
+          <div class="bg-white p-4 rounded shadow">
+            <h3 class="text-lg font-semibold mb-2">Blogs Over Time</h3>
+            <canvas id="monthlyChart" height="260"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane hidden" id="blogs">
+                <!-- Recent Blog Posts -->
+          <div class="mt-10 animate-fade-in-up" style="--delay: 0s;">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <i class="fas fa-blog text-indigo-500 animate-pulse"></i> Recent Blog Posts
+            </h3>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {% for post in recent_posts %}
+                <div 
+                  class="bg-white shadow-md hover:shadow-xl rounded-xl p-4 cursor-pointer transition-all duration-300 border border-indigo-100"
+                  @click="postModal = {{ post.id }}"
+                >
+                  <h4 class="text-lg font-semibold text-indigo-700 mb-2">{{ post.title }}</h4>
+                  <p class="text-sm text-gray-500">{{ post.created_at|date:"M d, Y" }}</p>
+                </div>
+
+                <!-- Modal for Post -->
+                <div
+                  x-show="postModal === {{ post.id }}"
+                  x-transition
+                  class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+                  @click.outside="postModal = null"
+                >
+                  <div class="bg-white p-6 rounded-xl w-full max-w-xl shadow-lg">
+                    <h2 class="text-xl font-bold text-indigo-800 mb-2">{{ post.title }}</h2>
+                    <p class="text-xs text-gray-500 mb-4">{{ post.created_at|date:"M d, Y" }}</p>
+                    <div class="prose max-w-none text-sm text-gray-800">
+                      {{ post.content|linebreaks }}
+                    </div>
+                    <button class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700" @click="postModal = null">
+                      Close
+                    </button>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+
+             <!-- Trigger Button (inside #blogs tab) -->
+          <div class="mt-6">
+            <button onclick="openEditorModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow">
+              + Create Blog Post
+            </button>
+          </div>
+
+      </div>
+      <!-- Events Tab -->
+
+  <!-- Events Tab -->
+      <div class="tab-pane hidden" id="events" x-data="eventDashboard()" x-init="init()">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <i class="fas fa-calendar-alt text-pink-500 animate-bounce"></i> Upcoming Events
+        </h3>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <template x-for="event in events" :key="event.id">
+            <div class="relative bg-white shadow-md hover:shadow-xl rounded-xl p-4 transition-all duration-300 border border-pink-100">
+              <!-- Action Buttons -->
+              <div class="absolute top-2 right-2 flex gap-2">
+                <button @click="openEditEvent(event)" class="text-blue-600"><i class="fas fa-edit"></i></button>
+                <button @click="deleteEvent(event.id)" class="text-red-600"><i class="fas fa-trash"></i></button>
+              </div>
+
+              <h4 class="text-lg font-semibold text-pink-700 mb-2" x-text="event.title"></h4>
+              <p class="text-sm text-gray-500" x-text="event.date"></p>
+              <p class="text-sm mt-2 text-gray-600" x-text="event.brief_text"></p>
+            </div>
+          </template>
+        </div>
+
+        <!-- Edit Event Modal -->
+        <div x-show="editEventData.id !== null" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white p-6 rounded-lg w-full max-w-lg">
+            <h2 class="text-xl font-semibold text-pink-800 mb-4">Edit Event</h2>
+            <form @submit.prevent="submitEditEvent">
+              <input type="text" x-model="editEventData.title" class="w-full mb-3 border p-2 rounded" placeholder="Title" required>
+              <input type="date" x-model="editEventData.date" class="w-full mb-3 border p-2 rounded" required>
+              <textarea x-model="editEventData.brief_text" class="w-full mb-3 border p-2 rounded" placeholder="Brief Description" required></textarea>
+              <div class="flex justify-end gap-2">
+                <button type="button" @click="editEventData.id = null" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+
+
+      <!-- Lists -->
+      <!-- <div class="tab-pane hidden" id="lists"> -->
+        <!-- Category List -->
+
+      <!-- </div> -->
+
+
+
+
+
+      <!-- BLOG & EVENT CARDS WITH EDIT/DELETE MODALS -->
+<div x-data="{ postModal: null, eventModal: null, editPostId: null, editEventId: null }">
+
+  <!-- Blog Card Example -->
+  <template x-for="post in posts" :key="post.id">
+    <div class="p-4 bg-white rounded shadow border border-indigo-100 relative">
+      <h4 class="text-lg font-bold text-indigo-700">{{ post.title }}</h4>
+      <p class="text-sm text-gray-500">{{ post.created_at }}</p>
+      <div class="absolute top-2 right-2 flex gap-2">
+        <button @click="openEditPost(post)" class="text-blue-500"><i class="fas fa-edit"></i></button>
+        <button @click="deletePost(post.id)" class="text-red-500"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+  </template>
+
+  <!-- Event Card Example -->
+  <template x-for="event in events" :key="event.id">
+    <div class="p-4 bg-white rounded shadow border border-pink-100 relative">
+      <h4 class="text-lg font-bold text-pink-700">{{ event.title }}</h4>
+      <p class="text-sm text-gray-500">{{ event.date }}</p>
+      <div class="absolute top-2 right-2 flex gap-2">
+        <button @click="openEditEvent(event)" class="text-blue-500"><i class="fas fa-edit"></i></button>
+        <button @click="deleteEvent(event.id)" class="text-red-500"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+  </template>
+
+  <!-- Edit Post Modal -->
+  <div x-show="editPostId" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+    <div class="bg-white w-full max-w-xl p-6 rounded-xl shadow relative">
+      <h2 class="text-xl font-bold mb-4">Edit Blog Post</h2>
+      <form @submit.prevent="submitPostEdit">
+        <input type="text" x-model="editPostData.title" class="w-full mb-3 border p-2 rounded" placeholder="Title">
+        <textarea x-model="editPostData.content" class="w-full mb-3 border p-2 rounded" placeholder="Content"></textarea>
+        <input type="file" @change="e => editPostData.thumbnail = e.target.files[0]" class="mb-3">
+        <div class="flex justify-end gap-2">
+          <button @click="editPostId = null" class="bg-gray-200 px-4 py-2 rounded">Cancel</button>
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Event Modal -->
+  <div x-show="editEventId" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+    <div class="bg-white w-full max-w-xl p-6 rounded-xl shadow relative">
+      <h2 class="text-xl font-bold mb-4">Edit Event</h2>
+      <form @submit.prevent="submitEventEdit">
+        <input type="text" x-model="editEventData.title" class="w-full mb-3 border p-2 rounded" placeholder="Title">
+        <textarea x-model="editEventData.brief_text" class="w-full mb-3 border p-2 rounded" placeholder="Brief Text"></textarea>
+        <input type="date" x-model="editEventData.date" class="mb-3 w-full border p-2 rounded">
+        <input type="file" @change="e => editEventData.thumbnail = e.target.files[0]" class="mb-3">
+        <input type="file" @change="e => editEventData.flier = e.target.files[0]" class="mb-3">
+        <div class="flex justify-end gap-2">
+          <button @click="editEventId = null" class="bg-gray-200 px-4 py-2 rounded">Cancel</button>
+          <button type="submit" class="bg-pink-600 text-white px-4 py-2 rounded">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="editEventModal" class="fixed inset-0 z-50 bg-black/50 hidden flex items-center justify-center">
+  <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-xl">
+    <h2 class="text-xl font-bold mb-4 text-pink-800">Edit Event</h2>
+    <form @submit.prevent="submitEditEvent">
+      <input type="text" class="w-full mb-3 border p-2 rounded" x-model="editEventData.title" placeholder="Title" required>
+      <input type="date" class="w-full mb-3 border p-2 rounded" x-model="editEventData.date" required>
+      <textarea class="w-full mb-3 border p-2 rounded" x-model="editEventData.brief_text" rows="4" placeholder="Brief Description" required></textarea>
+      <div class="flex justify-end gap-2">
+        <button type="button" @click="closeEditModal" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     <!-- Trigger Button -->
+      <!-- Trigger Buttons -->
+
+      <!-- Modal -->
+      <div id="modal" class="fixed inset-0 bg-black/50 hidden z-50 items-center justify-center">
+        <div class="bg-white w-full max-w-xl p-6 rounded-lg shadow-lg relative">
+          <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-600 hover:text-black"><i class="fas fa-times text-xl"></i></button>
+          
+          <h2 id="modalTitle" class="text-xl font-semibold mb-4">Add Item</h2>
+
+          <form id="modalForm" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="type" id="itemType">
+
+            <!-- Category (for posts only) -->
+            <div class="mb-4 hidden" id="postCategoryField">
+              <label class="block mb-1 text-sm font-medium text-gray-700">Category</label>
+              <select name="category" class="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select Category</option>
+                  {% for cat in blog_categories %}
+                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+
+            <!-- Thumbnail / Flier -->
+            <label class="block cursor-pointer mb-4 border-2 border-dashed border-gray-300 p-4 rounded text-center">
+              <input type="file" name="thumbnail" accept="image/*" class="hidden" onchange="previewImage(event)">
+              <div id="imagePreview" class="text-gray-400">
+                <i class="fas fa-image text-4xl mb-2"></i>
+                <p>Click to add Thumbnail</p>
+              </div>
+            </label>
+
+            <!-- Flier (only for Event) -->
+            <div class="mb-4 hidden" id="eventFlierField">
+              <label class="block mb-1 text-sm font-medium text-gray-700">Event Flier</label>
+              <input type="file" name="flier" accept="image/*" class="block w-full text-sm text-gray-600">
+            </div>
+
+            <!-- Title -->
+            <div class="mb-4">
+              <label class="block mb-1 text-sm font-medium text-gray-700">Title</label>
+              <input type="text" name="title" required class="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Content (Post) / Brief Text (Event) -->
+            <div class="mb-4" id="contentField">
+              <label class="block mb-1 text-sm font-medium text-gray-700">Content</label>
+              <textarea name="content" rows="4" class="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+
+            <!-- Event Date -->
+            <div class="mb-4 hidden" id="eventDateField">
+              <label class="block mb-1 text-sm font-medium text-gray-700">Event Date</label>
+              <input type="date" name="date" class="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Submit -->
+            <div class="flex justify-end">
+              <button type="button" onclick="closeModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded mr-2 hover:bg-gray-400">Cancel</button>
+              <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+  <!-- JS to control modal and image preview -->
+
+
+
+        <!-- Recent Blog Posts -->
+
+    </div>
+  </div>
+
+
+
+<!-- Fullscreen Blog Editor Modal -->
+<div id="editorModal" class="fixed inset-0 z-50 hidden bg-black/60 flex items-center justify-center">
+  <div class="bg-white w-full h-full rounded-none p-8 overflow-y-auto shadow-xl relative max-w-6xl mx-auto">
+
+    <!-- Close Button -->
+    <button onclick="closeEditorModal()" class="absolute top-4 right-6 text-gray-500 hover:text-gray-800 text-xl z-50">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <!-- Editor Header -->
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-gray-800">Create New Blog Post</h2>
+      <button form="editorForm" type="submit" class="bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition">
+        Publish
+      </button>
+    </div>
+
+    <!-- Editor Form -->
+    <form id="editorForm" enctype="multipart/form-data" class="space-y-6">
+      {% csrf_token %}
+      <input type="hidden" name="type" value="post">
+
+      <!-- Title -->
+      <div>
+        <label class="block mb-1 text-sm font-medium text-gray-700">Title</label>
+        <input type="text" name="title" required class="w-full border px-4 py-3 rounded-md focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <!-- Category -->
+      <div>
+        <label class="block mb-1 text-sm font-medium text-gray-700">Category</label>
+        <select name="category" required class="w-full border px-4 py-3 rounded-md focus:ring-2 focus:ring-blue-500">
+          <option value="">Choose category</option>
+          {% for cat in blog_categories %}
+            <option value="{{ cat.id }}">{{ cat.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Thumbnail Upload -->
+      <div>
+        <label class="block mb-1 text-sm font-medium text-gray-700">Thumbnail Image</label>
+        <input type="file" name="thumbnail" accept="image/*" onchange="previewEditorImage(event)" class="w-full border px-3 py-2 rounded">
+        <div id="editorImagePreview" class="mt-3">
+          <img src="" class="hidden h-48 object-cover rounded shadow" />
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div>
+        <label class="block mb-1 text-sm font-medium text-gray-700">Content</label>
+        <textarea id="editorContent" name="content" rows="10" class="w-full border px-4 py-3 rounded-md focus:ring-2 focus:ring-blue-500" placeholder="Write your article here..."></textarea>
+        <div class="text-sm text-gray-500 mt-1">
+          <span id="charCount">0</span> characters, <span id="wordCount">0</span> words
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+  const tabs = document.querySelectorAll('.tab-btn');
+  const panes = document.querySelectorAll('.tab-pane');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('bg-white', 'text-blue-600', 'border'));
+      panes.forEach(p => p.classList.add('hidden'));
+
+      tab.classList.add('bg-white', 'text-blue-600', 'border');
+      const target = tab.getAttribute('data-tab');
+      document.getElementById(target).classList.remove('hidden');
+
+      // NEW: Reset Alpine modal state if it exists
+      if (window.Alpine) {
+        Alpine.store?.('modal')?.close?.(); // if using a store
+        window.dispatchEvent(new Event('reset-modals'));
+      }
+    });
+  });
+
+
+  // Data from Django (safe JSON-style injection)
+  const categoryLabels = {{ category_chart_labels|safe }};
+  const categoryData = {{ category_chart_counts|safe }};
+  const categoryTooltips = {{ category_chart_tooltips|safe }};
+  const monthlyLabels = {{ monthly_chart_labels|safe }};
+  const monthlyData = {{ monthly_chart_counts|safe }};
+
+  // Pie Chart: Posts by Category
+  new Chart(document.getElementById("categoryChart"), {
+    type: 'pie',
+    data: {
+      labels: categoryLabels,
+      datasets: [{
+        data: categoryData,
+        backgroundColor: ['#60A5FA', '#FBBF24', '#34D399', '#F472B6', '#A78BFA', '#F87171'],
+        borderColor: '#fff',
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      animation: {
+        animateScale: true,
+        animateRotate: true
+      },
+      responsive: true,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const idx = context.dataIndex;
+              const titleList = categoryTooltips[idx];
+              const titlePreview = titleList.slice(0, 3).join(', ');
+              const more = titleList.length > 3 ? ` +${titleList.length - 3} more` : '';
+              return `${context.label}: ${context.raw} posts (${titlePreview}${more})`;
+            }
+          }
+        },
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  });
+
+  // Line Chart: Blogs Over Time
+  new Chart(document.getElementById("monthlyChart"), {
+    type: 'line',
+    data: {
+      labels: monthlyLabels,
+      datasets: [{
+        label: 'Blogs',
+        data: monthlyData,
+        fill: false,
+        borderColor: '#3B82F6',
+        tension: 0.4,
+        pointBackgroundColor: '#3B82F6',
+      }]
+    },
+    options: {
+      animation: {
+        duration: 1000,
+        easing: 'easeOutQuart'
+      },
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `${context.raw} blog${context.raw === 1 ? '' : 's'}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1
+          }
+        }
+      }
+    }
+  });
+
+  // const categoryCtx = document.getElementById('categoryChart');
+  // const categoryChart = new Chart(categoryCtx, {
+  //   type: 'pie',
+  //   data: {
+  //     labels: {{ category_labels|safe }},
+  //     datasets: [{
+  //       data: {{ category_values|safe }},
+  //       backgroundColor: ['#3490dc', '#38c172', '#ffed4a', '#e3342f', '#9561e2']
+  //     }]
+  //   }
+  // });
+
+  // const monthlyCtx = document.getElementById('monthlyChart');
+  // const monthlyChart = new Chart(monthlyCtx, {
+  //   type: 'line',
+  //   data: {
+  //     labels: {{ chart_labels|safe }},
+  //     datasets: [{
+  //       label: 'Posts per Month',
+  //       data: {{ chart_values|safe }},
+  //       borderColor: '#4c51bf',
+  //       backgroundColor: 'rgba(76, 81, 191, 0.1)',
+  //       tension: 0.4,
+  //       fill: true
+  //     }]
+  //   }
+  // });
+
+  function openModal(type) {
+    document.getElementById("modal").classList.remove("hidden");
+    document.getElementById("itemType").value = type;
+
+    document.getElementById("modalTitle").textContent = type === "post" ? "Add Blog Post" : "Add Event";
+    document.getElementById("postCategoryField").classList.toggle("hidden", type !== "post");
+    document.getElementById("eventFlierField").classList.toggle("hidden", type !== "event");
+    document.getElementById("eventDateField").classList.toggle("hidden", type !== "event");
+
+    document.getElementById("contentField").querySelector("label").textContent = type === "post" ? "Content" : "Brief Description";
+    document.getElementById("contentField").querySelector("textarea").name = type === "post" ? "content" : "brief_text";
+  }
+
+  function closeModal() {
+    document.getElementById("modal").classList.add("hidden");
+    document.getElementById("modalForm").reset();
+    document.getElementById("imagePreview").innerHTML = `
+      <i class="fas fa-image text-4xl mb-2"></i>
+      <p>Click to add Thumbnail</p>
+    `;
+  }
+
+  function previewImage(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const preview = document.getElementById("imagePreview");
+      preview.innerHTML = `<img src="${e.target.result}" class="h-32 object-cover rounded">`;
+    };
+    if (file) reader.readAsDataURL(file);
+  }
+
+  function showToast(message, color = "green") {
+    const toast = document.getElementById("toast");
+    const toastMsg = document.getElementById("toast-message");
+    toastMsg.innerText = message;
+    toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded shadow-lg z-50 bg-${color}-500 text-white`;
+    toast.classList.remove("hidden");
+
+    setTimeout(() => {
+      toast.classList.add("hidden");
+    }, 3000);
+  }
+
+  document.getElementById("modalForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const type = formData.get("type");
+    const url = type === "post" ? "{% url 'add_post_ajax' %}" : "{% url 'add_event_ajax' %}";
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        closeModal();
+        showToast(`${type === "post" ? "Post" : "Event"} added successfully!`, "green");
+
+        // Optional: inject to DOM (you can expand this)
+        // const container = document.getElementById(type === 'post' ? 'postList' : 'eventList');
+        // container.innerHTML += `<li><strong>${formData.get("title")}</strong></li>`;
+
+      } else {
+        showToast(data.error || "Submission failed", "red");
+      }
+    } catch (err) {
+      showToast("Network error. Try again.", "red");
+    }
+  });
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function openEditorModal() {
+  document.getElementById("editorModal").classList.remove("hidden");
+}
+
+function closeEditorModal() {
+  document.getElementById("editorModal").classList.add("hidden");
+  document.getElementById("editorForm").reset();
+  document.querySelector("#editorImagePreview img").src = "";
+  document.querySelector("#editorImagePreview img").classList.add("hidden");
+  localStorage.removeItem('draft_title');
+  localStorage.removeItem('draft_content');
+}
+
+function previewEditorImage(event) {
+  const file = event.target.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.querySelector("#editorImagePreview img");
+    img.src = e.target.result;
+    img.classList.remove("hidden");
+  };
+  if (file) reader.readAsDataURL(file);
+}
+
+function updateCharAndWordCount() {
+  const content = document.getElementById("editorContent").value;
+  document.getElementById("charCount").textContent = content.length;
+  document.getElementById("wordCount").textContent = content.trim().split(/\s+/).filter(Boolean).length;
+}
+
+// Auto-save to localStorage every 5 seconds
+setInterval(() => {
+  const title = document.querySelector("input[name='title']").value;
+  const content = document.querySelector("#editorContent").value;
+  if (title || content) {
+    localStorage.setItem('draft_title', title);
+    localStorage.setItem('draft_content', content);
+  }
+}, 5000);
+
+// Restore draft if available
+window.addEventListener('DOMContentLoaded', () => {
+  const savedTitle = localStorage.getItem('draft_title');
+  const savedContent = localStorage.getItem('draft_content');
+  if (savedTitle) document.querySelector("input[name='title']").value = savedTitle;
+  if (savedContent) document.querySelector("#editorContent").value = savedContent;
+  updateCharAndWordCount();
+});
+
+// Update count on input
+const editorContent = document.getElementById("editorContent");
+editorContent.addEventListener("input", updateCharAndWordCount);
+
+// Keyboard shortcut (Cmd+S or Ctrl+S)
+document.addEventListener("keydown", function (e) {
+  if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+    e.preventDefault();
+    document.getElementById("editorForm").requestSubmit();
+  }
+});
+
+// Submit handler
+const form = document.getElementById("editorForm");
+form.addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const formData = new FormData(form);
+  const url = "{% url 'add_post_ajax' %}";
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (response.ok && data.success) {
+      closeEditorModal();
+      showToast("Post created successfully!");
+    } else {
+      showToast(data.error || "Submission failed", "red");
+    }
+  } catch (err) {
+    showToast("Network error. Try again.", "red");
+  }
+});
+
+
+
+
+
+
+document.addEventListener('alpine:init', () => {
+  Alpine.data('dashboardManager', () => ({
+    posts: [],
+    events: [],
+    editPostId: null,
+    editPostData: {},
+    editEventId: null,
+    editEventData: {},
+
+    async fetchData() {
+      // fetch from template or API if needed
+    },
+
+    openEditPost(post) {
+      this.editPostId = post.id;
+      this.editPostData = { ...post };
+    },
+
+    async submitPostEdit() {
+      const form = new FormData();
+      form.append('title', this.editPostData.title);
+      form.append('content', this.editPostData.content);
+      if (this.editPostData.thumbnail) form.append('thumbnail', this.editPostData.thumbnail);
+
+      const res = await fetch(`/dashboard/post/${this.editPostId}/update/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+        body: form,
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        const index = this.posts.findIndex(p => p.id === this.editPostId);
+        if (index !== -1) this.posts[index] = { ...this.posts[index], ...updated };
+        this.editPostId = null;
+      }
+    },
+
+    async deletePost(id) {
+      if (!confirm('Delete this post?')) return;
+      const res = await fetch(`/dashboard/post/${id}/delete/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+      });
+      if (res.ok) this.posts = this.posts.filter(p => p.id !== id);
+    },
+
+    openEditEvent(event) {
+      this.editEventId = event.id;
+      this.editEventData = { ...event };
+    },
+
+    async submitEventEdit() {
+      const form = new FormData();
+      form.append('title', this.editEventData.title);
+      form.append('brief_text', this.editEventData.brief_text);
+      form.append('date', this.editEventData.date);
+      if (this.editEventData.thumbnail) form.append('thumbnail', this.editEventData.thumbnail);
+      if (this.editEventData.flier) form.append('flier', this.editEventData.flier);
+
+      const res = await fetch(`/dashboard/event/${this.editEventId}/update/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+        body: form,
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        const index = this.events.findIndex(e => e.id === this.editEventId);
+        if (index !== -1) this.events[index] = { ...this.events[index], ...updated };
+        this.editEventId = null;
+      }
+    },
+
+    async deleteEvent(id) {
+      if (!confirm('Delete this event?')) return;
+      const res = await fetch(`/dashboard/event/${id}/delete/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+      });
+      if (res.ok) this.events = this.events.filter(e => e.id !== id);
+    },
+  }))
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // new
+
+function eventDashboard() {
+  return {
+    events: [],
+    editEventData: {
+      id: null,
+      title: '',
+      brief_text: '',
+      date: ''
+    },
+
+    init() {
+      this.loadEvents();
+    },
+
+    loadEvents() {
+      fetch("{% url 'get_upcoming_events' %}")
+        .then(res => res.json())
+        .then(data => {
+          this.events = data.events;
+        });
+    },
+
+    openEditEvent(event) {
+      this.editEventData = { ...event };
+    },
+
+    submitEditEvent() {
+      const formData = new FormData();
+      formData.append('title', this.editEventData.title);
+      formData.append('brief_text', this.editEventData.brief_text);
+      formData.append('date', this.editEventData.date);
+
+      fetch(`/events/${this.editEventData.id}/edit/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: formData
+      })
+        .then(res => res.json())
+        .then(() => {
+          this.loadEvents();
+          this.editEventData.id = null;
+        });
+    },
+
+    deleteEvent(id) {
+      if (!confirm("Delete this event?")) return;
+
+      fetch(`/events/${id}/delete/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        }
+      })
+        .then(res => res.json())
+        .then(() => this.loadEvents());
+    }
+  };
+}
+
+
+</script>
+

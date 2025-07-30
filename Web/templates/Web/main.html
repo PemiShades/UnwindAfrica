@@ -76,5 +76,43 @@
       </footer>
 </body>
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
   <script src="{% static 'javascript/main.js' %}">  </script>
+  <!-- In <head> -->
+<link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+
+<!-- Required Scripts -->
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+
+<script>
+  // AOS Init
+  AOS.init({ duration: 1000, once: true });
+
+  // Vanilla Tilt Init
+  VanillaTilt.init(document.querySelectorAll(".tilt"), {
+    max: 15,
+    speed: 400,
+    glare: true,
+    "max-glare": 0.2,
+  });
+
+  // Mouse Glow
+  const glow = document.getElementById("mouse-glow");
+  document.addEventListener("mousemove", (e) => {
+    const x = e.clientX - 80;
+    const y = e.clientY - 80;
+    glow.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+  });
+</script>
+  <!-- Before </body> -->
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<!--   <script>
+    AOS.init({
+      once: true,
+      duration: 1000,
+      easing: 'ease-out-cubic',
+    });
+  </script>
+ -->
 </html>

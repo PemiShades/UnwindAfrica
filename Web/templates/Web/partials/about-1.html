@@ -1,36 +1,94 @@
 {% load static %}
-<section class="about-layout-1">
-  <!-- Desktop Layout -->
-  <div class="desktop-layout">
-    <div class="desktop-top"><span class="desktop-top-firstTxt">THE</span><span>POWER</span></div>
-    <div class="desktop-content">
-      <div class="desktop-left">OF</div>
-      <!-- <div class="desktop-center"> -->
-      <div class="desktop-mid-img">
-        <img src='{% static "images/home/about-2.jpg" %}' alt="Relax" class="desktop-img" />
-        
-      </div>
-      <div class="desktop-right">
-        <p>
-          Inhale calm. Exhale tension.<br />
-          Where stillness restores, and joy returns.<br />
-          Relax. Reconnect. Rise.
-        </p>
-      </div>
-    </div>
-    <div class="desktop-bottom">RELAXING</div>
-  </div>
+  <style>
+    .card-inner {
+      transform-style: preserve-3d;
+      transition: transform 0.8s;
+    }
 
-  <!-- Mobile Layout -->
-  <div class="mobile-layout">
-    <h2 class="mobile-heading">THE POWER OF RELAXATION</h2>
-    <div class="mobile-img-container"> 
-      <img src='{% static "images/home/about-2.jpg" %}' alt="Relax" class="mobile-img" />
-    </div>
-    <p class="mobile-text">
-      Inhale calm. Exhale tension.<br />
-      Where stillness restores, and joy returns.<br />
-      Relax. Reconnect. Rise.
-    </p>
-  </div>
-</section>
+    .card-front, .card-back {
+      backface-visibility: hidden;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 0.75rem;
+    }
+
+    .card-back {
+      transform: rotateY(180deg);
+    }
+
+    .is-flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+  </style>
+
+  <div class="w-full my-12 px-4">
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto justify-center">
+      
+      
+      <!-- Card 1: Boat Cruises -->
+      <div class="relative group [perspective:1000px]" onclick="this.classList.toggle('is-flipped')">
+        <div class="card-inner relative h-80 w-full group-hover:[transform:rotateY(180deg)]">
+          <div class="card-front bg-cover bg-center relative border shadow-xl" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?fit=crop&w=600&h=300');">
+            <div class="absolute inset-0 bg-black/50 rounded-xl flex flex-col items-center justify-center text-white p-4">
+              <h3 class="text-lg font-semibold mb-1">Boat Cruises</h3>
+              <p class="text-sm text-center">Private and group packages<br>Scenic water experiences</p>
+            </div>
+          </div>
+          <div class="card-back bg-blue-100 border shadow-xl p-4 flex flex-col items-center justify-center">
+            <h3 class="text-lg font-semibold mb-2">Cruise With Ease</h3>
+            <p class="text-sm text-center text-gray-700">Unforgettable moments on the water. Perfect for chill sessions & dates.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Wellness -->
+      <div class="relative group [perspective:1000px]" onclick="this.classList.toggle('is-flipped')">
+        <div class="card-inner relative h-80 w-full group-hover:[transform:rotateY(180deg)]">
+          <div class="card-front bg-cover bg-center relative border shadow-xl" style="background-image: url('https://images.unsplash.com/photo-1588776814546-ec7e46c16a7e?fit=crop&w=600&h=300');">
+            <div class="absolute inset-0 bg-black/50 rounded-xl flex flex-col items-center justify-center text-white p-4">
+              <h3 class="text-lg font-semibold mb-1">Wellness</h3>
+              <p class="text-sm text-center">Massages<br>Therapy<br>Medi Pedi</p>
+            </div>
+          </div>
+          <div class="card-back bg-green-100 border shadow-xl p-4 flex flex-col items-center justify-center">
+            <h3 class="text-lg font-semibold mb-2">Relax & Rejuvenate</h3>
+            <p class="text-sm text-center text-gray-700">Find calm and balance with our wellness and spa treatments.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Events -->
+      <div class="relative group [perspective:1000px]" onclick="this.classList.toggle('is-flipped')">
+        <div class="card-inner relative h-80 w-full group-hover:[transform:rotateY(180deg)]">
+          <div class="card-front bg-cover bg-center relative border shadow-xl" style="background-image: url('https://images.unsplash.com/photo-1531058020387-3be344556be6?fit=crop&w=600&h=300');">
+            <div class="absolute inset-0 bg-black/50 rounded-xl flex flex-col items-center justify-center text-white p-4">
+              <h3 class="text-lg font-semibold mb-1">Events</h3>
+              <p class="text-sm text-center">Personal & group celebrations<br>Relaxation experiences</p>
+            </div>
+          </div>
+          <div class="card-back bg-yellow-100 border shadow-xl p-4 flex flex-col items-center justify-center">
+            <h3 class="text-lg font-semibold mb-2">Celebrate Life</h3>
+            <p class="text-sm text-center text-gray-700">Host memorable moments in a stress-free, elegant setting.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4: Celebrations -->
+      <div class="relative group [perspective:1000px]" onclick="this.classList.toggle('is-flipped')">
+        <div class="card-inner relative h-80 w-full group-hover:[transform:rotateY(180deg)]">
+          <div class="card-front bg-cover bg-center relative border shadow-xl" style="background-image: url('https://images.unsplash.com/photo-1609171804246-7614dc84f9e3?fit=crop&w=600&h=300');">
+            <div class="absolute inset-0 bg-black/50 rounded-xl flex flex-col items-center justify-center text-white p-4">
+              <h3 class="text-lg font-semibold mb-1">Celebrations</h3>
+              <p class="text-sm text-center">Birthdays<br>Anniversaries<br>Curated moments</p>
+            </div>
+          </div>
+          <div class="card-back bg-pink-100 border shadow-xl p-4 flex flex-col items-center justify-center">
+            <h3 class="text-lg font-semibold mb-2">Make it Special</h3>
+            <p class="text-sm text-center text-gray-700">From surprise parties to custom-curated milestones, we’ve got you covered.</p>
+          </div>
+        </div>
+      </div>
+
+  </section>
+</div>

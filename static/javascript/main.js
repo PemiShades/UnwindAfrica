@@ -11,6 +11,33 @@ const navImg = document.querySelector('.mid_nav_img');
 const menuLinks = document.querySelectorAll('.hamburger-menu a');
 // const closeBtn = document.querySelector('.hamburger_close_btn');
 
+
+
+
+// modal for home page
+
+function openModal(img, title, desc) {
+    document.getElementById("modalImage").src = "{% static 'images/home/marquee_section/' %}" + img;
+    document.getElementById("modalTitle").innerText = title;
+    document.getElementById("modalDesc").innerText = desc;
+    document.getElementById("cardModal").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+function closeModal() {
+  document.getElementById("cardModal").classList.add("hidden");
+  document.body.style.overflow = "auto";
+}
+
+// end of modal for home page
+
+
+
+
+
+
+
+
 // Close on link click
   const iconWrappers = document.querySelectorAll("#package-icons-container .icon-wrapper");
   // Now, we select ALL elements with the 'package-content-pane' class.

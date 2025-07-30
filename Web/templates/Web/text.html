@@ -1,0 +1,92 @@
+<!-- AOS and VanillaTilt CSS -->
+<link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+
+<!-- Section -->
+<section id="unwind-section" class="relative bg-white py-20 overflow-hidden z-10">
+  <!-- Glow Follower -->
+  <div id="mouse-glow" class="pointer-events-none fixed top-0 left-0 w-40 h-40 bg-pink-300 rounded-full blur-3xl opacity-30 z-50 transition-transform duration-200 hidden md:block"></div>
+
+  <div class="container mx-auto px-4 md:px-6 relative z-10">
+    
+    <!-- Heading -->
+    <div class="text-center mb-16" data-aos="fade-up">
+      <h2 class="malibu-font text-[#504242] text-4xl md:text-5xl font-bold mb-4 relative inline-block">
+        <span class="relative z-10">Unwind Relaxation Plans</span>
+        <span class="absolute inset-x-0 bottom-1 h-1 bg-[#ffd6d6] z-0"></span>
+      </h2>
+      <p class="inter-font text-gray-700 text-base md:text-lg max-w-2xl mx-auto mt-4">
+        Our flexible quarterly payment plans let you enjoy benefits worth more than your payment.
+        Bond with loved ones, create unforgettable memories and unwind in style!
+      </p>
+    </div>
+
+    <!-- Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12">
+      
+      <!-- Card 1 -->
+      <div class="tilt bg-white p-6 pt-8 rounded-3xl shadow-xl transition-transform duration-500"
+           data-aos="zoom-in" data-aos-delay="100">
+        <img src="{% static 'images/home/vip 1.jpg' %}" alt="Exclusive Access" class="w-full h-28 md:h-40 object-contain mb-4" />
+        <h3 class="text-xl md:text-2xl font-bold mb-3 text-center text-[#2e2e2e]">Exclusive Access</h3>
+        <p class="text-black/90 text-center inter-font text-sm md:text-base">
+          Debutante balls, orchestral performances and high-society gatherings
+        </p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="tilt bg-white p-6 pt-8 rounded-3xl shadow-xl transition-transform duration-500"
+           data-aos="zoom-in" data-aos-delay="200">
+        <img src="{% static 'images/home/diamond 3.jpg' %}" alt="Luxury Celebrations" class="w-full h-28 md:h-40 object-contain mb-4" />
+        <h3 class="text-xl md:text-2xl font-bold mb-3 text-center text-[#2e2e2e]">Luxury Celebrations</h3>
+        <p class="text-black/90 text-center inter-font text-sm md:text-base">
+          Debutante balls, orchestral performances and high-society gatherings
+        </p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="tilt bg-white p-6 pt-8 rounded-3xl shadow-xl transition-transform duration-500"
+           data-aos="zoom-in" data-aos-delay="300">
+        <img src="{% static 'images/home/costumer 2.jpg' %}" alt="Unforgettable Experiences" class="w-full h-28 md:h-40 object-contain mb-4" />
+        <h3 class="text-xl md:text-2xl font-bold mb-3 text-center text-[#2e2e2e]">Unforgettable Experiences</h3>
+        <p class="text-black/90 text-center inter-font text-sm md:text-base">
+          Private yacht cruises, sunset dinners, and VIP access to exclusive events
+        </p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="tilt bg-white p-6 pt-8 rounded-3xl shadow-xl transition-transform duration-500"
+           data-aos="zoom-in" data-aos-delay="400">
+        <img src="{% static 'images/home/personalized 2.jpg' %}" alt="Personalized Services" class="w-full h-28 md:h-40 object-contain mb-4" />
+        <h3 class="text-xl md:text-2xl font-bold mb-3 text-center text-[#2e2e2e]">Personalized Services</h3>
+        <p class="text-black/90 text-center inter-font text-sm md:text-base">
+          Tailored wellness programs, private chefs, and bespoke event planning
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Required Scripts -->
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+
+<script>
+  // AOS Init
+  AOS.init({ duration: 1000, once: true });
+
+  // Vanilla Tilt Init
+  VanillaTilt.init(document.querySelectorAll(".tilt"), {
+    max: 15,
+    speed: 400,
+    glare: true,
+    "max-glare": 0.2,
+  });
+
+  // Mouse Glow
+  const glow = document.getElementById("mouse-glow");
+  document.addEventListener("mousemove", (e) => {
+    const x = e.clientX - 80;
+    const y = e.clientY - 80;
+    glow.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+  });
+</script>

@@ -1,6 +1,6 @@
 /* Shared Section Styling */
 .about-layout-1 {
-  font-family: 'Saira', sans-serif;
+  font-family: 'malibu', 'Saira', sans-serif;
   background: #fff;
   padding: 60px 20px;
   overflow: hidden;
@@ -15,7 +15,7 @@
   overflow: hidden;
 }
 .desktop-top {
-  font-family: 'Saira',sans-serif;
+  font-family: 'malibu','Saira',sans-serif;
   text-align: center;
   font-size: 3rem;
   margin-bottom: 30px;
