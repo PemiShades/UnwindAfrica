@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
-from decouple import config, Csv  # For environment variables
+from decouple import config
+from decouple.types import Csv  # For environment variables
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
