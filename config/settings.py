@@ -1,17 +1,28 @@
+# Load sensitive settings from .env file
 from pathlib import Path
 import os
-from decouple import config
-from decouple.types import Csv  # For environment variables
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load sensitive settings from .env file
-SECRET_KEY = config("SECRET_KEY")
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
-DEBUG = config("DEBUG", default=False, cast=bool)
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1")
 
 
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default=["unwindafrica.onrender.com","www.unwindafrica.com","https://www.unwindafrica.com","https://dashboard.render.com/","https://render.com/"] , cast=Csv())
+# ALLOWED_HOSTS = config("ALLOWED_HOSTS", default=["unwindafrica.onrender.com","www.unwindafrica.com","https://www.unwindafrica.com","https://dashboard.render.com/","https://render.com/"] , cast=Csv())
+
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "unwindafrica.onrender.com",
+    "www.unwindafrica.com",
+    "https://www.unwindafrica.com",
+    "https://dashboard.render.com",
+    "https://render.com",
+]
 
 # Application definition
 INSTALLED_APPS = [
