@@ -12,8 +12,6 @@ sqlparse==0.5.3
 typing_extensions==4.14.0
 tzdata==2025.2
 whitenoise==6.9.0
-<<<<<<< HEAD:requirements.txt
-django-decouple
-=======
+django-decouple==3.8
 python-decouple==3.8
->>>>>>> bc54b465cf81e7104cf39f014feefba976c7ddec:requirement.txt
+
