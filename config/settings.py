@@ -19,6 +19,9 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1")
 
+LOGIN_URL = 'login'
+LOGOUT_REDIRECT_URL = 'login'
+
 
 # ALLOWED_HOSTS = config("ALLOWED_HOSTS", default=["unwindafrica.onrender.com","www.unwindafrica.com","https://www.unwindafrica.com","https://dashboard.render.com/","https://render.com/"] , cast=Csv())
 
@@ -41,6 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Web',
+    'dashboard',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [

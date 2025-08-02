@@ -1,0 +1,28 @@
+
+
+<h2 class="text-2xl font-bold mt-10 mb-4">Events</h2>
+{% for event in events %}
+<div class="bg-white p-4 rounded shadow mb-4">
+  <h3 class="text-xl font-semibold">{{ event.name }}</h3>
+  <p class="text-sm text-gray-600">{{ event.location }} • {{ event.date|date:"d M, Y" }}
+</p>
+  <div class="mt-2 flex space-x-2">
+    <button
+      @click="editEvent('{{ event.id }}', '{{ event.name|escapejs }}', `{{ event.description|escapejs }}`, '{{ event.date|date:'Y-m-d' }}', '{{ event.location|escapejs }}')"
+      class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
+      Edit
+    </button>
+
+    <form action="{% url 'delete_event' event.id %}" method="post" class="inline">
+      {% csrf_token %}
+      <button type="submit"
+              class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+              onclick="return confirm('Delete this event?')">
+        Delete
+      </button>
+    </form>
+  </div>
+</div>
+{% empty %}
+<p class="text-gray-500">No events yet.</p>
+{% endfor %}

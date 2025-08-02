@@ -1,0 +1,65 @@
+{% extends 'Web/main.html' %}
+{% load static %}
+<style>
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .blog-card {
+    transition: all 0.3s ease-in-out;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 25px rgba(0,0,0,0.08);
+  }
+
+  .blog-image {
+    transition: transform 0.3s ease-out;
+  }
+
+  .blog-card:hover .blog-image {
+    transform: scale(1.05);
+  }
+</style>
+
+
+{% block content %}
+   {% include './partials/header/navbar.html' with theme='dark'%}
+   {% include './partials/header/hamburger-menu.html' with faq_link="/about#faq"%}
+<!-- Hero -->
+<section class="bg-gradient-to-br from-teal-50 to-cyan-50 py-20 text-center">
+  <div class="max-w-3xl mx-auto px-4">
+    <h1 class="text-5xl font-bold mb-4 animate-fade-in-up">Unwind Africa Blog</h1>
+    <p class="text-lg text-gray-600 animate-fade-in-up">Curated travel stories, tips & wellness insights from across Africa.</p>
+  </div>
+</section>
+
+<!-- Blog Grid -->
+<section class="py-16 bg-white">
+  <div class="max-w-7xl mx-auto px-4 grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+    {% for post in posts %}
+      <a href="{% url 'blog_detail' post.slug %}" class="blog-card rounded-xl bg-white overflow-hidden shadow group animate-fade-in-up">
+        <div class="relative overflow-hidden h-52">
+          <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}" class="blog-image w-full h-full object-cover" />
+        </div>
+        <div class="p-5">
+          <div class="text-sm text-gray-500 flex items-center mb-2">
+            <i class="fas fa-calendar mr-2 text-teal-500"></i>
+            {{ post.created_at|date:"F j, Y" }}
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 group-hover:text-teal-600 transition">{{ post.title }}</h3>
+          <p class="text-gray-600 text-sm mt-2 line-clamp-3">{{ post.content|striptags|truncatewords:25 }}</p>
+        </div>
+      </a>
+    {% empty %}
+      <p class="text-center text-gray-500 col-span-full">No blog posts available at the moment.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

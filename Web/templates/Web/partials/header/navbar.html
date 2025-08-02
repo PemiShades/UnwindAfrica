@@ -1,15 +1,95 @@
 {% load static %}
-<nav class="{% if theme == 'dark' %}nav-dark{% endif %}">
-	<h3 class="nav-text {% if theme == 'dark' %}nav-text-dark{% endif %}">Empower your Soul</h3>
+<!-- Navigation -->
+{% load static %}
+<header class="absolute top-0 left-0 w-full z-30 transition-opacity duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-20">
+      
+      <!-- Left: Explore -->
+      <a href="/explore/" class="flex items-center space-x-2 
+        {% if theme == 'dark' %}
+          text-black
+        {% else %}
+          text-white
+        {% endif %}
+        hover:opacity-80 transition drop-shadow">
+        
+        <!-- Compass Icon -->
+        <svg class="w-7 h-7 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 2a10 10 0 100 20 10 10 0 000-20zm3.5 11.5l-7-3 3 7 4-4z" />
+        </svg>
+        <span class="hidden sm:inline text-lg lg:text-xl tracking-wide drop-shadow">
+          Explore
+        </span>
+      </a>
 
-	<div class="{% if theme == 'dark' %}nav_image-dark{% endif %} nav_image">
-		<a href="/">
-			<img class="mid_nav_img" src="{% static 'images/LOGO-cropped.png' %}">
-		</a>
-	</div>
-	<div class="hamburger-btn {% if theme == 'dark' %}hamburger-btn-dark{% endif %}">
-		<div></div>
-		<div></div>
-		<div></div>
-	</div>
-</nav>
+      <!-- Center: Logo -->
+      <a href="/" class="text-2xl sm:text-3xl font-semibold tracking-widest drop-shadow 
+        {% if theme == 'dark' %}
+          text-black
+        {% else %}
+          text-white
+        {% endif %}">
+        Unwind Africa
+      </a>
+
+      <!-- Right: Menu Button -->
+      <button onclick="toggleMenu()" class="flex items-center space-x-2 hover:opacity-80 transition drop-shadow 
+        {% if theme == 'dark' %}
+          text-black
+        {% else %}
+          text-white
+        {% endif %}">
+        
+        <!-- Hide this text on small screens -->
+        <span class="hidden sm:inline text-lg font-medium drop-shadow">Menu</span>
+
+        <!-- Dots Icon -->
+        <svg class="w-7 h-7 drop-shadow" fill="currentColor" viewBox="0 0 20 20">
+          <circle cx="3" cy="10" r="2"/>
+          <circle cx="10" cy="10" r="2"/>
+          <circle cx="17" cy="10" r="2"/>
+        </svg>
+      </button>
+
+    </div>
+  </div>
+</header>
+
+
+<!-- JavaScript -->
+<script>
+  // document.addEventListener('DOMContentLoaded', () => {
+  //   const toggleBtn = document.getElementById('hamburgerToggle');
+  //   const menu = document.getElementById('hamburgerMenu');
+  //   const links = document.querySelectorAll('.menu-link');
+
+  //   toggleBtn.addEventListener('click', () => {
+  //     const isOpen = menu.classList.contains('translate-y-0');
+
+  //     if (isOpen) {
+  //       // Close
+  //       menu.classList.remove('translate-y-0', 'opacity-100');
+  //       menu.classList.add('-translate-y-full', 'opacity-0', 'pointer-events-none');
+  //       links.forEach(link => {
+  //         link.classList.remove('opacity-100', 'translate-y-0');
+  //         link.classList.add('opacity-0', '-translate-y-10');
+  //       });
+  //     } else {
+  //       // Open
+  //       menu.classList.remove('-translate-y-full', 'opacity-0', 'pointer-events-none');
+  //       menu.classList.add('translate-y-0', 'opacity-100');
+  //       links.forEach((link, i) => {
+  //         setTimeout(() => {
+  //           link.classList.remove('opacity-0', '-translate-y-10');
+  //           link.classList.add('opacity-100', 'translate-y-0');
+  //         }, 100 * (i + 1));
+  //       });
+  //     }
+  //   });
+  // });
+    function toggleMenu() {
+      const menu = document.getElementById('hamburgerMenu');
+      menu.classList.toggle('translate-x-full');
+    }
+</script>

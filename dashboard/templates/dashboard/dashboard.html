@@ -1,0 +1,182 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unwind Africa Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    function dashboardManager() {
+      return {
+        tab: 'overview',
+
+        // Events
+        showEventModal: false,
+        editingEvent: false,
+        eventFormAction: "{% url 'create_event' %}",
+        eventForm: {
+          id: '', name: '', description: '', location: '', date: '',
+          thumbnail: '', flier: ''
+        },
+
+        openEventModal() {
+          this.editingEvent = false;
+          this.eventFormAction = "{% url 'create_event' %}";
+          this.eventForm = {
+            id: '', name: '', description: '', location: '', date: '',
+            thumbnail: '', flier: ''
+          };
+          this.showEventModal = true;
+        },
+
+        editEvent(id, name, description, date, location, thumbnail, flier) {
+          this.editingEvent = true;
+          this.eventFormAction = `/dashboard/event/${id}/edit/`;
+          this.eventForm = { id, name, description, date, location, thumbnail, flier };
+          this.showEventModal = true;
+        },
+
+        closeEventModal() {
+          this.showEventModal = false;
+        },
+
+        fetchData() {
+          // Optional logic
+        }
+      };
+    }
+  </script>
+
+  <style>
+    .sidebar-link {
+      @apply block py-4 px-6 rounded-lg transition duration-300 text-lg font-medium hover:bg-teal-600 hover:text-white;
+    }
+    .active-tab {
+      @apply bg-teal-600 text-white;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 font-inter" x-data="dashboardManager()" x-init="fetchData()">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 p-8">
+      <h2 class="text-3xl font-bold text-teal-700 mb-10">Unwind Admin</h2>
+      <nav class="space-y-4">
+        <button class="sidebar-link w-full text-left" :class="tab === 'overview' ? 'active-tab' : ''" @click="tab = 'overview'">
+          <i class="fas fa-chart-bar mr-2"></i> Overview
+        </button>
+        <button class="sidebar-link w-full text-left" :class="tab === 'charts' ? 'active-tab' : ''" @click="tab = 'charts'">
+          <i class="fas fa-chart-pie mr-2"></i> Charts
+        </button>
+        <button class="sidebar-link w-full text-left" :class="tab === 'create_blog' ? 'active-tab' : ''" @click="tab = 'create_blog'">
+          <i class="fas fa-pen mr-2"></i> Create Blog
+        </button>
+        <button class="sidebar-link w-full text-left" :class="tab === 'blogs' ? 'active-tab' : ''" @click="tab = 'blogs'">
+          <i class="fas fa-list mr-2"></i> Blogs List
+        </button>
+        <button class="sidebar-link w-full text-left" :class="tab === 'events' ? 'active-tab' : ''" @click="tab = 'events'">
+          <i class="fas fa-calendar-alt mr-2"></i> Events
+        </button>
+        <form method="post" action="{% url 'logout' %}" class="mt-10">
+          {% csrf_token %}
+          <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg transition-colors text-lg">
+            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+          </button>
+        </form>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-10 overflow-y-auto">
+      <template x-if="tab === 'overview'">
+        <div>
+          {% include 'dashboard/partials/overview.html' %}
+        </div>
+      </template>
+
+      <template x-if="tab === 'charts'">
+        <div>
+          {% include 'dashboard/partials/charts.html' %}
+        </div>
+      </template>
+
+      <template x-if="tab === 'create_blog'">
+        <div>
+          {% include 'dashboard/partials/blog_form.html' %}
+        </div>
+      </template>
+
+      <template x-if="tab === 'blogs'">
+        <div>
+          {% include 'dashboard/partials/blog_cards.html' %}
+        </div>
+      </template>
+
+      <template x-if="tab === 'events'">
+        <div>
+          <div class="flex justify-end mb-4">
+            <button @click="openEventModal" class="bg-teal-600 text-white px-6 py-3 rounded-md hover:bg-teal-700 transition">
+              + New Event
+            </button>
+          </div>
+          {% include 'dashboard/partials/event_cards.html' %}
+        </div>
+      </template>
+    </main>
+  </div>
+
+  <!-- Event Modal -->
+  <div
+    id="eventModal"
+    x-show="showEventModal"
+    x-transition
+    class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+    style="display: none;"
+    x-cloak
+  >
+    <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-2xl overflow-y-auto max-h-[90vh]">
+      <h2 class="text-xl font-bold mb-4" x-text="editingEvent ? 'Edit Event' : 'Add Event'"></h2>
+      <form method="post" :action="eventFormAction" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <label class="block text-sm font-medium text-gray-700 mb-1">Event Name</label>
+        <input type="text" name="name" x-model="eventForm.name" class="w-full border border-gray-300 rounded-md px-4 py-2 mb-4" required>
+
+        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+        <textarea name="description" x-model="eventForm.description" class="w-full border border-gray-300 rounded-md px-4 py-2 mb-4" rows="4" required></textarea>
+
+        <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+        <input type="date" name="date" x-model="eventForm.date" class="w-full border border-gray-300 rounded-md px-4 py-2 mb-4" required>
+
+        <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+        <input type="text" name="location" x-model="eventForm.location" class="w-full border border-gray-300 rounded-md px-4 py-2 mb-4" required>
+
+        <label class="block text-sm font-medium text-gray-700 mb-1">Thumbnail</label>
+        <template x-if="eventForm.thumbnail">
+          <img :src="eventForm.thumbnail" alt="Current Thumbnail" class="w-32 h-32 object-cover rounded mb-2">
+        </template>
+        <input type="file" name="thumbnail" class="w-full border border-gray-300 rounded-md px-4 py-2 mb-4 bg-white text-gray-700">
+
+        <label class="block text-sm font-medium text-gray-700 mb-1">Event Flier</label>
+        <template x-if="eventForm.flier">
+          <img :src="eventForm.flier" alt="Current Flier" class="w-32 h-32 object-cover rounded mb-2">
+        </template>
+        <input type="file" name="flier" class="w-full border border-gray-300 rounded-md px-4 py-2 mb-4 bg-white text-gray-700">
+
+        <div class="flex justify-end mt-4">
+          <button type="button" @click="closeEventModal" class="mr-2 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% include 'dashboard/partials/scripts.html' %}
+</body>
+</html>

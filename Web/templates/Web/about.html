@@ -5,25 +5,25 @@
 	{% include './partials/header/navbar.html' with theme='dark'%}
 	{% include './partials/header/hamburger-menu.html' with faq_link='#faq' %}
 	{% load static %}
-	<div class="relative w-full  overflow-hidden py-8 bg-white" style="padding-top: 100px;">
+	<div class="relative w-full  overflow-hidden py-4 bg-white" >
 	  <!-- Fade edges -->
 	  <div class="pointer-events-none absolute top-0 left-0 h-full w-32 bg-gradient-to-r from-white to-transparent z-10"></div>
 	  <div class="pointer-events-none absolute top-0 right-0 h-full w-32 bg-gradient-to-l from-white to-transparent z-10"></div>
 
 	  <!-- Scrolling content -->
-	  <div class="animate-marquee flex gap-16 w-max" style="height:200px">
-	    <div class=" text-[6rem] sm:text-[9rem] md:text-[12rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
-	    <div class=" text-[6rem] sm:text-[9rem] md:text-[12rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
-	    <div class=" text-[6rem] sm:text-[9rem] md:text-[12rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
-	    <div class=" text-[6rem] sm:text-[9rem] md:text-[12rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
-	    <div class=" text-[6rem] sm:text-[9rem] md:text-[12rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
-	    <div class=" text-[6rem] sm:text-[9rem] md:text-[12rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
+	  <div class="animate-marquee flex gap-16 w-max" style="margin-top: 100px;">
+	    <div class=" text-[6rem] sm:text-[9rem] md:text-[9rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
+	    <div class=" text-[6rem] sm:text-[9rem] md:text-[9rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
+	    <div class=" text-[6rem] sm:text-[9rem] md:text-[9rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
+	    <div class=" text-[6rem] sm:text-[9rem] md:text-[9rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
+	    <div class=" text-[6rem] sm:text-[9rem] md:text-[9rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
+	    <div class=" text-[6rem] sm:text-[9rem] md:text-[9rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
 	  </div>
 	</div>
 	<!-- <div class="marquee-container pt-16 mx-auto overflow-hidden">
 	 <p class="marquee-text font-saira font-semibold text-2xl sm:text-5xl md:text-8xl">Luxury. Connection. Wellness.</p>
 	</div> -->
-	<div class="container pt-10 py-12 mx-auto px-4">
+	<div class="container mx-auto px-4">
 	 <div class="header">
 	    <h2 class="font-saira font-normal text-[20px] md:text-[40px] leading-text tracking-normal mb-20">
 	       <span class="font-light text-[15px] mr-3">ABOUT US</span>Unwind Africa curates luxurious, soulful experiences designed to restore calm and celebrate life’s finest moments. From solo escapes to
@@ -114,65 +114,114 @@
 	    </div>
 	 </div>
 
-	 <div class="max-w-7xl mx-auto inter-font">
-	    <h2 class="text-center inter-font font-semi-bold text-[30px] md:text-[98px]">MEET OUR TEAM</h2>
-	    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
-	       <div class="flex flex-col items-center text-black bg-white pt-7 pb-6 px-4">
-	          <img src="{% static './images/about/DSC_0024.jpg' %}" alt="Olajumoke Ogudipe " class="w-full h-28 md:h-auto object-contain" />
-	          <h3 class="text-xl md:text-[24px] font-normal mb-2 text-center">Olajumoke Ogudipe</h3>
-	          <p class="text-black/90 text-center inter-font text-xs font-normal">Executive Director</p>
-	       </div>
-	       <div class="flex flex-col items-center text-black bg-white pt-7 pb-6 px-4">
-	          <img src="{% static './images/about/IMG-20250517-WA0019 (1).jpg' %}" alt="Grace Henshaw" class="w-full h-28 md:h-auto object-contain" />
-	          <h3 class="text-xl md:text-[24px] font-normal mb-2 text-center">Grace Henshaw</h3>
-	          <p class="text-black/90 text-center inter-font text-xs font-normal">Life Coaching, Family Life Therapy, Trauma-Informed Management</p>
-	       </div>
-	       <div class="flex flex-col items-center text-black bg-white pt-7 pb-6 px-4">
-	          <img src="{% static './images/about/DSC_0745 1.jpg' %}" alt="Yomi Sodunke " class="w-full h-28 md:h-auto object-contain" />
-	          <h3 class="text-xl md:text-[24px] font-normal mb-2 text-center">Yomi Sodunke</h3>
-	          <p class="text-black/90 text-center inter-font text-xs font-normal">Media Director</p>
-	       </div>
-	       <div class="flex flex-col items-center text-black bg-white pt-7 pb-6 px-4">
-	          <img src="{% static './images/about/passport Feyikemi (1).jpg' %}" alt="Feyikemi Adeniran " class="w-full h-28 md:h-auto object-contain" />
-	          <h3 class="text-xl md:text-[24px] font-normal mb-2 text-center">Feyikemi Adeniran</h3>
-	          <p class="text-black/90 text-center inter-font text-xs font-normal">Event Coordinator</p>
-	       </div>
-	       <div class="flex flex-col items-center text-black bg-white pt-7 pb-6 px-4">
-	          <img src="{% static './images/about/be10a6a1f4e9342511bbfedd8949bbfd_0 (2).jpg' %}" alt="Tope Olujobi " class="w-full h-28 md:h-auto object-contain" />
-	          <h3 class="text-xl md:text-2xl font-normal mb-2 text-center">Tope Olujobi</h3>
-	          <p class="text-black/90 text-center inter-font text-xs font-normal">Relaxation Specialists</p>
-	       </div>
+<!-- AOS (Animate On Scroll) CSS -->
+
+	<div class="max-w-7xl mx-auto px-4 md:px-8 py-12 inter-font">
+	  <h2 class="text-center font-bold text-3xl md:text-6xl mb-12 tracking-widest text-gray-800">
+	    MEET OUR TEAM
+	  </h2>
+
+	  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+	    
+	    <!-- TEAM MEMBER -->
+	    <div data-aos="fade-up" class="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center transform transition-transform hover:-translate-y-2 hover:shadow-2xl duration-300">
+	      <img src="{% static './images/about/DSC_0024.jpg' %}" alt="Olajumoke Ogudipe"
+	           class="w-32 h-32 object-cover rounded-full shadow-md mb-4" />
+	      <h3 class="text-xl font-semibold text-gray-800">Olajumoke Ogudipe</h3>
+	      <p class="text-gray-600 text-sm mt-1">Executive Director</p>
 	    </div>
-	 </div>
+
+	    <!-- TEAM MEMBER -->
+	    <div data-aos="fade-up" data-aos-delay="100" class="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center transform transition-transform hover:-translate-y-2 hover:shadow-2xl duration-300">
+	      <img src="{% static './images/about/IMG-20250517-WA0019 (1).jpg' %}" alt="Grace Henshaw"
+	           class="w-32 h-32 object-cover rounded-full shadow-md mb-4" />
+	      <h3 class="text-xl font-semibold text-gray-800">Grace Henshaw</h3>
+	      <p class="text-gray-600 text-sm mt-1">
+	        Life Coaching, Family Life Therapy, Trauma-Informed Management
+	      </p>
+	    </div>
+
+	    <!-- TEAM MEMBER -->
+	    <div data-aos="fade-up" data-aos-delay="200" class="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center transform transition-transform hover:-translate-y-2 hover:shadow-2xl duration-300">
+	      <img src="{% static './images/about/DSC_0745 1.jpg' %}" alt="Yomi Sodunke"
+	           class="w-32 h-32 object-cover rounded-full shadow-md mb-4" />
+	      <h3 class="text-xl font-semibold text-gray-800">Yomi Sodunke</h3>
+	      <p class="text-gray-600 text-sm mt-1">Media Director</p>
+	    </div>
+
+	    <!-- TEAM MEMBER -->
+	    <div data-aos="fade-up" data-aos-delay="300" class="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center transform transition-transform hover:-translate-y-2 hover:shadow-2xl duration-300">
+	      <img src="{% static './images/about/passport Feyikemi (1).jpg' %}" alt="Feyikemi Adeniran"
+	           class="w-32 h-32 object-cover rounded-full shadow-md mb-4" />
+	      <h3 class="text-xl font-semibold text-gray-800">Feyikemi Adeniran</h3>
+	      <p class="text-gray-600 text-sm mt-1">Event Coordinator</p>
+	    </div>
+
+	    <!-- TEAM MEMBER -->
+	    <div data-aos="fade-up" data-aos-delay="400" class="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center transform transition-transform hover:-translate-y-2 hover:shadow-2xl duration-300">
+	      <img src="{% static './images/about/be10a6a1f4e9342511bbfedd8949bbfd_0 (2).jpg' %}" alt="Tope Olujobi"
+	           class="w-32 h-32 object-cover rounded-full shadow-md mb-4" />
+	      <h3 class="text-xl font-semibold text-gray-800">Tope Olujobi</h3>
+	      <p class="text-gray-600 text-sm mt-1">Relaxation Specialist</p>
+	    </div>
+
+	  </div>
 	</div>
 
-	<div id="faq" class="max-w-7xl px-4 mx-auto bg-white py-8">
-	 <h2 class="text-2xl sm:text-3xl md:text-5xl font-saira font-medium text-center text-gray-900 mb-10">frequently asked questions<br />(FAQ)</h2>
 
-	 <div class="space-y-8 font-saira font-light text-1xl md:text-4xl leading-[1]">
-	    <div>
-	       <p class="text-2xl font-medium mb-2">What types of experiences does Unwind Africa offer?</p>
-	       <p class="font-saira font-light sm:text-xl leading-[1]">
-	          Unwind Africa curates personalized wellness, travel, and celebration experiences — from solo escapes and romantic retreats to milestone events and family getaways. Each package is
-	          designed to blend luxury with serenity and soulful living.
-	       </p>
-	    </div>
+<!-- AOS (Animate On Scroll) CSS -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
-	    <div>
-	       <p class="text-2xl font-medium mb-2">Can I customize my getaway or wellness experience?</p>
-	       <p class="font-saira font-light sm:text-xl leading-[1]">
-	          Absolutely. We specialize in bespoke services. Whether it's a curated spa package, a scenic destination, or an intimate celebration, our team works closely with you to personalize
-	          every detail for a meaningful and memorable experience.
-	       </p>
-	    </div>
+<div id="faq" class="max-w-7xl px-4 md:px-8 mx-auto py-16 bg-white font-saira">
+  <h2 class="text-3xl sm:text-4xl md:text-6xl font-semibold text-center text-gray-900 mb-16 leading-snug tracking-tight">
+    Frequently Asked Questions<br />(FAQ)
+  </h2>
 
-	    <div>
-	       <p class="text-2xl font-medium mb-2">How do I book an experience or get in touch with your team?</p>
-	       <p class="font-saira font-light sm:text-xl leading-[1]">
-	          You can explore packages and request a consultation directly through our website. For personalized bookings, brand partnerships, or inquiries, simply use our contact form or reach
-	          out via email or phone — our team will be glad to assist you.
-	       </p>
-	    </div>
-	 </div>
-	</div>
+  <div class="space-y-12 text-gray-800">
+    
+    <!-- FAQ ITEM -->
+    <div data-aos="fade-up" class="transition-transform duration-300 hover:scale-[1.01]">
+      <p class="text-xl md:text-2xl font-semibold mb-3 text-gray-900">
+        What types of experiences does Unwind Africa offer?
+      </p>
+      <p class="text-base sm:text-lg leading-relaxed text-gray-700">
+        Unwind Africa curates personalized wellness, travel, and celebration experiences — from solo escapes and romantic retreats to milestone events and family getaways.
+        Each package is designed to blend luxury with serenity and soulful living.
+      </p>
+    </div>
+
+    <!-- FAQ ITEM -->
+    <div data-aos="fade-up" data-aos-delay="100" class="transition-transform duration-300 hover:scale-[1.01]">
+      <p class="text-xl md:text-2xl font-semibold mb-3 text-gray-900">
+        Can I customize my getaway or wellness experience?
+      </p>
+      <p class="text-base sm:text-lg leading-relaxed text-gray-700">
+        Absolutely. We specialize in bespoke services. Whether it's a curated spa package, a scenic destination, or an intimate celebration, our team works closely with you
+        to personalize every detail for a meaningful and memorable experience.
+      </p>
+    </div>
+
+    <!-- FAQ ITEM -->
+    <div data-aos="fade-up" data-aos-delay="200" class="transition-transform duration-300 hover:scale-[1.01]">
+      <p class="text-xl md:text-2xl font-semibold mb-3 text-gray-900">
+        How do I book an experience or get in touch with your team?
+      </p>
+      <p class="text-base sm:text-lg leading-relaxed text-gray-700">
+        You can explore packages and request a consultation directly through our website. For personalized bookings, brand partnerships, or inquiries, simply use our contact form or reach
+        out via email or phone — our team will be glad to assist you.
+      </p>
+    </div>
+
+  </div>
+</div>
+
 {% endblock %}
+<!-- AOS Script -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 800,
+    once: true,
+    easing: 'ease-out'
+  });
+</script>

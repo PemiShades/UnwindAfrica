@@ -1,0 +1,30 @@
+<!-- Overview Dashboard -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+  <div class="p-4 bg-blue-50 rounded shadow text-center">
+    <p class="text-sm text-gray-600">Total Blogs</p>
+    <p class="text-2xl font-bold">{{ blog_count }}</p>
+  </div>
+  <div class="p-4 bg-green-50 rounded shadow text-center">
+    <p class="text-sm text-gray-600">Published</p>
+    <p class="text-2xl font-bold text-green-600">{{ published_count }}</p>
+  </div>
+  <div class="p-4 bg-red-50 rounded shadow text-center">
+    <p class="text-sm text-gray-600">Unpublished</p>
+    <p class="text-2xl font-bold text-red-600">{{ unpublished_count }}</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div class="p-4 bg-yellow-50 rounded shadow text-center">
+    <p class="text-sm text-gray-600">Total Events</p>
+    <p class="text-2xl font-bold">{{ event_count }}</p>
+  </div>
+  <div class="p-4 bg-blue-50 rounded shadow text-center">
+    <p class="text-sm text-gray-600">Upcoming</p>
+    <p class="text-2xl font-bold text-blue-600">{{ upcoming_events }}</p>
+  </div>
+  <div class="p-4 bg-gray-100 rounded shadow text-center">
+    <p class="text-sm text-gray-600">Expired</p>
+    <p class="text-2xl font-bold">{{ expired_events }}</p>
+  </div>
+</div>

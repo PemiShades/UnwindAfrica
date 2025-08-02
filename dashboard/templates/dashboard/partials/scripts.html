@@ -1,0 +1,131 @@
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // ============== CHART.JS SETUP ==============
+    const categoryLabels = {{ category_chart_labels|safe }};
+    const categoryData = {{ category_chart_counts|safe }};
+    const categoryTooltips = {{ category_chart_tooltips|safe }};
+    const monthlyLabels = {{ monthly_chart_labels|safe }};
+    const monthlyData = {{ monthly_chart_counts|safe }};
+
+    // Pie Chart
+    new Chart(document.getElementById("categoryChart"), {
+      type: 'pie',
+      data: {
+        labels: categoryLabels,
+        datasets: [{
+          data: categoryData,
+          backgroundColor: ['#60A5FA', '#FBBF24', '#34D399', '#F472B6', '#A78BFA', '#F87171'],
+          borderColor: '#fff',
+          borderWidth: 2,
+        }]
+      },
+      options: {
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                const idx = context.dataIndex;
+                const titles = categoryTooltips[idx];
+                const preview = titles.slice(0, 3).join(', ');
+                const more = titles.length > 3 ? ` +${titles.length - 3} more` : '';
+                return `${context.label}: ${context.raw} posts (${preview}${more})`;
+              }
+            }
+          },
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+
+    // Line Chart
+    new Chart(document.getElementById("monthlyChart"), {
+      type: 'line',
+      data: {
+        labels: monthlyLabels,
+        datasets: [{
+          label: 'Blogs',
+          data: monthlyData,
+          fill: false,
+          borderColor: '#3B82F6',
+          tension: 0.4,
+          pointBackgroundColor: '#3B82F6',
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => `${ctx.raw} blog${ctx.raw === 1 ? '' : 's'}`
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { stepSize: 1 }
+          }
+        }
+      }
+    });
+
+    // ============== BLOG MODAL ==============
+    const blogModal = document.getElementById('editorModal');
+    const blogForm = blogModal?.querySelector('form');
+    const blogTrigger = document.getElementById('new-post-btn');
+
+    blogTrigger?.addEventListener('click', () => {
+      if (blogForm) {
+        blogForm.reset();
+        blogForm.action = "{% url 'create_blog' %}";
+        blogModal.classList.remove('hidden');
+      }
+    });
+
+    window.editEvent = (id, name, description, date, location) => {
+      if (eventForm) {
+        eventForm.action = `/dashboard/event/${id}/edit/`; // ✅ FIXED LINE
+        eventForm.querySelector('input[name="name"]').value = name;
+        eventForm.querySelector('textarea[name="description"]').value = description;
+        eventForm.querySelector('input[name="date"]').value = date;
+        eventForm.querySelector('input[name="location"]').value = location;
+        eventModal.classList.remove('hidden');
+      }
+    };
+
+    window.closeEditorModal = () => blogModal?.classList.add('hidden');
+
+    // ============== EVENT MODAL (ALPINE) ==============
+    const eventTrigger = document.getElementById('new-event-btn');
+    const eventModal = document.getElementById('eventModal');
+
+    eventTrigger?.addEventListener('click', () => {
+      // Trigger Alpine to open modal and clear form
+      if (window.dashboardManagerInstance) {
+        dashboardManagerInstance.editingEvent = false;
+        dashboardManagerInstance.eventFormAction = "{% url 'create_event' %}";
+        dashboardManagerInstance.eventForm = {
+          id: '', name: '', description: '', date: '', location: '',
+          thumbnail: '', flier: ''
+        };
+        dashboardManagerInstance.showEventModal = true;
+      }
+    });
+
+    window.editEvent = (id, name, description, date, location, thumbnail, flier) => {
+      if (window.dashboardManagerInstance) {
+        dashboardManagerInstance.editingEvent = true;
+        dashboardManagerInstance.eventFormAction = `/dashboard/edit-event/${id}/`;
+        dashboardManagerInstance.eventForm = {
+          id, name, description, date, location,
+          thumbnail, flier
+        };
+        dashboardManagerInstance.showEventModal = true;
+      }
+    };
+
+    window.closeModal = (type) => {
+      if (type === 'event') eventModal?.classList.add('hidden');
+    };
+  });
+</script>

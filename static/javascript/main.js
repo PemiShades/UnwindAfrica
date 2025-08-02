@@ -1,4 +1,4 @@
-const slides = document.querySelectorAll('.carousel-slide');
+// const slides = document.querySelectorAll('.carousel-slide');
 const prevBtn = document.querySelector('.carousel-button.prev');
 const nextBtn = document.querySelector('.carousel-button.next');
 const dotContainer = document.getElementById('carousel-dots');
@@ -97,71 +97,71 @@ function closeModal() {
      const initialTargetId = initialActiveIcon.dataset.target;
      showPackage(initialTargetId); // Call this to load initial text and image panes
   }
-hamburgerCloseBtn.addEventListener('click',()=>{
-  hamburgerMenu.style.visibility = 'hidden';
-})
-hamburgerBtn.addEventListener('click',()=>{
-  hamburgerMenu.style.visibility = 'visible';
-})
-menuLinks.forEach(link => {
-  link.addEventListener('click', () => {
-    hamburgerMenu.classList.remove('show');
-  });
-});
-let currentIndex = 0;
-const totalSlides = slides.length;
+// hamburgerCloseBtn.addEventListener('click',()=>{
+//   hamburgerMenu.style.visibility = 'hidden';
+// })
+// hamburgerBtn.addEventListener('click',()=>{
+//   hamburgerMenu.style.visibility = 'visible';
+// })
+// menuLinks.forEach(link => {
+//   link.addEventListener('click', () => {
+//     hamburgerMenu.classList.remove('show');
+//   });
+// });
+// let currentIndex = 0;
+// const totalSlides = slides.length;
 
-// Create dots
-for (let i = 0; i < totalSlides; i++) {
-  const dot = document.createElement('button');
-  dot.classList.add('carousel-dot');
-  if (i === 0) dot.classList.add('active');
-  dot.addEventListener('click', () => goToSlide(i));
-  dotContainer.appendChild(dot);
-}
+// // Create dots
+// for (let i = 0; i < totalSlides; i++) {
+//   const dot = document.createElement('button');
+//   dot.classList.add('carousel-dot');
+//   if (i === 0) dot.classList.add('active');
+//   dot.addEventListener('click', () => goToSlide(i));
+//   dotContainer.appendChild(dot);
+// }
 
-const dots = document.querySelectorAll('.carousel-dot');
+// // const dots = document.querySelectorAll('.carousel-dot');
 
-goToSlide(0);
-function goToSlide(index) {
-  slides[currentIndex].classList.remove('active');
-  dots[currentIndex].classList.remove('active');
-  currentIndex = index;
-  slides[currentIndex].classList.add('active');
-  dots[currentIndex].classList.add('active');
-}
+// goToSlide(0);
+// function goToSlide(index) {
+//   slides[currentIndex].classList.remove('active');
+//   dots[currentIndex].classList.remove('active');
+//   currentIndex = index;
+//   slides[currentIndex].classList.add('active');
+//   dots[currentIndex].classList.add('active');
+// }
 
-function showNextSlide() {
-  let nextIndex = (currentIndex + 1) % totalSlides;
-  goToSlide(nextIndex);
-}
+// function showNextSlide() {
+//   let nextIndex = (currentIndex + 1) % totalSlides;
+//   goToSlide(nextIndex);
+// }
 
-function showPrevSlide() {
-  let prevIndex = (currentIndex - 1 + totalSlides) % totalSlides;
-  goToSlide(prevIndex);
-}
+// function showPrevSlide() {
+//   let prevIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+//   goToSlide(prevIndex);
+// }
 
-// nextBtn.addEventListener('click', showNextSlide);
-// prevBtn.addEventListener('click', showPrevSlide);
+// // nextBtn.addEventListener('click', showNextSlide);
+// // prevBtn.addEventListener('click', showPrevSlide);
 
-setInterval(showNextSlide, 5000); // Auto-slide every 5s
+// setInterval(showNextSlide, 5000); // Auto-slide every 5s
 
-// Swipe support
-let startX = 0;
-const carousel = document.getElementById('carousel');
+// // Swipe support
+// let startX = 0;
+// const carousel = document.getElementById('carousel');
 
-carousel.addEventListener('touchstart', (e) => {
-  startX = e.touches[0].clientX;
-});
+// carousel.addEventListener('touchstart', (e) => {
+//   startX = e.touches[0].clientX;
+// });
 
-carousel.addEventListener('touchend', (e) => {
-  const endX = e.changedTouches[0].clientX;
-  if (startX - endX > 50) {
-    showNextSlide();
-  } else if (endX - startX > 50) {
-    showPrevSlide();
-  }
-});
+// carousel.addEventListener('touchend', (e) => {
+//   const endX = e.changedTouches[0].clientX;
+//   if (startX - endX > 50) {
+//     showNextSlide();
+//   } else if (endX - startX > 50) {
+//     showPrevSlide();
+//   }
+// });
 
 document.addEventListener("DOMContentLoaded", function () {
 });

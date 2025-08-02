@@ -1,0 +1,68 @@
+{% extends 'Web/main.html' %}
+{% load static %}
+
+<title>Blog Post - Unwind Africa</title>
+<style>
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .animate-fade-in-up { animation: fadeInUp 0.6s ease-out; }
+  .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+</style>
+
+{% block content %}
+   {% include './partials/header/navbar.html' with theme='dark'%}
+   {% include './partials/header/hamburger-menu.html' with faq_link="/about#faq"%}
+<div class="pt-12">
+  <!-- Back Button -->
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 animate-fade-in">
+    <a href="{% url 'blog' %}" class="inline-flex items-center text-teal-600 hover:text-teal-700 font-medium">
+      <i class="fas fa-arrow-left mr-2"></i>
+      Back to Blog
+    </a>
+  </div>
+
+  <!-- Blog Post Content -->
+  <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+    <!-- Blog Image -->
+    {% if post.thumbnail %}
+      <div class="mb-8 animate-fade-in">
+        <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}" class="w-full h-64 md:h-96 object-cover rounded-xl shadow-lg"/>
+      </div>
+    {% endif %}
+
+    <!-- Blog Body -->
+    <div class="bg-white rounded-xl shadow-lg p-8 animate-fade-in-up">
+      <header class="mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">{{ post.title }}</h1>
+
+        <div class="flex items-center text-gray-600 text-sm">
+          <div class="flex items-center">
+            <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center mr-3">
+              <i class="fas fa-user text-teal-600"></i>
+            </div>
+            <div>
+              <p class="font-medium text-gray-900">Unwind Africa</p>
+              <p class="text-xs text-gray-500">Author</p>
+            </div>
+          </div>
+          <span class="mx-4">•</span>
+          <div class="flex items-center">
+            <i class="fas fa-calendar text-gray-400 mr-2"></i>
+            <span>{{ post.created_at|date:"F j, Y" }}</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+        {{ post.content|linebreaks }}
+      </div>
+    </div>
+  </article>
+</div>
+{% endblock %}

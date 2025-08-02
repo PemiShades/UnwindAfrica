@@ -1,0 +1,18 @@
+<div class="flex justify-between items-center mb-4">
+  <h3 class="text-xl font-bold">Upcoming Events</h3>
+  <button onclick="openModal('event')" class="bg-pink-600 text-white px-4 py-2 rounded shadow hover:bg-pink-700">
+    + Add Event
+  </button>
+</div>
+
+<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  {% for event in upcoming_events_list %}
+    <div class="bg-white shadow-md rounded-xl p-4 border border-pink-100">
+      <h4 class="text-lg font-semibold text-pink-700 mb-2">{{ event.name }}</h4>
+      <p class="text-sm text-gray-500">{{ event.date|date:"M d, Y" }}</p>
+      <p class="text-sm text-gray-600">{{ event.description|truncatechars:100 }}</p>
+    </div>
+  {% empty %}
+    <p>No upcoming events.</p>
+  {% endfor %}
+</div>

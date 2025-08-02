@@ -1,6 +1,10 @@
+from django.shortcuts import render, get_object_or_404
+from .models import Post
 # from .models import Event
 
 # Create your views here.
+from django.utils.timezone import now
+
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from .models import Event
@@ -297,6 +301,27 @@ def delete_event(request, id):
     event = get_object_or_404(Event, id=id)
     event.delete()
     return JsonResponse({'success': True})
+
+
+
+def blog_detail(request, slug):
+    post = get_object_or_404(Post, slug=slug, is_published=True)
+    related = Post.objects.filter(is_published=True).exclude(id=post.id)[:2]
+    return render(request, 'Web/blog_detail.html', {
+        'post': post,
+        'related': related,
+    })
+
+# In views.py
+def blog_list(request):
+    posts = Post.objects.all()
+    return render(request, 'Web/blog_list.html', {'posts': posts, 'now': now()})
+
+
+def contact(request):
+    return render(request, 'Web/contact.html', {})
+
+
 
 
 logger = logging.getLogger(__name__)

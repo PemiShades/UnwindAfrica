@@ -1,88 +1,73 @@
-<style>
-  /* Shared Section Styling */
-.about-layout {
-  font-family: 'Saira', sans-serif;
-  background: #fff;
-  padding: 60px 20px;
-}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hamburger Menu Test</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="relative">
 
-/* DESKTOP Layout (default) */
-.desktop-layout {
-  display: block;
-}
-.desktop-top {
-  text-align: center;
-  font-size: 3rem;
-  font-weight: bold;
-  margin-bottom: 30px;
-}
-.desktop-content {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 40px;
-}
-.desktop-left {
-  font-size: 3rem;
-  font-weight: bold;
-}
-.desktop-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.desktop-img {
-  width: 300px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-.desktop-bottom {
-  font-size: 3rem;
-  font-weight: bold;
-  margin-top: 20px;
-}
-.desktop-right {
-  max-width: 300px;
-  text-align: left;
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #555;
-}
+  <!-- Hamburger Icon (toggle menu) -->
+  <button onclick="toggleMenu()" class="fixed top-6 right-6 z-50 focus:outline-none">
+    <svg class="w-8 h-8 text-black" fill="none" stroke="currentColor" stroke-width="2"
+         viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>
+  </button>
 
-/* MOBILE Layout */
-.mobile-layout {
-  display: none;
-  text-align: center;
-}
-.mobile-heading {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-.mobile-img {
-  width: 90%;
-  max-width: 350px;
-  margin: 0 auto;
-  display: block;
-  border-radius: 10px;
-}
-.mobile-text {
-  font-size: 1rem;
-  line-height: 1.6;
-  margin-top: 20px;
-  color: #555;
-}
+  <!-- Hamburger Menu (hidden by default) -->
+  <div id="hamburgerMenu" class="fixed inset-0 z-40 bg-white transition-transform duration-500 transform translate-x-full">
+    <div class="flex flex-col md:flex-row h-full">
 
-/* MEDIA QUERIES */
-@media (max-width: 768px) {
-  .desktop-layout {
-    display: none;
-  }
-  .mobile-layout {
-    display: block;
-  }
-}
 
-</style>
+      <!-- Right Image -->
+      <div class="hidden md:block md:w-1/2 relative">
+        <img src="{% static 'images/sample-image.jpg' %}" alt="Contact"
+             class="w-full h-full object-cover">
+        <div class="absolute bottom-4 left-4 bg-black/60 text-white px-4 py-2 text-lg font-semibold shadow rounded">
+          Contact
+        </div>
+      </div>
 
+      <!-- Left Content -->
+      <div class="w-full md:w-1/2 p-8 flex flex-col justify-between">
+        <!-- Close Button -->
+        <div class="flex justify-end">
+          <button onclick="toggleMenu()" class="text-gray-800 text-4xl">&times;</button>
+        </div>
+
+        <!-- Nav Links -->
+        <div>
+          <h2 class="text-3xl font-bold mb-6">Menu</h2>
+          <ul class="space-y-4 text-lg font-medium text-gray-700">
+            <li><a href="#">Company</a></li>
+            <li><a href="#">Sustainability</a></li>
+            <li><a href="#">Highlights</a></li>
+          </ul>
+        </div>
+
+        <!-- Socials -->
+        <div class="flex space-x-4 mt-8">
+          <a href="#" class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full">
+            <i class="fab fa-linkedin-in text-gray-600"></i>
+          </a>
+          <a href="#" class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full">
+            <i class="fab fa-instagram text-gray-600"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toggle Script -->
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById('hamburgerMenu');
+      menu.classList.toggle('translate-x-full');
+    }
+  </script>
+</body>
+</html>

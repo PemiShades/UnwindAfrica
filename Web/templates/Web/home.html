@@ -326,7 +326,18 @@
 </section>
 
 
-<section class="relative py-16 bg-gradient-to-b from-[#f8f8f8] to-white" x-data="{ selectedEvent: null }">
+<section class="relative py-16 bg-gradient-to-b from-[#f8f8f8] to-white" x-data="{
+    selectedEvent: {
+      name: '',
+      description: '',
+      date: '',
+      location: ''
+    },
+    events: [],
+    selectEvent(event) {
+      this.selectedEvent = event;
+    }
+  }"">
   <h2 class="text-4xl md:text-5xl font-bold text-center text-[#504242] malibu-font mb-2 tracking-tight">
     Upcoming Events
   </h2>
@@ -338,22 +349,29 @@
         <div
           class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition transform hover:scale-[1.01] cursor-pointer flex flex-col md:flex-row"
           @click="selectedEvent = {
-              title: '{{ event.title|escapejs }}',
-              flier: '{{ event.flier.url }}',
-              brief_text: '{{ event.brief_text|escapejs }}',
-              date: '{{ event.date|date:'F j, Y' }}'
+              name: '{{ event.name|escapejs }}',
+              flier: '{{ event.flier.url|default:'' }}',
+              description: '{{ event.description|escapejs }}',
+              date: '{{ event.date|date:'F j, Y' }}',
+              location: '{{ event.location|escapejs }}',
+              thumbnail: '{{ event.thumbnail.url|default:'' }}'
           }"
         >
-          <!-- Left: Image -->
+          <!-- Left: Thumbnail -->
           <div class="md:w-1/2 h-48 md:h-auto">
-            <img src="{{ event.thumbnail.url }}" alt="{{ event.title }}" class="w-full h-full object-cover" />
+            {% if event.thumbnail %}
+              <img src="{{ event.thumbnail.url }}" alt="{{ event.name|escape }}" class="w-full h-full object-cover" />
+            {% else %}
+              <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">No Image</div>
+            {% endif %}
           </div>
 
           <!-- Right: Text -->
           <div class="md:w-1/2 p-5 flex flex-col justify-center">
-            <h3 class="text-xl font-semibold text-gray-800 mb-1">{{ event.title }}</h3>
-            <p class="text-gray-600 text-sm leading-relaxed">{{ event.brief_text|truncatewords:20 }}</p>
+            <h3 class="text-xl font-semibold text-gray-800 mb-1">{{ event.name }}</h3>
+            <p class="text-gray-600 text-sm leading-relaxed">{{ event.description|truncatewords:20 }}</p>
             <p class="mt-2 text-[#504242] text-sm font-medium">📅 {{ event.date|date:"F j, Y" }}</p>
+            <p class="text-sm text-gray-500 mt-1">📍 {{ event.location }}</p>
           </div>
         </div>
       {% empty %}
@@ -362,100 +380,42 @@
     </div>
   </div>
 
-  <!-- Modal -->
-<!-- Modal -->
-<div
-  x-show="selectedEvent"
-  x-transition
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
->
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl relative overflow-hidden flex flex-col md:flex-row">
-    <button
-      class="absolute top-4 right-4 text-gray-500 hover:text-black text-2xl z-50"
-      @click="selectedEvent = null"
-    >×</button>
 
-    <!-- Left: Flier Image -->
-    <div class="md:w-1/2 h-64 md:h-auto">
-      <img :src="selectedEvent.flier" alt="Event Flier" class="w-full h-full object-cover" />
-    </div>
 
-    <!-- Right: Content -->
-    <div class="md:w-1/2 p-8 flex flex-col justify-center">
-      <h2 class="text-3xl font-bold text-gray-800 mb-4" x-text="selectedEvent.title"></h2>
-      <p class="text-base text-gray-600 leading-relaxed mb-3" x-text="selectedEvent.brief_text"></p>
-      <p class="text-base font-medium text-[#504242]">📅 <span x-text="selectedEvent.date"></span></p>
-    </div>
   </div>
-</div>
-
 </section>
 
 
-<section class="py-16 bg-gradient-to-b from-white to-[#f8f8f8]" x-data="{ selectedPost: null }">
+<section class="py-16 bg-gradient-to-b from-white to-[#f8f8f8]">
   <div class="max-w-6xl mx-auto px-4">
     <h2 class="text-4xl md:text-5xl font-bold text-center text-[#504242] malibu-font mb-2 tracking-tight">
       Latest From the Blog
     </h2>
     <p class="text-center text-gray-500 mb-10 text-lg">Curated travel tips, inspiration & more</p>
 
-    <!-- Grid of side-by-side blog cards -->
-    <div class="grid gap-6 sm:grid-cols-1 lg:grid-cols-2">
+    <!-- Blog Grid -->
+    <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
       {% for post in posts %}
-        <div
-          class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition transform hover:scale-[1.01] cursor-pointer flex flex-col md:flex-row"
-          @click="selectedPost = {
-            title: '{{ post.title|escapejs }}',
-            content: '{{ post.content|linebreaksbr|escapejs }}',
-            image: '{{ post.thumbnail.url }}',
-            date: '{{ post.created_at|date:"F j, Y" }}'
-          }"
-        >
-          <!-- Left: Thumbnail -->
-          <div class="md:w-1/2 h-48 md:h-auto">
+        <a href="{% url 'blog_detail' slug=post.slug %}" class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition transform hover:scale-[1.01] cursor-pointer flex flex-col">
+          
+          <!-- Thumbnail at the top -->
+          <div class="h-48">
             <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}" class="w-full h-full object-cover" />
           </div>
 
-          <!-- Right: Content -->
-          <div class="md:w-1/2 p-5 flex flex-col justify-center">
-            <h3 class="text-xl font-semibold text-gray-800 mb-1">{{ post.title }}</h3>
-            <p class="text-gray-600 text-sm leading-relaxed line-clamp-3">{{ post.content|truncatewords:25 }}</p>
-            <p class="mt-2 text-[#504242] text-sm font-medium">🗓️ {{ post.created_at|date:"F j, Y" }}</p>
+          <!-- Content -->
+          <div class="p-5 flex flex-col justify-between flex-grow">
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ post.title }}</h3>
+            <p class="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4">{{ post.content|truncatewords:25 }}</p>
+            <p class="text-sm text-[#504242] font-medium mt-auto">🗓️ {{ post.created_at|date:"F j, Y" }}</p>
           </div>
-        </div>
+        </a>
       {% empty %}
         <p class="text-center col-span-full text-gray-500">No blog posts found.</p>
       {% endfor %}
     </div>
   </div>
-
-  <!-- Modal -->
-  <div
-    x-show="selectedPost"
-    x-transition
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
-  >
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto relative overflow-hidden flex flex-col md:flex-row">
-      <button
-        class="absolute top-4 right-4 text-gray-600 hover:text-black text-2xl z-50"
-        @click="selectedPost = null"
-      >×</button>
-
-      <!-- Left: Image -->
-      <div class="md:w-1/2 h-64 md:h-auto">
-        <img :src="selectedPost.image" alt="Blog Image" class="w-full h-full object-cover" />
-      </div>
-
-      <!-- Right: Text -->
-      <div class="md:w-1/2 p-8 overflow-y-auto max-h-[80vh]">
-        <h2 class="text-2xl md:text-3xl font-bold text-[#504242] mb-4" x-text="selectedPost.title"></h2>
-        <p class="text-sm text-gray-500 mb-4" x-text="'Published: ' + selectedPost.date"></p>
-        <div class="text-base leading-relaxed text-gray-800 space-y-3" x-html="selectedPost.content"></div>
-      </div>
-    </div>
-  </div>
 </section>
-
 
 
 <!-- <div id="cardModal" class="fixed inset-0 z-50 bg-black/80 hidden items-center justify-center px-4">
