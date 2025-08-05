@@ -25,57 +25,93 @@
 <body>
 	{% block content %}
 	{% endblock %}
-	<footer id="footer" class="relative bg-[rgba(48,43,40,1)] text-white py-8">
-        <div class="container mx-auto px-5 flex flex-col justify-center">
-          <div class="text-left md:text-2xl font-normal font-inter text-sm">Contact Us</div>
+	<!-- Optional: Animate.css CDN (for fadeIn animations) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
-          <div class="flex flex-col items-center text-center px-4">
-            <img src="{% static '/images/LOGO-cropped.png' %}" alt="Unwind Africa Logo" class="w-auto h-24 object-contain mb-4" />
+<!-- Animate.css for entrance effects (optional but beautiful) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
-            <a href="mailto:Info@unwindafrica.com" class="sm:text-3xl md:text-5xl font-sans font-semibold mb-2"> Info@unwindafrica.com </a>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center py-6 md:py-12">
-                <a href="tel:+2348062067832" class="text-2xl font-semibold hover:text-green-400 transition-colors">
-                  +234 8062067832
-                </a>
-                <a href="tel:+2348051411198" class="text-2xl font-semibold hover:text-green-400 transition-colors">
-                  +234 8051411198
-                </a>
-                <a href="tel:+2348038268669" class="text-2xl font-semibold hover:text-green-400 transition-colors">
-                  +234 8038268669
-                </a>
-              </div>
+<!-- Animate.css for smooth entrance animations -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+<footer id="footer" class="bg-[rgba(48,43,40,1)] text-white py-16">
+  <div class="container mx-auto px-6 animate__animated animate__fadeInUp relative">
+    
+    <!-- "Contact Us" top-left -->
+    <div class="absolute top-6 left-6">
+      <p class="text-sm uppercase tracking-widest text-teal-400 font-semibold">Contact Us</p>
+    </div>
+
+    <!-- Centered logo and email -->
+    <div class="flex flex-col items-center mb-12 space-y-4">
+      <img src="{% static '/images/LOGO-cropped.png' %}" alt="Unwind Africa Logo"
+           class="h-24 drop-shadow-lg hover:scale-105 transition-transform duration-300" />
+      <a href="mailto:Info@unwindafrica.com"
+         class="text-2xl sm:text-3xl font-semibold hover:text-teal-400 transition duration-300">
+        Info@unwindafrica.com
+      </a>
+    </div>
+
+    <!-- Phone Numbers Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto text-center mb-12">
+      <a href="tel:+2348062067832" class="text-lg sm:text-xl font-medium hover:text-green-400 transition duration-300">
+        +234 8062067832
+      </a>
+      <a href="tel:+2348038268669" class="text-lg sm:text-xl font-medium hover:text-green-400 transition duration-300">
+        +234 8038268669
+      </a>
+    </div>
+
+    <!-- Address & Social Links Two-Column Grid -->
+   <!-- Two-column grid for Address & Socials (Tighter gap) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-4 max-w-5xl mx-auto text-center mb-16 items-center">
+
+      <!-- Address -->
+      <div>
+        <p class="text-base sm:text-lg font-light leading-relaxed text-gray-300">
+          No 8, Providence Street,<br />
+          Lekki Phase 1,<br />
+          Lagos, Nigeria.
+        </p>
+      </div>
+
+      <!-- Social Icons -->
+      <div class="flex justify-center items-center gap-5">
+        <a href="#" class="hover:scale-125 transition-transform duration-300" aria-label="Facebook">
+          <i class="fab fa-facebook-f text-2xl text-blue-400"></i>
+        </a>
+        <a href="#" class="hover:scale-125 transition-transform duration-300" aria-label="Instagram">
+          <i class="fab fa-instagram text-2xl text-pink-400"></i>
+        </a>
+        <a href="#" class="hover:scale-125 transition-transform duration-300" aria-label="Twitter">
+          <i class="fab fa-twitter text-2xl text-blue-300"></i>
+        </a>
+      </div>
+
+    </div>
+
+
+    <!-- Branding -->
+    <div class="text-center space-y-4">
+      <h2 class="text-4xl sm:text-6xl font-light uppercase tracking-wider font-saira">
+        UNWIND AFRICA<sup class="align-super text-xl sm:text-3xl">&reg;</sup>
+      </h2>
+      <p class="text-sm sm:text-base font-light text-gray-400">
+        &copy; <span id="year"></span> UNWINDAFRICA — All rights reserved
+      </p>
+    </div>
+
+  </div>
+</footer>
 
 
 
-            <div class="flex space-x-6 mb-16">
-              <a href="#" class="  flex items-center justify-center " aria-label="Facebook">
-                <i class="fab fa-facebook-f text-xl text-blue-400"></i>
-              </a>
-              <a href="#" class="  flex items-center justify-center group" aria-label="Instagram">
-                <i class="fab fa-instagram text-xl text-pink-400"></i>
-              </a>
-              <a href="#" class="  flex items-center justify-center group" aria-label="X (Twitter)">
-                <i class="fab fa-twitter text-xl text-blue-300"></i>
-              </a>
-            </div>
-          </div>
-          <div class="last">
-            <h2 class="text-3xl sm:text-5xl md:text-9xl font-light text-center leading-full font-saira uppercase tracking-wide mb-4">
-              UNWIND AFRICA<sup class="pb-3 md:pb-5 align-super font-sans text-2xl md:text-5xl lg:text-5xl -ml-[5px] sm:-ml-[30px] md:-ml-8">&reg;</sup>
-            </h2>
-              <div class="flex flex-col md:flex-row justify-between items-center text-center md:text-left py-6 md:py-12 px-4 md:px-12">
-                <p class="text-sm md:text-2xl font-normal font-inter">
-                  &copy;<span id="year"></span> UNWINDAFRICA
-                </p>
-                <p class="text-sm md:text-2xl font-normal font-inter mt-2 md:mt-0">
-                  All rights reserved
-                </p>
-              </div>
 
 
-          </div>
-        </div>
-      </footer>
+<script>
+  // Auto-update year
+</script>
+
 </body>
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
@@ -99,6 +135,7 @@
     "max-glare": 0.2,
   });
 
+  document.getElementById("year").textContent = new Date().getFullYear();
   // Mouse Glow
   const glow = document.getElementById("mouse-glow");
   document.addEventListener("mousemove", (e) => {

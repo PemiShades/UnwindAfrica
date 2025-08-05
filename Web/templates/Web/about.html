@@ -1,5 +1,6 @@
 {% extends 'Web/main.html' %}
 {% load static %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 {% block title %} About Us {% endblock %}
 {% block content %}
 	{% include './partials/header/navbar.html' with theme='dark'%}
@@ -30,26 +31,34 @@
 	       family getaways, our tailored packages offer connection, relaxation, and wellness—because true serenity is not a luxury, but a necessity.
 	    </h2>
 	 </div>
-	 <div class="max-w-7xl mx-auto">
-	    <div class="flex flex-col md:flex-row justify-between mb-8">
-	       <div class="flex items-center inter-font mb-4 md:mb-0">
-	          <h1 class="text-[20px] md:text-[40px] leading-[1] font-bold text-gray-900 mr-4">Our Vision</h1>
-	          <!-- <img src="../assets/images/vision 1.jpg" alt="eye icon" class="h-8 md:h-10 object-contain" /> -->
-	       </div>
-	       <p class="text-lg md:text-xl text-[15px] font-semibold max-w-2xl leading-relaxed text-right md:text-center">
-	          Empowering individuals, couples, families, and organizations to <br />prioritize relaxation, self-care, and meaningful connections,<br />
-	          fostering a culture of wellness and balance.
-	       </p>
-	    </div>
+	 <!-- Include Animate.css for animations (optional but powerful) -->
 
-	    <div class="w-full rounded-lg overflow-hidden shadow-lg">
-	       <img
-	          src="{% static './images/about/ransford-quaye-X47o1phzMTU-unsplash.jpg' %}"
-	          alt="A happy family enjoying the beach, representing wellness and connection."
-	          class="w-full h-auto object-cover rounded-lg"
-	       />
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+	  <!-- Text Section -->
+	  <div class="flex flex-col md:flex-row justify-between items-center gap-10 mb-12 animate__animated animate__fadeInUp">
+	    <div class="flex flex-col items-start text-left">
+	      <h1 class="text-3xl md:text-5xl font-bold text-gray-900 leading-tight mb-2 relative after:block after:w-16 after:h-1 after:bg-teal-400 after:mt-2">
+	        Our Vision
+	      </h1>
 	    </div>
-	 </div>
+	    <p class="text-gray-700 text-base sm:text-lg md:text-xl font-medium leading-relaxed max-w-3xl text-right md:text-center animate__animated animate__fadeIn animate__delay-1s">
+	      Empowering individuals, couples, families, and organizations to 
+	      <span class="text-teal-600">prioritize relaxation</span>, 
+	      <span class="text-teal-600">self-care</span>, and 
+	      <span class="text-teal-600">meaningful connections</span>, 
+	      fostering a culture of wellness and balance.
+	    </p>
+	  </div>
+
+	  <!-- Image Section -->
+	  <div class="w-full rounded-xl overflow-hidden shadow-2xl animate__animated animate__fadeInUp animate__delay-2s">
+	    <img
+	      src="{% static './images/about/ransford-quaye-X47o1phzMTU-unsplash.jpg' %}"
+	      alt="A happy family enjoying the beach, representing wellness and connection."
+	      class="w-full h-auto object-cover transition-transform duration-700 hover:scale-105 rounded-xl"
+	    />
+	  </div>
+	</div>
 
 	 <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 mt-8">
 	    <div class="w-full md:w-1/2 rounded-lg overflow-hidden shadow-lg">
@@ -214,6 +223,8 @@
 
   </div>
 </div>
+</div>
+
 
 {% endblock %}
 <!-- AOS Script -->
