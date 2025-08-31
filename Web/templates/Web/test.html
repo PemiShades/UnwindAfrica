@@ -75,3 +75,64 @@
 
 </body>
 </html>
+
+<!-- Hero -->
+<section class="hero">
+  <!-- background video -->
+  <div class="video-bg">
+    <video autoplay muted loop playsinline>
+      <source src="{% static 'assets/videos/bg1.mp4' %}" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+  <!-- dark overlay -->
+  <div class="hero-overlay">
+    <div class="container hero-grid">
+      <div>
+        <span class="eyebrow">Africa’s bold event engine</span>
+        <h1 class="title">
+          Experiences that 
+          <span style="background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent;">
+            move people
+          </span>.
+        </h1>
+        <p class="subtitle">
+          From intimate soirees to city-scale festivals, Unwind Africa blends design, logistics, 
+          and soul to deliver events that feel effortless and unforgettable.
+        </p>
+        <div class="hero-actions">
+          <a class="btn" href="#packages">Explore packages</a>
+          <a class="btn secondary" href="#contact">Plan with us</a>
+        </div>
+        <!-- marquee pills -->
+        <div class="marquee" aria-hidden="true">
+          <div class="marquee-track">
+            <span class="pill">No stress planning</span>
+            <span class="pill">Trusted vendors</span>
+            <span class="pill">Real-time coordination</span>
+            <span class="pill">Creative direction</span>
+            <span class="pill">Venue matching</span>
+            <span class="pill">On-site ops team</span>
+            <span class="pill">Transparent pricing</span>
+            <span class="pill">Guest joy first</span>
+            <span class="pill">No stress planning</span>
+            <span class="pill">Trusted vendors</span>
+            <span class="pill">Real-time coordination</span>
+          </div>
+        </div>
+      </div>
+      <!-- hero media -->
+      <div class="hero-media">
+        <img class="hero-img reveal" loading="eager"
+             alt="Vibrant event in Africa with lights and dancing"
+             src="https://picsum.photos/id/1025/960/1280" />
+        <div class="floating" aria-live="polite">
+          <span class="dot" aria-hidden="true"></span>
+          <strong>Live</strong>
+          <span style="color:var(--muted)">Team syncing vendor schedules</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+

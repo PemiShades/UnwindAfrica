@@ -5,493 +5,420 @@
 
 {% block content %}
 
-   {% include './partials/header/navbar.html' with theme='dark'%}
-   {% include './partials/header/hamburger-menu.html' with faq_link="/about#faq"%}
-
-   {% include './partials/marquee_section.html' %}
 <style>
-   section {
+   /* ------------------ Base Reset ------------------ */
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    img{max-width:100%;display:block}
+    a{color:inherit;text-decoration:none}
+    :root{
+      --ink:#0b1a2b;
+      --muted:#5c6b7a;
+      --brand:#0e6ba8;
+      --brand-2:#107e7d;
+      --accent:#6b8e23;
+      --bg:#ffffff;
+      --bg-2:#f6f8fb;
+      --card:#ffffff;
+      --shadow:0 10px 30px rgba(0,0,0,.08);
+      --radius:14px;
+    }
+    body{font-family: Arial, Helvetica, sans-serif; color: #000; background:var(--bg); line-height:1.6}
+    .container{width:min(1200px,92%);margin-inline:auto}
+
+    /* ------------------ Top Notice & Nav ------------------ */
+    .topline{font-size:.8rem;letter-spacing:.08em;text-align:center;padding:.75rem 1rem;color:var(--muted)}
+    .nav{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid #e8edf3}
+    .nav .bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 0}
+    .logo{display:flex;align-items:center;gap:.6rem;font-weight:800;letter-spacing:.02em}
+    .logo .dot{width:10px;height:10px;border-radius:50%;background:var(--brand)}
+    .navlinks{display:flex;gap:1rem;flex-wrap:wrap}
+    .navlinks a{padding:.55rem .9rem;border-radius:999px;border:1px solid #e3e9f0;font-size:.92rem;color:#1d2a39}
+    .navlinks a:hover,.navlinks a.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+    /* ------------------ Hero ------------------ */
+    .hero{position:relative;width: 100%;min-height:40vh;display:grid;place-items:center;}
+    .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.25))}
+    .hero .inner{position:relative;z-index:1;text-align:center;color:#fff;padding:3rem 1rem}
+    .eyebrow{font-size:.85rem;letter-spacing:.18em;opacity:.9}
+    h1.display{font-size:clamp(2.2rem,4vw,3.5rem);margin:.6rem 0 1rem;letter-spacing:.02em}
+    .lead{max-width:850px;margin:0 auto;font-size:1.05rem;opacity:.95}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;margin-top:1.25rem;background:var(--accent);color:#fff;padding:.8rem 1.2rem;border-radius:999px;font-weight:700}
+    .btn:hover{filter:brightness(.95)}
+   .video-bg video {
+      width: 100%;
       height: 100%;
+      object-fit: cover;
+    }
 
-   }
-   /* Active link style */
-   .active-link {
-      color: #facc15 !important; /* Tailwind's yellow-400, !important to ensure override */
-      font-weight: 600; /* Optional: Make it slightly bolder */
-   }
-   .banner-bg {
-      background-image: url('{% static "./images/packages/sara-dubler-Koei_7yYtIo-unsplash 1.jpg" %}');
-      background-size: cover; /* Cover the entire area */
-      background-position: center; /* Center the image */
-      background-repeat: no-repeat; /* Do not repeat the image */
-  }
-   /* Basic styling for icon wrappers */
-   .icon-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 5px;
-      overflow: hidden;
-      cursor: pointer;
-      border: 2px solid transparent; /* Default transparent border */
-      transition: all 0.3s ease-in-out; /* Smooth transition for hover/active */
-   }
+    /* ------------------ Royal-Style Explore Section ------------------ */
+    .rc-block{padding:3.5rem 0;border-top:1px solid #eef3f8}
+    .rc-title{letter-spacing:.14em;text-align:center;color:var(--muted);font-size:.82rem}
+    .rc-head{font-size:clamp(1.6rem,3.5vw,2.6rem);text-align:center;margin:.4rem 0 1.2rem;letter-spacing:.02em}
+    .rc-subnav{display:flex;justify-content:center;gap:.8rem;flex-wrap:wrap;margin-bottom:1.2rem}
+    .rc-subnav a{font-size:.86rem;padding:.5rem .9rem;border-radius:999px;border:1px solid #e3e9f0}
+    .rc-desc{max-width:980px;margin:0 auto 2rem;color:var(--muted);text-align:center}
+    .rc-section-title{margin:2.5rem 0 .4rem;color:#1d2a39;font-size:.9rem;letter-spacing:.18em}
+    .rc-section-head{font-size:clamp(1.4rem,2.8vw,2.1rem);margin:.2rem 0 .6rem}
+    .rc-section-copy{max-width:900px;color:var(--muted)}
 
-   .icon-wrapper:hover {
-      background-color: rgba(255, 255, 255, 0.1); /* Subtle hover effect */
-   }
+    .mosaic{display:grid;gap:12px;grid-template-columns:repeat(6,1fr)}
+    .tile{position:relative;overflow:hidden;border-radius:12px;box-shadow:var(--shadow);min-height:170px}
+    .tile img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
+    .tile:hover img{transform:scale(1.08)}
+    .tile .label{position:absolute;inset:auto 0 0 0;padding:1rem;background:linear-gradient(180deg,transparent,rgba(0,0,0,.75));color:#fff;text-transform:uppercase;font-weight:900;letter-spacing:.08em;text-align:center}
+    .tile.feature{grid-column:span 3;grid-row:span 2;min-height:360px}
+    .tile.t2{grid-column:span 2}
 
-   /* Active state for the icon wrapper */
+    @media (max-width:900px){.mosaic{grid-template-columns:repeat(2,1fr)}.tile.feature{grid-column:1/-1;grid-row:auto;min-height:260px}.tile.t2{grid-column:auto}}
 
-   .icon-wrapper.active {
-      border-radius: 50%;
-      box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.69);
-   }
-   .icon-image {
-      width: 48px; /* Example size, use Tailwind w-12 */
-      height: 48px; /* Example size, use Tailwind h-12 */
-      object-fit: contain;
-   }
+    /* ------------------ Cards Section (Packages) ------------------ */
+    section{padding:3rem 0}
+    section h2{font-size:clamp(1.4rem,3vw,2rem);margin:0 0 .6rem}
+    .section-intro{color:var(--muted);margin:0 0 1.5rem}
+    .grid{display:grid;gap:1.2rem}
+    .grid-3{grid-template-columns:repeat(3,1fr)}
+    @media (max-width:980px){.grid-3{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:680px){.grid-3{grid-template-columns:1fr}}
 
-   /* Content panes */
-   .content-pane {
-      transition: opacity 0.3s ease-in-out;
-   }
-   .content-pane.hidden {
-      display: none; /* Hide non-active content */
-      opacity: 0;
-   }
+    .card{position:relative;overflow:hidden;border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow)}
+    .card .imgwrap{position:relative;height:220px}
+    .card .imgwrap img{width:100%;height:100%;object-fit:cover}
+    .card .badge{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.7);color:#fff;padding:.35rem .6rem;border-radius:999px;font-size:.78rem}
+    .card .body{padding:1rem 1rem 1.2rem}
+    .card h3{margin:.2rem 0 .35rem;font-size:1.15rem}
+    .card ul{margin:.6rem 0 0 1rem;color:var(--muted)}
 
-   .content-pane.active {
-      display: block; /* Show active content */
-      opacity: 1;
-   }
+    /* ------------------ URS Highlights ------------------ */
+    .highlights{background:var(--bg-2);border-top:1px solid #eef3f8;border-bottom:1px solid #eef3f8}
+    .pillgrid{display:grid;gap:.8rem;grid-template-columns:repeat(3,1fr)}
+    .pill{background:#fff;border:1px solid #e9eef4;border-radius:12px;padding:1rem;box-shadow:var(--shadow)}
+    .pill b{display:block;margin-bottom:.35rem}
+    @media (max-width:820px){.pillgrid{grid-template-columns:1fr}}
 
+    /* ------------------ CTA Banner ------------------ */
+    .cta{position:relative;margin:2.5rem 0 0;background:url('{% static "assets/packages/banner.jpg" %}') center/cover no-repeat;border-radius:18px;overflow:hidden}
+    .cta::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.45)}
+    .cta .inner{position:relative;color:#fff;padding:2.2rem;text-align:center}
+    .cta .inner p{opacity:.95}
 
-</style>
-</head>
-<body class="scroll-smooth">
+    /* ------------------ Utility ------------------ */
+    .sr{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
 
-
-<!-- 
-<nav id="topper" class="fixed w-full z-50 bg-black/60 backdrop-blur-sm transition-all duration-300">
-   <div class="container mx-auto px-4 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-         <div class="md:hidden flex item-center text-center">
-            <p class="font-saira font-normal text-base md:text-xl">Empower Your Soul</p>
-         </div>
-
-         <div class="flex bg-black md:bg-inherit rounded-b-2xl md:rounded-none mb-2 md:mb-0 py-2 md:py-0 px-2 md:px-0">
-            <a href="/index.html" class="flex items-center">
-               <img src="../assets/images/UAL LOGO TRNS.png" class="h-12 md:h-12 w-auto object-contain" alt="Unwind Africa Logo" />
-            </a>
-         </div>
-
-         <div class="md:hidden">
-            <button id="mobile-menu-open-button" class="text-white p-2 focus:outline-none">
-               <i class="fas fa-bars text-xl"></i>
-            </button>
-         </div>
-
-         <div class="hidden md:flex space-x-8">
-            <a href="./About.html" class="navbar-link text-white hover:text-yellow-400 transition-colors duration-200" data-page="About">About Us</a>
-            <a href="./Packages.html" class="navbar-link text-white hover:text-yellow-400 transition-colors duration-200" data-page="Packages">Packages</a>
-            <a href="./Services.html" class="navbar-link text-white hover:text-yellow-400 transition-colors duration-200" data-page="Services">Services</a>
-            <a href="./Blog.html" class="navbar-link text-white hover:text-yellow-400 transition-colors duration-200" data-page="Blog">Blog</a>
-         </div>
-
-         <div class="hidden md:flex space-x-4">
-            <a href="#" class="p-2 text-white hover:text-yellow-400 transition-colors duration-200">
-               <i class="fab fa-facebook text-xl"></i>
-            </a>
-            <a href="#" class="p-2 text-white hover:text-yellow-400 transition-colors duration-200">
-               <i class="fab fa-instagram text-xl"></i>
-            </a>
-            <a href="#" class="p-2 text-white hover:text-yellow-400 transition-colors duration-200">
-               <i class="fab fa-twitter text-xl"></i>
-            </a>
-         </div>
+    /* FAQ Pill Fix */
+    .pill {
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      min-width: 0;
+    }
+    #faq .grid {
+      min-width: 0;
+    }
+    @media (max-width:680px) {
+      #faq .grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+  </style>
+  <!-- <div class="topline">THIS IS UNWIND AFRICA</div> -->
+  <!-- <nav class="nav">
+    <div class="container bar">
+      <div class="logo"><span class="dot"></span> <span>Unwind Africa</span></div>
+      <div class="navlinks">
+        <a href="#explore" class="active">Explore</a>
+        <a href="#solo">Solo</a>
+        <a href="#family">Family</a>
+        <a href="#group">Group</a>
+        <a href="#photo">Photography</a>
+        <a href="#faq">FAQ</a>
       </div>
    </div>
-</nav> -->
+  </nav> -->
 
-<!-- <div class="marquee-container pt-36 pb-16 mx-auto overflow-hidden">
-  <p class="marquee-text font-saira font-semibold text-9xl sm:text-5xl md:text-8xl ">Curated Escapes, Thoughtfully Designed</p>
-</div> -->
+  <!-- HERO -->
+  <header class="hero">
+     {% include './partials/header/navbar.html'%}
+     {% include './partials/header/hamburger-menu.html' with faq_link="/about#faq"%}
+   <div class="video-bg">
+      <video autoplay muted loop playsinline>
+        <source src="{% static 'assets/videos/spa2.mp4' %}" type="video/mp4">
+      </video>
+    </div>
+    <div class="inner container">
+      <div class="eyebrow">WELLNESS • LUXURY • MEMORIES</div>
+      <h1 class="display">Explore Signature Experiences</h1>
+      <p class="lead">From spa-soaked solo escapes to unforgettable family and group getaways — plus pro photography to capture it all. Flexible payment plans, bespoke planning, and premium partners across Africa.</p>
+      <a class="btn" href="#faq">View Packages & Pricing</a>
+    </div>
+  </header>
 
-
-<div class="container mx-auto px-4">
-      
-  <div class="header">
-      <h2 class="font-saira font-normal text-[20px] md:text-[40px] leading-text tracking-normal mb-20">
-          <span class="font-light text-[15px] mr-3">Packages</span>   Discover curated experiences for every soul—solo serenity, romantic escapes, family bonding, group adventures, and corporate retreats. Unwind Africa’s packages 
-          promise unforgettable relaxation, connection, and luxurious moments worth remembering.
-      </h2>
-  </div>
-
-  <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center  justify-between gap:6 md:gap-9 mt-8">
-      <div class="w-full md:w-1/2 rounded-lg overflow-hidden shadow-lg">
-          <img
-              src='{% static "./images/packages/9915 2.jpg" %}'
-              alt="Family standing by the water, looking out at the sea, representing connection and peace."
-              class="w-full h-auto object-cover rounded-lg"
-          >
+  <!-- ROYAL-CARIBBEAN STYLE SECTION (Requested) -->
+  <section id="explore" class="rc-block">
+    <div class="container">
+      <div class="rc-title">EXPLORE MORE WAYS TO UNWIND</div>
+      <h2 class="rc-head">Over 25 Experiences To Choose From</h2>
+      <div class="rc-subnav">
+        <a href="#solo">Me Time (Solo)</a>
+        <a href="#family">Family</a>
+        <a href="#group">Group Getaways</a>
+        <a href="#photo">Photography & Videography</a>
+        <a href="#urs">URS Plans</a>
       </div>
+      <p class="rc-desc">Choose from a curated selection of wellness-focused services, luxury celebrations, scenic escapes, and bespoke experiences. Our team plans everything — spa sessions, private chefs, yacht cruises, anniversaries, proposals, therapy, mindfulness, and more — so you can unwind in style.</p>
+    </div>
+  </section>
 
-      <div class="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
-              <p class="text-4xl md:text-5xl text-gray-900 mr-4">Me Time  </p>
-              <h2 class="text-3xl md:text-5xl font-bold  leading-[56px] mb-3">Solo Packages</h2>
-          <p class="text-lg md:text-xl font-normal text-gray-700 leading-[31px] max-w-xl">
-            Indulge in self-care and relaxation with our flower-inspired solo packages              </p>
-      </div>
-  </div>
-
-  <section class="py-5 ">
-   <div class="container mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-white shadow-lg  p-6">
-         <div class="content flex flex-col">
-            <div id="package-icons-container" class="flex flex-wrap justify-center md:justify-start gap-4 mb-8">
-               <div class="icon-wrapper active" data-target="package-sunflower" data-main-image="{% static './images/packages/14992 1.jpg' %}">
-                  <img src="{% static './images/packages/sunflower.jpg' %}" alt="Sunflower Icon" class="icon-image" />
-               </div>
-               <div class="icon-wrapper" data-target="package-rose" data-main-image="../assets/images/rose_main.jpg">
-                  <img src="{% static './images/packages/daisies.jpg' %}" alt="Rose Icon" class="icon-image" />
-               </div>
-               <div class="icon-wrapper" data-target="package-lily" data-main-image="../assets/images/lily_main.jpg">
-                  <img src="{% static './images/packages/lily.jpg' %}" alt="Lily Icon" class="icon-image" />
-               </div>
-               <div class="icon-wrapper" data-target="package-orchid" data-main-image="../assets/images/orchid_main.jpg">
-                  <img src="{% static './images/packages/rose.jpg' %}" alt="Orchid Icon" class="icon-image" />
-               </div>
-               <div class="icon-wrapper" data-target="package-lotus" data-main-image="{% static './images/packages/lotus_main.jpg' %}">
-                  <img src="{% static './images/packages/orchid.jpg' %}" alt="Lotus Icon" class="icon-image" />
-               </div>
-            </div>
-
-            <div id="package-details-container">
-               <div id="package-sunflower" class="package-content-pane active">
-                  <div class="flex flex-col sm:flex-col md:flex-row justify-between mb-4">
-                     <h3 class="text-2xl md:text-4xl font-saira font-medium leading-[36px]">Sunflower</h3>
-                     <p class="font-saira font-normal text-lg md:text-2xl leading-[20px] md:leading-[36px]">Duration: 1 day</p>
-                  </div>
-                  <p class="font-saira font-normal text-lg md:text-2xl leading-[20px] md:leading-[36px]">
-                     Brighten up your day with our solo relaxation package. Enjoy a private room, personalized spa treatment, and gourmet meal delivery.
-                  </p>
-               </div>
-               <div id="package-rose" class="package-content-pane hidden">
-                  <div class="flex flex-col sm:flex-col md:flex-row justify-between mb-4">
-                     <h3 class="text-2xl md:text-4xl font-saira font-medium leading-[36px] ">Daisy</h3>
-                     <p class="font-saira font-normal text-lg md:text-2xl leading-[20px] md:leading-[36px]">Duration: 4 Day 3 Night</p>
-                  </div>
-                  <p class="font-saira font-normal text-lg md:text-2xl leading-[20px] md:leading-[36px]">
-                     Find peace and tranquillity in our serene environment. Includes private villa, in-room meditation, and access to calming activities.
-                  </p>
-               </div>
-               <div id="package-lily" class="package-content-pane hidden">
-                  <div class="flex flex-col sm:flex-col md:flex-row justify-between mb-4">
-                     <h3 class="text-2xl md:text-4xl font-saira font-medium leading-[36px] ">Lily</h3>
-                     <p class="font-saira font-normal text-lg md:text-2xl leading-[20px] md:leading-[36px]">Duration: 4 Day 3 Night</p>
-                  </div>
-                  <p class="font-saira font-normal text-lg md:text-2xl leading-[20px] md:leading-[36px]">
-                     Indulge in self-care and relaxation with our luxury solo package. Enjoy personalized spa treatments, gourmet meals, and private excursions.
-                  </p>
-               </div>
-               <div id="package-orchid" class="package-content-pane hidden">
-                  <div class="flex flex-col sm:flex-col md:flex-row justify-between mb-4">
-                     <h3 class="text-2xl md:text-4xl font-saira font-medium leading-[36px] ">Rose</h3>
-                     <p class="font-saira font-normal text-lg md:text-2xl leading-[20px] md:leading-[36px]">Duration: 4 Day 3 Night</p>
-                  </div>
-                  <p class="font-saira font-normal text-lg md:text-2xl leading-[20px] md:leading-[36px]">
-                     Treat yourself to a rejuvena ng escape. Includes private villa, customized relaxa on therapies, and exclusive access to our wellness center.
-                  </p>
-               </div>
-               <div id="package-lotus" class="package-content-pane hidden">
-                  <div class="flex flex-col sm:flex-col md:flex-row justify-between mb-4">
-                     <h3 class="text-2xl md:text-4xl font-saira font-medium leading-[36px] ">Orchid</h3>
-                     <p class="font-saira font-normal text-lg md:text-2xl leading-[20px] md:leading-[36px]">Duration: 5 Day 4 Night</p>
-                  </div>
-                  <p class="font-saira font-normal text-lg md:text-2xl leading-[20px] md:leading-[36px]">
-                     Experience ultimate relaxation and luxury in our exclusive solo package. Enjoy personalized attention, gourmet meals, and private activities
-                  </p>
-               </div>
-            </div>
-         </div>
-
-         <div id="package-sunflower-image" class="image flex justify-center items-center package-content-pane active">
-            <img src="{% static './images/packages/nahima-aparicio-ERa6eet3nuY-unsplash 1.jpg' %}" alt="Sunflower Main Image" class="w-full h-auto object-cover rounded-lg shadow-md" />
-         </div>
-
-         <div id="package-rose-image" class="image justify-center items-center package-content-pane hidden">
-            <img src="{% static './images/packages/2148141989.jpg' %}" alt="Rose Main Image" class="w-full h-auto object-cover rounded-lg shadow-md" />
-         </div>
-         <div id="package-lily-image" class="image justify-center items-center package-content-pane hidden">
-            <img src="{% static './images/packages/SHA Wellness Clinic Mexico – where science and… 2.jpg' %}" alt="Lily Main Image" class="w-full h-auto object-cover rounded-lg shadow-md" />
-         </div>
-         <div id="package-orchid-image" class="image justify-center items-center package-content-pane hidden">
-            <img src="{% static './images/packages/46001 1.jpg' %}" alt="Orchid Main Image" class="w-full h-auto object-cover rounded-lg shadow-md" />
-         </div>
-         <div id="package-lotus-image" class="image justify-center items-center package-content-pane hidden">
-            <img src="{% static './images/packages/nahima-aparicio-ERa6eet3nuY-unsplash 1.jpg' %}" alt="Lotus Main Image" class="w-full h-auto object-cover rounded-lg shadow-md" />
-         </div>
-      </div>
-   </div>
-</section>
-
-
-   <section class="pt-5">
-      <div class="max-w-7xl mx-auto inter-font text-center">
-         <h2 class="font-saira font-semi-bold text-20px sm:text-[30px] md:text-[64px] mb-2 ">Couples Packages</h2>
-         <p class="text-lg md:text-2xl leading-[1]">Create unforgettable memories with our romantic getaways.</p>
-      
-      <div class="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8">
-               <div class="cards-grid grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-7xl w-full">
-      
-                  <!-- Card 1: Relaxation Retreats -->
-                  <div class="card relative w-full aspect-[9/14] overflow-hidden rounded-lg shadow-lg flex items-end mx-auto max-w-md">
-                        <!-- Image -->
-                        <img src="{% static './images/packages/bf6201319e7497b460a86a95e57174f1.jpg' %}" alt="Couple enjoying a beach during a relaxation retreat" class="absolute inset-0 w-full h-full object-cover z-10">
-      
-                        <!-- Overlay and Text Content -->
-                        <div class="card-overlay absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black/80 to-transparent text-white z-20">
-                           <h3 class="card-title font-saira text-3xl font-semibold mb-2">Relaxation Retreats</h3>
-                           <p class="card-description text-base font-normal leading-relaxed">Perfect for proposals, anniversaries, or rekindling love.</p>
-                        </div>
-                  </div>
-      
-                  <!-- Card 2: Adventure Escapes (Placeholder) -->
-                  <div class="card relative w-full aspect-[9/14] overflow-hidden rounded-lg shadow-lg flex items-end mx-auto max-w-md">
-                        <!-- Placeholder Image -->
-                        <img src="{% static './images/packages/ede8d04e50ce74932a4e64ac13e77ffd.jpg' %}" alt="Placeholder image for adventure escapes" class="absolute inset-0 w-full h-full object-cover z-10">
-      
-                        <!-- Overlay and Text Content -->
-                        <div class="card-overlay absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black/80 to-transparent text-white z-20">
-                           <h3 class="card-title font-saira text-3xl font-semibold mb-2">Adventure Escapes</h3>
-                           <p class="card-description text-base font-normal leading-relaxed">Thrill-seeking journeys, outdoor activities, and exploration.</p>
-                        </div>
-                  </div>
-      
-                  <!-- Card 3: Wellness Journeys (Placeholder) -->
-                  <div class="card relative w-full aspect-[9/14] overflow-hidden rounded-lg shadow-lg flex items-end mx-auto max-w-md">
-                        <!-- Placeholder Image -->
-                        <img src="{% static './images/packages/39b22d11af50b73929a69a93e2dbc0e9.jpg' %}" alt="Placeholder image for wellness journeys" class="absolute inset-0 w-full h-full object-cover z-10">
-      
-                        <!-- Overlay and Text Content -->
-                        <div class="card-overlay absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black/80 to-transparent text-white z-20">
-                           <h3 class="card-title font-saira text-3xl font-semibold mb-2">Wellness Journeys</h3>
-                           <p class="card-description text-base font-normal leading-relaxed">Mindfulness, rejuvenation, and holistic well-being.</p>
-                        </div>
-                  </div>
-      
-               </div>
-      </div>
-   </section>
-
-</div>
-
-<section class="relative banner-bg w-full h-[200px] md:h-[400px]  text-left py-12 md:py-16 lg:py-20 ">
-  <div class="absolute inset-0 bg-black opacity-40 z-10"></div>
-
-  <div class="relative z-20 max-w-6xl px-4 sm:px-6 lg:px-8 text-white">
-      <h2 class="font-saira text-2xl sm:text-3xl md:text-8xl lg:text-8xl font-bold leading-tight mb-2">
-          Ready to Get Started?
-      </h2>
-      <p class="text-base sm:text-lg md:text-xl font-normal leading-relaxed mb-3 md:mb-8">
-          Get in contact with us right now for the time of your life
-      </p>
-      <a href="#footer" class="inline-block bg-[#6B8E23] hover:bg-[#5A7D1C] text-white font-semibold py-3 px-5 md:px-8 rounded-3xl transition duration-300 ease-in-out shadow-md">
-          Get started
-      </a>
-  </div>
-</section>
-
-
-<section class=" container  mx-auto py-12 md:py-16 lg:py-20 px-4">
-  <div class="flex  max-w-7xl flex-col md:flex-row items-center gap-8 lg:gap-16">
-
-      <div class="w-full md:w-1/2 flex justify-center">
-          <img src="{% static './images/packages/47a0d81bb8958003bb72b7a1b94eadaa.jpg' %}" alt="Happy family dancing" class="w-full max-w-lg md:max-w-none rounded-lg shadow-xl object-cover h-[450px] sm:h-[500px] md:h-auto">
-      </div>
-
-      <div class="w-full md:w-1/2 px-4 md:px-0 text-center md:text-left">
-          <h2 class="font-saira text-4xl sm:text-5xl lg:text-6xl font-normal text-customBrown mb-4">
-              Family Packages
-          </h2>
-          <p class="text-lg md:text-2xl inter-font font leading-relaxed mb-6">
-              Reunite, relax, and create lifelong memories with your loved ones. Our carefully crafted Family Packages offer:
-          </p>
-
-          <ul class="space-y-4 md:text-xl text-lg">
-              <li class="flex items-center">
-                  <span>Quality time with your family in a serene environment</span>
-              </li>
-              <li class="flex items-center">
-                  <span>Memorable events tailored to your needs</span>
-              </li>
-              <li class="flex items-center">
-                  <span>Packages designed to fit your family's unique style</span>
-              </li>
-          </ul>
-      </div>
-  </div>
-
-  <div class="max-w-7xl flex flex-col md:flex-row pt-8 items-center gap-8 lg:gap-16">
-
-      <div class="w-full md:w-1/2 px-4  md:px-0 text-center md:text-left">
-         <h2 class="font-saira text-4xl sm:text-5xl lg:text-6xl font-normal text-customBrown mb-4">
-            Group Getaway
-         </h2>
-         <p class="text-lg md:text-2xl inter-font leading-relaxed mb-6">
-            Experience the ultimate group escape with luxurious accommodations, exciting activities, and unforgettable memories. Enjoy:
-         </p>
-
-         <ul class="space-y-4 md:text-xl text-lg">
-            <li class="flex items-center">
-                  <span>Luxurious stays and gourmet meals</span>
-            </li>
-            <li class="flex items-center">
-                  <span>Luxurious stays and gourmet meals</span>
-            </li>
-            <li class="flex items-center">
-                  <span>Rejuvenating spa treatments and more</span>
-            </li>
-         </ul>
-      </div>
-      <div class="w-full md:w-1/2 flex justify-center">
-         <img src="{% static './images/packages/group-getaway.jpeg' %}" alt="Happy family dancing" class="w-full max-w-lg md:max-w-none rounded-lg shadow-xl object-cover h-[450px] sm:h-[500px] md:h-auto">
-     </div>
-   </div>
-
-
-   <div class="pt-6">
-      <h3 class="font-saria font-bold text-3xl  md:text-[64px] text-center">Corporate Retreat</h3>
-
-      <div class="flex space-x-1 sm:space-x-2 flex-wrlg:space-x-3 pt-7 mx-auto">
-         <img 
-             src="{% static './images/packages/boat-cruize.jpeg' %}"
-             alt="Image 1"
-             class="w-1/2 h-[350px] sm:h-[400px] object-cover h-auto"
-         >
- 
-         <img
-             src="{% static './images/packages/boat-cruize.jpeg' %}"
-             alt="Image 2"
-             class="w-1/2 object-cover h-auto"
-         >
-     </div>
-
-      <div class="max-w-7xl flex flex-col md:flex-row pt-2 items-center gap-8 lg:gap-16">
-         <div class="w-full md:w-1/2 flex justify-center">
-            <img src="{% static './images/packages/4391 1.jpg' %}" alt="Happy family dancing" class="w-full max-w-lg md:max-w-none rounded-lg shadow-xl object-cover h-[450px] sm:h-[500px] md:h-auto">
-        </div>
-
-         <div class="w-full md:w-1/2 px-4  md:px-0 text-center md:text-left">
-            <h2 class="font-saira text-lg sm:text-2xl lg:text-2xl font-normal text-customBrown mb-4">
-               Recharge, refocus, and rebuild your team with our customized corporate retreats. Enjoy:
-            </h2>
-            <ul class="space-y-4 md:text-xl text-lg">
-               <li class="flex items-center">
-
-                     <span>Tailored team-building activities</span>
-               </li>
-               <li class="flex items-center">
-
-                     <span>Strategic planning and workshops</span>
-               </li>
-               <li class="flex items-center">
-
-                     <span>Relaxation and bonding experiences</span>
-               </li>
+  <!-- SOLO PACKAGES -->
+  <section id="solo">
+    <div class="container">
+      <h2>Me Time – Solo Packages</h2>
+      <p class="section-intro">Indulge in self‑care with flower‑inspired itineraries. Every package includes concierge support, wellness activities, and options for therapy or coaching on request.</p>
+      <div class="grid grid-3">
+        <!-- Sunflower -->
+        <article class="card">
+          <div class="imgwrap"><span class="badge">1 Day</span>
+            <img data-src="{% static 'assets/home/sunflower.jpg' %}" alt="Sunflower package" />
+          </div>
+          <div class="body">
+            <h3>Sunflower</h3>
+            <p>Private room • Personalized spa treatment • Gourmet meal delivery.</p>
+            <ul>
+              <li>Check‑in day access (08:00–20:00)</li>
+              <li>Choice of massage or medi‑pedi</li>
+              <li>Mindfulness guide & tea ritual</li>
             </ul>
-            <p class="text-lg md:text-xl font-saira leading-relaxed ">
-               Invest in your team's cohesion and productivity. Contact us to design a retreat that fits your organization's needs.
-            </p>
-         </div>
-      </div>
-   </div>
-</section>
-
-<section class="py-16 bg-white">
-<div class="container mx-auto px-4">
-  <h2 class="font-saria font-bold text-3xl  md:text-[64px] text-center mb-12">Boat Cruise Specials</h2>
-
-  <div class="grid md:grid-cols-2 gap-12  mb-2">
-      <div>
-          <img src="{% static './images/packages/boat-cruize-5.jpeg' %}" alt="People partying on a boat" class="rounded-lg shadow-lg mb-6 w-full h-auto object-cover">
           </div>
-      <div>
-          <p class="leading-none text-2xl sm:text-3xl md:text-[32px] font-saira font-normal m-4">
-              Set sail for romance, celebration, or relaxation with our luxurious boat cruises.
-          </p>
-      </div>
-  </div>
-
-  <div class="grid md:grid-cols-2 gap-12  mb-2"> 
-      <div class="text-sm md:text-xl font-saira font-normal">
-          <p class=" mb-2">Imagine:</p>
-          <ul class="list-none ">
-              <li class="mb-1">- Proposing to your loved one under the stars</li>
-              <li class="mb-1">- Enjoying a romantic dinner cruise with breathtaking views</li>
-              <li class="mb-1">- Celebrating milestones with friends and family</li>
-              <li>- Rejuvenating with a peaceful ocean escape</li>
-          </ul>
-      </div>
-      <div>
-          <img src="{% static './images/packages/boat-cruize-4.jpeg' %}" alt="People on a boat during sunset" class="rounded-lg shadow-lg mb-6 -mt-0 sm:-mt-[10rem] md:-mt-[15rem] w-full h-auto object-cover">
-      </div>
-  </div>
-
-  <div class="grid md:grid-cols-2 gap-12 ">
-      <div>
-          <img src="{% static './images/packages/boat-cruize-3.jpeg' %} " alt="Man driving a boat" class="rounded-lg shadow-lg mb-6 -mt-0 sm:-mt-[0rem] md:-mt-[9rem] w-full h-auto object-cover">
+        </article>
+        <!-- Daisy -->
+        <article class="card">
+          <div class="imgwrap"><span class="badge">2D / 1N</span>
+            <img data-src="{% static 'assets/home/daisy.jpg' %}" alt="Daisy package" />
           </div>
-      <div>
-          <h3 class="text-2xl sm:text-3xl md:text-[32px] font-saira font-normal mb-4">Choose from our range of boats, each offering a unique experience:</h3>
-          <ul class="list-none text-sm md:text-[16px] font-saira">
-              <li class="mb-2">Coastal Breeze: Intimate cruises for small groups or families</li>
-              <li class="mb-2">Ocean Oasis: Ocean views, snacks, and drinks for a delightful experience</li>
-              <li class="mb-2">Sea Haven: Spacious and comfortable cruises for larger groups</li>
-              <li class="mb-2">Luxury Voyager: Premium cruises with top-notch amenities and service</li>
-          </ul>
-          <p class="mt-6 text-sm md:text-xl font-saira font-normal">Create unforgettable memories with us!</p>
-          <p class="text-sm md:text-xl font-saira font-normal">Contact us to book your dream boat cruise.</p>
-      </div>
-  </div>
-</div>
-</section>
-
-{% endblock %}
-<!-- <footer class="bg-[rgba(48,43,40,1)] text-white py-8">
-  <div class="container mx-auto px-5 flex flex-col justify-center">
-    <div class="text-left md:text-2xl font-normal font-inter text-sm">Contact Us</div>
-
-    <div class="flex flex-col items-center text-center px-4">
-      <img src="../assets/images/UAL LOGO TRNS.png" alt="Unwind Africa Logo" class="w-auto h-24 object-contain mb-4" />
-
-      <a href="mailto:INFO@UNWINDAFRICA.COM" class="sm:text-3xl md:text-5xl font-sans font-semibold mb-2"> INFO@UNWINDAFRICA.COM </a>
-
-      <a href="tel:+234803456765" class="text-2xl font-semibold mb-6 hover:text-green-400 transition-colors"> +234 80 345 6765 </a>
-
-      <div class="flex space-x-6 mb-16">
-        <a href="#" class="  flex items-center justify-center " aria-label="Facebook">
-          <i class="fab fa-facebook-f text-xl text-blue-400"></i>
-        </a>
-        <a href="#" class="  flex items-center justify-center group" aria-label="Instagram">
-          <i class="fab fa-instagram text-xl text-pink-400"></i>
-        </a>
-        <a href="#" class="  flex items-center justify-center group" aria-label="X (Twitter)">
-          <i class="fab fa-twitter text-xl text-blue-300"></i>
-        </a>
+          <div class="body">
+            <h3>Daisy</h3>
+            <p>Serene villa • In‑room meditation • Calming activities.</p>
+            <ul>
+              <li>Breakfast & dinner included</li>
+              <li>Guided breathwork session</li>
+              <li>Evening bath & aromatherapy</li>
+            </ul>
+          </div>
+        </article>
+        <!-- Lily -->
+        <article class="card">
+          <div class="imgwrap"><span class="badge">3D / 2N</span>
+            <img data-src="{% static 'assets/home/lily.jpg' %}" alt="Lily package" />
+          </div>
+          <div class="body">
+            <h3>Lily</h3>
+            <p>Luxury self‑care: spa, gourmet meals, and private excursions.</p>
+            <ul>
+              <li>Sunrise yoga • Late checkout</li>
+              <li>Driver for 1 city tour</li>
+              <li>Photo mini‑session (optional)</li>
+            </ul>
+          </div>
+        </article>
+        <!-- Rose -->
+        <article class="card">
+          <div class="imgwrap"><span class="badge">4D / 3N</span>
+            <img data-src="{% static 'assets/home/rose.jpg' %}" alt="Rose package" />
+          </div>
+          <div class="body">
+            <h3>Rose</h3>
+            <p>Private villa • Customized therapies • Exclusive wellness center access.</p>
+            <ul>
+              <li>Private chef tasting night</li>
+              <li>Mindfulness & sound bath</li>
+              <li>Complimentary late checkout</li>
+            </ul>
+          </div>
+        </article>
+        <!-- Orchid -->
+        <article class="card">
+          <div class="imgwrap"><span class="badge">5D / 4N</span>
+            <img data-src="{% static 'assets/home/orchid.jpg' %}" alt="Orchid package" />
+          </div>
+          <div class="body">
+            <h3>Orchid</h3>
+            <p>Ultimate solo luxury • Personalized attention • Private activities.</p>
+            <ul>
+              <li>Full spa itinerary & concierge</li>
+              <li>Private boat or picnic option</li>
+              <li>Premium photo add‑on available</li>
+            </ul>
+          </div>
+        </article>
       </div>
     </div>
-    <div class="last">
-      <h2 class="text-3xl sm:text-5xl md:text-9xl font-light text-center leading-full font-saira uppercase tracking-wide mb-4">
-        UNWIND AFRICA<sup class="pb-3 md:pb-5 align-super font-sans text-3xl md:text-5xl lg:text-5xl -ml-[10px] sm:-ml-[30px] md:-ml-8">&reg;</sup>
-      </h2>
-      <p class="text-sm text-center md:text-left font-inter md:text-2xl font-normal">
-        &copy;<span id="year"></span> UNWINDAFRICA<br>All rights reserved
-      </p>
+  </section>
+
+  <!-- FAMILY PACKAGES -->
+  <section id="family" class="highlights">
+    <div class="container">
+      <h2>Family Packages</h2>
+      <p class="section-intro">Designed for bonding and ease. For families with more than 5 members, contact us for a custom quote.</p>
+      <div class="grid grid-3">
+        <article class="card">
+          <div class="imgwrap"><span class="badge">2D / 1N</span><img data-src="{% static 'assets/packages/treats.jpg' %}" alt="Oakwood family" /></div>
+          <div class="body"><h3>Oakwood (Weekend Getaway)</h3><p>Relaxed pace with family‑friendly activities and cozy lodging.</p><ul><li>Welcome treats • Game night kit</li><li>Breakfast for 5</li><li>Mini‑shoot add‑on</li></ul></div>
+        </article>
+        <article class="card">
+          <div class="imgwrap"><span class="badge">3D / 2N</span><img data-src="{% static 'assets/packages/kids.jpg' %}" alt="Willow family" /></div>
+          <div class="body"><h3>Willow</h3><p>Balance of relaxation and exploration for all ages.</p><ul><li>Guided family activity</li><li>One spa session for parents</li><li>Kiddies corner access</li></ul></div>
+        </article>
+        <article class="card">
+          <div class="imgwrap"><span class="badge">4D / 3N</span><img data-src="{% static 'assets/packages/driver.jpeg' %}" alt="Palm Grove family" /></div>
+          <div class="body"><h3>Palm Grove</h3><p>Adventure, beach time, and scenic picnics.</p><ul><li>Two guided outings</li><li>Family photo session</li><li>Private driver (4 hrs)</li></ul></div>
+        </article>
+        <article class="card">
+          <div class="imgwrap"><span class="badge">5D / 4N</span><img data-src="{% static 'assets/packages/chef.jpg' %}" alt="Cypress family" /></div>
+          <div class="body"><h3>Cypress</h3><p>Extended retreat with flexible daily plans.</p><ul><li>Chef‑prepared dinner (1 night)</li><li>Couples spa add‑on</li><li>Kids club access</li></ul></div>
+        </article>
+        <article class="card">
+          <div class="imgwrap"><span class="badge">7D / 6N</span><img data-src="{% static 'assets/packages/excursion.jpeg' %}" alt="Maple family" /></div>
+          <div class="body"><h3>Maple</h3><p>Ultimate family vacation — everything handled by our team.</p><ul><li>Three excursions included</li><li>Daily breakfast • 2 dinners</li><li>Complimentary video montage</li></ul></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- GROUP GETAWAYS -->
+  <section id="group">
+    <div class="container">
+      <h2>Group Getaways</h2>
+      <p class="section-intro">Luxurious group escapes that create lifelong memories. Spa treatments, shared activities, private boat cruises, and breathtaking views.</p>
+      <div class="grid grid-3">
+        <article class="card"><div class="imgwrap"><span class="badge">7 Days</span><img data-src="{% static 'assets/home/packages/royal.jpeg' %}" alt="Royal group" /></div><div class="body"><h3>Royal</h3><p>Ultimate 7‑day luxury — unwind in style.</p><ul><li>VIP welcomes & private transfers</li><li>Daily activity plan</li><li>Signature group dinner</li></ul></div></article>
+        <article class="card"><div class="imgwrap"><span class="badge">4N / 3D</span><img data-src="{% static 'assets/home/packages/presidential.jpeg' %}" alt="Presidential group" /></div><div class="body"><h3>Presidential</h3><p>4 nights of pure bliss and relaxation.</p><ul><li>Resort access • Spa circuit</li><li>Sunset cruise or rooftop soirée</li><li>Dedicated host</li></ul></div></article>
+        <article class="card"><div class="imgwrap"><span class="badge">3N / 2D</span><img data-src="{% static 'assets/home/packages/elite.jpg' %}" alt="Elite group" /></div><div class="body"><h3>Elite</h3><p>Short, premium reboot for high‑energy squads.</p><ul><li>Welcome brunch</li><li>Adventure add‑on (ATV / hike)</li><li>Poolside DJ hour</li></ul></div></article>
+        <article class="card"><div class="imgwrap"><span class="badge">2N / 3D</span><img data-src="{% static 'assets/home/packages/ultimate.jpg' %}" alt="Ultimate group" /></div><div class="body"><h3>Ultimate</h3><p>Packed with highlights for quick getaways.</p><ul><li>Chef tasting or tapas tour</li><li>Night spa • Movie under stars</li><li>Airport meet & greet</li></ul></div></article>
+        <article class="card"><div class="imgwrap"><span class="badge">2D / 1N</span><img data-src="{% static 'assets/home/packages/imperial.jpg' %}" alt="Imperial group" /></div><div class="body"><h3>Imperial</h3><p>Short, imperial‑level comfort.</p><ul><li>Signature lunch</li><li>Massage for 2</li><li>Private lounge hour</li></ul></div></article>
+        <article class="card"><div class="imgwrap"><span class="badge">1 Day</span><img data-src="{% static 'assets/home/packages/classic.jpg' %}" alt="Classic group" /></div><div class="body"><h3>Classic</h3><p>Day of relaxation and fun.</p><ul><li>Pool access & games</li><li>Snack platters</li><li>Host‑led activities</li></ul></div></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHOTOGRAPHY & VIDEOGRAPHY -->
+  <section id="photo" class="highlights">
+    <div class="container">
+      <h2>Photography & Videography</h2>
+      <p class="section-intro">Capture your story with romantic golden‑hour sessions, family portraits, weddings, proposals, and aerial landscapes.</p>
+      <div class="grid grid-3">
+        <article class="card"><div class="imgwrap"><span class="badge">Love Story</span><img data-src="{% static 'assets/home/packages/sunset.jpg' %}" alt="Sunset Serenade" /></div><div class="body"><h3>Sunset Serenade</h3><p>Romantic golden hour on the beach.</p><ul><li>60–90 mins • 20+ edits</li><li>Location styling guide</li><li>Optional violinist add‑on</li></ul></div></article>
+        <article class="card"><div class="imgwrap"><span class="badge">Family</span><img data-src="{% static 'assets/home/packages/family-ties.jpg' %}" alt="Family Ties" /></div><div class="body"><h3>Family Ties</h3><p>Document family bonding in serene spaces.</p><ul><li>Wardrobe coordination</li><li>Prints available</li><li>Grandparents add‑on</li></ul></div></article>
+        <article class="card"><div class="imgwrap"><span class="badge">Newborn</span><img data-src="{% static 'assets/home/packages/new-beginnings.jpg' %}" alt="New Beginnings" /></div><div class="body"><h3>New Beginnings</h3><p>Tender, intimate shots for newborn arrivals.</p><ul><li>Home or studio</li><li>Sanitized props</li><li>Sibling inclusion</li></ul></div></article>
+        <article class="card"><div class="imgwrap"><span class="badge">Nature's Canvas</span><img data-src="{% static 'assets/home/packages/oceanic-odyssey.jpg' %}" alt="Oceanic Odyssey" /></div><div class="body"><h3>Oceanic Odyssey</h3><p>Waves, sunsets, and dramatic ocean views.</p><ul><li>Sunset timing plan</li><li>Safety assistant</li><li>Drone add‑on</li></ul></div></article>
+        <article class="card"><div class="imgwrap"><span class="badge">Proposal</span><img data-src="{% static 'assets/home/packages/proposal.jpg' %}" alt="Proposal Perfection" /></div><div class="body"><h3>Proposal Perfection</h3><p>Capture the surprise and magic of your moment.</p><ul><li>Planner coordination</li><li>Hidden‑lens setup</li><li>Same‑day preview</li></ul></div></article>
+        <article class="card"><div class="imgwrap"><span class="badge">Wedding</span><img data-src="{% static 'assets/home/packages/wedding.jpg' %}" alt="Wedding Wonderland" /></div><div class="body"><h3>Wedding Wonderland</h3><p>Elegant coverage with cinematic edits.</p><ul><li>Multiple shooters</li><li>Highlight film</li><li>Album design option</li></ul></div></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- URS HIGHLIGHTS -->
+  <section id="urs">
+    <div class="container">
+      <h2>Unwind Relaxation Services (URS)</h2>
+      <p class="section-intro">Flexible quarterly payments for annual benefits that are worth more than you pay — empowering balance, connection, and mental well‑being.</p>
+      <div class="pillgrid">
+        <div class="pill"><b>Relaxation Essentials</b><span>Massages, medi‑pedi sessions, and more.</span></div>
+        <div class="pill"><b>Luxury Experiences</b><span>Private jet travel, luxury cars, exclusive events.</span></div>
+        <div class="pill"><b>Wellness Focus</b><span>Counseling, therapy, and mindfulness activities.</span></div>
+        <div class="pill"><b>Celebrations</b><span>Birthdays, anniversaries, and weekend getaways.</span></div>
+        <div class="pill"><b>Capturing Memories</b><span>Photography & videography for your moments.</span></div>
+        <div class="pill"><b>Exclusive Access</b><span>Debutante balls, orchestral nights, VIP gatherings.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ / DETAILS -->
+  <section id="faq" class="highlights">
+    <div class="container">
+      <h2>Frequently Asked</h2>
+      <div class="grid" style="grid-template-columns:repeat(2,1fr);gap:1.2rem">
+        <div class="pill">
+          <b>Can you customize any package?</b>
+          <div>Yes. All itineraries are fully customizable — add private chefs, therapy sessions, yacht cruises, proposals, or extra nights.</div>
+        </div>
+        <div class="pill">
+          <b>How do payments work?</b>
+          <div>We offer flexible quarterly plans under URS. Secure with a deposit; balance is scheduled before travel dates.</div>
+        </div>
+        <div class="pill">
+          <b>What’s included?</b>
+          <div>Core inclusions are listed on each card. Most packages include concierge support, select meals, wellness activities, and photo add‑ons.</div>
+        </div>
+        <div class="pill">
+          <b>Large families & corporate groups?</b>
+          <div>For groups over 5 family members or corporate retreats, we prepare a tailored quote with bulk perks.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BANNER -->
+  <div class="container cta">
+    <div class="inner">
+      <h2>Ready to Get Started?</h2>
+      <p>Tell us your dates and preferences — we’ll handle the rest.</p>
+      <a class="btn" href="#">Request a Quote</a>
     </div>
   </div>
-</footer>
- -->
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+  <!-- Image Fallback + Lazy Loader (ensures images show) -->
+  <script>
+    (function(){
+      const FALLBACKS = {
+        // SOLO
+        "assets/packages/solo/solo-feature.jpg":"https://images.unsplash.com/photo-1506126613408-eca07ce68773",
+        "assets/packages/solo/daisy.jpg":"https://images.unsplash.com/photo-1544367567-0f2fcb009e0b",
+        "assets/packages/solo/lily.jpg":"https://images.unsplash.com/photo-1515378791036-0648a3ef77b2",
+        "assets/packages/solo/rose.jpg":"https://images.unsplash.com/photo-1494790108377-be9c29b29330",
+        "assets/packages/solo/orchid.jpg":"https://images.unsplash.com/photo-1515378960530-7c0da6231fb1",
+        "assets/packages/solo/sunflower.jpg":"https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9",
+        // FAMILY
+        "assets/packages/family/oakwood.jpg":"https://images.unsplash.com/photo-1504151932400-72d4384f04b3",
+        "assets/packages/family/willow.jpg":"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+        "assets/packages/family/palm-grove.jpg":"https://images.unsplash.com/photo-1502602898657-3e91760cbb34",
+        "assets/packages/family/cypress.jpg":"https://images.unsplash.com/photo-1500048993953-d23a436266cf",
+        "assets/packages/family/maple.jpg":"https://images.unsplash.com/photo-1521335629791-ce4aec67dd53",
+        // GROUP
+        "assets/packages/group/royal.jpg":"https://images.unsplash.com/photo-1519823551278-64ac92734fb1",
+        "assets/packages/group/presidential.jpg":"https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+        "assets/packages/group/elite.jpg":"https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1",
+        "assets/packages/group/ultimate.jpg":"https://images.unsplash.com/photo-1491553895911-0055eca6402d",
+        "assets/packages/group/imperial.jpg":"https://images.unsplash.com/photo-1519340241574-2cec6aef0c01",
+        "assets/packages/group/classic.jpg":"https://images.unsplash.com/photo-1512428559087-560fa5ceab42",
+        // PHOTO
+        "assets/packages/photo/sunset-serenade.jpg":"https://images.unsplash.com/photo-1497215728101-4950a8d62bcd",
+        "assets/packages/photo/family-ties.jpg":"https://images.unsplash.com/photo-1511895426328-dc8714191300",
+        "assets/packages/photo/new-beginnings.jpg":"https://images.unsplash.com/photo-1500534314209-a25ddb2bd429",
+        "assets/packages/photo/oceanic-odyssey.jpg":"https://images.unsplash.com/photo-1493558103817-58b2924bce98",
+        "assets/packages/photo/proposal.jpg":"https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+        "assets/packages/photo/wedding.jpg":"https://images.unsplash.com/photo-1522673607200-164d1b6ce486",
+        // Generic
+        "assets/packages/hero.jpg":"https://images.unsplash.com/photo-1491553895911-0055eca6402d",
+        "assets/packages/banner.jpg":"https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
+      };
+
+      const lazyImgs = document.querySelectorAll('img[data-src]');
+      const load = (img)=>{
+        const src = img.getAttribute('data-src') || img.src; img.src = src;
+        img.onerror = ()=>{
+          try{
+            const path = new URL(img.src).pathname.replace(/^\//,'');
+            const fb = FALLBACKS[path];
+            if(fb){ img.src = fb; img.onerror = null; }
+          }catch(e){ img.src = img.src; }
+        };
+      };
+      if('IntersectionObserver' in window){
+        const io = new IntersectionObserver((entries,obs)=>{
+          entries.forEach(e=>{ if(e.isIntersecting){ load(e.target); obs.unobserve(e.target);} });
+        },{rootMargin:'150px'});
+        lazyImgs.forEach(i=>io.observe(i));
+      } else { lazyImgs.forEach(load); }
+    })();
+  </script>
+
+{% endblock %}  

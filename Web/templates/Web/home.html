@@ -1,435 +1,266 @@
 {% extends 'Web/main.html' %}
 {% load static %}
-
-
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
 
 {% block title %} Unwind Africa {% endblock %}
 
-<!-- Scripts before </body> -->
-<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
-<script>
-  AOS.init({
-    once: true,
-    duration: 1000,
-    easing: 'ease-out-cubic',
-  });
-
-  // Mouse-follow glow logic
-  const glow = document.getElementById("mouse-glow");
-  document.addEventListener("mousemove", (e) => {
-    const x = e.clientX - 80;
-    const y = e.clientY - 80;
-    glow.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-  });
-</script>
-<!-- AOS Script before </body> -->
-<!-- <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-<script>
-  AOS.init({
-    once: true,
-    duration: 1000,
-    easing: 'ease-out-cubic',
-  });
-</script>
- -->
-
-<style>
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 6px rgba(27, 154, 170, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 16px rgba(27, 154, 170, 0.7);
-  }
-}
-
-.hover-glow:hover::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border: 2px solid rgba(27, 154, 170, 0.4);
-  border-radius: inherit;
-  animation: pulse-glow 2s infinite;
-  pointer-events: none;
-}
-@layer utilities {
-  .animate-pulse-slow {
-    animation: pulseSlow 6s ease-in-out infinite;
-  }
-
-  @keyframes pulseSlow {
-    0%, 100% {
-      opacity: 0.4;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.6;
-      transform: scale(1.05);
-    }
-  }
-  .animate-clip-reveal {
-    animation: clipReveal 1s ease-out forwards;
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  @keyframes clipReveal {
-    0% {
-      clip-path: inset(100% 0 0 0);
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    100% {
-      clip-path: inset(0 0 0 0);
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-}
-
-</style>
-
-
 {% block content %}
-  {% include './partials/header/header.html' with name="paul" faq_link='/about#faq' %}
-  {% include 'Web/partials/about-1.html' with name="paul" %}
-  <section class="bg-gradient-to-b from-white to-[#F7FCFF] py-16 md:py-24">
-  <div class="container mx-auto px-6 md:px-10 lg:px-16">
-    <div class="grid grid-cols-1 md:grid-cols-2 items-stretch gap-10 min-h-[420px]">
-      
-      <!-- Left: Image with hover zoom -->
-      <div class="relative group overflow-hidden rounded-3xl shadow-xl h-full">
-        <img src="{% static 'images/home/about-2.jpg' %}" alt="Social gathering"
-             class="w-full h-full object-cover transform duration-500 group-hover:scale-105" />
-        <div class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition duration-300 rounded-3xl"></div>
-      </div>
 
-      <!-- Right: Text content with full-height flex layout -->
-      <div class="flex items-center h-full">
-        <div class="text-center md:text-left">
-          <h2 class="text-3xl md:text-5xl font-semibold text-gray-800 malibu-font leading-snug mb-6">
-            Unforgettable relaxation and socialization for all.
-          </h2>
-          <p class="text-gray-600 font-saira text-base md:text-lg leading-relaxed mb-6">
-            At <span class="text-[#1B9AAA] font-semibold">Unwind Africa</span>, our mission is to provide accessible, affordable, and unforgettable relaxation and socialization experiences.
-            We promote balance, community, and well-being through flexible savings, exciting vouchers, and exceptional events — making it easy for everyone to unwind, recharge, and connect.
+  <!-- HERO (from redesign, right image removed, with video background) -->
+  <section class="hero">
+    {% include './partials/header/navbar.html' %}
+  {% include './partials/header/hamburger-menu.html' with faq_link=faq_link %}
+    <!-- background video -->
+    <div class="video-bg" aria-hidden="true">
+      <video autoplay muted loop playsinline>
+        <source src="{% static 'assets/videos/bg1.mp4' %}" type="video/mp4">
+      </video>
+    </div>
+
+    <!-- overlay + content -->
+    <div class="hero-overlay">
+      <div class="container hero-content">
+        <div>
+          <span class="eyebrow">Luxury • Wellness • Africa</span>
+          <h1 class="title">
+            Experiences that
+            <span style="background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent;">move people</span>.
+          </h1>
+          <p class="subtitle">
+            From intimate soirees to city-scale festivals, Unwind Africa blends design, logistics, and soul to deliver events that feel effortless and unforgettable.
           </p>
-          <a href="/about"
-             class="inline-block bg-[#1B9AAA] text-white px-8 py-3 rounded-full font-semibold text-base hover:bg-[#167885] transition-all duration-300 shadow-md hover:shadow-lg">
-            Learn More
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<section>
-  <div class="relative w-full overflow-hidden" id="services">
-    <div class="flex w-max animate-marquee pause-on-hover gap-10">
-
-      <!-- Card 1 -->
-      <div onclick="openModal('slide_1.jpg', 'Relaxation Essentials', 'Massages, Medi Pedi sessions, and everything you need to deeply unwind in style.')"
-           class="relative cursor-pointer w-[260px] md:w-[300px] flex-shrink-0 flex flex-col items-center bg-white rounded-3xl shadow-lg overflow-hidden hover-glow group">
-        <img src="{% static 'images/home/marquee_section/slide_1.jpg' %}" class="w-full h-[420px] object-cover zoom-img" />
-        <div class="p-4 text-center">
-          <h3 class="text-xl font-bold text-[#1B9AAA]">Relaxation Essentials</h3>
-          <p class="text-gray-600 text-sm">Massages, Medi Pedi sessions and more</p>
-        </div>
-      </div>
-
-      <!-- Card 2 -->
-      <div onclick="openModal('slide_2.jpg', 'Luxury Experiences', 'Step into luxury with private jets, exotic cars and events that define elite living.')"
-           class="relative cursor-pointer w-[260px] md:w-[300px] flex-shrink-0 flex flex-col items-center bg-white rounded-3xl shadow-lg overflow-hidden hover-glow group">
-        <img src="{% static 'images/home/marquee_section/slide_2.jpg' %}" class="w-full h-[420px] object-cover zoom-img" />
-        <div class="p-4 text-center">
-          <h3 class="text-xl font-bold text-[#1B9AAA]">Luxury Experiences</h3>
-          <p class="text-gray-600 text-sm">Private jet travel, luxury car rental and more</p>
-        </div>
-      </div>
-
-      <!-- Card 3 -->
-      <div onclick="openModal('slide_3.jpg', 'Wellness Focus', 'We offer counseling, therapy sessions and calm retreats designed to restore your inner peace.')"
-           class="relative cursor-pointer w-[260px] md:w-[300px] flex-shrink-0 flex flex-col items-center bg-white rounded-3xl shadow-lg overflow-hidden hover-glow group">
-        <img src="{% static 'images/home/marquee_section/slide_3.jpg' %}" class="w-full h-[420px] object-cover zoom-img" />
-        <div class="p-4 text-center">
-          <h3 class="text-xl font-bold text-[#1B9AAA]">Wellness Focus</h3>
-          <p class="text-gray-600 text-sm">Counseling, therapy and mindfulness activities</p>
-        </div>
-      </div>
-
-      <!-- DUPLICATE FOR INFINITE LOOP -->
-
-      <!-- Card 1 -->
-      <div onclick="openModal('slide_1.jpg', 'Relaxation Essentials', 'Massages, Medi Pedi sessions, and everything you need to deeply unwind in style.')"
-           class="relative cursor-pointer w-[260px] md:w-[300px] flex-shrink-0 flex flex-col items-center bg-white rounded-3xl shadow-lg overflow-hidden hover-glow group">
-        <img src="{% static 'images/home/marquee_section/slide_1.jpg' %}" class="w-full h-[420px] object-cover zoom-img" />
-        <div class="p-4 text-center">
-          <h3 class="text-xl font-bold text-[#1B9AAA]">Relaxation Essentials</h3>
-          <p class="text-gray-600 text-sm">Massages, Medi Pedi sessions and more</p>
-        </div>
-      </div>
-
-      <!-- Card 2 -->
-      <div onclick="openModal('slide_2.jpg', 'Luxury Experiences', 'Step into luxury with private jets, exotic cars and events that define elite living.')"
-           class="relative cursor-pointer w-[260px] md:w-[300px] flex-shrink-0 flex flex-col items-center bg-white rounded-3xl shadow-lg overflow-hidden hover-glow group">
-        <img src="{% static 'images/home/marquee_section/slide_2.jpg' %}" class="w-full h-[420px] object-cover zoom-img" />
-        <div class="p-4 text-center">
-          <h3 class="text-xl font-bold text-[#1B9AAA]">Luxury Experiences</h3>
-          <p class="text-gray-600 text-sm">Private jet travel, luxury car rental and more</p>
-        </div>
-      </div>
-
-      <!-- Card 3 -->
-      <div onclick="openModal('slide_3.jpg', 'Wellness Focus', 'We offer counseling, therapy sessions and calm retreats designed to restore your inner peace.')"
-           class="relative cursor-pointer w-[260px] md:w-[300px] flex-shrink-0 flex flex-col items-center bg-white rounded-3xl shadow-lg overflow-hidden hover-glow group">
-        <img src="{% static 'images/home/marquee_section/slide_3.jpg' %}" class="w-full h-[420px] object-cover zoom-img" />
-        <div class="p-4 text-center">
-          <h3 class="text-xl font-bold text-[#1B9AAA]">Wellness Focus</h3>
-          <p class="text-gray-600 text-sm">Counseling, therapy and mindfulness activities</p>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- Modal Component -->
-<div id="cardModal" class="fixed inset-0 z-50 bg-black/80 hidden items-center justify-center px-4">
-  <div class="bg-white rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl flex flex-col md:flex-row modal-animate-in">
-    <img id="modalImage" src="" alt="Card Image" class="w-full md:w-1/2 h-[500px] object-cover" />
-    <div class="p-6 md:w-1/2 flex flex-col justify-center">
-      <h3 id="modalTitle" class="text-3xl font-bold text-[#1B9AAA] mb-4"></h3>
-      <p id="modalDesc" class="text-gray-700 text-lg leading-relaxed"></p>
-      <button onclick="closeModal()" class="mt-6 self-end bg-[#1B9AAA] text-white px-6 py-2 rounded-full hover:bg-[#167885] transition-all duration-300">
-        Close
-      </button>
-    </div>
-  </div>
-</div>
-
-
-
-
-
-<!-- AOS and VanillaTilt CSS -->
-<link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
-
-<!-- Section -->
-<section id="unwind-section" class="relative bg-white py-20 overflow-hidden z-10">
-  <!-- Glow Follower -->
-  <div id="mouse-glow" class="pointer-events-none fixed top-0 left-0 w-40 h-40 bg-pink-300 rounded-full blur-3xl opacity-30 z-50 transition-transform duration-200 hidden md:block"></div>
-
-  <div class="container mx-auto px-4 md:px-6 relative z-10">
-    
-    <!-- Heading -->
-    <div class="text-center mb-16" data-aos="fade-up">
-      <h2 class="malibu-font text-[#504242] text-4xl md:text-5xl font-bold mb-4 relative inline-block">
-        <span class="relative z-10">Unwind Relaxation Plans</span>
-        <span class="absolute inset-x-0 bottom-1 h-1 bg-[#ffd6d6] z-0"></span>
-      </h2>
-      <p class="inter-font text-gray-700 text-base md:text-lg max-w-2xl mx-auto mt-4">
-        Our flexible quarterly payment plans let you enjoy benefits worth more than your payment.
-        Bond with loved ones, create unforgettable memories and unwind in style!
-      </p>
-    </div>
-
-    <!-- Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12">
-      
-      <!-- Card 1 -->
-      <div class="tilt bg-white p-6 pt-8 rounded-3xl shadow-xl transition-transform duration-500"
-           data-aos="zoom-in" data-aos-delay="100">
-        <img src="{% static 'images/home/vip 1.jpg' %}" alt="Exclusive Access" class="w-full h-28 md:h-40 object-contain mb-4" />
-        <h3 class="text-xl md:text-2xl font-bold mb-3 text-center text-[#2e2e2e]">Exclusive Access</h3>
-        <p class="text-black/90 text-center inter-font text-sm md:text-base">
-          Debutante balls, orchestral performances and high-society gatherings
-        </p>
-      </div>
-
-      <!-- Card 2 -->
-      <div class="tilt bg-white p-6 pt-8 rounded-3xl shadow-xl transition-transform duration-500"
-           data-aos="zoom-in" data-aos-delay="200">
-        <img src="{% static 'images/home/diamond 3.jpg' %}" alt="Luxury Celebrations" class="w-full h-28 md:h-40 object-contain mb-4" />
-        <h3 class="text-xl md:text-2xl font-bold mb-3 text-center text-[#2e2e2e]">Luxury Celebrations</h3>
-        <p class="text-black/90 text-center inter-font text-sm md:text-base">
-          Debutante balls, orchestral performances and high-society gatherings
-        </p>
-      </div>
-
-      <!-- Card 3 -->
-      <div class="tilt bg-white p-6 pt-8 rounded-3xl shadow-xl transition-transform duration-500"
-           data-aos="zoom-in" data-aos-delay="300">
-        <img src="{% static 'images/home/costumer 2.jpg' %}" alt="Unforgettable Experiences" class="w-full h-28 md:h-40 object-contain mb-4" />
-        <h3 class="text-xl md:text-2xl font-bold mb-3 text-center text-[#2e2e2e]">Unforgettable Experiences</h3>
-        <p class="text-black/90 text-center inter-font text-sm md:text-base">
-          Private yacht cruises, sunset dinners, and VIP access to exclusive events
-        </p>
-      </div>
-
-      <!-- Card 4 -->
-      <div class="tilt bg-white p-6 pt-8 rounded-3xl shadow-xl transition-transform duration-500"
-           data-aos="zoom-in" data-aos-delay="400">
-        <img src="{% static 'images/home/personalized 2.jpg' %}" alt="Personalized Services" class="w-full h-28 md:h-40 object-contain mb-4" />
-        <h3 class="text-xl md:text-2xl font-bold mb-3 text-center text-[#2e2e2e]">Personalized Services</h3>
-        <p class="text-black/90 text-center inter-font text-sm md:text-base">
-          Tailored wellness programs, private chefs, and bespoke event planning
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-
- 
-
-
-<!-- AOS CSS in <head> -->
-<!-- <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" /> -->
-
-<section class="relative bg-[#E0F7FF] py-32 bg-center bg-cover bg-no-repeat md:bg-fixed" style="background-image: url('{% static "/images/home/team_quote_img.png" %}');">
-  <!-- Overlay -->
-  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm z-0"></div>
-
-  <!-- Ambient glowing orbs -->
-  <div class="absolute -top-32 left-10 w-80 h-80 bg-[#FF5A5F]/20 rounded-full blur-3xl animate-pulse-slow z-0"></div>
-  <div class="absolute bottom-0 right-0 w-60 h-60 bg-[#ffffff]/10 rounded-full blur-2xl animate-pulse-slow z-0"></div>
-
-  <!-- Content -->
-  <div class="relative z-10 container mx-auto px-6 font-saira">
-    <div class="max-w-5xl mx-auto text-white text-center md:text-left space-y-10">
-      
-      <!-- Quote + Text -->
-      <div class="relative" data-aos="fade-up" data-aos-delay="200">
-        <!-- Giant animated quote mark -->
-        <span class="absolute -top-16 -left-8 text-7xl md:text-9xl text-[#FF5A5F] opacity-70 animate-bounce select-none">“</span>
-
-        <!-- Reveal animation -->
-        <h2 class="text-3xl md:text-5xl font-semibold leading-snug tracking-tight z-10 relative overflow-hidden">
-          <span class="inline-block animate-clip-reveal [animation-delay:0.3s]">
-            We specialize in crafting unique getaways and celebrations — from private jet adventures to tranquil me-time retreats.
-          </span><br><br>
-          <span class="inline-block animate-clip-reveal [animation-delay:0.6s]">
-            Whether it's love, connection, or rejuvenation you're seeking, our experiences are tailored to your story.
-          </span>
-        </h2>
-      </div>
-
-      <!-- Signature -->
-      <div class="flex justify-end" data-aos="fade-up" data-aos-delay="600">
-        <p class="text-white text-xl md:text-2xl font-medium italic">— Unwind Africa's Team</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<section class="relative py-16 bg-gradient-to-b from-[#f8f8f8] to-white" x-data="{
-    selectedEvent: {
-      name: '',
-      description: '',
-      date: '',
-      location: ''
-    },
-    events: [],
-    selectEvent(event) {
-      this.selectedEvent = event;
-    }
-  }"">
-  <h2 class="text-4xl md:text-5xl font-bold text-center text-[#504242] malibu-font mb-2 tracking-tight">
-    Upcoming Events
-  </h2>
-  <p class="text-center text-gray-500 mb-10 text-lg">Join us and make unforgettable memories</p>
-
-  <div class="max-w-6xl mx-auto px-4">
-    <div class="grid gap-6 sm:grid-cols-1 lg:grid-cols-2">
-      {% for event in events %}
-        <div
-          class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition transform hover:scale-[1.01] cursor-pointer flex flex-col md:flex-row"
-          @click="selectedEvent = {
-              name: '{{ event.name|escapejs }}',
-              flier: '{{ event.flier.url|default:'' }}',
-              description: '{{ event.description|escapejs }}',
-              date: '{{ event.date|date:'F j, Y' }}',
-              location: '{{ event.location|escapejs }}',
-              thumbnail: '{{ event.thumbnail.url|default:'' }}'
-          }"
-        >
-          <!-- Left: Thumbnail -->
-          <div class="md:w-1/2 h-48 md:h-auto">
-            {% if event.thumbnail %}
-              <img src="{{ event.thumbnail.url }}" alt="{{ event.name|escape }}" class="w-full h-full object-cover" />
-            {% else %}
-              <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">No Image</div>
-            {% endif %}
+          <div class="hero-actions">
+            <a class="btn" href="#packages">Explore packages</a>
+            <a class="btn secondary" href="#contact">Plan with us</a>
           </div>
-
-          <!-- Right: Text -->
-          <div class="md:w-1/2 p-5 flex flex-col justify-center">
-            <h3 class="text-xl font-semibold text-gray-800 mb-1">{{ event.name }}</h3>
-            <p class="text-gray-600 text-sm leading-relaxed">{{ event.description|truncatewords:20 }}</p>
-            <p class="mt-2 text-[#504242] text-sm font-medium">📅 {{ event.date|date:"F j, Y" }}</p>
-            <p class="text-sm text-gray-500 mt-1">📍 {{ event.location }}</p>
+          <!-- marquee pills -->
+          <div class="marquee" aria-hidden="true">
+            <div class="marquee-track">
+              <span class="pill">No stress planning</span>
+              <span class="pill">Trusted vendors</span>
+              <span class="pill">Real-time coordination</span>
+              <span class="pill">Creative direction</span>
+              <span class="pill">Venue matching</span>
+              <span class="pill">On-site ops team</span>
+              <span class="pill">Transparent pricing</span>
+              <span class="pill">Guest joy first</span>
+              <span class="pill">No stress planning</span>
+              <span class="pill">Trusted vendors</span>
+              <span class="pill">Real-time coordination</span>
+            </div>
           </div>
         </div>
-      {% empty %}
-        <p class="text-center col-span-full text-gray-500">No upcoming events at the moment.</p>
-      {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- keep the rest of your page exactly as-is -->
+  <div class="strip">
+    <div class="strip-inner">
+      <div class="badges" aria-label="Trust points">
+        <span class="badge">24/7 Concierge</span>
+        <span class="badge">Flexible Rescheduling</span>
+        <span class="badge">Handpicked Venues</span>
+      </div>
+      <small>As effortless as a sea breeze — your only task is to exhale.</small>
     </div>
   </div>
 
+  <section class="explore">
+    <h2>Explore Our Packages</h2>
+    <p>Choose from a variety of luxury experiences — from solo escapes to family bonding adventures, unforgettable group getaways, and timeless photography packages.</p>
+    <div class="explore-grid">
+      <div class="explore-card"><img src="{% static 'assets/home/solo.jpeg' %}" alt="Solo"><div class="explore-overlay">Solo</div></div>
+      <div class="explore-card"><img src="{% static 'assets/home/family.jpg' %}" alt="Family"><div class="explore-overlay">Family</div></div>
+      <div class="explore-card"><img src="{% static 'assets/home/group.jpeg' %}" alt="Group"><div class="explore-overlay">Group</div></div>
+      <div class="explore-card"><img src="{% static 'assets/home/packages/photography.jpg' %}" alt="Photography"><div class="explore-overlay">Photography</div></div>
+    </div>
+  </section>
 
+  <section id="experiences">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Experiences</div>
+          <h2>Signature experiences to inspire your itinerary</h2>
+        </div>
+        <a class="btn btn-ghost" href="/packages">See all packages →</a>
+      </div>
 
-  </div>
-</section>
-
-
-<section class="py-16 bg-gradient-to-b from-white to-[#f8f8f8]">
-  <div class="max-w-6xl mx-auto px-4">
-    <h2 class="text-4xl md:text-5xl font-bold text-center text-[#504242] malibu-font mb-2 tracking-tight">
-      Latest From the Blog
-    </h2>
-    <p class="text-center text-gray-500 mb-10 text-lg">Curated travel tips, inspiration & more</p>
-
-    <!-- Blog Grid -->
-    <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-      {% for post in posts %}
-        <a href="{% url 'blog_detail' slug=post.slug %}" class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition transform hover:scale-[1.01] cursor-pointer flex flex-col">
-          
-          <!-- Thumbnail at the top -->
-          <div class="h-48">
-            <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}" class="w-full h-full object-cover" />
+      <div class="grid">
+        <article class="card col-4">
+          <div class="card-media"><img src="https://picsum.photos/id/1069/900/600" alt="Thermal spa" loading="lazy"></div>
+          <div class="card-body">
+            <span class="chip">New</span>
+            <h3 style="margin:0 0 6px;font-size:18px">Thermal Spa Circuit</h3>
+            <p class="muted" style="margin:0 0 10px">Hydrotherapy pools, salt rooms & guided breathwork.</p>
+            <a class="btn-link" href="/packages">Add to plan →</a>
           </div>
+        </article>
 
-          <!-- Content -->
-          <div class="p-5 flex flex-col justify-between flex-grow">
-            <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ post.title }}</h3>
-            <p class="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4">{{ post.content|truncatewords:25 }}</p>
-            <p class="text-sm text-[#504242] font-medium mt-auto">🗓️ {{ post.created_at|date:"F j, Y" }}</p>
+        <article class="card col-4">
+          <div class="card-media"><img src="https://picsum.photos/id/1025/900/600" alt="Yacht" loading="lazy"></div>
+          <div class="card-body">
+            <span class="chip">Popular</span>
+            <h3 style="margin:0 0 6px;font-size:18px">Sunset Yacht Cruise</h3>
+            <p class="muted" style="margin:0 0 10px">Golden-hour sail with sommelier-paired canapés.</p>
+            <a class="btn-link" href="/packages">Add to plan →</a>
           </div>
-        </a>
-      {% empty %}
-        <p class="text-center col-span-full text-gray-500">No blog posts found.</p>
-      {% endfor %}
+        </article>
+
+        <article class="card col-4">
+          <div class="card-media"><img src="https://picsum.photos/id/1002/900/600" alt="Safari" loading="lazy"></div>
+          <div class="card-body">
+            <span class="chip">Limited</span>
+            <h3 style="margin:0 0 6px;font-size:18px">Safari Luxe</h3>
+            <p class="muted" style="margin:0 0 10px">Tented camps, game drives, and sky dinners.</p>
+            <a class="btn-link" href="/packages">Add to plan →</a>
+          </div>
+        </article>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
+  <section class="surface">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Why choose us</div>
+          <h2>Accessible luxury with concierge-level care</h2>
+        </div>
+      </div>
 
-<!-- <div id="cardModal" class="fixed inset-0 z-50 bg-black/80 hidden items-center justify-center px-4">
-  <div class="bg-white rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl flex flex-col md:flex-row modal-animate-in">
-    <img id="modalImage" src="" alt="Card Image" class="w-full md:w-1/2 h-[500px] object-cover" />
-    <div class="p-6 md:w-1/2 flex flex-col justify-center">
-      <h3 id="modalTitle" class="text-3xl font-bold text-[#1B9AAA] mb-4"></h3>
-      <p id="modalDesc" class="text-gray-700 text-lg leading-relaxed"></p>
-      <button onclick="closeModal()" class="mt-6 self-end bg-[#1B9AAA] text-white px-6 py-2 rounded-full hover:bg-[#167885] transition-all duration-300">
-        Close
-      </button>
+      <div class="grid">
+        <div class="highlight col-4">
+          <img src="https://picsum.photos/id/1035/900/1200" alt="Resort" loading="lazy" />
+          <div class="shade"></div>
+          <div class="label">Affordability Meets Luxury</div>
+        </div>
+        <div class="highlight col-4">
+          <img src="https://picsum.photos/id/1018/900/1200" alt="Exclusive" loading="lazy" />
+          <div class="shade"></div>
+          <div class="label">Exclusive Experiences</div>
+        </div>
+        <div class="highlight col-4">
+          <img src="https://picsum.photos/id/1041/900/1200" alt="Memories" loading="lazy" />
+          <div class="shade"></div>
+          <div class="label">Unforgettable Memories</div>
+        </div>
+      </div>
+
+      <div class="stats" style="margin-top:18px">
+        <div class="stat"><b>500+</b><span class="muted">Happy guests</span></div>
+        <div class="stat"><b>120</b><span class="muted">Curated partners</span></div>
+        <div class="stat"><b>4.9★</b><span class="muted">Average rating</span></div>
+        <div class="stat"><b>24/7</b><span class="muted">Concierge support</span></div>
+      </div>
     </div>
-  </div>
-</div> -->
+  </section>
 
+  <section>
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Showcase</div>
+          <h2>Photography & videography highlights</h2>
+        </div>
+        <a class="btn btn-ghost" href="/about">About our creative team →</a>
+      </div>
+      <div class="masonry">
+        <img loading="lazy" src="{% static 'assets/home/photography/show_1.jpeg'%}" alt="Romance" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_2.jpg'%}" alt="Event" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_7.jpg'%}" alt="Proposal" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_3.jpeg'%}" alt="Family" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_5.jpg'%}" alt="Dinner" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_6.jpg'%}" alt="Beach" />
+      </div>
+    </div>
+  </section>
 
-  {% endblock %}
+  <section class="gold-band" aria-label="Callout">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap">
+      <div>
+        <div class="kicker" style="color:#6b5b00">Limited-time offer</div>
+        <h2 style="margin:.2em 0 0">Book your 2025 coastal escape and save 10%</h2>
+        <p class="muted" style="margin:8px 0 0">Flexible dates. Zero hidden fees. Concierge from day one.</p>
+      </div>
+      <a class="btn btn-primary" href="#contact">Claim offer</a>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Testimonials</div>
+          <h2>What our clients say</h2>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="card col-4"><div class="card-body"><p style="margin:0 0 8px">“The most luxurious and relaxing experience of my life!”</p><span class="muted">— Grace O.</span></div></div>
+        <div class="card col-4"><div class="card-body"><p style="margin:0 0 8px">“A perfect blend of elegance and care.”</p><span class="muted">— Yomi H.</span></div></div>
+        <div class="card col-4"><div class="card-body"><p style="margin:0 0 8px">“From the spa to the yacht, every moment was unforgettable.”</p><span class="muted">— Tope S.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="surface" id="contact">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Contact</div>
+          <h2>Tell us about your dream escape</h2>
+        </div>
+      </div>
+      <form class="grid" style="gap:12px" onsubmit="event.preventDefault();alert('💌 Thanks! Our concierge will reach out shortly.');this.reset();">
+        <input class="col-6" required placeholder="Your Name" style="padding:12px 14px;border-radius:12px;border:1px solid var(--border)"/>
+        <input class="col-6" type="email" required placeholder="Your Email" style="padding:12px 14px;border-radius:12px;border:1px solid var(--border)"/>
+        <textarea class="col-12" required placeholder="What would you love to experience?" rows="5" style="padding:12px 14px;border-radius:12px;border:1px solid var(--border)"></textarea>
+        <button class="btn btn-primary" type="submit">Send Message</button>
+      </form>
+    </div>
+  </section>
+
+{% endblock %}
+
+<script>
+  // UA header menu toggle
+  const uaOpenBtn = document.getElementById('uaOpenMenu');
+  const uaMobileMenu = document.getElementById('uaMobileMenu');
+  uaOpenBtn?.addEventListener('click', () => {
+    const open = uaMobileMenu.classList.toggle('open');
+    uaOpenBtn.setAttribute('aria-expanded', open);
+  });
+
+  // UA theme toggle + persist
+  const uaThemeBtn = document.getElementById('uaThemeBtn');
+  const uaThemeBtnMobile = document.getElementById('uaThemeBtnMobile');
+  const root = document.documentElement;
+  function setTheme(mode){
+    document.documentElement.setAttribute('data-theme', mode);
+    localStorage.setItem('ua-theme', mode);
+    const pressed = mode === 'dark';
+    uaThemeBtn?.setAttribute('aria-pressed', pressed);
+  }
+  const saved = localStorage.getItem('ua-theme');
+  if(saved){ setTheme(saved); }
+  uaThemeBtn?.addEventListener('click', () => setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
+  uaThemeBtnMobile?.addEventListener('click', () => setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
+
+  // Your original helpers (kept intact)
+  const btn = document.getElementById('menuBtn');
+  btn?.addEventListener('click', () => {
+    const links = document.querySelector('.nav-links');
+    const visible = getComputedStyle(links).display !== 'none';
+    links.style.display = visible ? 'none' : 'flex';
+  });
+  document.querySelectorAll("a[href^='#']").forEach(a=>{
+    a.addEventListener('click',e=>{
+      const id=a.getAttribute('href');
+      if(id && id!=='#'){
+        e.preventDefault();
+        document.querySelector(id)?.scrollIntoView({behavior:'smooth'});
+      }
+    })
+  })
+</script>

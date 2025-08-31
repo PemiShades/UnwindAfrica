@@ -1,0 +1,326 @@
+{% extends 'Web/main.html' %}
+{% load static %}
+
+
+
+{% block title %} Unwind Africa {% endblock %}
+
+
+
+
+{% block content %}
+  {% include './partials/header/navbar.html' %}
+  {% include './partials/header/hamburger-menu.html' with faq_link=faq_link %}
+  <!-- Hero -->
+<!-- Hero -->
+<section class="hero">
+  <!-- background video -->
+  <div class="video-bg">
+    <video autoplay muted loop playsinline>
+      <source src="{% static 'assets/videos/bg1.mp4' %}" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+  <!-- dark overlay -->
+  <div class="hero-overlay">
+    <div class="container hero-grid">
+      <div>
+        <span class="eyebrow">Africa’s bold event engine</span>
+        <h1 class="title">
+          Experiences that 
+          <span style="background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent;">
+            move people
+          </span>.
+        </h1>
+        <p class="subtitle">
+          From intimate soirees to city-scale festivals, Unwind Africa blends design, logistics, 
+          and soul to deliver events that feel effortless and unforgettable.
+        </p>
+        <div class="hero-actions">
+          <a class="btn" href="#packages">Explore packages</a>
+          <a class="btn secondary" href="#contact">Plan with us</a>
+        </div>
+        <!-- marquee pills -->
+        <div class="marquee" aria-hidden="true">
+          <div class="marquee-track">
+            <span class="pill">No stress planning</span>
+            <span class="pill">Trusted vendors</span>
+            <span class="pill">Real-time coordination</span>
+            <span class="pill">Creative direction</span>
+            <span class="pill">Venue matching</span>
+            <span class="pill">On-site ops team</span>
+            <span class="pill">Transparent pricing</span>
+            <span class="pill">Guest joy first</span>
+            <span class="pill">No stress planning</span>
+            <span class="pill">Trusted vendors</span>
+            <span class="pill">Real-time coordination</span>
+          </div>
+        </div>
+      </div>
+      <!-- hero media -->
+  
+    </div>
+  </div>
+</section>
+
+  <!-- HERO -->
+  
+  <!-- TRUST STRIP -->
+  <div class="strip">
+    <div class="strip-inner">
+      <div class="badges" aria-label="Trust points">
+        <span class="badge">24/7 Concierge</span>
+        <span class="badge">Flexible Rescheduling</span>
+        <span class="badge">Handpicked Venues</span>
+      </div>
+      <small>As effortless as a sea breeze — your only task is to exhale.</small>
+    </div>
+  </div>
+
+  <section class="explore">
+    <h2>Explore Our Packages</h2>
+    <p>Choose from a variety of luxury experiences — from solo escapes to family bonding adventures, unforgettable group getaways, and timeless photography packages.</p>
+    <div class="explore-grid">
+      <div class="explore-card"><img src="{% static 'images/packages/solo.jpg' %}" alt="Solo"><div class="explore-overlay">Solo</div></div>
+      <div class="explore-card"><img src="{% static 'images/packages/family.jpg' %}" alt="Family"><div class="explore-overlay">Family</div></div>
+      <div class="explore-card"><img src="{% static 'images/packages/group.jpg' %}" alt="Group"><div class="explore-overlay">Group</div></div>
+      <div class="explore-card"><img src="{% static 'images/packages/photography.jpg' %}" alt="Photography"><div class="explore-overlay">Photography</div></div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCES -->
+  <section id="experiences">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Experiences</div>
+          <h2>Signature experiences to inspire your itinerary</h2>
+        </div>
+        <a class="btn btn-ghost" href="/packages">See all packages →</a>
+      </div>
+
+      <div class="grid">
+        <article class="card col-4">
+          <div class="card-media"><img src="https://picsum.photos/id/1069/900/600" alt="Thermal spa" loading="lazy"></div>
+          <div class="card-body">
+            <span class="chip">New</span>
+            <h3 style="margin:0 0 6px;font-size:18px">Thermal Spa Circuit</h3>
+            <p class="muted" style="margin:0 0 10px">Hydrotherapy pools, salt rooms & guided breathwork.</p>
+            <a class="btn-link" href="/packages">Add to plan →</a>
+          </div>
+        </article>
+
+        <article class="card col-4">
+          <div class="card-media"><img src="https://picsum.photos/id/1025/900/600" alt="Yacht" loading="lazy"></div>
+          <div class="card-body">
+            <span class="chip">Popular</span>
+            <h3 style="margin:0 0 6px;font-size:18px">Sunset Yacht Cruise</h3>
+            <p class="muted" style="margin:0 0 10px">Golden‑hour sail with sommelier‑paired canapés.</p>
+            <a class="btn-link" href="/packages">Add to plan →</a>
+          </div>
+        </article>
+
+        <article class="card col-4">
+          <div class="card-media"><img src="https://picsum.photos/id/1002/900/600" alt="Safari" loading="lazy"></div>
+          <div class="card-body">
+            <span class="chip">Limited</span>
+            <h3 style="margin:0 0 6px;font-size:18px">Safari Luxe</h3>
+            <p class="muted" style="margin:0 0 10px">Tented camps, game drives, and sky dinners.</p>
+            <a class="btn-link" href="/packages">Add to plan →</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY US (tall highlights) -->
+  <section class="surface">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Why choose us</div>
+          <h2>Accessible luxury with concierge‑level care</h2>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="highlight col-4">
+          <img src="https://picsum.photos/id/1035/900/1200" alt="Resort" loading="lazy" />
+          <div class="shade"></div>
+          <div class="label">Affordability Meets Luxury</div>
+        </div>
+        <div class="highlight col-4">
+          <img src="https://picsum.photos/id/1018/900/1200" alt="Exclusive" loading="lazy" />
+          <div class="shade"></div>
+          <div class="label">Exclusive Experiences</div>
+        </div>
+        <div class="highlight col-4">
+          <img src="https://picsum.photos/id/1041/900/1200" alt="Memories" loading="lazy" />
+          <div class="shade"></div>
+          <div class="label">Unforgettable Memories</div>
+        </div>
+      </div>
+
+      <div class="stats" style="margin-top:18px">
+        <div class="stat"><b>500+</b><span class="muted">Happy guests</span></div>
+        <div class="stat"><b>120</b><span class="muted">Curated partners</span></div>
+        <div class="stat"><b>4.9★</b><span class="muted">Average rating</span></div>
+        <div class="stat"><b>24/7</b><span class="muted">Concierge support</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHOWCASE -->
+  <section>
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Showcase</div>
+          <h2>Photography & videography highlights</h2>
+        </div>
+        <a class="btn btn-ghost" href="/about">About our creative team →</a>
+      </div>
+      <div class="masonry">
+        <img loading="lazy" src="{% static 'assets/home/photography/show_1.jpeg'%}" alt="Romance" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_2.jpg'%}" alt="Event" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_7.jpg'%}" alt="Proposal" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_3.jpeg'%}" alt="Family" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_5.jpg'%}" alt="Dinner" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_6.jpg'%}" alt="Beach" />
+      </div>
+    </div>
+  </section>
+
+  <!-- GOLD CTA BAND -->
+  <section class="gold-band" aria-label="Callout">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap">
+      <div>
+        <div class="kicker" style="color:#6b5b00">Limited‑time offer</div>
+        <h2 style="margin:.2em 0 0">Book your 2025 coastal escape and save 10%</h2>
+        <p class="muted" style="margin:8px 0 0">Flexible dates. Zero hidden fees. Concierge from day one.</p>
+      </div>
+      <a class="btn btn-primary" href="#contact">Claim offer</a>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section>
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Testimonials</div>
+          <h2>What our clients say</h2>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="card col-4"><div class="card-body"><p style="margin:0 0 8px">“The most luxurious and relaxing experience of my life!”</p><span class="muted">— Grace O.</span></div></div>
+        <div class="card col-4"><div class="card-body"><p style="margin:0 0 8px">“A perfect blend of elegance and care.”</p><span class="muted">— Yomi H.</span></div></div>
+        <div class="card col-4"><div class="card-body"><p style="margin:0 0 8px">“From the spa to the yacht, every moment was unforgettable.”</p><span class="muted">— Tope S.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOG PREVIEW -->
+  <section class="surface">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="kicker">From the blog</div>
+          <h2>Tips, stories, and guides</h2>
+        </div>
+        <a class="btn btn-ghost" href="/blog">Visit blog →</a>
+      </div>
+      <div class="grid">
+        <article class="card col-4">
+          <div class="card-media"><img src="https://picsum.photos/id/1040/900/600" alt="Wellness" loading="lazy"></div>
+          <div class="card-body"><h3 style="margin:0 0 6px;font-size:18px">7 Ways to Reset in 48 Hours</h3><p class="muted" style="margin:0">Micro‑retreats you can plan this weekend.</p></div>
+          <a class="btn-link" style="padding:16px" href="/blog">Read →</a>
+        </article>
+        <article class="card col-4">
+          <div class="card-media"><img src="https://picsum.photos/id/1011/900/600" alt="Yacht" loading="lazy"></div>
+          <div class="card-body"><h3 style="margin:0 0 6px;font-size:18px">How to Choose the Right Yacht</h3><p class="muted" style="margin:0">Crew size, routes, and amenities explained.</p></div>
+          <a class="btn-link" style="padding:16px" href="/blog">Read →</a>
+        </article>
+        <article class="card col-4">
+          <div class="card-media"><img src="https://picsum.photos/id/1039/900/600" alt="Dining" loading="lazy"></div>
+          <div class="card-body"><h3 style="margin:0 0 6px;font-size:18px">Dining on the Coast</h3><p class="muted" style="margin:0">Our favourite seaside restaurants this season.</p></div>
+          <a class="btn-link" style="padding:16px" href="/blog">Read →</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section>
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="kicker">FAQ</div>
+          <h2>Everything you need to know</h2>
+        </div>
+      </div>
+      <div class="faq">
+        <details open>
+          <summary>Can I reschedule my trip?</summary>
+          <p class="muted">Yes, we offer flexible rescheduling up to 72 hours before your check‑in time. Terms may vary per partner.</p>
+        </details>
+        <details>
+          <summary>Do you plan proposals or private events?</summary>
+          <p class="muted">Absolutely. Our events team handles proposals, anniversaries, and intimate celebrations end‑to‑end.</p>
+        </details>
+        <details>
+          <summary>Is airport transfer included?</summary>
+          <p class="muted">We can arrange private transfers and add them to your itinerary at transparent, pre‑agreed rates.</p>
+        </details>
+        <details>
+          <summary>How do payments work?</summary>
+          <p class="muted">Secure card payments and bank transfers are accepted. Deposits confirm bookings; schedules are shared upfront.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="surface">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Contact</div>
+          <h2>Tell us about your dream escape</h2>
+        </div>
+      </div>
+      <form class="grid" style="gap:12px" onsubmit="event.preventDefault();alert('💌 Thanks! Our concierge will reach out shortly.');this.reset();">
+        <input class="col-6" required placeholder="Your Name" style="padding:12px 14px;border-radius:12px;border:1px solid var(--border)"/>
+        <input class="col-6" type="email" required placeholder="Your Email" style="padding:12px 14px;border-radius:12px;border:1px solid var(--border)"/>
+        <textarea class="col-12" required placeholder="What would you love to experience?" rows="5" style="padding:12px 14px;border-radius:12px;border:1px solid var(--border)"></textarea>
+        <button class="btn btn-primary" type="submit">Send Message</button>
+      </form>
+    </div>
+  </section>
+
+
+  
+  {% endblock %}
+  
+    <script>
+      // Mobile menu toggle
+      const btn = document.getElementById('menuBtn');
+      btn?.addEventListener('click', () => {
+        const links = document.querySelector('.nav-links');
+        const visible = getComputedStyle(links).display !== 'none';
+        links.style.display = visible ? 'none' : 'flex';
+      });
+  
+      // Smooth anchor scroll
+      document.querySelectorAll("a[href^='#']").forEach(a=>{
+        a.addEventListener('click',e=>{
+          const id=a.getAttribute('href');
+          if(id && id!=='#'){
+            e.preventDefault();
+            document.querySelector(id)?.scrollIntoView({behavior:'smooth'});
+          }
+        })
+      })
+    </script>
+  
+  

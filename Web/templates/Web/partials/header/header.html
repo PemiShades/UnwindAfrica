@@ -26,15 +26,15 @@
     <div id="carousel-slides" class="flex h-full transition-transform duration-1000 ease-in-out">
       <!-- Slide 1 -->
       <div class="w-full h-full flex-shrink-0 bg-cover bg-center"
-           style="background-image: url('{% static "images/home/carousel/slide1.jpg" %}');">
+           style="background-image: url('{% static "assets/home/carousel/slide1.jpg" %}');">
       </div>
       <!-- Slide 2 -->
       <div class="w-full h-full flex-shrink-0 bg-cover bg-center"
-           style="background-image: url('{% static "images/home/carousel/slide2.jpg" %}');">
+           style="background-image: url('{% static "assets/home/carousel/slide2.jpg" %}');">
       </div>
       <!-- Slide 3 -->
       <div class="w-full h-full flex-shrink-0 bg-cover bg-center"
-           style="background-image: url('{% static "images/home/carousel/slide3.jpg" %}');">
+           style="background-image: url('{% static "assets/home/carousel/slide3.jpg" %}');">
       </div>
     </div>
 
@@ -72,70 +72,3 @@
   </div>
 </header>
 
-<!-- Typewriter + Carousel Script -->
-<script src="https://unpkg.com/typewriter-effect@2.18.2/dist/core.js"></script>
-<script>
-  const typewriter = new Typewriter(document.getElementById('hero-text'), {
-    loop: true,
-    delay: 75,
-    deleteSpeed: 25
-  });
-
-  typewriter
-    .typeString('Unwind Africa <sup>®</sup>')
-    .pauseFor(2500)
-    .deleteAll()
-    .typeString('Wellness')
-    .pauseFor(2000)
-    .deleteAll()
-    .typeString('Self-care')
-    .pauseFor(2000)
-    .deleteAll()
-    .typeString('Rejuvenation')
-    .pauseFor(2000)
-    .deleteAll()
-    .typeString('Retreat')
-    .pauseFor(2000)
-    .deleteAll()
-    .typeString('Escape')
-    .pauseFor(2000)
-    .deleteAll()
-    .typeString('Explore')
-    .pauseFor(2000)
-    .deleteAll()
-    .typeString('Getaway')
-    .pauseFor(2000)
-    .deleteAll()
-    .typeString('Experience')
-    .pauseFor(2000)
-    .deleteAll()
-    .typeString('Exclusive')
-    .pauseFor(2000)
-    .deleteAll()
-    .start();
-
-
-  const slides = document.getElementById('carousel-slides');
-  const dots = document.querySelectorAll('#carousel-dots .dot');
-  let currentSlide = 0;
-
-  function showSlide(index) {
-    slides.style.transform = `translateX(-${index * 100}%)`;
-    dots.forEach((dot, i) => {
-      dot.classList.toggle('bg-white/70', i === index);
-      dot.classList.toggle('bg-white/40', i !== index);
-    });
-  }
-
-  dots.forEach((dot, i) => {
-    dot.addEventListener('click', () => {
-      currentSlide = i;
-      showSlide(currentSlide);
-    });
-  });
-
-  setInterval(() => {
-    currentSlide = (currentSlide + 1) % dots.length;
-    showSlide(currentSlide);
-  }, 7000);
-</script>
