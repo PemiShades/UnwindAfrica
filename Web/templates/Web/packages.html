@@ -91,10 +91,10 @@
 
     /* ------------------ URS Highlights ------------------ */
     .highlights{background:var(--bg-2);border-top:1px solid #eef3f8;border-bottom:1px solid #eef3f8}
-    .pillgrid{display:grid;gap:.8rem;grid-template-columns:repeat(3,1fr)}
-    .pill{background:#fff;border:1px solid #e9eef4;border-radius:12px;padding:1rem;box-shadow:var(--shadow)}
-    .pill b{display:block;margin-bottom:.35rem}
-    @media (max-width:820px){.pillgrid{grid-template-columns:1fr}}
+    .pill_packagegrid{display:grid;gap:.8rem;grid-template-columns:repeat(3,1fr)}
+    .pill_package{background:#fff;border:1px solid #e9eef4;border-radius:12px;padding:1rem;box-shadow:var(--shadow)}
+    .pill_package b{display:block;margin-bottom:.35rem}
+    @media (max-width:820px){.pill_packagegrid{grid-template-columns:1fr}}
 
     /* ------------------ CTA Banner ------------------ */
     .cta{position:relative;margin:2.5rem 0 0;background:url('{% static "assets/packages/banner.jpg" %}') center/cover no-repeat;border-radius:18px;overflow:hidden}
@@ -105,8 +105,8 @@
     /* ------------------ Utility ------------------ */
     .sr{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
 
-    /* FAQ Pill Fix */
-    .pill {
+    /* FAQ pill_package Fix */
+    .pill_package {
       word-break: break-word;
       overflow-wrap: anywhere;
       min-width: 0;
@@ -320,13 +320,13 @@
     <div class="container">
       <h2>Unwind Relaxation Services (URS)</h2>
       <p class="section-intro">Flexible quarterly payments for annual benefits that are worth more than you pay — empowering balance, connection, and mental well‑being.</p>
-      <div class="pillgrid">
-        <div class="pill"><b>Relaxation Essentials</b><span>Massages, medi‑pedi sessions, and more.</span></div>
-        <div class="pill"><b>Luxury Experiences</b><span>Private jet travel, luxury cars, exclusive events.</span></div>
-        <div class="pill"><b>Wellness Focus</b><span>Counseling, therapy, and mindfulness activities.</span></div>
-        <div class="pill"><b>Celebrations</b><span>Birthdays, anniversaries, and weekend getaways.</span></div>
-        <div class="pill"><b>Capturing Memories</b><span>Photography & videography for your moments.</span></div>
-        <div class="pill"><b>Exclusive Access</b><span>Debutante balls, orchestral nights, VIP gatherings.</span></div>
+      <div class="pill_packagegrid">
+        <div class="pill_package"><b>Relaxation Essentials</b><span>Massages, medi‑pedi sessions, and more.</span></div>
+        <div class="pill_package"><b>Luxury Experiences</b><span>Private jet travel, luxury cars, exclusive events.</span></div>
+        <div class="pill_package"><b>Wellness Focus</b><span>Counseling, therapy, and mindfulness activities.</span></div>
+        <div class="pill_package"><b>Celebrations</b><span>Birthdays, anniversaries, and weekend getaways.</span></div>
+        <div class="pill_package"><b>Capturing Memories</b><span>Photography & videography for your moments.</span></div>
+        <div class="pill_package"><b>Exclusive Access</b><span>Debutante balls, orchestral nights, VIP gatherings.</span></div>
       </div>
     </div>
   </section>
@@ -336,19 +336,19 @@
     <div class="container">
       <h2>Frequently Asked</h2>
       <div class="grid" style="grid-template-columns:repeat(2,1fr);gap:1.2rem">
-        <div class="pill">
+        <div class="pill_package">
           <b>Can you customize any package?</b>
           <div>Yes. All itineraries are fully customizable — add private chefs, therapy sessions, yacht cruises, proposals, or extra nights.</div>
         </div>
-        <div class="pill">
+        <div class="pill_package">
           <b>How do payments work?</b>
           <div>We offer flexible quarterly plans under URS. Secure with a deposit; balance is scheduled before travel dates.</div>
         </div>
-        <div class="pill">
+        <div class="pill_package">
           <b>What’s included?</b>
           <div>Core inclusions are listed on each card. Most packages include concierge support, select meals, wellness activities, and photo add‑ons.</div>
         </div>
-        <div class="pill">
+        <div class="pill_package">
           <b>Large families & corporate groups?</b>
           <div>For groups over 5 family members or corporate retreats, we prepare a tailored quote with bulk perks.</div>
         </div>
