@@ -1,4 +1,4 @@
-{% load static %}
+{% comment %} {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -75,5 +75,135 @@
 
   {% include 'dashboard/partials/modals.html' %}
   {% include 'dashboard/partials/scripts.html' %}
+</body>
+</html> {% endcomment %}
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unwind Africa Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    .sidebar-link {
+      @apply block py-2.5 px-4 rounded transition duration-200 hover:bg-teal-600 hover:text-white;
+    }
+    .active-tab {
+      @apply bg-teal-600 text-white;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-inter" x-data="dashboardManager()" x-init="fetchData()">
+
+  <!-- Login Modal -->
+  <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50" x-show="!authenticated" x-transition>
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-sm">
+      <h2 class="text-2xl font-semibold text-teal-700 mb-4 text-center">Admin Login</h2>
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1">Username</label>
+        <input type="text" x-model="login.username" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Enter username">
+      </div>
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-1">Password</label>
+        <input type="password" x-model="login.password" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Enter password">
+      </div>
+      <template x-if="login.error">
+        <p class="text-red-600 text-sm mb-4" x-text="login.error"></p>
+      </template>
+      <button @click="checkLogin()" class="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 rounded">
+        Login
+      </button>
+    </div>
+  </div>
+
+  <!-- Dashboard (Visible only after login) -->
+  <div class="flex min-h-screen" x-show="authenticated" x-transition>
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 p-6">
+      <h2 class="text-2xl font-bold text-teal-700 mb-6">Unwind Admin</h2>
+      <nav class="space-y-2">
+        <button class="sidebar-link w-full text-left" :class="tab === 'overview' ? 'active-tab' : ''" @click="tab = 'overview'">
+          <i class="fas fa-chart-bar mr-2"></i> Overview
+        </button>
+        <button class="sidebar-link w-full text-left" :class="tab === 'charts' ? 'active-tab' : ''" @click="tab = 'charts'">
+          <i class="fas fa-chart-pie mr-2"></i> Charts
+        </button>
+        <button class="sidebar-link w-full text-left" :class="tab === 'blogs' ? 'active-tab' : ''" @click="tab = 'blogs'">
+          <i class="fas fa-blog mr-2"></i> Blogs
+        </button>
+        <button class="sidebar-link w-full text-left" :class="tab === 'events' ? 'active-tab' : ''" @click="tab = 'events'">
+          <i class="fas fa-calendar-alt mr-2"></i> Events
+        </button>
+        <form method="post" action="{% url 'logout' %}" class="mt-8">
+          {% csrf_token %}
+          <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors">
+            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+          </button>
+        </form>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 overflow-y-auto">
+      <template x-if="tab === 'overview'">
+        <div>
+          {% include 'dashboard/partials/overview.html' %}
+        </div>
+      </template>
+
+      <template x-if="tab === 'charts'">
+        <div>
+          {% include 'dashboard/partials/charts.html' %}
+        </div>
+      </template>
+
+      <template x-if="tab === 'blogs'">
+        <div>
+          {% include 'dashboard/partials/blogs.html' %}
+        </div>
+      </template>
+
+      <template x-if="tab === 'events'">
+        <div>
+          {% include 'dashboard/partials/events.html' %}
+        </div>
+      </template>
+    </main>
+  </div>
+
+  {% include 'dashboard/partials/modals.html' %}
+  {% include 'dashboard/partials/scripts.html' %}
+
+  <!-- AlpineJS Logic -->
+  <script>
+    function dashboardManager() {
+      return {
+        tab: 'overview',
+        authenticated: false,
+        login: {
+          username: '',
+          password: '',
+          error: ''
+        },
+        fetchData() {
+          // Optional: fetch data here after login
+        },
+        checkLogin() {
+          if (this.login.username === 'admin123' && this.login.password === 'admin') {
+            this.authenticated = true;
+            this.login.error = '';
+          } else {
+            this.login.error = "Invalid credentials. Please try again.";
+          }
+        }
+      };
+    }
+  </script>
 </body>
 </html>
