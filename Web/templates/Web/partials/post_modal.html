@@ -1,0 +1,17 @@
+<div class="modal-card">
+  <button class="modal-close" data-close>&times;</button>
+
+  <div class="modal-media">
+    <img src="{{ post.image.url|default:post.thumbnail.url }}" alt="{{ post.title }}">
+    {% if post.badge %}<span class="modal-badge">{{ post.badge }}</span>{% endif %}
+  </div>
+
+  <div class="modal-body">
+    <h3>{{ post.title }}</h3>
+    <p class="muted">⏱ {{ post.read_minutes|default:4 }} min read &nbsp; • &nbsp; {{ post.created_at|date:"M d, Y" }}</p>
+    {% if post.excerpt %}<p>{{ post.excerpt }}</p>{% endif %}
+    <div class="modal-actions">
+      <a class="btn" href="{{ post.get_absolute_url }}">Read full post →</a>
+    </div>
+  </div>
+</div>

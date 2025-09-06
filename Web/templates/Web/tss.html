@@ -1,0 +1,141 @@
+{% extends 'Web/main.html' %}
+{% load static %}
+{% block title %}Tiara’s Grateful Heart | Unwind & Thrive by Unwind Africa{% endblock %}
+
+{% block content %}
+  {% include './partials/header/navbar.html' with theme="dark"%}
+  {% include './partials/header/hamburger-menu.html' %}
+
+<!-- HERO: Unwind & Thrive -->
+<section id="hero-ut" class="hero-ut">
+  <div class="hero-ut-inner">
+    <h1>Unwind & Thrive: Helping Families Rest, Reflect, and Grow.</h1>
+    <p class="sub">Start with <strong>Tiara’s Grateful Heart</strong> — a 30-day gratitude adventure for kids and families.</p>
+    <div class="cta-row">
+      <a href="/tiaras-grateful-heart#buy" class="btn-primary lg">Get Your Copy</a>
+      <a href="/tiaras-grateful-heart#book" class="btn-secondary lg">Learn More</a>
+    </div>
+    <img class="hero-doodle" src="{% static 'assets/tiara/doodles-leaf.svg' %}" alt="" aria-hidden="true">
+  </div>
+</section>
+
+<!-- BOOK TEASER (anchors to Book page) -->
+<section id="book" class="book-teaser">
+  <div class="book-teaser-wrap">
+    <div class="book-mock">
+      <img src="{% static 'assets/U&T/front.jpeg' %}" alt="Tiara’s Grateful Heart cover" />
+      <img class="back" src="{% static 'assets/U&T/back.jpeg' %}" alt="Back cover" />
+    </div>
+    <div class="book-copy">
+      <h2>Tiara’s Grateful Heart</h2>
+      <p>A 30-day gratitude adventure with rhymes, reflection prompts, coloring pages, 1-minute Unwind Minis, and a completion certificate.</p>
+      <ul class="features">
+        <li>30 Days with Tiara (rhyme • prompts • coloring)</li>
+        <li>Unwind Mini calm exercises (screen-free)</li>
+        <li>Certificate of Gratitude</li>
+        <li>Bonus Printables (Prompt Cards, Refill Pages, Tracker)</li>
+      </ul>
+      <div class="cta-row">
+        <a href="/tiaras-grateful-heart#buy" class="btn-primary">Buy Now</a>
+        <a href="/tiaras-grateful-heart#sample" class="btn-outline">Download Sample Pages</a>
+        <a href="#bulk-quote" class="btn-link open-bulk">Request Bulk Quote</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PURCHASE OPTIONS -->
+<section id="purchase" class="purchase-options">
+  <h2>Choose Your Format</h2>
+  <div class="cards">
+    <article class="card">
+      <h3>Digital eBook (PDF)</h3>
+      <p>Instant download. Start today.</p>
+      <a href="/checkout/ebook" class="btn-primary">Download eBook</a>
+    </article>
+    <article class="card">
+      <h3>Printed Book — Paperback</h3>
+      <p>Beautiful matte cover. Great for gifting.</p>
+      <a href="/checkout/print" class="btn-primary">Order Printed Copy</a>
+    </article>
+    <article class="card">
+      <h3>Gratitude Box (Premium)</h3>
+      <p>Book + prompt cards + refill pages + tracker + stickers (gift-ready).</p>
+      <a href="/checkout/box" class="btn-primary">Order Gratitude Box</a>
+    </article>
+    <article class="card">
+      <h3>Bulk Orders</h3>
+      <p>Schools, bookstores, NGOs, churches.</p>
+      <a href="#bulk-quote" class="btn-secondary open-bulk">Request Bulk Quote</a>
+    </article>
+  </div>
+</section>
+
+<!-- BONUS PRINTABLES (Free) -->
+<section id="printables" class="bonus-printables">
+  <div class="wrap">
+    <div class="copy">
+      <h2>Bonus Printables — Free Download</h2>
+      <p>Get refill pages, prompt cards, extra coloring sheets, and the 30-day streak tracker.</p>
+      <div class="defs">
+        <small><strong>Refill Pages:</strong> same daily layout, blank for repeat use</small>
+        <small><strong>Prompt Cards:</strong> one gratitude prompt per card</small>
+        <small><strong>Sticker & Streak Tracker:</strong> 30-day chart to tick/color progress</small>
+      </div>
+      <a href="/downloads/printables.zip" class="btn-primary">Download Free Printables</a>
+    </div>
+    <div class="qr">
+      <img src="{% static 'assets/tiara/qr-placeholder.png' %}" alt="QR code to download printables">
+    </div>
+  </div>
+</section>
+
+<!-- PARENTS' CORNER -->
+<section id="parents" class="parents-corner">
+  <h2>Parents’ Corner</h2>
+  <p>A simple, screen-free way to bond while teaching gratitude. Each day: read the rhyme, pause for the prompts, color with Tiara, then do a one-minute Unwind Mini (star breathing, hand-on-heart, gentle stretch). No pressure—just presence.</p>
+  <a href="/tiaras-grateful-heart#how" class="btn-outline">See How It Works</a>
+</section>
+
+<!-- SCREEN-FREE PROMISE -->
+<section class="screenfree">
+  <div class="badge">100% Screen-Free Activities</div>
+  <p>Designed to help kids unplug, reflect, and rest — while learning gratitude.</p>
+</section>
+
+<!-- COMMUNITY -->
+<section id="community" class="community">
+  <h2>Join Our Community 🌿</h2>
+  <p>Connect with other parents, share progress, and get weekly tips for thriving together.</p>
+  <a href="https://chat.whatsapp.com/placeholder" class="btn-primary">Join the WhatsApp Community</a>
+</section>
+
+<!-- AUTHOR -->
+<section id="author" class="author">
+  <div class="author-wrap">
+    <img class="headshot" src="{% static 'assets/author/olajumoke.jpg' %}" alt="Olajumoke Ogudipe">
+    <div class="bio">
+      <h2>About the Author — Olajumoke Ogudipe</h2>
+      <p>Olajumoke Ogudipe is a storyteller and wellness advocate, and the founder of Unwind Africa. She creates gentle, joyful books and tools that help families rest, reflect, and grow together.</p>
+      <a href="/about-olajumoke" class="btn-link">More About Olajumoke</a>
+    </div>
+  </div>
+</section>
+
+<!-- BULK QUOTE MODAL (hidden by default) -->
+<div id="bulk-quote" class="modal" aria-hidden="true" role="dialog" aria-labelledby="bulkTitle">
+  <div class="modal-dialog">
+    <button class="modal-close" aria-label="Close">&times;</button>
+    <h3 id="bulkTitle">Request Bulk Quote</h3>
+    <form action="/forms/bulk-quote" method="post">
+      {% csrf_token %}
+      <label>Organization/Church/School<input name="org" required></label>
+      <label>Contact Email<input type="email" name="email" required></label>
+      <label>Quantity<input type="number" min="10" name="qty" required></label>
+      <label>Notes<textarea name="notes" rows="4"></textarea></label>
+      <button type="submit" class="btn-primary">Send Request</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

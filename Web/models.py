@@ -1,13 +1,8 @@
-from django.utils.text import slugify
-# Create your models here.
 from django.db import models
+from django.utils.text import slugify
 from django.utils import timezone
+from django.urls import reverse
 
-
-def upload_thumbnail_image(self, post_id):
-	return "uploads/posts/{post_id}"
-
-# blog model
 
 class BlogCategory(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -16,68 +11,97 @@ class BlogCategory(models.Model):
     def __str__(self):
         return self.name
 
-# class Post(models.Model):
-#     thumbnail = models.ImageField(upload_to='posts/thumbnails/')
-#     image = models.ImageField(upload_to='blog_images/', blank=True, null=True)
-#     category = models.ForeignKey(BlogCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name="posts")
-#     title = models.CharField(max_length=350)
-#     content = models.TextField(null=True, help_text="Write the full blog post here")
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     is_published = models.BooleanField(default=True)
-
-#     def __str__(self):
-#         return self.title
-
-
 
 class Post(models.Model):
     CATEGORY_CHOICES = [
-        ("Travel", "Travel"),
-        ("Health", "Health"),
-        ("Lifestyle", "Lifestyle"),
-        ("Wellness", "Wellness"),
-        ("Adventure", "Adventure"),
-        ("Relaxation", "Relaxation"),
-        ("Food", "Food"),
-        ("Events", "Events"),
-        ("Culture", "Culture"),
-        ("Mindfulness", "Mindfulness"),
-        ("Inspiration", "Inspiration"),
-        ("Nature", "Nature"),
-        ("Guides", "Guides"),
-        ("Stories", "Stories"),
+        ("Travel", "Travel"), ("Health", "Health"), ("Lifestyle", "Lifestyle"),
+        ("Wellness", "Wellness"), ("Adventure", "Adventure"), ("Relaxation", "Relaxation"),
+        ("Food", "Food"), ("Events", "Events"), ("Culture", "Culture"),
+        ("Mindfulness", "Mindfulness"), ("Inspiration", "Inspiration"),
+        ("Nature", "Nature"), ("Guides", "Guides"), ("Stories", "Stories"),
         ("Experiences", "Experiences"),
     ]
 
+    # Card visuals
     thumbnail = models.ImageField(upload_to='posts/thumbnails/')
     image = models.ImageField(upload_to='blog_images/', blank=True, null=True)
+
+    # Metadata
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default="Travel")
     title = models.CharField(max_length=350)
-    content = models.TextField(null=True, help_text="Write the full blog post here")
-    created_at = models.DateTimeField(auto_now_add=True)
-    is_published = models.BooleanField(default=True)
+    excerpt = models.TextField(blank=True, help_text="Short teaser used on cards")
+    content = models.TextField(null=True, help_text="Full post content")
+    read_minutes = models.PositiveIntegerField(default=4)
 
+    # Flags
+    is_published = models.BooleanField(default=True)
+    is_featured = models.BooleanField(default=False)
+
+    # Slug + dates
     slug = models.SlugField(unique=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # Optional chip/badge on card (e.g., 'Guide')
+    badge = models.CharField(max_length=40, blank=True)
+
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return reverse("blog_detail", kwargs={"slug": self.slug})
+
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)
+            base = slugify(self.title)
+            slug = base
+            i = 2
+            while Post.objects.filter(slug=slug).exists():
+                slug = f"{base}-{i}"
+                i += 1
+            self.slug = slug
         super().save(*args, **kwargs)
 
 
-
 class Event(models.Model):
-    flier = models.ImageField(upload_to='events/fliers/') 
+    # Card visuals
+    flier = models.ImageField(upload_to='events/fliers/')
     thumbnail = models.ImageField(upload_to='events/thumbnails/')
+
+    # Details
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    location = models.CharField(max_length=255, blank=True)
     date = models.DateField()
-    is_expired = models.BooleanField(default=False)
-    name = models.CharField(max_length=255,null=True,blank=True)  # Add this
-    description = models.TextField(null=True,blank=True)         # Add this
-    location = models.CharField(max_length=255, null=True,blank=True)  # Add this
-    created_at = models.DateTimeField(auto_now_add=True)  # 👈 add this
+
+    # Nice label on card (e.g., Featured, Limited, New, Premium)
+    BADGE_CHOICES = [("Featured", "Featured"), ("Limited", "Limited"), ("New", "New"), ("Premium", "Premium")]
+    badge = models.CharField(max_length=20, blank=True, choices=BADGE_CHOICES)
+
+    # Slug + dates
+    slug = models.SlugField(unique=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["date", "-created_at"]
+
+    def __str__(self):
+        return f"{self.name} — {self.date}"
+
+    @property
+    def is_expired(self):
+        return self.date < timezone.now().date()
+
+    def get_absolute_url(self):
+        return reverse("event_detail", kwargs={"slug": self.slug})
 
     def save(self, *args, **kwargs):
-        self.is_expired = self.date < timezone.now().date()
+        if not self.slug:
+            base = slugify(self.name)
+            slug = base
+            i = 2
+            while Event.objects.filter(slug=slug).exists():
+                slug = f"{base}-{i}"
+                i += 1
+            self.slug = slug
         super().save(*args, **kwargs)

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Tiara’s Grateful Heart | Unwind & Thrive by Unwind Africa</title>
+  <meta name="description" content="A 30-day gratitude adventure for kids—rhymes, prompts, coloring, and calm minis. Screen-free and family-friendly.">
+  <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+<style>
+    /* --- UT HERO --- */
+.hero-ut {
+  background: linear-gradient(180deg, #fdfcfb, #f7fbf7);
+  padding: 5rem 8% 4rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero-ut h1 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4vw, 42px); color: #1b2846; margin: 0 0 .6rem; }
+.hero-ut .sub { font-size: 1.1rem; color: #425263; margin-bottom: 1.2rem; }
+.hero-ut .cta-row { display:inline-flex; gap:.8rem; flex-wrap:wrap; justify-content:center; }
+.hero-ut .hero-doodle { position:absolute; right:4%; bottom:-20px; width:120px; opacity:.25; pointer-events:none; }
+
+/* --- BOOK TEASER --- */
+.book-teaser { padding: 4rem 8%; }
+.book-teaser-wrap { display:grid; grid-template-columns: repeat(2,1fr); gap:2rem; align-items:center; }
+.book-mock { display:flex; gap:1rem; align-items:flex-end; }
+.book-mock img { width:220px; height:auto; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.12); }
+.book-mock .back { transform: translateY(10px) rotate(-2deg); opacity:.9; }
+.book-copy h2 { font-family:'Playfair Display', serif; font-size:2rem; margin:.3rem 0 1rem; color:#1b2846; }
+.features { list-style: none; padding: 0; margin: 1rem 0 1.2rem; }
+.features li { margin: .4rem 0; padding-left: 1.2rem; position: relative; }
+.features li::before { content: "✦"; position:absolute; left:0; top:0; color: var(--brand-2); }
+
+@media (max-width: 900px) {
+  .book-teaser-wrap { grid-template-columns: 1fr; }
+  .book-mock { justify-content:center; }
+}
+
+/* --- PURCHASE OPTIONS --- */
+.purchase-options { padding:4rem 8%; background:#fff; }
+.purchase-options h2 { text-align:center; font-family:'Playfair Display', serif; color:#1b2846; margin-bottom:2rem; }
+.purchase-options .cards { display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:1rem; }
+.purchase-options .card {
+  background: #fff; border:1px solid #eef1f4; border-radius:14px; padding:1.2rem 1.2rem 1.6rem;
+  box-shadow: 0 6px 18px rgba(0,0,0,.04);
+}
+.purchase-options .card h3 { margin:.2rem 0 .4rem; }
+
+/* --- BONUS PRINTABLES --- */
+.bonus-printables { padding:4rem 8%; background: linear-gradient(180deg,#f7fafc,#ffffff); }
+.bonus-printables.slim { padding:3rem 8%; }
+.bonus-printables .wrap { display:grid; grid-template-columns: 1.2fr .8fr; gap:2rem; align-items:center; }
+.bonus-printables .defs { display:flex; flex-direction:column; gap:.2rem; margin:.6rem 0 1rem; color:#5a6a79; }
+.bonus-printables .qr img { width:220px; max-width:100%; }
+@media (max-width: 900px) { .bonus-printables .wrap { grid-template-columns: 1fr; text-align:center; } }
+
+/* --- PARENTS' CORNER --- */
+.parents-corner { padding:3.5rem 8%; text-align:center; background:#fff; }
+.parents-corner h2 { font-family:'Playfair Display', serif; color:#1b2846; }
+.parents-corner p { max-width:800px; margin: .6rem auto 1rem; color:#425263; }
+
+/* --- SCREEN-FREE --- */
+.screenfree { padding:2rem 8%; text-align:center; background:#0f1a2a; color:#e8f5ee; }
+.screenfree .badge {
+  display:inline-block; padding:.5rem .9rem; border-radius:999px; background:linear-gradient(90deg,var(--brand),var(--brand-2));
+  color:#0f1a2a; font-weight:700; margin-bottom:.4rem;
+}
+
+/* --- COMMUNITY --- */
+.community { padding:3.5rem 8%; text-align:center; }
+.community h2 { font-family:'Playfair Display', serif; color:#1b2846; }
+.community p { color:#425263; }
+
+/* --- AUTHOR --- */
+.author { padding:4rem 8%; background:#fff; }
+.author-wrap { display:grid; grid-template-columns: 140px 1fr; gap:1rem; align-items:center; max-width:900px; margin:0 auto; }
+.author .headshot { width:140px; height:140px; object-fit:cover; border-radius:16px; box-shadow:0 10px 24px rgba(0,0,0,.08); }
+.author .bio h2 { margin:0 0 .4rem; color:#1b2846; font-family:'Playfair Display', serif; }
+@media (max-width: 800px) { .author-wrap { grid-template-columns: 1fr; text-align:center; } .author .bio { max-width:700px; margin:0 auto; } }
+
+/* --- MODAL (Bulk Quote) --- */
+.modal { position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.5); z-index:60; }
+.modal[aria-hidden="false"] { display:grid; }
+.modal-dialog { background:#fff; width:min(560px,92vw); border-radius:16px; padding:1.2rem; box-shadow:0 20px 50px rgba(0,0,0,.2); position:relative; }
+.modal-close { position:absolute; right:.6rem; top:.4rem; font-size:1.8rem; background:none; border:none; cursor:pointer; }
+.modal label { display:block; font-size:.9rem; margin:.6rem 0 .2rem; color:#2b3a42;}
+.modal input, .modal textarea { width:100%; border:1px solid #e4e9ef; border-radius:10px; padding:.8rem; }
+
+/* --- BUTTONS --- */
+.btn-primary, .btn-secondary, .btn-outline, .btn-link {
+  display:inline-block; padding:.8rem 1.2rem; border-radius:999px; font-weight:700; text-decoration:none; cursor:pointer;
+}
+.btn-primary { background:linear-gradient(90deg,var(--brand),var(--brand-2)); color:#0f1a2a; }
+.btn-secondary { background:#e9f5f1; color:#0f1a2a; }
+.btn-outline { border:2px solid var(--brand-2); color:#1b2846; }
+.btn-link { color:var(--brand-2); text-decoration:underline; }
+.btn-primary.lg, .btn-secondary.lg { padding:1rem 1.6rem; font-size:1.05rem; }
+
+/* a11y focus */
+a:focus, button:focus, input:focus, textarea:focus { outline: 3px solid var(--brand-2); outline-offset: 2px; }
+
+</style>
+<body>
+
+<section id="book-hero" class="book-hero">
+  <h1>Tiara’s Grateful Heart</h1>
+  <p>A joyful 30-day practice for kids and families.</p>
+  <a id="buy" href="/checkout/print" class="btn-primary lg">Get Your Copy</a>
+</section>
+
+<section id="book" class="book-detail">
+  <div class="cols">
+    <div class="img-stack">
+      <img src="{% static 'assets/tiara/cover-front.png' %}" alt="Front cover">
+      <img src="{% static 'assets/tiara/cover-back.png' %}" alt="Back cover">
+    </div>
+    <div class="info">
+      <p><strong>What’s inside:</strong> rhymes, reflection prompts, coloring pages, 1-minute Unwind Minis, and a completion certificate.</p>
+      <ul class="features">
+        <li>30 days of rhyme + prompts + coloring</li>
+        <li>Screen-free Unwind Minis for calm</li>
+        <li>Certificate of Gratitude</li>
+        <li id="sample"><a href="{% static 'assets/tiara/sample.pdf' %}" target="_blank">Download Sample Pages (PDF)</a></li>
+      </ul>
+      <div class="cta-row">
+        <a href="/checkout/ebook" class="btn-primary">Buy eBook (PDF)</a>
+        <a href="/checkout/print" class="btn-secondary">Buy Paperback</a>
+        <a href="/checkout/box" class="btn-outline">Order Gratitude Box</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how" class="how-it-works">
+  <h2>How It Works</h2>
+  <ol class="steps">
+    <li>Read the rhyme together</li>
+    <li>Pause for reflection prompts</li>
+    <li>Color with Tiara</li>
+    <li>Do a 1-minute Unwind Mini</li>
+    <li>Tick your streak tracker!</li>
+  </ol>
+</section>
+
+<section class="bonus-printables slim">
+  <h2>Bonus Printables</h2>
+  <a href="/downloads/printables.zip" class="btn-primary">Download Free Printables</a>
+</section>
+<div class="sticky-email" role="region" aria-label="Get free printables">
+  <span>Get 5 free printable cards + tips.</span>
+  <form action="/forms/subscribe" method="post">
+    {% csrf_token %}
+    <input type="email" name="email" placeholder="Email address" required>
+    <button class="btn-primary" type="submit">Get Free Pack</button>
+  </form>
+  <button class="close" aria-label="Hide">&times;</button>
+</div>
+<style>
+.sticky-email{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;background:#fff;border:1px solid #e8edf2;border-radius:999px;box-shadow:0 14px 30px rgba(0,0,0,.12);padding:.4rem .6rem;display:flex;gap:.5rem;align-items:center;z-index:70}
+.sticky-email input{border:1px solid #e4e9ef;border-radius:999px;padding:.5rem .8rem}
+.sticky-email .close{background:none;border:none;font-size:1.2rem;margin-left:.4rem;cursor:pointer}
+@media (max-width:680px){.sticky-email{flex-direction:column;gap:.4rem;bottom:8px}}
+</style>
+<script>
+  document.querySelector('.sticky-email .close')?.addEventListener('click',()=>document.querySelector('.sticky-email').remove());
+</script>
+
+
+</body>
+</html>

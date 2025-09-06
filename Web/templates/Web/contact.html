@@ -1,8 +1,12 @@
 {% extends 'Web/main.html' %}
 {% load static %}
 
+{% block title %}Contact Us - Unwind Africa{% endblock %}
 
-<div class="pt-20">
+{% block content %}
+
+  {% include './partials/header/navbar.html' with theme="dark"%}
+  {% include './partials/header/hamburger-menu.html' with faq_link=faq_link %}
   <!-- Hero -->
   <section class="py-20 bg-gradient-to-br from-teal-50 to-blue-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -115,8 +119,8 @@
       </div>
     </div>
   </section>
-</div>
 
+{% endblock %}
   
   <script>
     document.getElementById('mobile-menu-btn').addEventListener('click', function () {
@@ -143,5 +147,4 @@
       this.reset();
     });
   </script>
-</body>
-</html>
+

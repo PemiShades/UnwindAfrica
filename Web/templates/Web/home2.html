@@ -1,0 +1,483 @@
+{% extends 'Web/main.html' %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+
+{% block title %} Unwind Africa {% endblock %}
+
+{% block content %}
+
+  <!-- HERO (from redesign, right image removed, with video background) -->
+  <section class="hero">
+    {% include './partials/header/navbar.html' %}
+  {% include './partials/header/hamburger-menu.html' with faq_link=faq_link %}
+    <!-- background video -->
+    <div class="video-bg" aria-hidden="true">
+      <video autoplay muted loop playsinline>
+        <source src="{% static 'assets/videos/bg1.mp4' %}" type="video/mp4">
+      </video>
+    </div>
+
+    <!-- overlay + content -->
+    <div class="hero-overlay">
+      <div class="container hero-content">
+        <div>
+          <span class="eyebrow">Luxury • Wellness • Africa</span>
+          <h1 class="title">
+            Experiences that
+            <span style="background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent;">move people</span>.
+          </h1>
+          <p class="subtitle">
+            From intimate soirees to city-scale festivals, Unwind Africa blends design, logistics, and soul to deliver events that feel effortless and unforgettable.
+          </p>
+          <div class="hero-actions">
+            <a class="btn" href="#packages">Explore packages</a>
+            <a class="btn secondary" href="\contact\">Plan with us</a>
+          </div>
+          <!-- marquee pills -->
+          <div class="marquee" aria-hidden="true">
+            <div class="marquee-track">
+              <span class="pill">No stress planning</span>
+              <span class="pill">Trusted vendors</span>
+              <span class="pill">Real-time coordination</span>
+              <span class="pill">Creative direction</span>
+              <span class="pill">Venue matching</span>
+              <span class="pill">On-site ops team</span>
+              <span class="pill">Transparent pricing</span>
+              <span class="pill">Guest joy first</span>
+              <span class="pill">No stress planning</span>
+              <span class="pill">Trusted vendors</span>
+              <span class="pill">Real-time coordination</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- keep the rest of your page exactly as-is -->
+  <div class="strip">
+    <div class="strip-inner">
+      <div class="badges" aria-label="Trust points">
+        <span class="badge">24/7 Concierge</span>
+        <span class="badge">Flexible Rescheduling</span>
+        <span class="badge">Handpicked Venues</span>
+      </div>
+      <small>As effortless as a sea breeze — your only task is to exhale.</small>
+    </div>
+  </div>
+
+
+  <!-- Why It Matters / Intro -->
+<section class="unwind-thrive-why">
+  <div class="container grid">
+    <div class="col-6">
+      <h2>🌿 Introducing Unwind & Thrive</h2>
+      <p>
+        Thriving without rest is an illusion. Many push their bodies to the edge 
+        in the name of success — only to spend their wealth restoring lost health. 
+        <strong>We believe rest is not a luxury, it’s a lifeline.</strong>
+      </p>
+      <p>
+        Unwind & Thrive is more than an event — it’s a movement helping families, 
+        couples, and groups rediscover balance, joy, and the strength that comes 
+        from true rest.
+      </p>
+      <a href="/unwind-thrive" class="btn-primary">Learn More About Unwind & Thrive</a>
+    </div>
+    <div class="col-6">
+      <img src="{% static 'assets/unwind-thrive/why.jpg' %}" 
+           alt="Rest vs hustle" 
+           class="unwind-thrive-img">
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+  <section class="explore">
+    <!-- <h2>Explore Our Packages</h2>
+    <p>Choose from a variety of luxury experiences — from solo escapes to family bonding adventures, unforgettable group getaways, and timeless photography packages.</p>
+    <div class="explore-grid">
+      <div class="explore-card"><img src="{% static 'assets/home/solo.jpeg' %}" alt="Solo"><div class="explore-overlay">Solo</div></div>
+      <div class="explore-card"><img src="{% static 'assets/home/family.jpg' %}" alt="Family"><div class="explore-overlay">Family</div></div>
+      <div class="explore-card"><img src="{% static 'assets/home/group.jpeg' %}" alt="Group"><div class="explore-overlay">Group</div></div>
+      <div class="explore-card"><img src="{% static 'assets/home/packages/photography.jpg' %}" alt="Photography"><div class="explore-overlay">Photography</div></div>
+    </div> -->
+        <div class="why-visual">
+      <figure class="why-hero">
+        <!-- replace with your own static assets if you prefer -->
+        <img src="{% static 'assets/home/hero.png' %}" alt="Guests enjoying a curated coastal event" loading="lazy">
+        <figcaption class="muted">Design, logistics & hospitality—handled.</figcaption>
+      </figure>
+
+      <div class="why-aside">
+        <div class="mini-kicker">How we compare</div>
+        <ul class="mini-compare" role="list">
+          <li><span>Transparent pricing</span><span>✔</span></li>
+          <li><span>Vetted local network</span><span>✔</span></li>
+          <li><span>On-site operations team</span><span>✔</span></li>
+          <li><span>Wellness touchpoints</span><span>✔</span></li>
+          <li><span>Generic vendor list</span><span>✖</span></li>
+        </ul>
+
+        <div class="why-cta">
+          <a class="btn" href="#packages">Browse packages</a>
+          <a class="btn secondary" href="/contact">Get a tailored quote</a>
+        </div>
+
+        <!-- tiny trust badges -->
+        <div class="micro-badges" aria-label="Assurances">
+          <span class="badge">No hidden fees</span>
+          <span class="badge">Flexible rescheduling</span>
+          <span class="badge">Contract protection</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<section id="upcoming-events">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Upcoming Events</div>
+        <h2>Don’t Miss Out on These Experiences</h2>
+        <p class="muted">Stay updated on our latest gatherings — from exclusive retreats to thrilling adventures and cultural celebrations.</p>
+      </div>
+      <a class="btn btn-ghost" href="/events">See all events →</a>
+    </div>
+
+    <div class="grid">
+      <!-- Event 1 -->
+      <article class="card col-4">
+        <div class="card-media">
+          <img src="{% static 'assets/events/summer-retreat.jpg' %}" alt="Summer Retreat Flier" loading="lazy">
+        </div>
+        <div class="card-body">
+          <span class="chip">Upcoming</span>
+          <h3 style="margin:0 0 6px;font-size:18px">Summer Wellness Retreat</h3>
+          <p class="muted" style="margin:0 0 10px">📍 Lagos, Nigeria • 🗓 Sept 12, 2025</p>
+          <p class="muted">Relaxation, mindfulness, and community connection.</p>
+          <a class="btn-link" href="/events/retreat">View details →</a>
+        </div>
+      </article>
+
+      <!-- Event 2 -->
+      <article class="card col-4">
+        <div class="card-media">
+          <img src="{% static 'assets/events/beach-party.jpg' %}" alt="Beach Party Thumbnail" loading="lazy">
+        </div>
+        <div class="card-body">
+          <span class="chip">Featured</span>
+          <h3 style="margin:0 0 6px;font-size:18px">Sunset Beach Party</h3>
+          <p class="muted" style="margin:0 0 10px">📍 Victoria Island • 🗓 Oct 3, 2025</p>
+          <p class="muted">Live DJ, bonfire vibes, cocktails & coastal fun.</p>
+          <a class="btn-link" href="/events/beachparty">View details →</a>
+        </div>
+      </article>
+
+      <!-- Event 3 -->
+      <article class="card col-4">
+        <div class="card-media">
+          <img src="{% static 'assets/events/cultural-festival.jpg' %}" alt="Cultural Festival Flier" loading="lazy">
+        </div>
+        <div class="card-body">
+          <span class="chip">Limited Seats</span>
+          <h3 style="margin:0 0 6px;font-size:18px">African Cultural Festival</h3>
+          <p class="muted" style="margin:0 0 10px">📍 Abuja • 🗓 Nov 21, 2025</p>
+          <p class="muted">Traditional dances, food, art & heritage celebration.</p>
+          <a class="btn-link" href="/events/festival">View details →</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- WHY CHOOSE US -->
+<section class="surface" id="why-us" aria-labelledby="why-us-title">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Why choose us</div>
+        <h2 id="why-us-title">Accessible luxury, zero guesswork</h2>
+        <p class="muted" style="max-width:60ch">
+          We blend concierge-level care with transparent pricing and a vetted partner network—
+          so you can relax while we deliver experiences people remember.
+        </p>
+      </div>
+      <a class="btn btn-ghost" href="/about#approach">See our approach →</a>
+    </div>
+
+    <!-- Value grid -->
+    <div class="why-grid">
+      <article class="why-card">
+        <div class="why-icon" aria-hidden="true">💎</div>
+        <h3>Luxury without the markup</h3>
+        <p class="muted">Tiered packages + clear line items. No surprises—ever.</p>
+      </article>
+
+      <article class="why-card">
+        <div class="why-icon" aria-hidden="true">🤝</div>
+        <h3>Handpicked partners</h3>
+        <p class="muted">Photographers, venues, chefs & logistics teams we trust.</p>
+      </article>
+
+      <article class="why-card">
+        <div class="why-icon" aria-hidden="true">📍</div>
+        <h3>Local insight, real access</h3>
+        <p class="muted">Insider rates and hidden-gem locations across Africa.</p>
+      </article>
+
+      <article class="why-card">
+        <div class="why-icon" aria-hidden="true">🧭</div>
+        <h3>From idea to on-site ops</h3>
+        <p class="muted">Creative direction, guest flow, minute-by-minute run-of-show.</p>
+      </article>
+
+      <article class="why-card">
+        <div class="why-icon" aria-hidden="true">📶</div>
+        <h3>Real-time coordination</h3>
+        <p class="muted">Live updates and a dedicated concierge you can text.</p>
+      </article>
+
+      <article class="why-card">
+        <div class="why-icon" aria-hidden="true">🌿</div>
+        <h3>Wellness-forward details</h3>
+        <p class="muted">Calm touchpoints that help guests feel amazing.</p>
+      </article>
+    </div>
+
+    <!-- Proof strip -->
+    <div class="why-proof">
+      <div class="stat"><b>500+</b><span class="muted">Happy guests</span></div>
+      <div class="stat"><b>120</b><span class="muted">Curated partners</span></div>
+      <div class="stat"><b>4.9★</b><span class="muted">Average rating</span></div>
+      <div class="stat"><b>24/7</b><span class="muted">Concierge support</span></div>
+    </div>
+
+    <!-- Visual row -->
+
+  </div>
+</section>
+
+  <!-- <section class="surface">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Why choose us</div>
+          <h2>Accessible luxury with concierge-level care</h2>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="highlight col-4">
+          <img src="https://picsum.photos/id/1035/900/1200" alt="Resort" loading="lazy" />
+          <div class="shade"></div>
+          <div class="label">Affordability Meets Luxury</div>
+        </div>
+        <div class="highlight col-4">
+          <img src="https://picsum.photos/id/1018/900/1200" alt="Exclusive" loading="lazy" />
+          <div class="shade"></div>
+          <div class="label">Exclusive Experiences</div>
+        </div>
+        <div class="highlight col-4">
+          <img src="https://picsum.photos/id/1041/900/1200" alt="Memories" loading="lazy" />
+          <div class="shade"></div>
+          <div class="label">Unforgettable Memories</div>
+        </div>
+      </div>
+
+      <div class="stats" style="margin-top:18px">
+        <div class="stat"><b>500+</b><span class="muted">Happy guests</span></div>
+        <div class="stat"><b>120</b><span class="muted">Curated partners</span></div>
+        <div class="stat"><b>4.9★</b><span class="muted">Average rating</span></div>
+        <div class="stat"><b>24/7</b><span class="muted">Concierge support</span></div>
+      </div>
+    </div>
+  </section> -->
+
+  <section>
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Showcase</div>
+          <h2>Photography & videography highlights</h2>
+        </div>
+        <a class="btn btn-ghost" href="/about">About our creative team →</a>
+      </div>
+      <div class="masonry">
+        <img loading="lazy" src="{% static 'assets/home/photography/show_1.jpeg'%}" alt="Romance" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_2.jpg'%}" alt="Event" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_7.jpg'%}" alt="Proposal" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_3.jpeg'%}" alt="Family" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_5.jpg'%}" alt="Dinner" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_6.jpg'%}" alt="Beach" />
+      </div>
+    </div>
+  </section>
+
+  <section class="gold-band" aria-label="Callout">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap">
+      <div>
+        <div class="kicker" style="color:#6b5b00">Limited-time offer</div>
+        <h2 style="margin:.2em 0 0">Book your 2025 coastal escape and save 10%</h2>
+        <p class="muted" style="margin:8px 0 0">Flexible dates. Zero hidden fees. Concierge from day one.</p>
+      </div>
+      <a class="btn btn-primary" href="#contact">Claim offer</a>
+    </div>
+  </section>
+  <section id="book" class="book-teaser">
+  <div class="book-teaser-wrap">
+    <div class="book-mock">
+      <img src="{% static 'assets/U&T/front.jpeg' %}" alt="Tiara’s Grateful Heart cover" />
+      <img class="back" src="{% static 'assets/U&T/back.jpeg' %}" alt="Back cover" />
+    </div>
+    <div class="book-copy">
+      <h2>Tiara’s Grateful Heart</h2>
+      <p>A 30-day gratitude adventure with rhymes, reflection prompts, coloring pages, 1-minute Unwind Minis, and a completion certificate.</p>
+      <ul class="features">
+        <li>30 Days with Tiara (rhyme • prompts • coloring)</li>
+        <li>Unwind Mini calm exercises (screen-free)</li>
+        <li>Certificate of Gratitude</li>
+        <li>Bonus Printables (Prompt Cards, Refill Pages, Tracker)</li>
+      </ul>
+      <div class="cta-row">
+        <a href="/tiaras-grateful-heart#buy" class="btn-primary">Buy Now</a>
+        <a href="/tiaras-grateful-heart#sample" class="btn-outline">Download Sample Pages</a>
+        <a href="#bulk-quote" class="btn-link open-bulk">Request Bulk Quote</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Movement / Animated Quote -->
+<section class="quote-feature" aria-labelledby="quote-title">
+  <div class="quote-bg" aria-hidden="true">
+    <!-- soft floating orbs -->
+    <span class="orb orb-a"></span>
+    <span class="orb orb-b"></span>
+    <span class="orb orb-c"></span>
+  </div>
+
+  <div class="container">
+    <div class="quote-wrap">
+      <div class="quote-mark" aria-hidden="true">
+        <!-- elegant quote mark -->
+        <svg width="72" height="72" viewBox="0 0 72 72" fill="none" role="img">
+          <path d="M28 18c-8 0-14 6-14 14 0 6 4 10 9 11-2 9-8 15-16 17 14-1 24-12 24-26 0-8-1-16-3-16zM58 18c-8 0-14 6-14 14 0 6 4 10 9 11-2 9-8 15-16 17 14-1 24-12 24-26 0-8-1-16-3-16z" fill="currentColor"/>
+        </svg>
+      </div>
+
+      <h2 id="quote-title" class="quote-title q-reveal">
+        Unwind & Thrive is <span class="accent">not an event</span> — it’s a <span class="accent">movement</span>.
+      </h2>
+
+      <p class="quote-sub q-reveal">
+        Choose <span class="underline">rest today</span> — so you can <span class="underline">thrive tomorrow</span>.
+      </p>
+
+      <div class="quote-cta q-reveal">
+        <a href="/unwind-thrive" class="btn-primary btn-pulse">Bring it to my community</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+  <section>
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Testimonials</div>
+          <h2>What our clients say</h2>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="card col-4"><div class="card-body"><p style="margin:0 0 8px">“The most luxurious and relaxing experience of my life!”</p><span class="muted">— Grace O.</span></div></div>
+        <div class="card col-4"><div class="card-body"><p style="margin:0 0 8px">“A perfect blend of elegance and care.”</p><span class="muted">— Yomi H.</span></div></div>
+        <div class="card col-4"><div class="card-body"><p style="margin:0 0 8px">“From the spa to the yacht, every moment was unforgettable.”</p><span class="muted">— Tope S.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+{% endblock %}
+
+<script>
+  // UA header menu toggle
+  const uaOpenBtn = document.getElementById('uaOpenMenu');
+  const uaMobileMenu = document.getElementById('uaMobileMenu');
+  uaOpenBtn?.addEventListener('click', () => {
+    const open = uaMobileMenu.classList.toggle('open');
+    uaOpenBtn.setAttribute('aria-expanded', open);
+  });
+
+  // UA theme toggle + persist
+  const uaThemeBtn = document.getElementById('uaThemeBtn');
+  const uaThemeBtnMobile = document.getElementById('uaThemeBtnMobile');
+  const root = document.documentElement;
+  function setTheme(mode){
+    document.documentElement.setAttribute('data-theme', mode);
+    localStorage.setItem('ua-theme', mode);
+    const pressed = mode === 'dark';
+    uaThemeBtn?.setAttribute('aria-pressed', pressed);
+    uaThemeBtnMobile?.setAttribute('aria-pressed', pressed);
+  }
+  const saved = localStorage.getItem('ua-theme');
+  if(saved){ setTheme(saved); }
+  uaThemeBtn?.addEventListener('click', () => setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
+  uaThemeBtnMobile?.addEventListener('click', () => setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
+
+  // Mobile menu (legacy)
+  const btn = document.getElementById('menuBtn');
+  btn?.addEventListener('click', () => {
+    const links = document.querySelector('.nav-links');
+    if (!links) return;
+    const visible = getComputedStyle(links).display !== 'none';
+    links.style.display = visible ? 'none' : 'flex';
+  });
+
+  // Smooth scroll for in-page anchors
+  document.querySelectorAll("a[href^='#']").forEach(a=>{
+    a.addEventListener('click',e=>{
+      const id=a.getAttribute('href');
+      if(id && id!=='#'){
+        e.preventDefault();
+        document.querySelector(id)?.scrollIntoView({behavior:'smooth'});
+      }
+    })
+  });
+
+  // Staggered reveal for quote feature
+  const qEls = document.querySelectorAll('.q-reveal');
+  if (qEls.length && 'IntersectionObserver' in window) {
+    const qObs = new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){ e.target.classList.add('in'); qObs.unobserve(e.target); }
+      });
+    }, {threshold:.2});
+    qEls.forEach(el=>qObs.observe(el));
+  } else {
+    qEls.forEach(el=>el.classList.add('in'));
+  }
+
+  // Timeline (guard if none)
+  const tItems = document.querySelectorAll('.timeline-item');
+  if (tItems.length && 'IntersectionObserver' in window) {
+    const tObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          tObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    tItems.forEach(item => tObserver.observe(item));
+  }
+</script>

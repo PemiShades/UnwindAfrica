@@ -1,23 +1,66 @@
 {% extends 'Web/main.html' %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/home.css' %}">
 
 {% block title %} Unwind Africa {% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<style>
+  /* ---------- Modal base (safe, isolated) ---------- */
+  #modal-root { position: fixed; inset: 0; z-index: 1000; pointer-events: none; }
+  #modal-root[data-open] { pointer-events: auto; }
+  .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.45); backdrop-filter: blur(2px); }
+  .modal-dialog { position: absolute; inset: 0; display: grid; place-items: center; padding: 20px; }
+  .modal-card {
+    width: min(820px, 92vw);
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    overflow: hidden;
+    animation: modalIn .18s ease-out;
+  }
+  @keyframes modalIn { from { transform: translateY(10px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+  .modal-media { position: relative; }
+  .modal-media img { display:block; width:100%; height:auto; object-fit:cover; }
+  .modal-badge {
+    position:absolute; left:12px; top:12px; font-weight:800; font-size:.78rem;
+    background: color-mix(in oklab, #fff 92%, var(--brand) 8% / 60%);
+    border: 1px solid color-mix(in oklab, currentColor 18%, transparent);
+    padding: .36rem .6rem; border-radius: 999px;
+    box-shadow: 0 6px 16px rgba(0,0,0,.08);
+  }
+  .modal-body { padding: clamp(16px, 2.4vw, 24px); display: grid; gap: 10px; }
+  .modal-close {
+    position: absolute; right: 8px; top: 6px; width: 38px; height: 38px; line-height: 36px;
+    text-align:center; font-size: 22px; color: #333; background: #fff; border: 1px solid #e6eaf0;
+    border-radius: 999px; cursor: pointer; box-shadow: 0 8px 16px rgba(0,0,0,.08);
+  }
+
+  /* ---------- Square small event cards; featured stays 16:10 ---------- */
+  .event-card.is-featured .event-media img { aspect-ratio: 16 / 10; object-fit: cover; }
+  .event-card:not(.is-featured) .event-media { position: relative; overflow: hidden; border-top-left-radius: inherit; border-top-right-radius: inherit; }
+  .event-card:not(.is-featured) .event-media img { width: 100%; height: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; }
+  .event-card:not(.is-featured) .event-body { padding: .75rem; display: flex; flex-direction: column; gap: 6px; }
+
+  /* ---------- Quote reveal fallback styles ---------- */
+  .q-reveal{ opacity:0; transform: translateY(18px); }
+  .q-reveal.in{ opacity:1; transform: translateY(0); transition: opacity .6s ease, transform .6s ease; }
+  @media (prefers-reduced-motion: reduce){ .q-reveal, .q-reveal.in{ opacity:1; transform:none; transition:none; } }
+</style>
+{% endblock %}
+
 {% block content %}
 
-  <!-- HERO (from redesign, right image removed, with video background) -->
+  <!-- HERO -->
   <section class="hero">
     {% include './partials/header/navbar.html' %}
-  {% include './partials/header/hamburger-menu.html' with faq_link=faq_link %}
-    <!-- background video -->
+    {% include './partials/header/hamburger-menu.html' with faq_link=faq_link %}
     <div class="video-bg" aria-hidden="true">
-      <video autoplay muted loop playsinline>
+      <video autoplay muted loop playsinline poster="{% static 'assets/videos/bg1-poster.jpg' %}">
         <source src="{% static 'assets/videos/bg1.mp4' %}" type="video/mp4">
       </video>
     </div>
 
-    <!-- overlay + content -->
     <div class="hero-overlay">
       <div class="container hero-content">
         <div>
@@ -31,8 +74,9 @@
           </p>
           <div class="hero-actions">
             <a class="btn" href="#packages">Explore packages</a>
-            <a class="btn secondary" href="#contact">Plan with us</a>
+            <a class="btn secondary" href="/contact">Plan with us</a>
           </div>
+
           <!-- marquee pills -->
           <div class="marquee" aria-hidden="true">
             <div class="marquee-track">
@@ -54,101 +98,181 @@
     </div>
   </section>
 
-  <!-- keep the rest of your page exactly as-is -->
-  <div class="strip">
-    <div class="strip-inner">
-      <div class="badges" aria-label="Trust points">
-        <span class="badge">24/7 Concierge</span>
-        <span class="badge">Flexible Rescheduling</span>
-        <span class="badge">Handpicked Venues</span>
+  <!-- GLOBAL STRIP -->
+  <section class="section">
+    <div class="strip">
+      <div class="strip-inner">
+        <div class="badges" aria-label="Trust points">
+          <span class="badge">24/7 Concierge</span>
+          <span class="badge">Flexible Rescheduling</span>
+          <span class="badge">Handpicked Venues</span>
+        </div>
+        <small>As effortless as a sea breeze — your only task is to exhale.</small>
       </div>
-      <small>As effortless as a sea breeze — your only task is to exhale.</small>
-    </div>
-  </div>
-
-  <section class="explore">
-    <h2>Explore Our Packages</h2>
-    <p>Choose from a variety of luxury experiences — from solo escapes to family bonding adventures, unforgettable group getaways, and timeless photography packages.</p>
-    <div class="explore-grid">
-      <div class="explore-card"><img src="{% static 'assets/home/solo.jpeg' %}" alt="Solo"><div class="explore-overlay">Solo</div></div>
-      <div class="explore-card"><img src="{% static 'assets/home/family.jpg' %}" alt="Family"><div class="explore-overlay">Family</div></div>
-      <div class="explore-card"><img src="{% static 'assets/home/group.jpeg' %}" alt="Group"><div class="explore-overlay">Group</div></div>
-      <div class="explore-card"><img src="{% static 'assets/home/packages/photography.jpg' %}" alt="Photography"><div class="explore-overlay">Photography</div></div>
     </div>
   </section>
 
-  <section id="experiences">
-    <div class="container">
+  <!-- Why It Matters / Intro -->
+  <section class="section pad-outer unwind-thrive-why">
+    <div class="container section-inner">
+      <div class="grid align-center">
+        <div class="col-6">
+          <h2>🌿 Introducing Unwind & Thrive</h2>
+          <p>
+            Thriving without rest is an illusion. Many push their bodies to the edge 
+            in the name of success — only to spend their wealth restoring lost health. 
+            <strong>We believe rest is not a luxury, it’s a lifeline.</strong>
+          </p>
+          <p>
+            Unwind & Thrive is more than an event — it’s a movement helping families, 
+            couples, and groups rediscover balance, joy, and the strength that comes 
+            from true rest.
+          </p>
+          <a href="/unwind-thrive" class="btn-primary">Learn More About Unwind & Thrive</a>
+        </div>
+        <div class="col-6">
+          <img src="{% static 'assets/home/rest.jpg' %}" 
+               alt="Rest vs hustle" 
+               class="unwind-thrive-img rounded shadow-lg">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Explore / Comparison visual -->
+  <section id="packages" class="section pad-outer">
+    <div class="container section-inner">
+      <div class="why-visual">
+        <figure class="why-hero">
+          <img src="{% static 'assets/home/hero.png' %}" alt="Guests enjoying a curated coastal event" loading="lazy">
+          <figcaption class="muted">Design, logistics & hospitality—handled.</figcaption>
+        </figure>
+
+        <div class="why-aside">
+          <div class="mini-kicker">How we compare</div>
+          <ul class="mini-compare" role="list">
+            <li><span>Transparent pricing</span><span>✔</span></li>
+            <li><span>Vetted local network</span><span>✔</span></li>
+            <li><span>On-site operations team</span><span>✔</span></li>
+            <li><span>Wellness touchpoints</span><span>✔</span></li>
+            <li><span>Generic vendor list</span><span>✖</span></li>
+          </ul>
+
+          <div class="why-cta">
+            <a class="btn" href="#packages">Browse packages</a>
+            <a class="btn secondary" href="/contact">Get a tailored quote</a>
+          </div>
+
+          <div class="micro-badges" aria-label="Assurances">
+            <span class="badge">No hidden fees</span>
+            <span class="badge">Flexible rescheduling</span>
+            <span class="badge">Contract protection</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Upcoming Events (dynamic + modal) -->
+  <section id="upcoming-events" class="events section pad-outer" aria-labelledby="events-title">
+    <div class="container section-inner">
       <div class="section-head">
         <div>
-          <div class="kicker">Experiences</div>
-          <h2>Signature experiences to inspire your itinerary</h2>
+          <div class="kicker">Upcoming Events</div>
+          <h2 id="events-title">Don’t Miss Out on These Experiences</h2>
+          <p class="muted" style="max-width:60ch">
+            From exclusive retreats to coastal parties and cultural celebrations—reserve your spot early.
+          </p>
         </div>
-        <a class="btn btn-ghost" href="/packages">See all packages →</a>
+        <a class="btn secondary" href="#">See all events →</a>
       </div>
 
-      <div class="grid">
-        <article class="card col-4">
-          <div class="card-media"><img src="https://picsum.photos/id/1069/900/600" alt="Thermal spa" loading="lazy"></div>
-          <div class="card-body">
-            <span class="chip">New</span>
-            <h3 style="margin:0 0 6px;font-size:18px">Thermal Spa Circuit</h3>
-            <p class="muted" style="margin:0 0 10px">Hydrotherapy pools, salt rooms & guided breathwork.</p>
-            <a class="btn-link" href="/packages">Add to plan →</a>
-          </div>
-        </article>
+      <div class="events-filters" role="tablist" aria-label="Filter events">
+        <button class="pill is-active" role="tab" aria-selected="true" type="button">All</button>
+        <button class="pill" role="tab" type="button">Retreats</button>
+        <button class="pill" role="tab" type="button">Parties</button>
+        <button class="pill" role="tab" type="button">Culture</button>
+      </div>
 
-        <article class="card col-4">
-          <div class="card-media"><img src="https://picsum.photos/id/1025/900/600" alt="Yacht" loading="lazy"></div>
-          <div class="card-body">
-            <span class="chip">Popular</span>
-            <h3 style="margin:0 0 6px;font-size:18px">Sunset Yacht Cruise</h3>
-            <p class="muted" style="margin:0 0 10px">Golden-hour sail with sommelier-paired canapés.</p>
-            <a class="btn-link" href="/packages">Add to plan →</a>
-          </div>
-        </article>
-
-        <article class="card col-4">
-          <div class="card-media"><img src="https://picsum.photos/id/1002/900/600" alt="Safari" loading="lazy"></div>
-          <div class="card-body">
-            <span class="chip">Limited</span>
-            <h3 style="margin:0 0 6px;font-size:18px">Safari Luxe</h3>
-            <p class="muted" style="margin:0 0 10px">Tented camps, game drives, and sky dinners.</p>
-            <a class="btn-link" href="/packages">Add to plan →</a>
-          </div>
-        </article>
+      <div class="events-grid">
+        {% if events %}
+          {% for e in events %}
+            {% if forloop.first %}
+              <!-- FEATURED -->
+              <article class="event-card is-featured">
+                <a href="{% url 'event_detail' slug=e.slug %}" class="event-link js-modal-link" aria-label="{{ e.name }} details">
+                  <div class="event-media">
+                    <img src="{{ e.thumbnail.url }}" alt="{{ e.name }}" loading="lazy">
+                    {% if e.badge %}<span class="event-badge">{{ e.badge }}</span>{% endif %}
+                    <div class="event-grad"></div>
+                    <div class="event-float">
+                      <strong>{{ e.date|date:"M d, Y" }}</strong>
+                      {% if e.location %}<span>• {{ e.location }}</span>{% endif %}
+                    </div>
+                  </div>
+                  <div class="event-body">
+                    <h3>{{ e.name }}</h3>
+                    {% if e.description %}<p class="muted">{{ e.description|truncatewords:22 }}</p>{% endif %}
+                    <div class="event-meta">
+                      {% if e.location %}<span>📍 {{ e.location }}</span>{% endif %}
+                      <span>🗓 {{ e.date|date:"M d, Y" }}</span>
+                    </div>
+                    <span class="btn-link">View details →</span>
+                  </div>
+                </a>
+              </article>
+            {% else %}
+              <!-- SMALL SQUARES -->
+              <article class="event-card">
+                <a href="{% url 'event_detail' slug=e.slug %}" class="event-link js-modal-link" aria-label="{{ e.name }} details">
+                  <div class="event-media">
+                    <img src="{{ e.thumbnail.url }}" alt="{{ e.name }}" loading="lazy">
+                    {% if e.badge %}<span class="event-badge">{{ e.badge }}</span>{% endif %}
+                  </div>
+                  <div class="event-body">
+                    <h3>{{ e.name }}</h3>
+                    <div class="event-meta">
+                      {% if e.location %}<span>📍 {{ e.location }}</span>{% endif %}
+                      <span>🗓 {{ e.date|date:"M d, Y" }}</span>
+                    </div>
+                    <span class="btn-link">View details →</span>
+                  </div>
+                </a>
+              </article>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <p class="muted">No upcoming events yet — check back soon.</p>
+        {% endif %}
       </div>
     </div>
   </section>
 
-  <section class="surface">
-    <div class="container">
+  <!-- WHY CHOOSE US -->
+  <section class="surface section pad-outer" id="why-us" aria-labelledby="why-us-title">
+    <div class="container section-inner">
       <div class="section-head">
         <div>
           <div class="kicker">Why choose us</div>
-          <h2>Accessible luxury with concierge-level care</h2>
+          <h2 id="why-us-title">Accessible luxury, zero guesswork</h2>
+          <p class="muted" style="max-width:60ch">
+            We blend concierge-level care with transparent pricing and a vetted partner network—
+            so you can relax while we deliver experiences people remember.
+          </p>
         </div>
+        <a class="btn btn-ghost" href="/about#approach">See our approach →</a>
       </div>
 
-      <div class="grid">
-        <div class="highlight col-4">
-          <img src="https://picsum.photos/id/1035/900/1200" alt="Resort" loading="lazy" />
-          <div class="shade"></div>
-          <div class="label">Affordability Meets Luxury</div>
-        </div>
-        <div class="highlight col-4">
-          <img src="https://picsum.photos/id/1018/900/1200" alt="Exclusive" loading="lazy" />
-          <div class="shade"></div>
-          <div class="label">Exclusive Experiences</div>
-        </div>
-        <div class="highlight col-4">
-          <img src="https://picsum.photos/id/1041/900/1200" alt="Memories" loading="lazy" />
-          <div class="shade"></div>
-          <div class="label">Unforgettable Memories</div>
-        </div>
+      <div class="why-grid">
+        <article class="why-card"><div class="why-icon" aria-hidden="true">💎</div><h3>Luxury without the markup</h3><p class="muted">Tiered packages + clear line items. No surprises—ever.</p></article>
+        <article class="why-card"><div class="why-icon" aria-hidden="true">🤝</div><h3>Handpicked partners</h3><p class="muted">Photographers, venues, chefs & logistics teams we trust.</p></article>
+        <article class="why-card"><div class="why-icon" aria-hidden="true">📍</div><h3>Local insight, real access</h3><p class="muted">Insider rates and hidden-gem locations across Africa.</p></article>
+        <article class="why-card"><div class="why-icon" aria-hidden="true">🧭</div><h3>From idea to on-site ops</h3><p class="muted">Creative direction, guest flow, minute-by-minute run-of-show.</p></article>
+        <article class="why-card"><div class="why-icon" aria-hidden="true">📶</div><h3>Real-time coordination</h3><p class="muted">Live updates and a dedicated concierge you can text.</p></article>
+        <article class="why-card"><div class="why-icon" aria-hidden="true">🌿</div><h3>Wellness-forward details</h3><p class="muted">Calm touchpoints that help guests feel amazing.</p></article>
       </div>
 
-      <div class="stats" style="margin-top:18px">
+      <div class="why-proof">
         <div class="stat"><b>500+</b><span class="muted">Happy guests</span></div>
         <div class="stat"><b>120</b><span class="muted">Curated partners</span></div>
         <div class="stat"><b>4.9★</b><span class="muted">Average rating</span></div>
@@ -157,8 +281,9 @@
     </div>
   </section>
 
-  <section>
-    <div class="container">
+  <!-- Showcase -->
+  <section class="section pad-outer">
+    <div class="container section-inner">
       <div class="section-head">
         <div>
           <div class="kicker">Showcase</div>
@@ -177,8 +302,9 @@
     </div>
   </section>
 
-  <section class="gold-band" aria-label="Callout">
-    <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap">
+  <!-- Gold band -->
+  <section class="gold-band section pad-outer" aria-label="Callout">
+    <div class="container section-inner flex-between">
       <div>
         <div class="kicker" style="color:#6b5b00">Limited-time offer</div>
         <h2 style="margin:.2em 0 0">Book your 2025 coastal escape and save 10%</h2>
@@ -188,15 +314,72 @@
     </div>
   </section>
 
-  <section>
-    <div class="container">
+  <!-- Book teaser -->
+  <section id="book" class="book-teaser section pad-outer">
+    <div class="container section-inner book-teaser-wrap">
+      <div class="book-mock">
+        <img src="{% static 'assets/U&T/front.jpeg' %}" alt="Tiara’s Grateful Heart cover" />
+        <img class="back" src="{% static 'assets/U&T/back.jpeg' %}" alt="Back cover" />
+      </div>
+      <div class="book-copy">
+        <h2>Tiara’s Grateful Heart</h2>
+        <p>A 30-day gratitude adventure with rhymes, reflection prompts, coloring pages, 1-minute Unwind Minis, and a completion certificate.</p>
+        <ul class="features">
+          <li>30 Days with Tiara (rhyme • prompts • coloring)</li>
+          <li>Unwind Mini calm exercises (screen-free)</li>
+          <li>Certificate of Gratitude</li>
+          <li>Bonus Printables (Prompt Cards, Refill Pages, Tracker)</li>
+        </ul>
+        <div class="cta-row">
+          <a href="/tiaras-grateful-heart#buy" class="btn-primary">Buy Now</a>
+          <a href="/tiaras-grateful-heart#sample" class="btn-outline">Download Sample Pages</a>
+          <a href="#bulk-quote" class="btn-link open-bulk">Request Bulk Quote</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Movement / Animated Quote -->
+  <section class="quote-feature section pad-outer" aria-labelledby="quote-title">
+    <div class="quote-bg" aria-hidden="true">
+      <span class="orb orb-a"></span>
+      <span class="orb orb-b"></span>
+      <span class="orb orb-c"></span>
+    </div>
+
+    <div class="container section-inner">
+      <div class="quote-wrap">
+        <div class="quote-mark" aria-hidden="true">
+          <svg width="72" height="72" viewBox="0 0 72 72" fill="none" role="img">
+            <path d="M28 18c-8 0-14 6-14 14 0 6 4 10 9 11-2 9-8 15-16 17 14-1 24-12 24-26 0-8-1-16-3-16zM58 18c-8 0-14 6-14 14 0 6 4 10 9 11-2 9-8 15-16 17 14-1 24-12 24-26 0-8-1-16-3-16z" fill="currentColor"/>
+          </svg>
+        </div>
+
+        <h2 id="quote-title" class="quote-title q-reveal">
+          Unwind & Thrive is <span class="accent">not an event</span> — it’s a <span class="accent">movement</span>.
+        </h2>
+
+        <p class="quote-sub q-reveal">
+          Choose <span class="underline">rest today</span> — so you can <span class="underline">thrive tomorrow</span>.
+        </p>
+
+        <div class="quote-cta q-reveal">
+          <a href="/unwind-thrive" class="btn-primary btn-pulse">Bring it to my community</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="section pad-outer">
+    <div class="container section-inner">
       <div class="section-head">
         <div>
           <div class="kicker">Testimonials</div>
           <h2>What our clients say</h2>
         </div>
       </div>
-      <div class="grid">
+      <div class="grid gap-24">
         <div class="card col-4"><div class="card-body"><p style="margin:0 0 8px">“The most luxurious and relaxing experience of my life!”</p><span class="muted">— Grace O.</span></div></div>
         <div class="card col-4"><div class="card-body"><p style="margin:0 0 8px">“A perfect blend of elegance and care.”</p><span class="muted">— Yomi H.</span></div></div>
         <div class="card col-4"><div class="card-body"><p style="margin:0 0 8px">“From the spa to the yacht, every moment was unforgettable.”</p><span class="muted">— Tope S.</span></div></div>
@@ -204,63 +387,187 @@
     </div>
   </section>
 
-  <section class="surface" id="contact">
-    <div class="container">
+  <!-- Blog (dynamic + modal) -->
+  <section id="blog" class="blog section pad-outer" aria-labelledby="blog-title">
+    <div class="container section-inner">
       <div class="section-head">
         <div>
-          <div class="kicker">Contact</div>
-          <h2>Tell us about your dream escape</h2>
+          <div class="kicker">From the journal</div>
+          <h2 id="blog-title">Ideas, Venues & Behind-the-Scenes</h2>
+          <p class="muted" style="max-width:60ch">Trends we’re loving, planning tips, and stories from unforgettable events.</p>
         </div>
+        <a class="btn secondary" href="{% url 'blog_list' %}">Explore all posts →</a>
       </div>
-      <form class="grid" style="gap:12px" onsubmit="event.preventDefault();alert('💌 Thanks! Our concierge will reach out shortly.');this.reset();">
-        <input class="col-6" required placeholder="Your Name" style="padding:12px 14px;border-radius:12px;border:1px solid var(--border)"/>
-        <input class="col-6" type="email" required placeholder="Your Email" style="padding:12px 14px;border-radius:12px;border:1px solid var(--border)"/>
-        <textarea class="col-12" required placeholder="What would you love to experience?" rows="5" style="padding:12px 14px;border-radius:12px;border:1px solid var(--border)"></textarea>
-        <button class="btn btn-primary" type="submit">Send Message</button>
-      </form>
+
+      {% if posts %}
+        <div class="blog-grid">
+          {% with featured=posts.0 %}
+            {% if featured %}
+              <article class="post-card featured">
+                <a href="{% url 'blog_detail' slug=featured.slug %}" class="post-link js-modal-link" aria-label="{{ featured.title }}">
+                  <div class="post-media">
+                    <img src="{{ featured.image.url|default:featured.thumbnail.url }}" alt="{{ featured.title }}" loading="lazy">
+                    <span class="post-chip">{{ featured.category }}</span>
+                  </div>
+                  <div class="post-body">
+                    <h3>{{ featured.title }}</h3>
+                    {% if featured.content %}<p class="muted">{{ featured.content|truncatewords:26 }}</p>{% endif %}
+                    <div class="post-meta">
+                      <span>⏱ {{ featured.read_minutes|default:5 }} min</span>
+                      <span>•</span>
+                      <time datetime="{{ featured.created_at|date:'Y-m-d' }}">{{ featured.created_at|date:"M d, Y" }}</time>
+                    </div>
+                  </div>
+                </a>
+              </article>
+            {% endif %}
+          {% endwith %}
+
+          {% for p in posts|slice:"1:4" %}
+            <article class="post-card">
+              <a href="{% url 'blog_detail' slug=p.slug %}" class="post-link js-modal-link" aria-label="{{ p.title }}">
+                <div class="post-media">
+                  <img src="{{ p.image.url|default:p.thumbnail.url }}" alt="{{ p.title }}" loading="lazy">
+                  <span class="post-chip">{{ p.category }}</span>
+                </div>
+                <div class="post-body">
+                  <h3>{{ p.title }}</h3>
+                  <div class="post-meta">
+                    <span>⏱ {{ p.read_minutes|default:4 }} min</span>
+                    <span>•</span>
+                    <time datetime="{{ p.created_at|date:'Y-m-d' }}">{{ p.created_at|date:"M d, Y" }}</time>
+                  </div>
+                </div>
+              </a>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="muted">No posts yet — check back soon.</p>
+      {% endif %}
     </div>
   </section>
 
+  <!-- Modal root (required for AJAX popups) -->
+  <div id="modal-root" aria-hidden="true"></div>
+
 {% endblock %}
 
+{% block extra_js %}
 <script>
-  // UA header menu toggle
-  const uaOpenBtn = document.getElementById('uaOpenMenu');
-  const uaMobileMenu = document.getElementById('uaMobileMenu');
-  uaOpenBtn?.addEventListener('click', () => {
-    const open = uaMobileMenu.classList.toggle('open');
-    uaOpenBtn.setAttribute('aria-expanded', open);
-  });
+/* ========= Nav + theme ========= */
+const uaOpenBtn = document.getElementById('uaOpenMenu');
+const uaMobileMenu = document.getElementById('uaMobileMenu');
+uaOpenBtn?.addEventListener('click', () => {
+  const open = uaMobileMenu.classList.toggle('open');
+  uaOpenBtn.setAttribute('aria-expanded', open);
+});
+const uaThemeBtn = document.getElementById('uaThemeBtn');
+const uaThemeBtnMobile = document.getElementById('uaThemeBtnMobile');
+function setTheme(mode){
+  document.documentElement.setAttribute('data-theme', mode);
+  localStorage.setItem('ua-theme', mode);
+  const pressed = mode === 'dark';
+  uaThemeBtn?.setAttribute('aria-pressed', pressed);
+  uaThemeBtnMobile?.setAttribute('aria-pressed', pressed);
+}
+const saved = localStorage.getItem('ua-theme');
+if(saved){ setTheme(saved); }
+uaThemeBtn?.addEventListener('click', () => setTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
+uaThemeBtnMobile?.addEventListener('click', () => setTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
 
-  // UA theme toggle + persist
-  const uaThemeBtn = document.getElementById('uaThemeBtn');
-  const uaThemeBtnMobile = document.getElementById('uaThemeBtnMobile');
-  const root = document.documentElement;
-  function setTheme(mode){
-    document.documentElement.setAttribute('data-theme', mode);
-    localStorage.setItem('ua-theme', mode);
-    const pressed = mode === 'dark';
-    uaThemeBtn?.setAttribute('aria-pressed', pressed);
-  }
-  const saved = localStorage.getItem('ua-theme');
-  if(saved){ setTheme(saved); }
-  uaThemeBtn?.addEventListener('click', () => setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
-  uaThemeBtnMobile?.addEventListener('click', () => setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
+/* ========= Legacy mobile menu ========= */
+document.getElementById('menuBtn')?.addEventListener('click', () => {
+  const links = document.querySelector('.nav-links'); if (!links) return;
+  const visible = getComputedStyle(links).display !== 'none';
+  links.style.display = visible ? 'none' : 'flex';
+});
 
-  // Your original helpers (kept intact)
-  const btn = document.getElementById('menuBtn');
-  btn?.addEventListener('click', () => {
-    const links = document.querySelector('.nav-links');
-    const visible = getComputedStyle(links).display !== 'none';
-    links.style.display = visible ? 'none' : 'flex';
-  });
-  document.querySelectorAll("a[href^='#']").forEach(a=>{
-    a.addEventListener('click',e=>{
-      const id=a.getAttribute('href');
-      if(id && id!=='#'){
-        e.preventDefault();
-        document.querySelector(id)?.scrollIntoView({behavior:'smooth'});
-      }
-    })
+/* ========= Smooth scroll ========= */
+document.querySelectorAll("a[href^='#']").forEach(a=>{
+  a.addEventListener('click',e=>{
+    const id=a.getAttribute('href');
+    if(id && id!=='#'){
+      const el = document.querySelector(id);
+      if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth'}); }
+    }
   })
+});
+
+/* ========= Quote reveal (robust) ========= */
+(function(){
+  const els = document.querySelectorAll('.q-reveal');
+  if(!els.length){ return; }
+  if(!('IntersectionObserver' in window)){
+    els.forEach(el=>el.classList.add('in')); return;
+  }
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { root: null, threshold: 0.15 });
+  els.forEach(el=>io.observe(el));
+})();
+
+/* ========= Timeline (guard if none) ========= */
+(function(){
+  const items = document.querySelectorAll('.timeline-item');
+  if(!items.length || !('IntersectionObserver' in window)) return;
+  const obs = new IntersectionObserver(entries=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){ en.target.classList.add('visible'); obs.unobserve(en.target); }
+    })
+  }, {threshold: .2});
+  items.forEach(i=>obs.observe(i));
+})();
+
+/* ========= Modal system ========= */
+(function () {
+  const modalRoot = document.getElementById('modal-root');
+
+  function closeModal() {
+    if(!modalRoot) return;
+    modalRoot.innerHTML = '';
+    modalRoot.removeAttribute('data-open');
+    modalRoot.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('click', async (e) => {
+    const close = e.target.closest('[data-close], .modal-overlay');
+    if (close) { e.preventDefault(); closeModal(); return; }
+
+    const a = e.target.closest('a.js-modal-link');
+    if (!a) return;
+
+    // normal left-click only
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+    e.preventDefault();
+    const url = a.getAttribute('href');
+    try {
+      const res = await fetch(url + (url.includes('?') ? '&' : '?') + 'modal=1', { headers: {'X-Requested-With':'fetch'} });
+      if (!res.ok) throw new Error('Failed to load modal');
+      const html = await res.text();
+      modalRoot.innerHTML = `
+        <div class="modal-overlay" data-close></div>
+        <div class="modal-dialog" role="dialog" aria-modal="true">${html}</div>
+      `;
+      modalRoot.setAttribute('data-open','');
+      modalRoot.setAttribute('aria-hidden','false');
+      document.body.style.overflow = 'hidden';
+    } catch (err) {
+      console.error(err);
+      window.location.href = url; // fallback
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modalRoot?.hasAttribute('data-open')) closeModal();
+  });
+})();
 </script>
+{% endblock %}

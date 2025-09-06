@@ -1,0 +1,17 @@
+<div class="modal-card">
+  <button class="modal-close" data-close>&times;</button>
+
+  <div class="modal-media">
+    <img src="{{ event.flier.url|default:event.thumbnail.url }}" alt="{{ event.name }}">
+    {% if event.badge %}<span class="modal-badge">{{ event.badge }}</span>{% endif %}
+  </div>
+
+  <div class="modal-body">
+    <h3>{{ event.name }}</h3>
+    <p class="muted">📍 {{ event.location }} &nbsp; • &nbsp; 🗓 {{ event.date|date:"M d, Y" }}</p>
+    {% if event.description %}<p>{{ event.description }}</p>{% endif %}
+    <div class="modal-actions">
+      <a class="btn" href="{{ event.get_absolute_url }}">Open event page →</a>
+    </div>
+  </div>
+</div>
