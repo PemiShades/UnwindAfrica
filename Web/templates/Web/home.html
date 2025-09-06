@@ -315,60 +315,63 @@
   </section>
 
   <!-- Book teaser -->
-  <section id="book" class="book-teaser section pad-outer">
-    <div class="container section-inner book-teaser-wrap">
-      <div class="book-mock">
-        <img src="{% static 'assets/U&T/front.jpeg' %}" alt="Tiara’s Grateful Heart cover" />
-        <img class="back" src="{% static 'assets/U&T/back.jpeg' %}" alt="Back cover" />
-      </div>
-      <div class="book-copy">
-        <h2>Tiara’s Grateful Heart</h2>
-        <p>A 30-day gratitude adventure with rhymes, reflection prompts, coloring pages, 1-minute Unwind Minis, and a completion certificate.</p>
-        <ul class="features">
-          <li>30 Days with Tiara (rhyme • prompts • coloring)</li>
-          <li>Unwind Mini calm exercises (screen-free)</li>
-          <li>Certificate of Gratitude</li>
-          <li>Bonus Printables (Prompt Cards, Refill Pages, Tracker)</li>
-        </ul>
-        <div class="cta-row">
-          <a href="/tiaras-grateful-heart#buy" class="btn-primary">Buy Now</a>
-          <a href="/tiaras-grateful-heart#sample" class="btn-outline">Download Sample Pages</a>
-          <a href="#bulk-quote" class="btn-link open-bulk">Request Bulk Quote</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Movement / Animated Quote -->
-  <section class="quote-feature section pad-outer" aria-labelledby="quote-title">
-    <div class="quote-bg" aria-hidden="true">
-      <span class="orb orb-a"></span>
-      <span class="orb orb-b"></span>
-      <span class="orb orb-c"></span>
+<section id="book" class="book-teaser section pad-outer">
+  <div class="container section-inner book-teaser-wrap">
+    <div class="book-mock" aria-label="Book cover previews" role="group">
+      <img src="{% static 'assets/U&T/front.jpeg' %}" alt="Tiara’s Grateful Heart front cover"
+           loading="lazy" decoding="async" />
+      <img class="back" src="{% static 'assets/U&T/back.jpeg' %}" alt="Back cover"
+           loading="lazy" decoding="async" />
     </div>
 
-    <div class="container section-inner">
-      <div class="quote-wrap">
-        <div class="quote-mark" aria-hidden="true">
-          <svg width="72" height="72" viewBox="0 0 72 72" fill="none" role="img">
-            <path d="M28 18c-8 0-14 6-14 14 0 6 4 10 9 11-2 9-8 15-16 17 14-1 24-12 24-26 0-8-1-16-3-16zM58 18c-8 0-14 6-14 14 0 6 4 10 9 11-2 9-8 15-16 17 14-1 24-12 24-26 0-8-1-16-3-16z" fill="currentColor"/>
-          </svg>
-        </div>
-
-        <h2 id="quote-title" class="quote-title q-reveal">
-          Unwind & Thrive is <span class="accent">not an event</span> — it’s a <span class="accent">movement</span>.
-        </h2>
-
-        <p class="quote-sub q-reveal">
-          Choose <span class="underline">rest today</span> — so you can <span class="underline">thrive tomorrow</span>.
-        </p>
-
-        <div class="quote-cta q-reveal">
-          <a href="/unwind-thrive" class="btn-primary btn-pulse">Bring it to my community</a>
-        </div>
+    <div class="book-copy">
+      <h2>Tiara’s Grateful Heart</h2>
+      <p>A 30-day gratitude adventure with rhymes, reflection prompts, coloring pages, 1-minute Unwind Minis, and a completion certificate.</p>
+      <ul class="features">
+        <li>30 Days with Tiara (rhyme • prompts • coloring)</li>
+        <li>Unwind Mini calm exercises (screen-free)</li>
+        <li>Certificate of Gratitude</li>
+        <li>Bonus Printables (Prompt Cards, Refill Pages, Tracker)</li>
+      </ul>
+      <div class="cta-row">
+        <a href="/tiaras-grateful-heart#buy" class="btn-primary">Buy Now</a>
+        <a href="/tiaras-grateful-heart#sample" class="btn-outline">Download Sample Pages</a>
+        <a href="#bulk-quote" class="btn-link open-bulk">Request Bulk Quote</a>
       </div>
     </div>
-  </section>
+  </div>
+</section>
+
+<!-- Movement / Animated Quote -->
+<section class="quote-feature section pad-outer" aria-labelledby="quote-title">
+  <div class="quote-bg" aria-hidden="true">
+    <span class="orb orb-a"></span>
+    <span class="orb orb-b"></span>
+    <span class="orb orb-c"></span>
+  </div>
+
+  <div class="container section-inner">
+    <div class="quote-wrap">
+      <div class="quote-mark" aria-hidden="true">
+        <svg width="72" height="72" viewBox="0 0 72 72" fill="none" role="img">
+          <path d="M28 18c-8 0-14 6-14 14 0 6 4 10 9 11-2 9-8 15-16 17 14-1 24-12 24-26 0-8-1-16-3-16zM58 18c-8 0-14 6-14 14 0 6 4 10 9 11-2 9-8 15-16 17 14-1 24-12 24-26 0-8-1-16-3-16z" fill="currentColor"/>
+        </svg>
+      </div>
+
+      <h2 id="quote-title" class="quote-title q-reveal">
+        Unwind & Thrive is <span class="accent">not an event</span> — it’s a <span class="accent">movement</span>.
+      </h2>
+
+      <p class="quote-sub q-reveal">
+        Choose <span class="underline">rest today</span> — so you can <span class="underline">thrive tomorrow</span>.
+      </p>
+
+      <div class="quote-cta q-reveal">
+        <a href="/unwind-thrive" class="btn-primary btn-pulse">Bring it to my community</a>
+      </div>
+    </div>
+  </div>
+</section>
 
   <!-- Testimonials -->
   <section class="section pad-outer">
@@ -455,6 +458,46 @@
 
 {% block extra_js %}
 <script>
+
+
+
+  // Reveal on scroll
+  (function () {
+    const els = document.querySelectorAll('.q-reveal');
+    if (!('IntersectionObserver' in window) || !els.length) {
+      els.forEach(el => el.classList.add('q-in'));
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('q-in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.2 });
+    els.forEach(el => io.observe(el));
+  })();
+
+  // Bulk quote modal opener (expects a modal with id="bulk-quote")
+  (function () {
+    const trigger = document.querySelector('.open-bulk');
+    const modal = document.getElementById('bulk-quote');
+    if (!trigger || !modal) return;
+    trigger.addEventListener('click', function (e) {
+      e.preventDefault();
+      modal.classList.add('is-open');
+      document.documentElement.classList.add('no-scroll');
+    });
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal || e.target.closest('[data-close]')) {
+        modal.classList.remove('is-open');
+        document.documentElement.classList.remove('no-scroll');
+      }
+    });
+  })();
+
+
 /* ========= Nav + theme ========= */
 const uaOpenBtn = document.getElementById('uaOpenMenu');
 const uaMobileMenu = document.getElementById('uaMobileMenu');

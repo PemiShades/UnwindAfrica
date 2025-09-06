@@ -937,3 +937,183 @@ a:focus, button:focus, input:focus, textarea:focus{ outline:3px solid var(--bran
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+
+
+/* ---------- Generic helpers ---------- */
+.section.pad-outer { padding-block: clamp(2rem, 4vw, 4.5rem); }
+.section-inner { max-width: 1100px; margin-inline: auto; padding-inline: clamp(1rem, 4vw, 2rem); }
+
+/* buttons layout on small screens */
+.cta-row { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+.cta-row > a { inline-size: 100%; text-align: center; }
+@media (min-width: 560px) {
+  .cta-row > a { inline-size: auto; }
+}
+
+/* ---------- BOOK TEASER ---------- */
+.book-teaser-wrap {
+  display: grid;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  align-items: start;
+}
+
+/* stack on mobile, side-by-side from md */
+@media (min-width: 820px) {
+  .book-teaser-wrap {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    align-items: center;
+  }
+}
+
+/* image group */
+.book-mock {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: 0.75rem;
+}
+
+/* front cover scales nicely on mobile */
+.book-mock img {
+  display: block;
+  max-inline-size: 100%;
+  inline-size: clamp(220px, 70vw, 360px);
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.18);
+}
+
+/* back cover: stack under front on mobile for clean layout */
+.book-mock img.back {
+  opacity: .95;
+  inline-size: clamp(200px, 62vw, 330px);
+}
+
+/* from >= md: overlap the back cover behind at an angle */
+@media (min-width: 820px) {
+  .book-mock {
+    min-block-size: clamp(280px, 40vw, 460px);
+  }
+  .book-mock img {
+    inline-size: clamp(260px, 26vw, 360px);
+  }
+  .book-mock img.back {
+    position: absolute;
+    inset: auto auto 8% 8%;
+    transform: rotate(-6deg);
+    filter: saturate(.9) brightness(.98);
+    z-index: 0;
+  }
+  .book-mock img:not(.back) { position: relative; z-index: 1; }
+}
+
+/* copy block */
+.book-copy h2 {
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  line-height: 1.2;
+  margin: 0 0 .5rem;
+}
+
+.book-copy p {
+  color: var(--text-subtle, #5c5f66);
+  margin: 0 0 1rem;
+}
+
+.features {
+  margin: 0 0 1rem;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: .4rem;
+}
+.features li { line-height: 1.4; }
+
+/* Give the whole block some breathing room on very small devices */
+@media (max-width: 380px) {
+  .book-mock img { inline-size: 88vw; }
+  .book-copy p, .features { font-size: .95rem; }
+}
+
+/* ---------- QUOTE FEATURE ---------- */
+.quote-feature {
+  position: relative;
+  overflow: clip;
+  isolation: isolate; /* keeps z-index context for bg orbs */
+  background: radial-gradient(120% 120% at 10% 0%, rgba(255,215,160,.22), transparent 60%),
+              radial-gradient(120% 120% at 100% 20%, rgba(170,200,255,.18), transparent 60%),
+              var(--surface, #0b0b0c);
+  color: var(--on-surface, #fff);
+  border-radius: 16px;
+}
+
+/* background “orbs” */
+.quote-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.orb {
+  position: absolute;
+  inline-size: clamp(140px, 24vw, 260px);
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  filter: blur(28px);
+  opacity: .45;
+  animation: float 14s ease-in-out infinite;
+}
+.orb-a { background: #FFD6A8; top: 10%; left: 6%; animation-delay: 0s; }
+.orb-b { background: #B8CFFF; bottom: 6%; right: 10%; animation-delay: 1.2s; }
+.orb-c { background: #E3B8FF; top: 50%; left: 45%; animation-delay: 2.4s; }
+
+@keyframes float {
+  0%,100% { transform: translate3d(0,0,0); }
+  50%     { transform: translate3d(0,-12px,0); }
+}
+
+/* content wrapper must sit above orbs */
+.quote-wrap {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding-block: clamp(2rem, 6vw, 4rem);
+  padding-inline: clamp(1rem, 5vw, 3rem);
+  display: grid;
+  justify-items: center;
+  gap: .75rem;
+}
+
+.quote-mark {
+  color: currentColor;
+  opacity: .35;
+  transform: translateY(2px);
+}
+
+.quote-title {
+  font-size: clamp(1.4rem, 3.8rem, 4.2rem);
+  max-inline-size: 22ch;
+  margin: 0;
+}
+
+.quote-sub {
+  font-size: clamp(2rem, 1.4vw, 1.125rem);;
+  color: rgba(255,255,255,.85);
+  margin: 0 0 .5rem;
+}
+
+.quote-cta .btn-primary { inline-size: max-content; }
+
+/* accents */
+.quote-title .accent { color: #FFC83D; }
+.quote-sub .underline { text-decoration: underline; text-decoration-thickness: .12em; }
+
+/* reveal animation */
+.q-reveal { opacity: 1; transform: translateY(10px); transition: opacity .5s ease, transform .5s ease; }
+.q-reveal.q-in { opacity: 1; transform: none; }
+
+/* reduce motion users: show content without animation, tame orbs */
+@media (prefers-reduced-motion: reduce) {
+  .orb { animation: none; }
+  .q-reveal { opacity: 1; transform: none; }
+}
