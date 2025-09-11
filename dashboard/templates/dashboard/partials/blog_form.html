@@ -1,51 +1,132 @@
-{% load static %}
 {% load widget_tweaks %}
 
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+{% with form=post_form|default:blog_form %}
+<div class="max-w-5xl mx-auto">
+  <div class="flex items-start justify-between gap-4 mb-6">
+    <div>
+      <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Create / Edit Blog Post</h2>
+      <p class="opacity-70 text-sm md:text-base">Clean editor with preview and a tidy dropzone for the card thumbnail.</p>
+    </div>
+    <div class="text-right">
+      <div id="autosaveStatus" class="inline-flex items-center gap-2 text-xs md:text-sm opacity-70">
+        <span class="w-2 h-2 rounded-full bg-emerald-400" id="dot"></span>
+        <span>Saved</span>
+      </div>
+      <div class="text-[11px] opacity-60 mt-1">⌘/Ctrl+S: Save draft • ⌘/Ctrl+Enter: Publish</div>
+    </div>
+  </div>
 
-<div class="max-w-5xl mx-auto py-12 px-6">
-  <h1 class="text-4xl font-bold text-teal-700 mb-10 text-center">Create New Blog Post</h1>
-
-  <form method="post" action="{% url 'create_blog' %}" enctype="multipart/form-data" class="bg-white p-8 rounded-xl shadow-md space-y-6">
+  <form id="blogForm" method="post" action="{% url 'create_blog' %}" enctype="multipart/form-data"
+        class="glass rounded-2xl p-6 md:p-8 shadow-soft border border-white/10 light:border-[#eef0f6] space-y-8">
     {% csrf_token %}
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {% if form.non_field_errors %}
+      <div class="p-4 rounded-lg bg-red-50 text-red-700 border border-red-200">
+        {% for err in form.non_field_errors %}{{ err }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+      <!-- Title -->
       <div>
-        <label for="{{ form.title.id_for_label }}" class="block text-lg font-medium text-gray-700 mb-1">Title</label>
-        {{ form.title|add_class:"w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" }}
+        <label for="{{ form.title.id_for_label }}" class="block text-sm font-semibold mb-1">Title</label>
+        <div class="relative">
+          {{ form.title|add_class:"field ring-brand" }}
+          <div class="absolute right-2 -bottom-6 text-xs opacity-60">
+            <span id="titleCount">0</span>/350
+          </div>
+        </div>
+        {% if form.title.errors %}<p class="mt-2 text-sm text-red-600">{{ form.title.errors|striptags }}</p>{% endif %}
       </div>
 
+      <!-- Category -->
       <div>
-        <label for="{{ form.category.id_for_label }}" class="block text-lg font-medium text-gray-700 mb-1">Category</label>
-        {{ form.category|add_class:"w-full border border-gray-300 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500" }}
+        <label class="block text-sm font-semibold mb-1">Category</label>
+        {{ form.category|add_class:"field ring-brand" }}
       </div>
 
-      <div>
-        <label for="{{ form.thumbnail.id_for_label }}" class="block text-lg font-medium text-gray-700 mb-1">Thumbnail Image</label>
-        {{ form.thumbnail|add_class:"block w-full text-sm text-gray-600 bg-white border border-gray-300 rounded-md cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-teal-600 file:text-white hover:file:bg-teal-700" }}
+      <!-- Thumbnail (card image) -->
+      <div class="md:col-span-2">
+        <label class="block text-sm font-semibold mb-1">Thumbnail (card image)</label>
+        <div id="thumbDrop"
+             class="group relative border-2 border-dashed rounded-xl p-4 text-center hover:border-[var(--brand)] transition">
+          <input id="thumbInput" type="file" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
+          <div class="hidden">{{ form.thumbnail|add_class:"hidden" }}</div>
+          <div class="pointer-events-none">
+            <i class="fa-solid fa-image text-2xl opacity-60 group-hover:text-[var(--brand)]"></i>
+            <p class="text-sm mt-2 opacity-80">Drag & drop or click to upload</p>
+            <p class="text-xs opacity-60">PNG/JPG up to ~5MB</p>
+          </div>
+        </div>
+        <div id="thumbPreviewWrap" class="mt-3 hidden">
+          <div class="flex items-center justify-between rounded-lg p-2 border border-white/10 light:border-[#e6e9f2] bg-white/5 light:bg-white">
+            <div class="flex items-center gap-3">
+              <img id="thumbPreview" src="" alt="Thumbnail preview" class="w-16 h-16 object-cover rounded-md ring-1 ring-white/10 light:ring-[#e6e9f2]">
+              <div>
+                <div id="thumbName" class="text-sm font-medium"></div>
+                <div id="thumbSize" class="text-xs opacity-60">—</div>
+              </div>
+            </div>
+            <button type="button" id="thumbClear" class="text-xs px-3 py-1.5 rounded-md bg-red-50 text-red-600 hover:bg-red-100">Remove</button>
+          </div>
+        </div>
       </div>
 
+      <!-- Optional inline/hero image -->
+      <div class="md:col-span-2">
+        <label class="block text-sm font-semibold mb-1">Inline/Hero Image (optional)</label>
+        {{ form.image|add_class:"field ring-brand" }}
+      </div>
+
+      <!-- Toggles -->
       <div>
-        <label for="{{ form.image.id_for_label }}" class="block text-lg font-medium text-gray-700 mb-1">Optional Main Image</label>
-        {{ form.image|add_class:"block w-full text-sm text-gray-600 bg-white border border-gray-300 rounded-md cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-500 file:text-white hover:file:bg-gray-600" }}
+        <label class="block text-sm font-semibold mb-1">Published</label>
+        <div class="flex items-center gap-2">
+          {{ form.is_published }}
+          <span class="text-sm opacity-80">Show on site</span>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">Featured</label>
+        <div class="flex items-center gap-2">
+          {{ form.is_featured }}
+          <span class="text-sm opacity-80">Highlight in lists</span>
+        </div>
       </div>
     </div>
 
+    <!-- Content editor -->
     <div>
-      <label for="{{ form.content.id_for_label }}" class="block text-lg font-medium text-gray-700 mb-1">Post Content</label>
-      {{ form.content|add_class:"w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500" }}
+      <div class="flex items-center justify-between mb-2">
+        <label class="block text-sm font-semibold">Content</label>
+        <div class="flex items-center gap-2 text-xs opacity-70">
+          <span id="wordCount">0 words</span><span>•</span><span id="readTime">0 min read</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 mb-2">
+        <button type="button" class="btn-ghost border" data-md="**" title="Bold"><i class="fa-solid fa-bold"></i></button>
+        <button type="button" class="btn-ghost border" data-md="*" title="Italic"><i class="fa-solid fa-italic"></i></button>
+        <button type="button" class="btn-ghost border" data-insert="# " title="H1">H1</button>
+        <button type="button" class="btn-ghost border" data-insert="## " title="H2">H2</button>
+        <button type="button" class="btn-ghost border ml-auto" id="togglePreview"><i class="fa-regular fa-eye mr-1"></i> Preview</button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+          {{ form.content|add_class:"w-full min-h-[240px] field ring-brand" }}
+        </div>
+        <div id="previewPane" class="hidden lg:block rounded-lg p-4 border border-white/10 light:border-[#e6e9f2]">
+          <div class="opacity-60 text-sm">Live preview will appear here…</div>
+        </div>
+      </div>
     </div>
 
-    <div class="flex items-center space-x-2">
-      {{ form.is_published }}
-      <label for="{{ form.is_published.id_for_label }}" class="text-gray-700 text-sm">Publish immediately</label>
-    </div>
-
-    <div class="text-right">
-      <button type="submit" class="bg-teal-600 text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-teal-700 transition">
-        <i class="fas fa-paper-plane mr-2"></i> Publish Blog
-      </button>
+    <!-- Controls -->
+    <div class="flex items-center justify-end gap-3">
+      <button type="button" id="saveDraft" class="btn-ghost border">Save Draft</button>
+      <button type="submit" class="btn-primary text-lg"><i class="fas fa-paper-plane mr-2"></i>Publish</button>
     </div>
   </form>
 </div>
+{% endwith %}

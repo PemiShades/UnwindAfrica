@@ -19,8 +19,9 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1")
 
-LOGIN_URL = 'login'
-LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = 'dashboard_login'           # named URL for your login page
+LOGIN_REDIRECT_URL = 'dashboard_home'   # after successful login
+LOGOUT_REDIRECT_URL = 'dashboard_login' # after logout
 
 
 # ALLOWED_HOSTS = config("ALLOWED_HOSTS", default=["unwindafrica.onrender.com","www.unwindafrica.com","https://www.unwindafrica.com","https://dashboard.render.com/","https://render.com/"] , cast=Csv())

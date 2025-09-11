@@ -8,7 +8,7 @@ urlpatterns = [
 	path('about/',views.about,name="about"),
 	path('packages/',views.packages,name="packages"),
     path('blog/<slug:slug>/', views.blog_detail, name='blog_detail'),
-
+    path('unwind-thrive/', views.unwind_thrive, name='services'),
 
 
 

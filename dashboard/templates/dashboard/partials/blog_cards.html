@@ -1,23 +1,59 @@
-<h2 class="text-2xl font-bold mt-10 mb-4">Blog Posts</h2>
-{% for post in posts %}
-<div class="bg-white p-4 rounded shadow mb-4">
-  <h3 class="text-xl font-semibold">{{ post.title }}</h3>
-  <p class="text-sm text-gray-600">By {{ post.author }}</p>
-  <div class="mt-2 flex space-x-2">
-    <button onclick="editBlog('{{ post.slug }}', '{{ post.title }}', '{{ post.author }}', `{{ post.content|escapejs }}`)"
-            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
-      Edit
-    </button>
-    <form action="{% url 'delete_blog' post.slug %}" method="post" class="inline">
-      {% csrf_token %}
-      <button type="submit"
-              class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
-              onclick="return confirm('Delete this post?')">
-        Delete
-      </button>
-    </form>
-  </div>
+<h2 class="text-xl md:text-2xl font-extrabold mb-3">Blog Posts</h2>
+
+<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  {% for post in posts %}
+    <article class="glass rounded-2xl p-4 shadow-soft border border-white/10 light:border-[#eef0f6] flex flex-col">
+      <div class="relative aspect-[16/9] rounded-xl overflow-hidden ring-1 ring-white/10 light:ring-[#eef0f6]
+                  bg-gradient-to-br from-[rgba(142,124,255,.12)] to-[rgba(81,225,167,.10)]">
+        {% if post.thumbnail %}
+          <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}" class="w-full h-full object-cover">
+        {% endif %}
+        {% if post.badge %}
+          <span class="absolute top-2 left-2 text-[10px] px-2 py-0.5 rounded-full bg-white/85 light:bg-white text-[#0f1320]">
+            {{ post.badge }}
+          </span>
+        {% endif %}
+      </div>
+
+      <h3 class="mt-3 text-lg font-bold leading-tight">{{ post.title }}</h3>
+      <p class="text-xs opacity-70 mt-1">
+        {{ post.category }} • {{ post.created_at|date:"d M, Y" }}
+        • <span class="uppercase tracking-wide">{{ post.is_published|yesno:"Published,Draft" }}</span>
+        {% if post.read_minutes %} • {{ post.read_minutes }} min read{% endif %}
+      </p>
+
+      {% if post.excerpt %}
+        <p class="mt-2 text-sm opacity-80 overflow-hidden" style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">
+          {{ post.excerpt }}
+        </p>
+      {% endif %}
+
+      <div class="mt-3 flex gap-2">
+        <button
+          class="btn-primary"
+          onclick="window.__editPost(
+            '{{ post.slug }}',
+            '{{ post.title|escapejs }}',
+            '{{ post.content|default_if_none:''|default:''|escapejs }}',
+            '{{ post.category|escapejs }}',
+            '{{ post.is_published|yesno:"true,false" }}',
+            '{{ post.is_featured|yesno:"true,false" }}'
+          )">
+          <i class="fa-solid fa-pen mr-2"></i>Edit
+        </button>
+
+        <form action="{% url 'delete_blog' post.slug %}" method="post" class="inline"
+              onsubmit="return window.confirm('Delete “{{ post.title|escapejs }}”?')">
+          {% csrf_token %}
+          <button type="submit" class="btn-ghost border border-red-500/30 hover:border-red-500/60 text-red-400 light:text-red-600">
+            <i class="fa-solid fa-trash-can mr-2"></i>Delete
+          </button>
+        </form>
+
+        <a href="{{ post.get_absolute_url }}" class="btn-ghost ml-auto border border-emerald-400/30 hover:border-emerald-400/60">View</a>
+      </div>
+    </article>
+  {% empty %}
+    <p class="opacity-70">No posts yet.</p>
+  {% endfor %}
 </div>
-{% empty %}
-<p class="text-gray-500">No posts yet.</p>
-{% endfor %}

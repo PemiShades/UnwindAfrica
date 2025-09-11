@@ -1,0 +1,431 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Unwind & Thrive • Rest well. Live better. | Unwind Africa</title>
+  <meta name="description" content="Unwind & Thrive helps families, schools, and communities rediscover balance through guided rest, gratitude, and screen-free micro-practices." />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="preload" href="{% static 'assets/tiara/cover-front.png' %}" as="image" imagesrcset />
+  <link rel="stylesheet" href="{% static 'css/home.css' %}">
+  	<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+
+<main id="ut">
+<!-- HERO -->
+<header class="hero">
+    {% include './partials/header/navbar.html' with theme="dark" %}
+    {% include './partials/header/hamburger-menu.html' with faq_link=faq_link %}
+  <div class="container hero-wrap">
+    <div>
+      <span class="eyebrow">Unwind Africa presents</span>
+      <h1 class="title">Unwind & Thrive</h1>
+      <p class="sub">Thriving without rest is an illusion. We guide families, schools, and communities to rebuild <strong>healthy rhythms</strong> of rest, gratitude, and connection — so you don’t spend tomorrow’s wealth repairing today’s burnout.</p>
+      <div class="mt-3" role="group" aria-label="Primary actions">
+        <a href="#pricing" class="btn btn-primary">Join the next cohort</a>
+        <button class="btn btn-ghost" data-open="#quoteModal">Bulk / Group Quote</button>
+        <a class="btn btn-outline" href="{% static 'assets/tiara/sample.pdf' %}" target="_blank" rel="noopener">See sample pages</a>
+      </div>
+      <ul class="check mt-3">
+        <li>Screen-free 1-minute “Unwind Minis” that actually fit life</li>
+        <li>Gentle habit loops: gratitude → calm → connection</li>
+        <li>Age-aware tracks for kids, teens, and grown-ups</li>
+      </ul>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-card">
+        <img src="{% static 'assets/home/rest.jpg' %}" alt="Rest and renewal" style="width:100%; border-radius:12px"/>
+        <div class="tick"><span>🌿</span><span><b>Daily micro-rests</b> you’ll look forward to</span></div>
+        <div class="tick"><span>🧠</span><span><b>Science-backed</b> breathing & grounding</span></div>
+        <div class="tick"><span>👨‍👩‍👧</span><span><b>Made for real families</b> — messy and beautiful</span></div>
+      </div>
+      <div class="float-badge" aria-hidden="true">
+        <span class="icon">✓</span><strong>Low-friction by design</strong>
+      </div>
+      <span class="pulse" aria-hidden="true"></span>
+    </div>
+  </div>
+</header>
+
+<!-- WHO IT'S FOR (Tabs) -->
+<section class="section">
+  <div class="container">
+    <div class="center">
+      <span class="eyebrow">Who it’s for</span>
+      <h2 class="title">Different contexts, one gentle rhythm</h2>
+      <p class="sub">Pick your lane to see how Unwind & Thrive fits your world.</p>
+      <div class="tabs" role="tablist" aria-label="Audience tabs">
+        <button class="tab" role="tab" aria-selected="true" aria-controls="t-families">Families</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="t-schools">Schools</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="t-faith">Faith & Community</button>
+      </div>
+    </div>
+
+    <div class="tabpanels">
+      <div id="t-families" class="active grid grid-3 mt-2" role="tabpanel">
+        <div class="card">
+          <div class="icon">💚</div>
+          <h3 class="mt-1">Connection over chaos</h3>
+          <p class="sub">1-minute minis, bedtime gratitude, and weekend rituals that bring hearts back together.</p>
+        </div>
+        <div class="card">
+          <div class="icon">🕊️</div>
+          <h3 class="mt-1">Calm kids, calmer home</h3>
+          <p class="sub">Simple breath and body cues help kids self-regulate — without screens.</p>
+        </div>
+        <div class="card">
+          <div class="icon">📅</div>
+          <h3 class="mt-1">Works with real life</h3>
+          <p class="sub">Micro-practices fit school runs, homework, and busy schedules.</p>
+        </div>
+      </div>
+
+      <div id="t-schools" class="grid grid-3 mt-2" role="tabpanel">
+        <div class="card">
+          <div class="icon">🏫</div>
+          <h3 class="mt-1">Pastoral care toolkit</h3>
+          <p class="sub">Homeroom scripts, 5-minute assemblies, printable trackers.</p>
+        </div>
+        <div class="card">
+          <div class="icon">👩‍🏫</div>
+          <h3 class="mt-1">Teacher-friendly</h3>
+          <p class="sub">No prep overwhelm. Plug-and-play activities and weekly themes.</p>
+        </div>
+        <div class="card">
+          <div class="icon">🧩</div>
+          <h3 class="mt-1">Inclusive by design</h3>
+          <p class="sub">Neuro-affirming, culturally sensitive, adaptable to age bands.</p>
+        </div>
+      </div>
+
+      <div id="t-faith" class="grid grid-3 mt-2" role="tabpanel">
+        <div class="card">
+          <div class="icon">🤝</div>
+          <h3 class="mt-1">Small groups & youth</h3>
+          <p class="sub">10–15 minute formats for midweek meetups and youth circles.</p>
+        </div>
+        <div class="card">
+          <div class="icon">🎶</div>
+          <h3 class="mt-1">Sabbath rhythms</h3>
+          <p class="sub">Quiet reflection prompts + gratitude litanies for services.</p>
+        </div>
+        <div class="card">
+          <div class="icon">📦</div>
+          <h3 class="mt-1">Bundles & licensing</h3>
+          <p class="sub">Affordable group packs and site licenses available.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OUTCOMES + WHAT'S INSIDE -->
+<section class="section" style="background:#fff">
+  <div class="container grid grid-2">
+    <div>
+      <span class="eyebrow">Expected outcomes</span>
+      <h2 class="title">What changes in 30 days</h2>
+      <ul class="check mt-2">
+        <li>More patient mornings and gentler bedtimes</li>
+        <li>Kids build a natural gratitude habit</li>
+        <li>Less doom-scrolling, more presence</li>
+        <li>Language for big feelings (without shame)</li>
+      </ul>
+      <p class="mt-3 sub">We’re not adding tasks to your plate. We’re <em>reshaping</em> the plate — with micro-practices that stack into real renewal.</p>
+    </div>
+    <div>
+      <span class="eyebrow">What you get</span>
+      <div class="grid grid-3 mt-2">
+        <div class="card">
+          <div class="icon">📘</div>
+          <h3>Tiara’s Grateful Heart</h3>
+          <p class="sub">30 days of rhymes, reflection prompts, coloring & a certificate.</p>
+        </div>
+        <div class="card">
+          <div class="icon">🧭</div>
+          <h3>Unwind Minis</h3>
+          <p class="sub">Screen-free 60-second calm practices (breath, body, focus).</p>
+        </div>
+        <div class="card">
+          <div class="icon">🗺️</div>
+          <h3>Habit map</h3>
+          <p class="sub">A simple loop to keep rest rhythms sticky past Day 30.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FORMATS & DATES -->
+<section class="section">
+  <div class="container">
+    <span class="eyebrow">Choose your format</span>
+    <h2 class="title">Join live or go self-paced</h2>
+    <div class="grid grid-3 mt-2">
+      <div class="card">
+        <span class="pill">Self-paced</span>
+        <h3 class="mt-1">Starter Bundle</h3>
+        <p class="sub">PDF eBook + audio minis. Start anytime & move at your rhythm.</p>
+        <p class="price mt-2">₦12,000</p>
+        <a href="/checkout/ebook" class="btn btn-primary btn-block mt-2">Get Starter</a>
+      </div>
+      <div class="card">
+        <span class="pill">Live • 4 weeks</span>
+        <h3 class="mt-1">Guided Cohort</h3>
+        <p class="sub">Weekly check-ins + community prompts + facilitator support.</p>
+        <p class="price mt-2">₦45,000</p>
+        <a href="/checkout/cohort" class="btn btn-primary btn-block mt-2">Save a seat</a>
+      </div>
+      <div class="card">
+        <span class="pill">Groups</span>
+        <h3 class="mt-1">Schools / Faith / Teams</h3>
+        <p class="sub">Bulk licenses, staff training, custom dates & toolkits.</p>
+        <button class="btn btn-outline btn-block mt-2" data-open="#quoteModal">Request a quote</button>
+      </div>
+    </div>
+
+    <div class="card mt-4">
+      <strong>Next live dates:</strong>
+      <ul class="check mt-1">
+        <li><b>Family Cohort:</b> Oct 6 – Nov 2</li>
+        <li><b>Schools Track:</b> Oct 13 – Nov 9 (Saturdays)</li>
+        <li><b>Youth / Faith Track:</b> Nov 3 – Nov 30 (Sundays)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- BOOK TEASER: TIARA’S GRATEFUL HEART -->
+<section class="section" style="background:linear-gradient(180deg,#f7fafc,#ffffff)">
+  <div class="container book">
+    <div class="stack">
+      <img src="{% static 'assets/tiara/cover-back.png' %}" alt="Back cover" class="back" />
+      <img src="{% static 'assets/tiara/cover-front.png' %}" alt="Front cover" />
+    </div>
+    <div>
+      <span class="eyebrow">Core companion</span>
+      <h2 class="title">Tiara’s Grateful Heart</h2>
+      <p class="sub">A joyful 30-day adventure with rhymes, reflection prompts, coloring pages, and 1-minute Unwind Minis. Perfect for bedtime or post-school wind-down.</p>
+      <ul class="check mt-2">
+        <li>Certificate of Gratitude included</li>
+        <li>Download sample pages (PDF)</li>
+        <li>Paperback or PDF eBook</li>
+      </ul>
+      <div class="mt-3" role="group" aria-label="Book actions">
+        <a href="{% static 'assets/tiara/sample.pdf' %}" target="_blank" class="btn btn-outline">Sample Pages</a>
+        <a href="/checkout/print" class="btn btn-primary">Buy Paperback</a>
+        <a href="/checkout/ebook" class="btn btn-ghost">Buy eBook (PDF)</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section">
+  <div class="container">
+    <span class="eyebrow">What families say</span>
+    <h2 class="title">Small changes, big peace</h2>
+
+    <div class="carousel mt-2" data-carousel>
+      <div class="slides">
+        <article class="slide">
+          <div class="stars">★★★★★</div>
+          <p class="mt-1 sub">“The 60-second minis are magic. My son now asks for ‘the balloon breath’ when he’s upset.”</p>
+          <p class="mt-1"><b>— Ada, Lagos</b></p>
+        </article>
+        <article class="slide">
+          <div class="stars">★★★★★</div>
+          <p class="mt-1 sub">“Gratitude rhymes turned bedtime into connection time. We don’t rush anymore.”</p>
+          <p class="mt-1"><b>— Kofi, Accra</b></p>
+        </article>
+        <article class="slide">
+          <div class="stars">★★★★★</div>
+          <p class="mt-1 sub">“As a teacher, I used the scripts in homeroom. Five minutes changed the whole morning.”</p>
+          <p class="mt-1"><b>— Mrs. Bello, Abuja</b></p>
+        </article>
+      </div>
+      <div class="ctrl">
+        <button type="button" data-prev>◀</button>
+        <button type="button" data-next>▶</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" style="background:#fff">
+  <div class="container">
+    <span class="eyebrow">Questions</span>
+    <h2 class="title">FAQ</h2>
+    <div class="grid gap-3" style="grid-template-columns:1fr 1fr">
+      <div class="faq-item">
+        <div class="faq-q">How much time does this take? <span>+</span></div>
+        <div class="faq-a">Daily minis are ~60 seconds. Weekly rhythms take 10–20 minutes. The point is sustainability, not hustle.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Do I need any apps or screens? <span>+</span></div>
+        <div class="faq-a">No. Everything is screen-free by default. Audio cues are downloadable if you want them.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What ages is this for? <span>+</span></div>
+        <div class="faq-a">We provide age-aware prompts for 4–7, 8–12, teens, and adults — so everyone participates at their level.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can schools/churches use this? <span>+</span></div>
+        <div class="faq-a">Yes. We have bulk licenses and facilitator guides. <button class="btn btn-sm btn-outline" data-open="#quoteModal">Request a quote</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING / CTA -->
+<section id="pricing" class="section">
+  <div class="container center">
+    <span class="eyebrow">Ready?</span>
+    <h2 class="title">Rest, then rise</h2>
+    <p class="sub">Start small, keep it gentle, and watch the room soften.</p>
+
+    <div class="grid grid-3 mt-3">
+      <div class="card">
+        <h3>Starter (Self-paced)</h3>
+        <p class="price mt-1">₦12,000</p>
+        <ul class="check mt-1">
+          <li>Tiara eBook (PDF)</li>
+          <li>Audio Unwind Minis</li>
+          <li>Habit map & streak tracker</li>
+        </ul>
+        <a href="/checkout/ebook" class="btn btn-primary btn-block mt-3">Get Starter</a>
+      </div>
+
+      <div class="card" style="border-color:var(--brand)">
+        <h3>Guided Cohort</h3>
+        <p class="price mt-1">₦45,000</p>
+        <ul class="check mt-1">
+          <li>Everything in Starter</li>
+          <li>4 live touchpoints</li>
+          <li>Community prompts</li>
+        </ul>
+        <a href="/checkout/cohort" class="btn btn-primary btn-block mt-3">Save a seat</a>
+      </div>
+
+      <div class="card">
+        <h3>Group Licenses</h3>
+        <p class="price mt-1">Custom</p>
+        <ul class="check mt-1">
+          <li>Schools / Faith / Teams</li>
+          <li>Facilitator guides</li>
+          <li>Bulk discounts</li>
+        </ul>
+        <button class="btn btn-outline btn-block mt-3" data-open="#quoteModal">Request a quote</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STICKY ACTIONS (mobile) -->
+<div class="sticky-actions" role="region" aria-label="Quick actions">
+  <a href="/checkout/ebook">Buy eBook</a>
+  <button data-open="#quoteModal">Group Quote</button>
+  <a href="{% static 'assets/tiara/sample.pdf' %}" target="_blank">Sample</a>
+</div>
+
+<!-- GROUP QUOTE MODAL -->
+<div class="modal" id="quoteModal" aria-hidden="true" aria-labelledby="quoteTitle" role="dialog">
+  <div class="dialog">
+    <header>
+      <h3 id="quoteTitle" class="title" style="font-size:1.4rem">Request a Group / Bulk Quote</h3>
+      <button class="close" data-close aria-label="Close">&times;</button>
+    </header>
+    <form action="/forms/quote" method="post" class="mt-2">
+      {% csrf_token %}
+      <div class="row">
+        <div>
+          <label for="name">Contact name</label>
+          <input id="name" name="name" required />
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input id="email" type="email" name="email" required />
+        </div>
+      </div>
+      <div class="row mt-1">
+        <div>
+          <label for="org">Organisation</label>
+          <input id="org" name="organisation" />
+        </div>
+        <div>
+          <label for="aud">Audience</label>
+          <select id="aud" name="audience">
+            <option>School</option><option>Faith Community</option><option>Company/Team</option><option>Family Group</option>
+          </select>
+        </div>
+      </div>
+      <div class="row mt-1">
+        <div>
+          <label for="size">Group size</label>
+          <input id="size" name="size" placeholder="e.g., 40 students" />
+        </div>
+        <div>
+          <label for="timeline">Preferred timeline</label>
+          <input id="timeline" name="timeline" placeholder="e.g., Oct – Nov" />
+        </div>
+      </div>
+      <label class="mt-1" for="notes">Notes</label>
+      <textarea id="notes" name="notes" rows="4" placeholder="Share goals or context…"></textarea>
+
+      <p class="legal mt-2">We’ll respond within 1–2 business days with options that fit your context.</p>
+      <div class="mt-2" style="display:flex; gap:.6rem; justify-content:flex-end">
+        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+        <button class="btn btn-primary" type="submit">Request quote</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+</main>
+
+<script>
+  // --- Tabs
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.tabpanels > div');
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => {
+      tabs.forEach(b => b.setAttribute('aria-selected','false'));
+      t.setAttribute('aria-selected','true');
+      panels.forEach(p => p.classList.remove('active'));
+      const id = t.getAttribute('aria-controls');
+      document.getElementById(id)?.classList.add('active');
+    });
+  });
+
+  // --- FAQ
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => q.parentElement.classList.toggle('open'));
+  });
+
+  // --- Carousel (simple)
+  (function(){
+    const root = document.querySelector('[data-carousel]');
+    if(!root) return;
+    const slides = root.querySelector('.slides');
+    const items = root.querySelectorAll('.slide');
+    let idx = 0;
+    function go(n){ idx = (n + items.length) % items.length; slides.style.transform = `translateX(-${idx*100}%)`; slides.style.transition = 'transform .45s ease'; }
+    root.querySelector('[data-next]')?.addEventListener('click',()=>go(idx+1));
+    root.querySelector('[data-prev]')?.addEventListener('click',()=>go(idx-1));
+    setInterval(()=>go(idx+1), 6000);
+  })();
+
+  // --- Modal (works even without frameworks)
+  function openModal(sel){ const m = document.querySelector(sel); if(!m) return; m.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+  function closeModal(e){ const m = e?.closest?.('.modal') || document.querySelector('.modal[aria-hidden="false"]'); if(!m) return; m.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+  document.querySelectorAll('[data-open]').forEach(btn => btn.addEventListener('click', () => openModal(btn.getAttribute('data-open'))));
+  document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', () => closeModal(btn)));
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeModal(); });
+  document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', (e) => { if(e.target === m) closeModal(m); }));
+</script>
+
+</body>
+</html>

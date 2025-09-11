@@ -52,14 +52,33 @@ class Post(models.Model):
         return reverse("blog_detail", kwargs={"slug": self.slug})
 
     def save(self, *args, **kwargs):
+        # slug (yours)
         if not self.slug:
             base = slugify(self.title)
             slug = base
             i = 2
             while Post.objects.filter(slug=slug).exists():
-                slug = f"{base}-{i}"
-                i += 1
+                slug = f"{base}-{i}"; i += 1
             self.slug = slug
+
+        # excerpt (first ~180 chars, plain text)
+        if not self.excerpt and self.content:
+            text = re.sub(r"<[^>]+>", "", self.content)
+            text = re.sub(r"\s+", " ", text).strip()
+            self.excerpt = (text[:177] + "…") if len(text) > 180 else text
+
+        # read_minutes (~220 wpm)
+        if (not self.read_minutes or self.read_minutes == 0) and self.content:
+            words = len(re.findall(r"\b\w+\b", self.content))
+            self.read_minutes = max(1, round(words / 220))
+
+        # optional badge default
+        if not self.badge:
+            if self.is_featured:
+                self.badge = "Featured"
+            elif self.category == "Guides":
+                self.badge = "Guide"
+
         super().save(*args, **kwargs)
 
 

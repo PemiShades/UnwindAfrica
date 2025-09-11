@@ -87,6 +87,9 @@ def event_list(request):
         'today': today,
     })
 
+def unwind_thrive(request):
+    return render(request, 'Web/unwind-thrive.html', context={})
+
 
 def event_detail(request, slug):
     """

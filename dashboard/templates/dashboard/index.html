@@ -1,0 +1,493 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" x-data="app()" x-init="init()" :class="theme">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unwind Africa — Admin</title>
+
+  <!-- Tailwind (CDN for dev). For prod, compile to a static CSS. -->
+  <script defer src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" href="{% static 'favicon.ico' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Define app() FIRST (global), then Alpine -->
+  <script defer>
+    window.app = function () {
+      return {
+        theme: localStorage.getItem('theme') || 'dark',
+        tab: 'overview',
+        sidebarOpen: false,
+
+        showEventModal: false,
+        editingEvent: false,
+        eventFormAction: "{% url 'create_event' %}",
+        eventForm: { id:'', name:'', description:'', location:'', date:'', thumbnail:'', flier:'' },
+
+        charts: {},
+
+        init() {
+          this.bindShortcuts();
+          this.$nextTick(() => this.paintCharts());
+        },
+        toggleTheme() {
+          this.theme = (this.theme === 'dark') ? 'light' : 'dark';
+          localStorage.setItem('theme', this.theme);
+          setTimeout(() => this.paintCharts(true), 0);
+        },
+        setTab(t) { this.tab = t; this.sidebarOpen = false; },
+
+        toasts: [],
+        toast(msg, type='info') {
+          const id = Date.now();
+          this.toasts.push({ id, msg, type });
+          setTimeout(() => { this.toasts = this.toasts.filter(t => t.id !== id); }, 2400);
+        },
+
+        bindShortcuts() {
+          const isTyping = (e) => {
+            const el = e.target; if (!el) return false;
+            const tag = el.tagName;
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || el.isContentEditable) return true;
+            return el.closest?.('input, textarea, [contenteditable], [role="textbox"], .ProseMirror');
+          };
+          window.addEventListener('keydown', (e) => {
+            if (isTyping(e)) return;
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); this.toggleTheme(); return; }
+            if (e.key.toLowerCase() === 'g') { this.setTab('overview'); return; }
+            if (e.key.toLowerCase() === 'c') { this.setTab('charts'); return; }
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'b') { e.preventDefault(); this.setTab('blogs'); return; }
+            if (e.key.toLowerCase() === 'e') { this.setTab('events'); return; }
+          });
+        },
+
+        openEventModal() {
+          this.editingEvent = false;
+          this.eventFormAction = "{% url 'create_event' %}";
+          this.eventForm = { id:'', name:'', description:'', location:'', date:'', thumbnail:'', flier:'' };
+          this.showEventModal = true;
+        },
+        editEvent(id, name, description, date, location, thumbnail, flier) {
+          this.editingEvent = true;
+          this.eventFormAction = `/dashboard/event/${id}/edit/`;
+          this.eventForm = { id, name, description, date, location, thumbnail, flier };
+          this.showEventModal = true;
+        },
+        closeEventModal() { this.showEventModal = false; },
+
+        paintCharts(refresh=false) {
+          const fg = (this.theme === 'dark' ? '#E8ECF8' : '#0F1320');
+          const grid = this.theme === 'dark' ? 'rgba(255,255,255,.08)' : 'rgba(15,19,32,.08)';
+          const brand = getComputedStyle(document.documentElement).getPropertyValue('--brand') || '#8E7CFF';
+          const ctx = document.getElementById('chart-overview');
+          if (!ctx) return;
+          if (refresh && this.charts.overview) this.charts.overview.destroy();
+
+          this.charts.overview = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+              datasets: [{
+                label: 'Sessions',
+                data: [12,19,14,23,28,25,31],
+                tension: .4,
+                borderColor: brand.trim() || '#8E7CFF',
+                fill: true,
+                backgroundColor: 'rgba(142,124,255,.18)'
+              }]
+            },
+            options: {
+              maintainAspectRatio: false,
+              scales: {
+                x: { grid: { color: grid }, ticks: { color: fg } },
+                y: { grid: { color: grid }, ticks: { color: fg } }
+              },
+              plugins: { legend: { labels: { color: fg } } }
+            }
+          });
+        }
+      };
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Inspiration-styled polish (no @apply; works with CDN) -->
+  <style>
+    :root{
+      --brand:#8E7CFF; --brand2:#51E1A7; --ring: rgba(142,124,255,.35);
+      --surface:#0E1020; --surface-2:#12152a;
+    }
+    /* Board wrapper (outer rounded canvas like the inspiration) */
+    .board {
+      max-width: 1200px;
+      margin: 28px auto;
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: 0 28px 80px rgba(0,0,0,.35);
+    }
+    .light .board{
+      background: #fcfcfe;
+      border: 1px solid #eef0f6;
+      box-shadow: 0 26px 70px rgba(10,16,30,.08);
+    }
+
+    /* Glass card */
+    .glass { backdrop-filter: blur(12px) saturate(120%); background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,.14); }
+    .light .glass { background: #fff; border-color:#eef0f6; }
+
+    .shadow-soft { box-shadow: 0 20px 60px rgba(0,0,0,.20); }
+    .light .shadow-soft { box-shadow: 0 18px 42px rgba(10,16,30,.08); }
+
+    /* Buttons */
+    .btn-primary{
+      display:inline-flex; align-items:center; justify-content:center;
+      font-weight:700; color:#fff; border-radius:14px;
+      padding:.6rem 1rem; background: linear-gradient(135deg, var(--brand), #705CFF);
+      box-shadow: 0 8px 24px rgba(142,124,255,.35);
+    }
+    .btn-ghost{
+      display:inline-flex; align-items:center; justify-content:center;
+      border-radius:14px; padding:.55rem .9rem; border:1px solid rgba(255,255,255,.18);
+      color: #E6E8F3; background: rgba(255,255,255,.04);
+    }
+    .light .btn-ghost{ color:#0f1320; border-color:#e7eaf3; background:#fff; }
+
+    /* Focus ring */
+    .ring-brand:focus{ outline: none; box-shadow: 0 0 0 4px var(--ring); }
+
+    /* Sidebar links */
+    .side-link{
+      position:relative; display:flex; align-items:center; gap:.65rem;
+      border-radius:14px; padding:.65rem 1rem; font-weight:700; border:1px solid transparent;
+      transition: .18s ease;
+    }
+    .side-link:hover{ background: linear-gradient(135deg, rgba(142,124,255,.12), rgba(81,225,167,.10)); border-color: rgba(142,124,255,.30); }
+    .side-link.active{ background: linear-gradient(135deg, rgba(142,124,255,.18), rgba(81,225,167,.14)); border-color: rgba(142,124,255,.45); }
+    .side-link::before{
+      content:""; position:absolute; left:6px; top:50%; transform:translateY(-50%);
+      width:0; height:70%; border-radius:999px; background: linear-gradient(180deg, var(--brand), var(--brand2));
+      transition: width .18s ease;
+    }
+    .side-link.active::before, .side-link:focus-visible::before{ width:6px; }
+
+    /* KPI tiles */
+    .kpi{ display:grid; gap:.25rem; padding:1rem; border-radius:18px; }
+    .dark .kpi{ background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); }
+    .light .kpi{ background:#fff; border:1px solid #eef0f6; }
+
+    /* Chart panel gradient */
+    .panel-sky{
+      background: linear-gradient(180deg, rgba(95,200,230,.22), rgba(95,200,230,.08));
+      border: 1px solid rgba(95,200,230,.22);
+    }
+    .light .panel-sky{
+      background: linear-gradient(180deg, #EAF7FB, #F5FBFD);
+      border-color:#d8eef6;
+    }
+
+    /* Tiny badge */
+    .badge-soft{
+      font-size:10px; padding:.2rem .45rem; border-radius:999px; border:1px solid rgba(255,255,255,.25);
+    }
+    .light .badge-soft{ border-color:#e7eaf3; color:#0f1320; }
+
+    /* Search input tone */
+    .field{
+      width:100%; border-radius:14px; border:1px solid rgba(255,255,255,.18); padding:.65rem 1rem;
+      background: rgba(255,255,255,.08); color:#E6E8F3;
+    }
+    .light .field{ background:#fff; color:#0f1320; border-color:#e7eaf3; }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-thumb { background: rgba(100,100,120,.35); border-radius: 999px; }
+    .dark ::-webkit-scrollbar-thumb { background: rgba(180,180,200,.25); }
+  </style>
+</head>
+
+<body class="min-h-screen font-[Inter] antialiased bg-[rgb(7,9,18)] text-white light:bg-[#f4f6fb] light:text-[#0f1320]">
+  <!-- Background orbs -->
+  <div aria-hidden="true" class="pointer-events-none fixed -top-24 -left-24 w-[48vmax] h-[48vmax] rounded-full blur-3xl opacity-40 mix-blend-screen" style="background: radial-gradient(circle at 30% 30%, rgba(142,124,255,.45), transparent 60%);"></div>
+  <div aria-hidden="true" class="pointer-events-none fixed -bottom-28 -right-24 w-[44vmax] h-[44vmax] rounded-full blur-3xl opacity-35 mix-blend-screen" style="background: radial-gradient(circle at 60% 60%, rgba(81,225,167,.38), transparent 60%);"></div>
+
+  <!-- Inspiration-style rounded board -->
+  <div class="board">
+
+    <div class="flex min-h-[calc(100vh-56px)]">
+      <!-- Sidebar -->
+      <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
+             class="fixed md:static z-40 inset-y-0 left-0 w-72 p-5 transition-transform duration-300">
+        <div class="glass shadow-soft rounded-3xl h-full flex flex-col">
+          <div class="flex items-center justify-between px-3 py-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl grid place-items-center shadow-md"
+                   style="background: linear-gradient(135deg, var(--brand), #705CFF);">
+                <i class="fa-solid fa-sparkles text-white"></i>
+              </div>
+              <div>
+                <div class="text-lg font-extrabold">Unwind Admin</div>
+                <div class="text-xs opacity-70">Dashboard</div>
+              </div>
+            </div>
+            <button class="md:hidden btn-ghost" @click="sidebarOpen=false" aria-label="Close sidebar">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <nav class="px-2 py-4 grid gap-3 text-sm">
+            <div class="px-4 mt-2 mb-1 text-xs uppercase tracking-wider font-bold opacity-60">Main</div>
+
+            <button @click="setTab('overview')" :class="tab==='overview' ? 'side-link active' : 'side-link'"
+                    :aria-current="tab==='overview' ? 'page' : null">
+              <i class="fa-solid fa-chart-line w-5 text-purple-400"></i>
+              <span class="leading-none">Overview</span>
+              <span class="ml-auto badge-soft">Live</span>
+            </button>
+
+            <button @click="setTab('charts')" :class="tab==='charts' ? 'side-link active' : 'side-link'"
+                    :aria-current="tab==='charts' ? 'page' : null">
+              <i class="fa-solid fa-chart-pie w-5 text-emerald-400"></i>
+              <span class="leading-none">Charts</span>
+            </button>
+
+            <div class="px-4 mt-4 mb-1 text-xs uppercase tracking-wider font-bold opacity-60">Content</div>
+
+            <button @click="setTab('create_blog')" :class="tab==='create_blog' ? 'side-link active' : 'side-link'">
+              <i class="fa-solid fa-pen w-5 text-yellow-300"></i><span class="leading-none">Create Blog</span>
+            </button>
+
+            <button @click="setTab('blogs')" :class="tab==='blogs' ? 'side-link active' : 'side-link'">
+              <i class="fa-solid fa-table-list w-5 text-cyan-300"></i><span class="leading-none">Blogs List</span>
+            </button>
+
+            <button @click="setTab('events')" :class="tab==='events' ? 'side-link active' : 'side-link'">
+              <i class="fa-solid fa-calendar-days w-5 text-pink-300"></i><span class="leading-none">Events</span>
+            </button>
+
+            <div class="mt-4 h-px bg-white/10 light:bg-black/10"></div>
+            <a href="/" class="side-link"><i class="fa-solid fa-globe w-5"></i><span class="leading-none">View site</span></a>
+          </nav>
+
+          <div class="mt-auto p-4 grid gap-3">
+            <div class="glass rounded-2xl p-4">
+              <div class="text-xs opacity-70 mb-1">Storage</div>
+              <div class="w-full h-2 bg-white/10 light:bg-black/10 rounded-full overflow-hidden">
+                <div class="h-full rounded-full" style="width:55%; background: linear-gradient(90deg, var(--brand), var(--brand2));"></div>
+              </div>
+              <div class="text-xs mt-1 opacity-80">5.5 GB / 10 GB</div>
+            </div>
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="w-full btn-ghost border border-red-500/30 hover:border-red-500/60 text-red-400 light:text-red-600">
+                <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout
+              </button>
+            </form>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <div class="flex-1 flex flex-col gap-6 p-4 md:p-6">
+        <!-- Topbar -->
+        <header class="glass shadow-soft rounded-2xl px-4 py-3 flex items-center gap-3">
+          <button class="md:hidden btn-ghost" @click="sidebarOpen=true" aria-label="Open sidebar"><i class="fa-solid fa-bars"></i></button>
+          <div class="relative flex-1 max-w-xl">
+            <input type="search" placeholder="Search posts, events, users…" class="field ring-brand" />
+            <span class="absolute right-2 top-1/2 -translate-y-1/2 text-xs opacity-70">/</span>
+          </div>
+          <button class="btn-ghost" @click="toggleTheme()" :aria-pressed="theme==='light'">
+            <i :class="theme==='light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"></i>
+          </button>
+          <button class="btn-ghost relative" aria-label="Notifications">
+            <i class="fa-regular fa-bell"></i>
+            <span class="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 text-[10px] rounded-full text-white"
+                  style="background: linear-gradient(135deg, var(--brand), #705CFF);">3</span>
+          </button>
+          <div class="w-9 h-9 rounded-full overflow-hidden ring-2 ring-white/20 light:ring-black/10">
+            <img src="{% static 'images/avatar.png' %}" alt="Admin" class="w-full h-full object-cover" />
+          </div>
+        </header>
+
+        <!-- Content Switcher -->
+        <main class="grid gap-6">
+          <!-- OVERVIEW -->
+          <template x-if="tab==='overview'">
+            <section class="grid gap-6">
+              <!-- KPIs -->
+              <div class="grid md:grid-cols-4 sm:grid-cols-2 gap-4">
+                <div class="kpi">
+                  <div class="text-xs opacity-70">Total Sessions</div>
+                  <div class="text-2xl font-extrabold">{{ kpis.total_sessions|default:"—" }}</div>
+                  <div class="text-xs opacity-70">7d trend</div>
+                </div>
+                <div class="kpi">
+                  <div class="text-xs opacity-70">Posts</div>
+                  <div class="text-2xl font-extrabold">
+                    {% if posts and posts.paginator %}{{ posts.paginator.count }}{% else %}—{% endif %}
+                  </div>
+                  <div class="text-xs opacity-70">Total published & drafts</div>
+                </div>
+                <div class="kpi">
+                  <div class="text-xs opacity-70">Events</div>
+                  <div class="text-2xl font-extrabold">{{ kpis.events_count|default:"—" }}</div>
+                  <div class="text-xs text-yellow-400 light:text-yellow-600">
+                    {% if kpis.pending_events %}{{ kpis.pending_events }} pending{% else %}Up to date{% endif %}
+                  </div>
+                </div>
+                <div class="kpi">
+                  <div class="text-xs opacity-70">Bounce Rate</div>
+                  <div class="text-2xl font-extrabold">
+                    {% if kpis.bounce_rate is not None %}{{ kpis.bounce_rate }}%{% else %}—{% endif %}
+                  </div>
+                  <div class="text-xs opacity-70">Site-wide</div>
+                </div>
+              </div>
+
+              <!-- Chart + Quick actions -->
+              <div class="grid lg:grid-cols-3 gap-6">
+                <div class="glass panel-sky rounded-2xl p-4 shadow-soft lg:col-span-2 h-[280px]">
+                  <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-bold">Engagement (7d)</h3>
+                    <div class="flex items-center gap-2 text-xs">
+                      <button class="btn-ghost">7d</button>
+                      <button class="btn-ghost">30d</button>
+                      <button class="btn-ghost">90d</button>
+                    </div>
+                  </div>
+                  <div class="h-[200px]"><canvas id="chart-overview"></canvas></div>
+                </div>
+
+                <div class="grid gap-3">
+                  <div class="glass rounded-2xl p-4 shadow-soft">
+                    <h3 class="font-bold mb-2">Quick Actions</h3>
+                    <div class="grid gap-2">
+                      <a @click.prevent="setTab('create_blog')" href="#" class="btn-primary">Create Blog Post</a>
+                      <button @click="openEventModal()" class="btn-ghost border border-purple-400/30 hover:border-purple-400/60">Schedule Event</button>
+                      <a href="/tiaras-grateful-heart" class="btn-ghost border border-emerald-400/30 hover:border-emerald-400/60">Open Book Page</a>
+                    </div>
+                  </div>
+
+                  <div class="glass rounded-2xl p-4 shadow-soft">
+                    <h3 class="font-bold mb-2">System</h3>
+                    <ul class="text-sm space-y-1 opacity-80">
+                      <li>Uptime <span class="text-emerald-400 light:text-emerald-600 font-semibold">99.9%</span></li>
+                      <li>API latency <span class="font-medium">220ms</span></li>
+                      <li>Build <span class="font-mono">#{{ now|date:'Y.m.d' }}</span></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="glass rounded-2xl p-4 shadow-soft">
+                {% include 'dashboard/partials/overview.html' %}
+              </div>
+            </section>
+          </template>
+
+          <!-- CHARTS -->
+          <template x-if="tab==='charts'">
+            <section class="grid gap-6">
+              <div class="glass rounded-2xl p-4 shadow-soft">
+                {% include 'dashboard/partials/charts.html' %}
+              </div>
+            </section>
+          </template>
+
+          <!-- CREATE BLOG -->
+          <template x-if="tab==='create_blog'">
+            <section class="grid gap-6">
+              <div class="glass rounded-2xl p-4 shadow-soft">
+                {% include 'dashboard/partials/blog_form.html' with blog_form=post_form only %}
+
+              </div>
+            </section>
+          </template>
+
+          <!-- BLOGS LIST -->
+          <template x-if="tab==='blogs'">
+            <section class="grid gap-6">
+              <div class="glass rounded-2xl p-4 shadow-soft">
+                {% include 'dashboard/partials/blog_cards.html' %}
+              </div>
+            </section>
+          </template>
+
+          <!-- EVENTS -->
+          <template x-if="tab==='events'">
+            <section class="grid gap-6">
+              <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg">Events</h3>
+                <div class="flex gap-2">
+                  <button @click="openEventModal()" class="btn-primary"><i class="fa-solid fa-plus mr-2"></i>New Event</button>
+                  <button class="btn-ghost border border-emerald-400/30 hover:border-emerald-400/60"><i class="fa-solid fa-file-export mr-2"></i>Export</button>
+                </div>
+              </div>
+              <div class="glass rounded-2xl p-4 shadow-soft">
+                {% include 'dashboard/partials/event_cards.html' %}
+              </div>
+            </section>
+          </template>
+        </main>
+
+        <footer class="text-xs opacity-70 py-4 text-center">© {{ now|date:'Y' }} Unwind Africa • Built with ❤</footer>
+      </div>
+    </div>
+  </div>
+
+  <!-- Event Modal -->
+  <div id="eventModal" x-show="showEventModal" x-transition.opacity class="fixed inset-0 z-50 grid place-items-center p-4" x-cloak>
+    <div class="absolute inset-0 bg-black/50" @click="closeEventModal()"></div>
+    <div class="relative w-full max-w-2xl glass rounded-3xl shadow-soft p-6 overflow-y-auto max-h-[90vh]">
+      <h2 class="text-xl font-bold mb-4" x-text="editingEvent ? 'Edit Event' : 'Add Event'"></h2>
+      <form method="post" :action="eventFormAction" enctype="multipart/form-data" class="grid gap-3">
+        {% csrf_token %}
+        <label class="text-sm font-medium">Event Name</label>
+        <input type="text" name="name" x-model="eventForm.name" class="field ring-brand" required>
+
+        <label class="text-sm font-medium">Description</label>
+        <textarea name="description" x-model="eventForm.description" rows="4" class="field ring-brand" required></textarea>
+
+        <div class="grid md:grid-cols-3 gap-3">
+          <div>
+            <label class="text-sm font-medium">Date</label>
+            <input type="date" name="date" x-model="eventForm.date" class="field ring-brand w-full" required>
+          </div>
+          <div class="md:col-span-2">
+            <label class="text-sm font-medium">Location</label>
+            <input type="text" name="location" x-model="eventForm.location" class="field ring-brand w-full" required>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-3">
+          <div>
+            <label class="text-sm font-medium">Thumbnail</label>
+            <template x-if="eventForm.thumbnail"><img :src="eventForm.thumbnail" alt="Current Thumbnail" class="w-32 h-32 object-cover rounded-xl mb-2"></template>
+            <input type="file" name="thumbnail" class="field ring-brand file:mr-3 file:px-3 file:py-2 file:rounded-lg file:border-0 file:text-white file:cursor-pointer file:bg-gradient-to-r file:from-purple-500 file:to-indigo-500 w-full text-sm">
+          </div>
+          <div>
+            <label class="text-sm font-medium">Event Flier</label>
+            <template x-if="eventForm.flier"><img :src="eventForm.flier" alt="Current Flier" class="w-32 h-32 object-cover rounded-xl mb-2"></template>
+            <input type="file" name="flier" class="field ring-brand file:mr-3 file:px-3 file:py-2 file:rounded-lg file:border-0 file:text-white file:cursor-pointer file:bg-gradient-to-r file:from-emerald-500 file:to-teal-500 w-full text-sm">
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" @click="closeEventModal()" class="btn-ghost">Cancel</button>
+          <button type="submit" class="btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toasts -->
+  <div class="fixed bottom-4 right-4 grid gap-2 z-[60]">
+    <template x-for="t in toasts" :key="t.id">
+      <div class="glass rounded-xl px-4 py-2 shadow-soft text-sm" x-text="t.msg"></div>
+    </template>
+  </div>
+
+  {% include 'dashboard/partials/scripts.html' %}
+</body>
+</html>

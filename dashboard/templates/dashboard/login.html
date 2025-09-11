@@ -1,0 +1,147 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign in — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0C0C10;--surface:#121219;--panel:rgba(255,255,255,.06);--panel-strong:rgba(255,255,255,.12);--text:#F5F7FB;--muted:#AFB4C0;--brand:#8E7CFF;--brand-2:#51E1A7;--error:#FF6B6B;--ring:rgba(142,124,255,.45);--shadow:0 20px 60px rgba(0,0,0,.45);--radius:18px}
+    *{box-sizing:border-box} html,body{height:100%}
+    body{
+      margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background: radial-gradient(120% 120% at 20% 0%, rgba(142,124,255,.18), transparent 55%),
+                  radial-gradient(120% 120% at 100% 20%, rgba(81,225,167,.18), transparent 55%),
+                  var(--bg);
+      color:var(--text);display:grid;place-items:center;overflow:hidden;
+    }
+    .blob{position:absolute;width:42vmax;aspect-ratio:1;border-radius:50%;filter:blur(50px);opacity:.5;mix-blend-mode:screen;pointer-events:none;z-index:0;animation:float 18s ease-in-out infinite}
+    .blob.a{background:#8E7CFF;top:-10vmax;left:-10vmax}
+    .blob.b{background:#51E1A7;bottom:-14vmax;right:-8vmax;animation-delay:-6s}
+    .blob.c{background:#FFC83D;top:40vh;left:50vw;width:28vmax;opacity:.35;animation-delay:-12s}
+    @keyframes float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-16px,0)}}
+
+    .shell{position:relative;z-index:1;width:min(560px,95vw)}
+    .card{background:var(--panel);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:clamp(18px,3.5vw,26px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.04),var(--shadow);backdrop-filter:blur(12px) saturate(120%)}
+    header{display:grid;gap:6px;margin-bottom:16px}
+    header h2{margin:0;font-size:1.35rem}
+    header p{margin:0;color:var(--muted)}
+
+    form{display:grid;gap:14px}
+    .field{display:grid;gap:6px}
+    .field label{font-size:.9rem;color:#E7EAF2}
+    .input{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:12px 14px;transition:180ms ease}
+    .input:focus-within{border-color:var(--ring);box-shadow:0 0 0 3px var(--ring)}
+    .input input{background:transparent;border:0;outline:0;color:var(--text);font:inherit;padding:0;width:100%}
+    .input input::placeholder{color:#9CA3B4}
+    .input button.icon{background:transparent;border:0;padding:6px;color:#DDE1EA;cursor:pointer;border-radius:8px}
+    .input button.icon:hover{background:rgba(255,255,255,.08)}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .row .remember{display:inline-flex;align-items:center;gap:8px;font-size:.9rem;color:var(--muted)}
+    .row a{color:#E9ECF6;text-decoration:none;font-size:.9rem;opacity:.9}
+    .row a:hover{text-decoration:underline}
+    .btn{appearance:none;border:0;cursor:pointer;border-radius:12px;padding:12px 16px;font-weight:700;letter-spacing:.2px}
+    .btn.primary{background:linear-gradient(135deg,var(--brand),#705CFF);color:#fff;box-shadow:0 6px 24px rgba(142,124,255,.45)}
+    .btn.primary:disabled{opacity:.7;cursor:not-allowed}
+    .alert{display:none;background:rgba(255,0,0,.08);border:1px solid rgba(255,0,0,.25);color:#FFD1D1;padding:10px 12px;border-radius:12px;font-size:.95rem}
+    .alert.show{display:block}
+    .meta{margin-top:10px;color:var(--muted);font-size:.9rem}
+
+    .light{--bg:#F6F7FB;--surface:#FFFFFF;--panel:rgba(19,19,28,.04);--panel-strong:rgba(19,19,28,.06);--text:#0F1320;--muted:#5F667A;--ring:rgba(142,124,255,.35);
+      background: radial-gradient(120% 120% at 20% 0%, rgba(142,124,255,.10), transparent 55%),
+                  radial-gradient(120% 120% at 100% 20%, rgba(81,225,167,.12), transparent 55%),
+                  var(--bg);color:var(--text)}
+    .light .card{border-color:rgba(15,19,32,.1)}
+    .light .input{background:rgba(19,19,28,.04);border-color:rgba(15,19,32,.15)}
+    .light .row a{color:#2D336B}
+    .light .alert{color:#8A1F1F;background:#FFECEC;border-color:#FFB3B3}
+    @media (prefers-reduced-motion:reduce){.blob{animation:none}}
+  </style>
+</head>
+<body>
+  <div class="blob a"></div><div class="blob b"></div><div class="blob c"></div>
+
+  <main class="shell">
+    <section aria-label="Sign in">
+      <div class="card" role="region" aria-labelledby="signin-title">
+        <header>
+          <h2 id="signin-title">Sign in to your account</h2>
+          <p>Admin access only</p>
+        </header>
+
+        {% if form.non_field_errors %}
+          <div class="alert show" role="alert" aria-live="polite">
+            {% for err in form.non_field_errors %}{{ err }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'login' %}" novalidate>
+          {% csrf_token %}
+
+          <div class="field">
+            <label for="{{ form.username.id_for_label }}">Username</label>
+            <div class="input">{{ form.username }}</div>
+            {% if form.username.errors %}<div class="meta">{{ form.username.errors|striptags }}</div>{% endif %}
+          </div>
+
+          <div class="field">
+            <div class="row" style="justify-content: space-between; align-items: baseline;">
+              <label for="{{ form.password.id_for_label }}">Password</label>
+              <a href="#" class="forgot">Forgot?</a>
+            </div>
+            <div class="input">
+              {{ form.password }}
+              <button type="button" class="icon" id="togglePwd" aria-label="Show password" aria-pressed="false" title="Show/Hide password">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            {% if form.password.errors %}<div class="meta">{{ form.password.errors|striptags }}</div>{% endif %}
+          </div>
+
+          <div class="row">
+            <label class="remember"><input type="checkbox" name="remember" id="remember" /> Remember me</label>
+            <button type="button" id="themeToggle" class="btn" aria-pressed="false" title="Toggle theme">🌗 Theme</button>
+          </div>
+
+          <button class="btn primary" id="submit" type="submit">Sign in</button>
+          <div class="meta" id="strength" aria-live="polite"></div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const pwdInput = document.querySelector('input[name="password"]');
+    const userInput = document.querySelector('input[name="username"]');
+    const togglePwd = document.getElementById('togglePwd');
+    const strength = document.getElementById('strength');
+    const themeToggle = document.getElementById('themeToggle');
+
+    // placeholders + autocomplete
+    if(userInput){ userInput.placeholder = userInput.placeholder || 'your-username'; userInput.autocomplete = 'username'; }
+    if(pwdInput){ pwdInput.placeholder = '••••••••'; pwdInput.autocomplete = 'current-password'; }
+
+    togglePwd?.addEventListener('click', () => {
+      const isPass = pwdInput.type === 'password';
+      pwdInput.type = isPass ? 'text' : 'password';
+      togglePwd.setAttribute('aria-pressed', String(isPass));
+      togglePwd.title = isPass ? 'Hide password' : 'Show password';
+    });
+
+    // very simple strength meter (UX only)
+    const score=(p)=>{let s=0;if(p.length>=6)s++;if(/[A-Z]/.test(p))s++;if(/[0-9]/.test(p))s++;if(/[^A-Za-z0-9]/.test(p))s++;return s;}
+    pwdInput?.addEventListener('input',()=>{
+      const s=score(pwdInput.value), labels=['Very weak','Weak','Okay','Good','Strong'];
+      strength.innerHTML = pwdInput.value ? `Password strength: <b>${labels[s]}</b>` : '';
+    });
+
+    // theme toggle + remember
+    const applyTheme=(mode)=>{document.body.classList.toggle('light',mode==='light');themeToggle.setAttribute('aria-pressed',String(mode==='light'));localStorage.setItem('theme',mode);}
+    themeToggle.addEventListener('click',()=>{const next=document.body.classList.contains('light')?'dark':'light';applyTheme(next);});
+    const saved=localStorage.getItem('theme'); if(saved==='light') applyTheme('light');
+  </script>
+</body>
+</html>

@@ -1,131 +1,130 @@
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // ============== CHART.JS SETUP ==============
-    const categoryLabels = {{ category_chart_labels|safe }};
-    const categoryData = {{ category_chart_counts|safe }};
-    const categoryTooltips = {{ category_chart_tooltips|safe }};
-    const monthlyLabels = {{ monthly_chart_labels|safe }};
-    const monthlyData = {{ monthly_chart_counts|safe }};
+  // ===== Charts tab hydration (unchanged expectation for context arrays) =====
+  document.addEventListener('alpine:init', () => {
+    const hydrateCharts = () => {
+      const cat = document.getElementById('categoryChart');
+      const mon = document.getElementById('monthlyChart');
+      if (!cat && !mon) return;
 
-    // Pie Chart
-    new Chart(document.getElementById("categoryChart"), {
-      type: 'pie',
-      data: {
-        labels: categoryLabels,
-        datasets: [{
-          data: categoryData,
-          backgroundColor: ['#60A5FA', '#FBBF24', '#34D399', '#F472B6', '#A78BFA', '#F87171'],
-          borderColor: '#fff',
-          borderWidth: 2,
-        }]
-      },
-      options: {
-        plugins: {
-          tooltip: {
-            callbacks: {
-              label: function (context) {
-                const idx = context.dataIndex;
-                const titles = categoryTooltips[idx];
-                const preview = titles.slice(0, 3).join(', ');
-                const more = titles.length > 3 ? ` +${titles.length - 3} more` : '';
-                return `${context.label}: ${context.raw} posts (${preview}${more})`;
-              }
-            }
-          },
-          legend: { position: 'bottom' }
-        }
+      const categoryLabels = {{ category_chart_labels|default:"[]"|safe }};
+      const categoryData   = {{ category_chart_counts|default:"[]"|safe }};
+      const monthlyLabels  = {{ monthly_chart_labels|default:"[]"|safe }};
+      const monthlyData    = {{ monthly_chart_counts|default:"[]"|safe }};
+
+      if (cat && !cat._chart) {
+        cat._chart = new Chart(cat, {
+          type: 'pie',
+          data: { labels: categoryLabels, datasets: [{ data: categoryData,
+            backgroundColor: ['#60A5FA','#FBBF24','#34D399','#F472B6','#A78BFA','#F87171','#22D3EE','#F59E0B'],
+            borderColor:'#fff', borderWidth:2 }] },
+          options: { plugins: { legend: { position: 'bottom' } } }
+        });
       }
-    });
 
-    // Line Chart
-    new Chart(document.getElementById("monthlyChart"), {
-      type: 'line',
-      data: {
-        labels: monthlyLabels,
-        datasets: [{
-          label: 'Blogs',
-          data: monthlyData,
-          fill: false,
-          borderColor: '#3B82F6',
-          tension: 0.4,
-          pointBackgroundColor: '#3B82F6',
-        }]
-      },
-      options: {
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: ctx => `${ctx.raw} blog${ctx.raw === 1 ? '' : 's'}`
-            }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { stepSize: 1 }
-          }
-        }
-      }
-    });
-
-    // ============== BLOG MODAL ==============
-    const blogModal = document.getElementById('editorModal');
-    const blogForm = blogModal?.querySelector('form');
-    const blogTrigger = document.getElementById('new-post-btn');
-
-    blogTrigger?.addEventListener('click', () => {
-      if (blogForm) {
-        blogForm.reset();
-        blogForm.action = "{% url 'create_blog' %}";
-        blogModal.classList.remove('hidden');
-      }
-    });
-
-    window.editEvent = (id, name, description, date, location) => {
-      if (eventForm) {
-        eventForm.action = `/dashboard/event/${id}/edit/`; // ✅ FIXED LINE
-        eventForm.querySelector('input[name="name"]').value = name;
-        eventForm.querySelector('textarea[name="description"]').value = description;
-        eventForm.querySelector('input[name="date"]').value = date;
-        eventForm.querySelector('input[name="location"]').value = location;
-        eventModal.classList.remove('hidden');
+      if (mon && !mon._chart) {
+        mon._chart = new Chart(mon, {
+          type: 'line',
+          data: { labels: monthlyLabels, datasets: [{ label:'Posts', data: monthlyData,
+            borderColor:'#3B82F6', pointBackgroundColor:'#3B82F6', tension:.35, fill:false }] },
+          options: { plugins: { legend: { display:false } },
+            scales: { y: { beginAtZero:true, ticks:{ stepSize:1 } } } }
+        });
       }
     };
-
-    window.closeEditorModal = () => blogModal?.classList.add('hidden');
-
-    // ============== EVENT MODAL (ALPINE) ==============
-    const eventTrigger = document.getElementById('new-event-btn');
-    const eventModal = document.getElementById('eventModal');
-
-    eventTrigger?.addEventListener('click', () => {
-      // Trigger Alpine to open modal and clear form
-      if (window.dashboardManagerInstance) {
-        dashboardManagerInstance.editingEvent = false;
-        dashboardManagerInstance.eventFormAction = "{% url 'create_event' %}";
-        dashboardManagerInstance.eventForm = {
-          id: '', name: '', description: '', date: '', location: '',
-          thumbnail: '', flier: ''
-        };
-        dashboardManagerInstance.showEventModal = true;
-      }
-    });
-
-    window.editEvent = (id, name, description, date, location, thumbnail, flier) => {
-      if (window.dashboardManagerInstance) {
-        dashboardManagerInstance.editingEvent = true;
-        dashboardManagerInstance.eventFormAction = `/dashboard/edit-event/${id}/`;
-        dashboardManagerInstance.eventForm = {
-          id, name, description, date, location,
-          thumbnail, flier
-        };
-        dashboardManagerInstance.showEventModal = true;
-      }
-    };
-
-    window.closeModal = (type) => {
-      if (type === 'event') eventModal?.classList.add('hidden');
-    };
+    setTimeout(hydrateCharts, 0);
+    window.addEventListener('resize', () => setTimeout(hydrateCharts, 0));
   });
+
+  // ===== Edit Post (ONLY user-editable fields) =====
+  window.__editPost = async function(slug, title, content, category, isPub, isFeat) {
+    const html = document.documentElement;
+    const app  = html.__x && html.__x.$data ? html.__x.$data : null;
+    if (app && (app.setTab || typeof app.tab !== 'undefined')) {
+      (app.setTab ? app.setTab('create_blog') : (app.tab = 'create_blog'));
+    } else {
+      location.href = `/dashboard/blogs/${slug}/edit/`; return;
+    }
+
+    const waitFor = (sel, ms=3000) => new Promise((res, rej) => {
+      let t=0; const id=setInterval(()=>{ const el=document.querySelector(sel); if(el){clearInterval(id);res(el);} t+=100; if(t>=ms){clearInterval(id);rej();}},100);
+    });
+
+    try {
+      await waitFor('#blogForm');
+      const set = (name, v) => { const el = document.querySelector(`[name="${name}"]`); if (!el) return;
+        if (el.type === 'checkbox') el.checked = (v === true || v === 'true'); else el.value = v ?? '';
+        el.dispatchEvent(new Event('input')); };
+
+      set('title', title);
+      set('category', category);
+      set('content', content);
+      set('is_published', isPub);
+      set('is_featured', isFeat);
+
+      // point to an edit endpoint if you have one
+      const form = document.getElementById('blogForm');
+      if (form) form.action = `/dashboard/blogs/${slug}/edit/`;
+
+      document.getElementById('togglePreview')?.click(); // show preview in "edit mode"
+      app.toast && app.toast('Loaded post into editor');
+    } catch(e) {
+      location.href = `/dashboard/blogs/${slug}/edit/`;
+    }
+  };
+
+  // ===== Editor niceties (title count, preview, dropzone) =====
+  (function(){
+    const $ = (s) => document.querySelector(s);
+
+    const title = $('input[name="title"]');
+    const titleCount = document.getElementById('titleCount');
+    if (title && titleCount) title.addEventListener('input', () => { titleCount.textContent = title.value.length; });
+
+    const content = $('textarea[name="content"]');
+    const wc = document.getElementById('wordCount'), rt = document.getElementById('readTime');
+    function updateStats(){
+      if(!content) return;
+      const words = (content.value.match(/\b\w+\b/g) || []).length;
+      const mins = Math.max(1, Math.round(words/220));
+      wc && (wc.textContent = `${words} words`);
+      rt && (rt.textContent = `${mins} min read`);
+    }
+    content && content.addEventListener('input', updateStats); updateStats();
+
+    const previewBtn = document.getElementById('togglePreview');
+    const preview = document.getElementById('previewPane');
+    function mdLite(txt){ return txt
+      .replace(/^### (.*$)/gim,'<h3 class="font-bold text-lg my-2">$1</h3>')
+      .replace(/^## (.*$)/gim,'<h2 class="font-bold text-xl my-2">$1</h2>')
+      .replace(/^# (.*$)/gim,'<h1 class="font-bold text-2xl my-2">$1</h1>')
+      .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g,'<em>$1</em>')
+      .replace(/\n/g,'<br/>'); }
+    previewBtn && previewBtn.addEventListener('click', () => {
+      if (!preview) return;
+      preview.classList.toggle('hidden');
+      if (!preview.classList.contains('hidden') && content) {
+        preview.innerHTML = mdLite(content.value || '');
+      }
+    });
+
+    // Thumbnail dropzone
+    const drop = document.getElementById('thumbDrop'), input = document.getElementById('thumbInput');
+    const wrap = document.getElementById('thumbPreviewWrap'), img = document.getElementById('thumbPreview');
+    const nm = document.getElementById('thumbName'), sz = document.getElementById('thumbSize'), clr = document.getElementById('thumbClear');
+    function kb(n){ return (n/1024).toFixed(1)+' KB'; }
+    function show(file){
+      const url = URL.createObjectURL(file);
+      img.src = url; nm.textContent = file.name; sz.textContent = kb(file.size);
+      wrap.classList.remove('hidden');
+    }
+    if (input) input.addEventListener('change', e => { const f = e.target.files?.[0]; if (f) show(f); });
+    if (drop) {
+      drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('border-[var(--brand)]'); });
+      drop.addEventListener('dragleave', () => drop.classList.remove('border-[var(--brand)]'));
+      drop.addEventListener('drop', e => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (!f) return;
+        input.files = e.dataTransfer.files; show(f); drop.classList.remove('border-[var(--brand)]'); });
+    }
+    clr && clr.addEventListener('click', () => { if(input){ input.value=''; } wrap.classList.add('hidden'); img.src=''; nm.textContent=''; sz.textContent='—'; });
+  })();
 </script>

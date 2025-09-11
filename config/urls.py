@@ -15,13 +15,23 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic.base import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Auth
+    path("accounts/login/", auth_views.LoginView.as_view(
+        template_name="dashboard/login.html"
+    ), name="login"),
+    path("accounts/logout/", auth_views.LogoutView.as_view(next_page="login"), name="logout"),
     path('dashboard/', include('dashboard.urls')),
+        # Safety: if anything still tries to go here, bounce to dashboard
+    path('accounts/profile/',
+         RedirectView.as_view(pattern_name='dashboard_home', permanent=False)),
     path('', include('Web.urls')),
 ]
 
