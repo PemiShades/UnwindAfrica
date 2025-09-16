@@ -50,10 +50,41 @@ from django.forms import (
 from .models import Post, Event
 
 
+
 class AdminAuthenticationForm(AuthenticationForm):
     """
     Restrict dashboard login to staff users.
     """
+    def confirm_login_allowed(self, user):
+        super().confirm_login_allowed(user)
+        if not getattr(user, "is_staff", False):
+            raise forms.ValidationError(
+                "You don't have admin access on this dashboard.",
+                code="no_admin",
+            )
+
+
+
+
+
+class AdminAuthenticationForm(AuthenticationForm):
+    """
+    Staff-only login form with UI-friendly widget attrs.
+    """
+    def __init__(self, request=None, *args, **kwargs):
+        super().__init__(request=request, *args, **kwargs)
+        # Style the username/password inputs so your CSS hooks apply
+        self.fields["username"].widget.attrs.update({
+            "class": "",                 # leave empty, since you wrap with .input
+            "placeholder": "your-username",
+            "autocomplete": "username",
+        })
+        self.fields["password"].widget.attrs.update({
+            "class": "",                 # leave empty; wrapper supplies look
+            "placeholder": "••••••••",
+            "autocomplete": "current-password",
+        })
+
     def confirm_login_allowed(self, user):
         super().confirm_login_allowed(user)
         if not getattr(user, "is_staff", False):

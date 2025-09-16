@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
     :root{--bg:#0C0C10;--surface:#121219;--panel:rgba(255,255,255,.06);--panel-strong:rgba(255,255,255,.12);--text:#F5F7FB;--muted:#AFB4C0;--brand:#8E7CFF;--brand-2:#51E1A7;--error:#FF6B6B;--ring:rgba(142,124,255,.45);--shadow:0 20px 60px rgba(0,0,0,.45);--radius:18px}
     *{box-sizing:border-box} html,body{height:100%}
@@ -33,12 +34,52 @@
     form{display:grid;gap:14px}
     .field{display:grid;gap:6px}
     .field label{font-size:.9rem;color:#E7EAF2}
-    .input{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:12px 14px;transition:180ms ease}
+
+    .input{
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto; /* field | icon */
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 12px;
+      padding: 12px 14px;
+      transition: 180ms ease;
+    }
     .input:focus-within{border-color:var(--ring);box-shadow:0 0 0 3px var(--ring)}
-    .input input{background:transparent;border:0;outline:0;color:var(--text);font:inherit;padding:0;width:100%}
+
+    .input input{
+      grid-column: 1;
+      background: transparent;
+      border: 0;
+      outline: 0;
+      color: var(--text);
+      font: inherit;
+      padding: 0;
+      width: 100%;
+      min-width: 0;
+      z-index: 1;
+    }
     .input input::placeholder{color:#9CA3B4}
-    .input button.icon{background:transparent;border:0;padding:6px;color:#DDE1EA;cursor:pointer;border-radius:8px}
+
+    .input button.icon{
+      grid-column: 2;
+      justify-self: end;
+      align-self: center;
+      background: transparent;
+      border: 0;
+      padding: 6px;
+      color:#DDE1EA;
+      cursor:pointer;
+      border-radius:8px;
+      width:auto;
+      height:auto;
+      display:inline-flex;
+    }
     .input button.icon:hover{background:rgba(255,255,255,.08)}
+    .input button.icon svg{pointer-events:none}
+
     .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
     .row .remember{display:inline-flex;align-items:center;gap:8px;font-size:.9rem;color:var(--muted)}
     .row a{color:#E9ECF6;text-decoration:none;font-size:.9rem;opacity:.9}
@@ -95,7 +136,8 @@
             <div class="input">
               {{ form.password }}
               <button type="button" class="icon" id="togglePwd" aria-label="Show password" aria-pressed="false" title="Show/Hide password">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
             </div>
             {% if form.password.errors %}<div class="meta">{{ form.password.errors|striptags }}</div>{% endif %}
@@ -120,7 +162,6 @@
     const strength = document.getElementById('strength');
     const themeToggle = document.getElementById('themeToggle');
 
-    // placeholders + autocomplete
     if(userInput){ userInput.placeholder = userInput.placeholder || 'your-username'; userInput.autocomplete = 'username'; }
     if(pwdInput){ pwdInput.placeholder = '••••••••'; pwdInput.autocomplete = 'current-password'; }
 
@@ -131,14 +172,12 @@
       togglePwd.title = isPass ? 'Hide password' : 'Show password';
     });
 
-    // very simple strength meter (UX only)
     const score=(p)=>{let s=0;if(p.length>=6)s++;if(/[A-Z]/.test(p))s++;if(/[0-9]/.test(p))s++;if(/[^A-Za-z0-9]/.test(p))s++;return s;}
     pwdInput?.addEventListener('input',()=>{
       const s=score(pwdInput.value), labels=['Very weak','Weak','Okay','Good','Strong'];
       strength.innerHTML = pwdInput.value ? `Password strength: <b>${labels[s]}</b>` : '';
     });
 
-    // theme toggle + remember
     const applyTheme=(mode)=>{document.body.classList.toggle('light',mode==='light');themeToggle.setAttribute('aria-pressed',String(mode==='light'));localStorage.setItem('theme',mode);}
     themeToggle.addEventListener('click',()=>{const next=document.body.classList.contains('light')?'dark':'light';applyTheme(next);});
     const saved=localStorage.getItem('theme'); if(saved==='light') applyTheme('light');

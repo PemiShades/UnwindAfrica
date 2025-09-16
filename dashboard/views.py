@@ -9,23 +9,52 @@ from .forms import PostForm, EventForm
 
 # ---------- Home: lists + KPIs + chart arrays ----------
 # dashboard/views.py
-def dashboard_home(request):
-    posts_qs = Post.objects.all()
-    events_qs = Event.objects.all()
 
-    # Forms needed by included partials (even when the tab isn't active)
+# dashboard/views.py
+from datetime import date, timedelta
+from collections import Counter
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from django.utils.text import slugify
+
+from .models import Post, Event
+from .forms import PostForm, EventForm
+from django.contrib.auth.decorators import login_required
+
+
+def _ensure_unique_slug(instance, base_text: str):
+    """
+    Ensure a unique slug for the instance, based on base_text (usually the title).
+    Works with proxy model pointing to your concrete model that actually stores "slug".
+    """
+    base = slugify(base_text or "post") or "post"
+    slug = base
+    Model = instance.__class__
+    i = 1
+    while Model.objects.filter(slug=slug).exclude(pk=instance.pk).exists():
+        i += 1
+        slug = f"{base}-{i}"
+    instance.slug = slug
+
+@login_required
+def dashboard_home(request):
+    posts_qs = Post.objects.all().order_by("-created_at")
+    events_qs = Event.objects.all().order_by("-created_at")
+
+    # Forms required by includes (even if tab is hidden by Alpine)
     post_form = PostForm()
     event_form = EventForm()
 
-    # KPIs expected by index.html
+    # KPIs (align with index.html keys)
     kpis = {
-        # what index.html reads:
-        "total_sessions": None,            # plug your analytics when ready
+        "total_sessions": None,  # plug your analytics later
         "events_count": events_qs.count(),
-        "pending_events": 0,               # adjust to your pending logic
-        "bounce_rate": None,               # plug real metric when ready
+        "pending_events": 0,     # adjust if you track pending moderation
+        "bounce_rate": None,
 
-        # plus the older ones we also compute (optional):
+        # extra counts (optional)
         "posts_total": posts_qs.count(),
         "posts_published": posts_qs.filter(is_published=True).count(),
         "posts_featured": posts_qs.filter(is_featured=True).count(),
@@ -35,19 +64,19 @@ def dashboard_home(request):
         ).count(),
     }
 
-    # Category + monthly charts (unchanged idea; keep if you already have it)
+    # Categories chart
     cats = [p.category for p in posts_qs]
     category_chart_labels = sorted(set(cats))
     category_chart_counts = [cats.count(c) for c in category_chart_labels]
 
-    from datetime import date as _d
+    # Monthly chart (last 12 months)
     def add_months(d, n):
         y = d.year + (d.month - 1 + n) // 12
         m = (d.month - 1 + n) % 12 + 1
         return d.replace(year=y, month=m)
 
     by_month = Counter(p.created_at.strftime("%Y-%m") for p in posts_qs)
-    first_of_this_month = _d.today().replace(day=1)
+    first_of_this_month = date.today().replace(day=1)
     monthly_chart_labels, monthly_chart_counts = [], []
     for i in range(-11, 1):
         d = add_months(first_of_this_month, i)
@@ -56,80 +85,53 @@ def dashboard_home(request):
         monthly_chart_counts.append(by_month.get(key, 0))
 
     ctx = {
-        "posts": posts_qs[:18],
+        "posts": list(posts_qs[:18]),
         "events": events_qs[:12],
         "kpis": kpis,
         "category_chart_labels": category_chart_labels,
         "category_chart_counts": category_chart_counts,
         "monthly_chart_labels": monthly_chart_labels,
         "monthly_chart_counts": monthly_chart_counts,
-
-        # <<< important >>>
         "post_form": post_form,
         "event_form": event_form,
     }
     return render(request, "dashboard/index.html", ctx)
 
-    posts = Post.objects.all()[:18]
-    events = Event.objects.all()[:12]
 
-    # KPIs
-    kpis = {
-        "posts_total": Post.objects.count(),
-        "posts_published": Post.objects.filter(is_published=True).count(),
-        "posts_featured": Post.objects.filter(is_featured=True).count(),
-        "events_upcoming": Event.objects.filter(
-            date__gte=date.today(),
-            date__lte=date.today()+timedelta(days=60)
-        ).count(),
-    }
 
-    # Charts: categories and monthly counts (last 12 months)
-    cats = [p.category for p in Post.objects.all()]
-    category_chart_labels = sorted(set(cats))
-    category_chart_counts = [cats.count(c) for c in category_chart_labels]
 
-    # Build last 12 months safely without requiring dateutil
-    by_month = Counter(p.created_at.strftime("%Y-%m") for p in Post.objects.all())
-    labels_pretty, counts = [], []
+from .forms import AdminAuthenticationForm  # <-- import it
 
-    def add_months(d, n):
-        # add n months to d (first of month)
-        y = d.year + (d.month - 1 + n) // 12
-        m = (d.month - 1 + n) % 12 + 1
-        return d.replace(year=y, month=m)
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect("dashboard_home")
 
-    first_of_this_month = date.today().replace(day=1)
-    for i in range(-11, 1):  # last 12 months, oldest -> newest
-        d = add_months(first_of_this_month, i)
-        iso = d.strftime("%Y-%m")
-        labels_pretty.append(d.strftime("%b %Y"))
-        counts.append(by_month.get(iso, 0))
+    form = AdminAuthenticationForm(request, data=request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        auth_login(request, form.get_user())
+        return redirect("dashboard_home")
 
-    ctx = {
-        "posts": posts,
-        "events": events,
-        "kpis": kpis,
-        "category_chart_labels": category_chart_labels,
-        "category_chart_counts": category_chart_counts,
-        "monthly_chart_labels": labels_pretty,
-        "monthly_chart_counts": counts,
-    }
-    return render(request, "dashboard/index.html", ctx)
+    return render(request, "dashboard/login.html", {"form": form})
 
-# ---------- Blog create/edit with explicit "draft/publish" actions ----------
+
 def create_blog(request):
     if request.method == "POST":
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
-            action = request.POST.get("action")
+            action = request.POST.get("action")  # "publish" or "draft"
             post.is_published = (action == "publish")
+            if hasattr(post, "slug") and not post.slug:
+                _ensure_unique_slug(post, post.title or "post")
             post.save()
             return redirect("dashboard_home")
     else:
         form = PostForm()
-    return render(request, "dashboard/create_blog.html", {"post_form": form})
+    return render(request, "dashboard/create_blog.html", {
+        "blog_form": form,
+        "editing": False,
+    })
+
 
 def edit_blog(request, slug):
     post = get_object_or_404(Post, slug=slug)
@@ -138,18 +140,37 @@ def edit_blog(request, slug):
         if form.is_valid():
             post = form.save(commit=False)
             action = request.POST.get("action")
-            if action in {"draft", "publish"}:
+            if action in {"publish", "draft"}:
                 post.is_published = (action == "publish")
+            if hasattr(post, "slug") and not post.slug:
+                _ensure_unique_slug(post, post.title or "post")
             post.save()
             return redirect("dashboard_home")
     else:
         form = PostForm(instance=post)
-    return render(request, "dashboard/create_blog.html", {"post_form": form, "editing": True, "post": post})
+    return render(request, "dashboard/create_blog.html", {
+        "blog_form": form,
+        "editing": True,
+        "post": post,
+    })
+
 
 @require_POST
 def delete_blog(request, slug):
     get_object_or_404(Post, slug=slug).delete()
     return redirect("dashboard_home")
+
+
+# Optional: small API example (used if needed by charts)
+# def engagement_api(request):
+#     data = {
+#         "posts_total": Post.objects.count(),
+#         "posts_published": Post.objects.filter(is_published=True).count(),
+#         "events_next_30_days": Event.objects.filter(
+#             date__gte=date.today(), date__lte=date.today() + timedelta(days=30)
+#         ).count(),
+#     }
+#     return JsonResponse(data)
 
 @require_POST
 def toggle_feature(request, slug):

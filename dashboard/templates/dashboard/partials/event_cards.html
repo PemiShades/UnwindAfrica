@@ -1,26 +1,57 @@
+{# templates/dashboard/partials/event_cards.html #}
 <h2 class="text-2xl font-bold mt-10 mb-4">Events</h2>
-{% for event in events %}
-<div class="bg-white p-4 rounded shadow mb-4">
-  <h3 class="text-xl font-semibold">{{ event.name }}</h3>
-  <p class="text-sm text-gray-600">{{ event.location }} • {{ event.date|date:"d M, Y" }}
-</p>
-  <div class="mt-2 flex space-x-2">
-    <button
-      @click="editEvent('{{ event.id }}', '{{ event.name|escapejs }}', `{{ event.description|escapejs }}`, '{{ event.date|date:'Y-m-d' }}', '{{ event.location|escapejs }}')"
-      class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
-      Edit
-    </button>
 
-    <form action="{% url 'delete_event' event.id %}" method="post" class="inline">
-      {% csrf_token %}
-      <button type="submit"
-              class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
-              onclick="return confirm('Delete this event?')">
-        Delete
-      </button>
-    </form>
+{% for event in events %}
+  <div class="glass rounded-2xl p-4 shadow-soft border border-white/10 light:border-[#eef0f6] mb-4">
+    <h3 class="text-lg md:text-xl font-semibold">{{ event.name }}</h3>
+    <p class="text-sm opacity-70">{{ event.location }} • {{ event.date|date:"d M, Y" }}</p>
+
+    <div class="mt-3 flex items-center gap-2 overflow-x-auto flex-nowrap [-ms-overflow-style:none] [scrollbar-width:none]"
+         style="-webkit-overflow-scrolling:touch;">
+
+      {# Build a safe identifier once (slug or pk) #}
+      {% with iden=event.slug|default:event.pk %}
+
+        {# EDIT (Alpine). Pass safe identifier and only output .url if the file exists #}
+        <button
+          class="btn-primary shrink-0 whitespace-nowrap"
+          @click.stop="editEvent(
+            '{{ iden }}',
+            '{{ event.name|escapejs }}',
+            `{{ event.description|default_if_none:''|escapejs }}`,
+            '{{ event.date|date:"Y-m-d" }}',
+            '{{ event.location|escapejs }}',
+            '{% if event.thumbnail %}{{ event.thumbnail.url|escapejs }}{% else %}{% endif %}',
+            '{% if event.flier %}{{ event.flier.url|escapejs }}{% else %}{% endif %}'
+          )">
+          <i class="fa-solid fa-pen mr-2"></i>Edit
+        </button>
+
+        {# DELETE (POST to identifier route) #}
+        <form action="{% url 'delete_event' identifier=iden %}"
+              method="post"
+              class="inline shrink-0"
+              @click.stop>
+          {% csrf_token %}
+          <button type="submit"
+                  class="btn-ghost shrink-0 whitespace-nowrap border border-red-500/30 hover:border-red-500/60 text-red-400 light:text-red-600"
+                  onclick="return confirm('Delete this event?')">
+            <i class="fa-solid fa-trash-can mr-2"></i>Delete
+          </button>
+        </form>
+
+        {# VIEW (only if slug exists) #}
+        {% if event.slug %}
+          <a href="{{ event.get_absolute_url|default:'/events/'|add:event.slug }}"
+             class="btn-ghost shrink-0 whitespace-nowrap ml-auto border border-emerald-400/30 hover:border-emerald-400/60"
+             @click.stop>
+            <i class="fa-regular fa-eye mr-2"></i>View
+          </a>
+        {% endif %}
+
+      {% endwith %}
+    </div>
   </div>
-</div>
 {% empty %}
-<p class="text-gray-500">No events yet.</p>
+  <p class="opacity-70">No events yet.</p>
 {% endfor %}

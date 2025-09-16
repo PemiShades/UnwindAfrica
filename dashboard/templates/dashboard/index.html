@@ -6,15 +6,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Unwind Africa — Admin</title>
 
-  <!-- Tailwind (CDN for dev). For prod, compile to a static CSS. -->
+  <!-- Tell Tailwind to use class-based dark mode BEFORE loading the CDN -->
+  <script>
+    window.tailwind = { config: { darkMode: 'class' } };
+  </script>
   <script defer src="https://cdn.tailwindcss.com"></script>
+
   <link rel="icon" href="{% static 'favicon.ico' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-  <!-- Define app() FIRST (global), then Alpine -->
+  <!-- Alpine app() goes first so it's available when Alpine boots -->
   <script defer>
     window.app = function () {
       return {
+        // 'dark' or 'light' — the value becomes a class on <html>
         theme: localStorage.getItem('theme') || 'dark',
         tab: 'overview',
         sidebarOpen: false,
@@ -33,6 +38,7 @@
         toggleTheme() {
           this.theme = (this.theme === 'dark') ? 'light' : 'dark';
           localStorage.setItem('theme', this.theme);
+          // repaint charts with new colors
           setTimeout(() => this.paintCharts(true), 0);
         },
         setTab(t) { this.tab = t; this.sidebarOpen = false; },
@@ -112,49 +118,45 @@
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Inspiration-styled polish (no @apply; works with CDN) -->
+  <!-- Minimal custom CSS (light = default, dark overrides under .dark) -->
   <style>
-    :root{
-      --brand:#8E7CFF; --brand2:#51E1A7; --ring: rgba(142,124,255,.35);
-      --surface:#0E1020; --surface-2:#12152a;
-    }
-    /* Board wrapper (outer rounded canvas like the inspiration) */
+    :root { --brand:#8E7CFF; --brand2:#51E1A7; --ring: rgba(142,124,255,.35); }
+
+    /* Full-screen canvas */
     .board {
-      max-width: 1200px;
-      margin: 28px auto;
-      border-radius: 28px;
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
-      border: 1px solid rgba(255,255,255,.10);
-      box-shadow: 0 28px 80px rgba(0,0,0,.35);
-    }
-    .light .board{
-      background: #fcfcfe;
-      border: 1px solid #eef0f6;
-      box-shadow: 0 26px 70px rgba(10,16,30,.08);
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      border-radius: 0;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
     }
 
-    /* Glass card */
-    .glass { backdrop-filter: blur(12px) saturate(120%); background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,.14); }
-    .light .glass { background: #fff; border-color:#eef0f6; }
+    /* Glass cards */
+    .glass { backdrop-filter: blur(12px) saturate(120%); background:#fff; border:1px solid #eef0f6; }
+    .dark .glass { background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,.14); }
 
-    .shadow-soft { box-shadow: 0 20px 60px rgba(0,0,0,.20); }
-    .light .shadow-soft { box-shadow: 0 18px 42px rgba(10,16,30,.08); }
+    .shadow-soft { box-shadow: 0 18px 42px rgba(10,16,30,.08); }
+    .dark .shadow-soft { box-shadow: 0 20px 60px rgba(0,0,0,.20); }
 
-    /* Buttons */
-    .btn-primary{
-      display:inline-flex; align-items:center; justify-content:center;
-      font-weight:700; color:#fff; border-radius:14px;
-      padding:.6rem 1rem; background: linear-gradient(135deg, var(--brand), #705CFF);
-      box-shadow: 0 8px 24px rgba(142,124,255,.35);
+    /* Chart panel gradient */
+    .panel-sky{
+      background: linear-gradient(180deg, #EAF7FB, #F5FBFD);
+      border: 1px solid #d8eef6;
     }
-    .btn-ghost{
-      display:inline-flex; align-items:center; justify-content:center;
-      border-radius:14px; padding:.55rem .9rem; border:1px solid rgba(255,255,255,.18);
-      color: #E6E8F3; background: rgba(255,255,255,.04);
+    .dark .panel-sky{
+      background: linear-gradient(180deg, rgba(95,200,230,.22), rgba(95,200,230,.08));
+      border-color: rgba(95,200,230,.22);
     }
-    .light .btn-ghost{ color:#0f1320; border-color:#e7eaf3; background:#fff; }
 
-    /* Focus ring */
+    /* KPIs */
+    .kpi{ display:grid; gap:.25rem; padding:1rem; border-radius:18px; background:#fff; border:1px solid #eef0f6; }
+    .dark .kpi{ background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); }
+
+    /* Focus ring helper for inputs */
     .ring-brand:focus{ outline: none; box-shadow: 0 0 0 4px var(--ring); }
 
     /* Sidebar links */
@@ -163,8 +165,14 @@
       border-radius:14px; padding:.65rem 1rem; font-weight:700; border:1px solid transparent;
       transition: .18s ease;
     }
-    .side-link:hover{ background: linear-gradient(135deg, rgba(142,124,255,.12), rgba(81,225,167,.10)); border-color: rgba(142,124,255,.30); }
-    .side-link.active{ background: linear-gradient(135deg, rgba(142,124,255,.18), rgba(81,225,167,.14)); border-color: rgba(142,124,255,.45); }
+    .side-link:hover{
+      background: linear-gradient(135deg, rgba(142,124,255,.12), rgba(81,225,167,.10));
+      border-color: rgba(142,124,255,.30);
+    }
+    .side-link.active{
+      background: linear-gradient(135deg, rgba(142,124,255,.18), rgba(81,225,167,.14));
+      border-color: rgba(142,124,255,.45);
+    }
     .side-link::before{
       content:""; position:absolute; left:6px; top:50%; transform:translateY(-50%);
       width:0; height:70%; border-radius:999px; background: linear-gradient(180deg, var(--brand), var(--brand2));
@@ -172,33 +180,12 @@
     }
     .side-link.active::before, .side-link:focus-visible::before{ width:6px; }
 
-    /* KPI tiles */
-    .kpi{ display:grid; gap:.25rem; padding:1rem; border-radius:18px; }
-    .dark .kpi{ background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); }
-    .light .kpi{ background:#fff; border:1px solid #eef0f6; }
-
-    /* Chart panel gradient */
-    .panel-sky{
-      background: linear-gradient(180deg, rgba(95,200,230,.22), rgba(95,200,230,.08));
-      border: 1px solid rgba(95,200,230,.22);
-    }
-    .light .panel-sky{
-      background: linear-gradient(180deg, #EAF7FB, #F5FBFD);
-      border-color:#d8eef6;
-    }
-
-    /* Tiny badge */
-    .badge-soft{
-      font-size:10px; padding:.2rem .45rem; border-radius:999px; border:1px solid rgba(255,255,255,.25);
-    }
-    .light .badge-soft{ border-color:#e7eaf3; color:#0f1320; }
-
-    /* Search input tone */
+    /* Form field base */
     .field{
-      width:100%; border-radius:14px; border:1px solid rgba(255,255,255,.18); padding:.65rem 1rem;
-      background: rgba(255,255,255,.08); color:#E6E8F3;
+      width:100%; border-radius:14px; border:1px solid #e7eaf3; padding:.65rem 1rem;
+      background:#fff; color:#0f1320;
     }
-    .light .field{ background:#fff; color:#0f1320; border-color:#e7eaf3; }
+    .dark .field{ background: rgba(255,255,255,.08); color:#E6E8F3; border-color: rgba(255,255,255,.18); }
 
     /* Scrollbars */
     ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -207,15 +194,13 @@
   </style>
 </head>
 
-<body class="min-h-screen font-[Inter] antialiased bg-[rgb(7,9,18)] text-white light:bg-[#f4f6fb] light:text-[#0f1320]">
-  <!-- Background orbs -->
-  <div aria-hidden="true" class="pointer-events-none fixed -top-24 -left-24 w-[48vmax] h-[48vmax] rounded-full blur-3xl opacity-40 mix-blend-screen" style="background: radial-gradient(circle at 30% 30%, rgba(142,124,255,.45), transparent 60%);"></div>
-  <div aria-hidden="true" class="pointer-events-none fixed -bottom-28 -right-24 w-[44vmax] h-[44vmax] rounded-full blur-3xl opacity-35 mix-blend-screen" style="background: radial-gradient(circle at 60% 60%, rgba(81,225,167,.38), transparent 60%);"></div>
+<!-- Light defaults + dark overrides -->
+<body class="h-screen w-screen font-[Inter] antialiased
+             bg-[#f4f6fb] text-[#0f1320]
+             dark:bg-[#070912] dark:text-white">
 
-  <!-- Inspiration-style rounded board -->
   <div class="board">
-
-    <div class="flex min-h-[calc(100vh-56px)]">
+    <div class="flex h-full">
       <!-- Sidebar -->
       <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
              class="fixed md:static z-40 inset-y-0 left-0 w-72 p-5 transition-transform duration-300">
@@ -236,51 +221,52 @@
             </button>
           </div>
 
-          <nav class="px-2 py-4 grid gap-3 text-sm">
+          <nav class="px-2 py-4 grid gap-3 text-sm overflow-auto">
             <div class="px-4 mt-2 mb-1 text-xs uppercase tracking-wider font-bold opacity-60">Main</div>
 
             <button @click="setTab('overview')" :class="tab==='overview' ? 'side-link active' : 'side-link'"
                     :aria-current="tab==='overview' ? 'page' : null">
-              <i class="fa-solid fa-chart-line w-5 text-purple-400"></i>
+              <i class="fa-solid fa-chart-line w-5 text-purple-600 dark:text-purple-400"></i>
               <span class="leading-none">Overview</span>
-              <span class="ml-auto badge-soft">Live</span>
+              <span class="ml-auto badge-soft border border-black/10 text-[10px] px-2 py-[2px] rounded-full
+                           dark:border-white/20">Live</span>
             </button>
 
             <button @click="setTab('charts')" :class="tab==='charts' ? 'side-link active' : 'side-link'"
                     :aria-current="tab==='charts' ? 'page' : null">
-              <i class="fa-solid fa-chart-pie w-5 text-emerald-400"></i>
+              <i class="fa-solid fa-chart-pie w-5 text-emerald-600 dark:text-emerald-400"></i>
               <span class="leading-none">Charts</span>
             </button>
 
             <div class="px-4 mt-4 mb-1 text-xs uppercase tracking-wider font-bold opacity-60">Content</div>
 
             <button @click="setTab('create_blog')" :class="tab==='create_blog' ? 'side-link active' : 'side-link'">
-              <i class="fa-solid fa-pen w-5 text-yellow-300"></i><span class="leading-none">Create Blog</span>
+              <i class="fa-solid fa-pen w-5 text-yellow-600 dark:text-yellow-300"></i><span class="leading-none">Create Blog</span>
             </button>
 
             <button @click="setTab('blogs')" :class="tab==='blogs' ? 'side-link active' : 'side-link'">
-              <i class="fa-solid fa-table-list w-5 text-cyan-300"></i><span class="leading-none">Blogs List</span>
+              <i class="fa-solid fa-table-list w-5 text-cyan-700 dark:text-cyan-300"></i><span class="leading-none">Blogs List</span>
             </button>
 
             <button @click="setTab('events')" :class="tab==='events' ? 'side-link active' : 'side-link'">
-              <i class="fa-solid fa-calendar-days w-5 text-pink-300"></i><span class="leading-none">Events</span>
+              <i class="fa-solid fa-calendar-days w-5 text-pink-600 dark:text-pink-300"></i><span class="leading-none">Events</span>
             </button>
 
-            <div class="mt-4 h-px bg-white/10 light:bg-black/10"></div>
+            <div class="mt-4 h-px bg-black/10 dark:bg-white/10"></div>
             <a href="/" class="side-link"><i class="fa-solid fa-globe w-5"></i><span class="leading-none">View site</span></a>
           </nav>
 
           <div class="mt-auto p-4 grid gap-3">
             <div class="glass rounded-2xl p-4">
               <div class="text-xs opacity-70 mb-1">Storage</div>
-              <div class="w-full h-2 bg-white/10 light:bg-black/10 rounded-full overflow-hidden">
+              <div class="w-full h-2 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
                 <div class="h-full rounded-full" style="width:55%; background: linear-gradient(90deg, var(--brand), var(--brand2));"></div>
               </div>
               <div class="text-xs mt-1 opacity-80">5.5 GB / 10 GB</div>
             </div>
             <form method="post" action="{% url 'logout' %}">
               {% csrf_token %}
-              <button type="submit" class="w-full btn-ghost border border-red-500/30 hover:border-red-500/60 text-red-400 light:text-red-600">
+              <button type="submit" class="w-full btn-ghost border border-red-300 hover:border-red-500/60 text-red-600 dark:text-red-400 dark:border-red-500/30">
                 <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout
               </button>
             </form>
@@ -289,7 +275,7 @@
       </aside>
 
       <!-- Main -->
-      <div class="flex-1 flex flex-col gap-6 p-4 md:p-6">
+      <div class="flex-1 flex flex-col gap-6 p-4 md:p-6 overflow-auto">
         <!-- Topbar -->
         <header class="glass shadow-soft rounded-2xl px-4 py-3 flex items-center gap-3">
           <button class="md:hidden btn-ghost" @click="sidebarOpen=true" aria-label="Open sidebar"><i class="fa-solid fa-bars"></i></button>
@@ -305,8 +291,14 @@
             <span class="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 text-[10px] rounded-full text-white"
                   style="background: linear-gradient(135deg, var(--brand), #705CFF);">3</span>
           </button>
-          <div class="w-9 h-9 rounded-full overflow-hidden ring-2 ring-white/20 light:ring-black/10">
-            <img src="{% static 'images/avatar.png' %}" alt="Admin" class="w-full h-full object-cover" />
+          <!-- Pixabay avatar -->
+          <div class="w-9 h-9 rounded-full overflow-hidden ring-2 ring-black/10 dark:ring-white/20">
+            <img
+              src="https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_1280.png"
+              alt="Admin"
+              class="w-full h-full object-cover"
+              referrerpolicy="no-referrer"
+            />
           </div>
         </header>
 
@@ -332,7 +324,7 @@
                 <div class="kpi">
                   <div class="text-xs opacity-70">Events</div>
                   <div class="text-2xl font-extrabold">{{ kpis.events_count|default:"—" }}</div>
-                  <div class="text-xs text-yellow-400 light:text-yellow-600">
+                  <div class="text-xs text-yellow-600 dark:text-yellow-400">
                     {% if kpis.pending_events %}{{ kpis.pending_events }} pending{% else %}Up to date{% endif %}
                   </div>
                 </div>
@@ -372,7 +364,7 @@
                   <div class="glass rounded-2xl p-4 shadow-soft">
                     <h3 class="font-bold mb-2">System</h3>
                     <ul class="text-sm space-y-1 opacity-80">
-                      <li>Uptime <span class="text-emerald-400 light:text-emerald-600 font-semibold">99.9%</span></li>
+                      <li>Uptime <span class="text-emerald-600 dark:text-emerald-400 font-semibold">99.9%</span></li>
                       <li>API latency <span class="font-medium">220ms</span></li>
                       <li>Build <span class="font-mono">#{{ now|date:'Y.m.d' }}</span></li>
                     </ul>
@@ -400,7 +392,6 @@
             <section class="grid gap-6">
               <div class="glass rounded-2xl p-4 shadow-soft">
                 {% include 'dashboard/partials/blog_form.html' with blog_form=post_form only %}
-
               </div>
             </section>
           </template>
