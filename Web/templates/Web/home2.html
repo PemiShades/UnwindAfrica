@@ -481,3 +481,74 @@
     tItems.forEach(item => tObserver.observe(item));
   }
 </script>
+
+
+
+
+
+<footer>
+  <div class="foot">
+    <div class="foot-grid">
+      
+      <!-- Brand & Address -->
+      <div>
+        <div class="brand" style="margin-bottom:8px">
+          <span class="brand-badge"><span>UA</span></span> Unwind Africa
+        </div>
+        <p style="margin:8px 0; font-size:14px; color:#5d6b81;">
+          No 8, Providence Street,<br>
+          Lekki Phase 1,<br>
+          Lagos, Nigeria.
+        </p>
+        <small>Â© <span id="year"></span> Unwind Africa. Crafted with Luxury & Care.</small>
+      </div>
+
+      <!-- Company Links -->
+      <div>
+        <strong>Company</strong>
+        <div><a href="/about">About</a></div>
+        <div><a href="/blog">Blog</a></div>
+        <div><a href="#contact">Contact</a></div>
+      </div>
+
+      <!-- Explore Links -->
+      <div>
+        <strong>Explore</strong>
+        <div><a href="/packages">Packages</a></div>
+        <div><a href="#experiences">Experiences</a></div>
+        <div><a href="#top">Home</a></div>
+      </div>
+
+      <!-- Newsletter -->
+      <div>
+        <strong>Newsletter</strong>
+        <form onsubmit="event.preventDefault();alert('Subscribed!')">
+          <input placeholder="Email address" 
+                 style="width:100%;padding:10px;border-radius:10px;
+                        border:1px solid var(--border);background:#fff;margin:8px 0" />
+          <button class="btn btn-ghost" style="width:100%">Subscribe</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Contact Info & Socials -->
+    <div style="margin-top:40px; text-align:center">
+      <div style="margin-bottom:12px;">
+        <a href="mailto:Info@unwindafrica.com" 
+           style="font-weight:600; font-size:16px; color:#334155; text-decoration:none;">
+          Info@unwindafrica.com
+        </a>
+      </div>
+      <div style="margin-bottom:12px;">
+        <a href="tel:+2348062067832" style="margin-right:16px; color:#334155;">+234 8062067832</a>
+        <a href="tel:+2348038268669" style="color:#334155;">+234 8038268669</a>
+      </div>
+      <div class="socials" style="display:flex;justify-content:center;gap:16px;font-size:20px;color:#5d6b81;">
+        <a href="#" aria-label="Facebook" style="color:#1877f2;"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" aria-label="Instagram" style="color:#e4405f;"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="Twitter" style="color:#1da1f2;"><i class="fab fa-twitter"></i></a>
+      </div>
+    </div>
+
+  </div>
+</footer>

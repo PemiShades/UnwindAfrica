@@ -1,57 +1,54 @@
-# Load sensitive settings from .env file
+# settings.py
 from pathlib import Path
 import os
 from dotenv import load_dotenv
 import dj_database_url
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
 
-load_dotenv(os.path.join(BASE_DIR, ".env"))
+def env_bool(name, default=False):
+    return os.getenv(name, str(default)).lower() in {"1", "true", "yes", "on"}
 
+# --- Security ---
 SECRET_KEY = os.getenv("SECRET_KEY")
-# DB_HOST = os.getenv("HOST")
-# DB_USER = os.getenv("USER")
-# DB_PASS = os.getenv("PASS")
-# DB_PORT = os.getenv("PORT")
-# DB_DATABASE = os.getenv("DATABASE")
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY is missing. Define it in .env")
 
-
-DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1")
-
-LOGIN_URL = 'dashboard_login'           # named URL for your login page
-LOGIN_REDIRECT_URL = 'dashboard_home'   # after successful login
-LOGOUT_REDIRECT_URL = 'dashboard_login' # after logout
-
-
-# ALLOWED_HOSTS = config("ALLOWED_HOSTS", default=["unwindafrica.onrender.com","www.unwindafrica.com","https://www.unwindafrica.com","https://dashboard.render.com/","https://render.com/"] , cast=Csv())
+DEBUG = env_bool("DEBUG", False)
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    "unwindafrica.onrender.com",
-    "www.unwindafrica.com",
-    "https://www.unwindafrica.com",
-    "https://dashboard.render.com",
-    "https://render.com",
+    "159.198.76.102",           # server IP
+    "server1.unwindafrica.com", # VPS hostname
+    "www.unwindafrica.com",     # optional apex site
 ]
 
-# Application definition
+# Required for HTTPS + CSRF protection
+CSRF_TRUSTED_ORIGINS = [
+    "https://server1.unwindafrica.com",
+    "https://www.unwindafrica.com",
+]
+
+# If you're behind Nginx/Certbot, tell Django to trust X-Forwarded-Proto=https
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# --- Auth redirects ---
+LOGIN_URL = 'dashboard_login'
+LOGIN_REDIRECT_URL = 'dashboard_home'
+LOGOUT_REDIRECT_URL = 'dashboard_login'
+
+# --- Apps ---
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'Web',
-    'dashboard',
-    'widget_tweaks',
+    'django.contrib.admin', 'django.contrib.auth', 'django.contrib.contenttypes',
+    'django.contrib.sessions', 'django.contrib.messages', 'django.contrib.staticfiles',
+    'Web', 'dashboard', 'widget_tweaks',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Serve static files in production
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # ok as fallback; Nginx will serve static
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -65,7 +62,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'Web', 'templates')],
+        'DIRS': [BASE_DIR / 'Web' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -79,11 +76,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
-# Database (SQLite for development, update for production if needed)
-
-# Set database depending on environment
-if DEBUG:
+# --- Database ---
+# Prefer DATABASE_URL in production; falls back to explicit PG vars; DEBUG->sqlite3 for convenience
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=False  # local Postgres on same VPS, no SSL needed
+        )
+    }
+elif DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -94,15 +98,16 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv("DB_NAME", "postgres"),
-            'USER': os.getenv("DB_USER", "postgres"),
-            'PASSWORD': os.getenv("DB_PASS"),
-            'HOST': os.getenv("DB_HOST"),
+            'NAME': os.getenv("DB_NAME", "unwind_prod"),
+            'USER': os.getenv("DB_USER", "unwind_user"),
+            'PASSWORD': os.getenv("DB_PASS", ""),
+            'HOST': os.getenv("DB_HOST", "127.0.0.1"),
             'PORT': os.getenv("DB_PORT", "5432"),
+            'CONN_MAX_AGE': 600,
         }
     }
 
-# Password validation
+# --- Password validators ---
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -110,23 +115,33 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Internationalization
+# --- Internationalization ---
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Lagos'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# --- Static & Media ---
+# Match Nginx (we'll serve /static and /media from /srv/unwindafrica/*)
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For collectstatic
+STATIC_ROOT = Path("/srv/unwindafrica/static")  # Nginx location /static/ -> /srv/unwindafrica/static
 
+local_static = BASE_DIR / "static"
+STATICFILES_DIRS = [local_static] if local_static.exists() else []
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = Path("/srv/unwindafrica/media")    # Nginx location /media/ -> /srv/unwindafrica/media
 
-# WhiteNoise: Enable GZip compression and caching for static files
+# WhiteNoise (kept as fallback; safe with Nginx in front)
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# --- Extra Security (enable once HTTPS is ready) ---
+if not DEBUG:
+    SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", True)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000"))  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", True)
+    SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", True)

@@ -1,424 +1,467 @@
-{% extends 'Web/main.html' %}
+﻿{% extends "Web/main.html" %}
 {% load static %}
 
-{% block title %} Unwind Packages {% endblock %}
+{% block title %}Packages — Unwind Africa{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ua-sky:#00B2FF;
+    --ua-sea:#00C2FF;
+    --ua-sun:#FFB648;
+    --ua-ink:#0A0B10;
+    --ua-paper:#FFFFFF;
+    --ua-stone:#11131b;
+    --ua-soft:#f5f8fc;
+    --radius:18px;
+    --shadow:0 12px 40px rgba(10,11,16,.18);
+    --container:min(1160px, 92vw);
+  }
+
+  body{
+    background:var(--ua-paper);
+    color:var(--ua-ink);
+  }
+
+  .ua-progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));z-index:9999;opacity:0;pointer-events:none;transition:width .15s ease,opacity .2s ease;}
+
+  .page-shell{overflow:hidden;}
+
+  .hero{position:relative;color:#fff;min-height:68vh;display:grid;place-items:center;padding-block:clamp(96px,18vw,180px);}
+  .hero::before{content:"";position:absolute;inset:0;background:linear-gradient(130deg,rgba(10,13,20,.88),rgba(10,13,20,.55));z-index:1;}
+  .hero-media{position:absolute;inset:0;z-index:0;overflow:hidden;}
+  .hero-media img{width:100%;height:100%;object-fit:cover;filter:brightness(.65) saturate(1.1);}
+  .hero-inner{position:relative;z-index:2;width:var(--container);margin-inline:auto;display:grid;gap:clamp(24px,4vw,36px);text-align:center;}
+  .hero-tag{display:inline-flex;align-items:center;gap:8px;margin-inline:auto;padding:.55rem 1.1rem;border-radius:999px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:.76rem;}
+  .hero h1{margin:0;font-family:"Playfair Display",ui-serif,Georgia,serif;font-size:clamp(2.6rem,6vw,5.2rem);letter-spacing:-.02em;}
+  .hero p{margin:0 auto;max-width:70ch;font-size:clamp(1.05rem,1.8vw,1.25rem);color:rgba(255,255,255,.82);} 
+  .hero-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:.9rem;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;padding:.9rem 1.4rem;border-radius:999px;font-weight:800;border:2px solid transparent;text-transform:uppercase;letter-spacing:.08em;transition:transform .2s ease,box-shadow .2s ease;} 
+  .btn-primary{background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));color:#0b172a;box-shadow:0 14px 34px rgba(0,178,255,.28);} 
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 18px 44px rgba(0,178,255,.32);} 
+  .btn-outline{background:transparent;color:#fff;border-color:rgba(255,255,255,.45);} 
+  .btn-outline:hover{transform:translateY(-3px);} 
+  .secondary-ink{background:#0A0B10;color:#fff;border:1px solid rgba(12,18,32,.85);box-shadow:0 10px 24px rgba(10,11,16,.24);} 
+  .secondary-ink:hover{transform:translateY(-3px);} 
+
+  .meta-bar{background:#0A0B10;color:#f7fbff;border-block:1px solid rgba(255,255,255,.08);} 
+  .meta-bar-inner{width:var(--container);margin-inline:auto;padding:12px 0;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;font-size:.9rem;} 
+  .meta-bar-list{display:flex;gap:.55rem;flex-wrap:wrap;align-items:center;} 
+  .meta-bar-chip{padding:.45rem .8rem;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);font-weight:700;text-transform:uppercase;font-size:.75rem;letter-spacing:.08em;} 
+
+  .section{padding-block:clamp(72px,12vw,132px);} 
+  .container{width:var(--container);margin-inline:auto;} 
+  .section-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:clamp(18px,4vw,32px);align-items:flex-end;margin-bottom:clamp(28px,5vw,48px);} 
+  .section-head h2{margin:0;font-family:"Playfair Display",ui-serif,Georgia,serif;font-size:clamp(2rem,5vw,3.3rem);letter-spacing:-.01em;} 
+  .section-head p{margin:0;max-width:60ch;color:color-mix(in oklab,var(--ua-ink) 66%,#60708c);} 
+  .muted{color:color-mix(in oklab,var(--ua-ink) 55%,#5f6a7d);} 
+  .kicker{text-transform:uppercase;font-weight:900;letter-spacing:.18em;color:var(--ua-sky);font-size:.75rem;margin-bottom:12px;} 
+  .section-ghost{position:relative;} 
+  .section-ghost::after{content:attr(data-ghost);position:absolute;inset:auto 0 100% 0;transform:translateY(70%);font-weight:900;font-size:clamp(3.4rem,14vw,12rem);letter-spacing:.04em;color:#0b1320;opacity:.05;pointer-events:none;text-align:center;} 
+
+  .package-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:clamp(18px,3vw,28px);} 
+  .package-card{background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);display:grid;grid-template-rows:auto 1fr;} 
+  .package-card .media{position:relative;aspect-ratio:16/11;overflow:hidden;} 
+  .package-card img{width:100%;height:100%;object-fit:cover;transition:transform .45s ease,filter .45s ease;filter:grayscale(95%) contrast(1.05);} 
+  .package-card:hover img{transform:scale(1.06);filter:none;} 
+  .package-card .badge{position:absolute;left:14px;top:14px;padding:.42rem .7rem;border-radius:999px;background:#0A0B10;color:#fff;font-weight:800;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;} 
+  .package-card .body{padding:clamp(18px,3vw,26px);display:grid;gap:14px;} 
+  .package-card h3{margin:0;font-size:1.25rem;font-family:"Playfair Display",serif;} 
+  .package-card ul{margin:0;padding-left:1.2rem;display:grid;gap:.35rem;color:color-mix(in oklab,var(--ua-ink) 60%,#5f6a7d);} 
+  .package-card-footer{display:flex;justify-content:space-between;align-items:center;font-weight:800;text-transform:uppercase;font-size:.78rem;letter-spacing:.1em;color:#0e1c2c;} 
+
+  .comparison{background:color-mix(in oklab,#fff 92%,var(--ua-sky) 8% / 12%);border-block:1px solid #dfe8f3;} 
+  .comparison-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:clamp(16px,3vw,24px);} 
+  .comparison-card{background:#fff;border-radius:var(--radius);padding:clamp(18px,3vw,26px);box-shadow:var(--shadow);display:grid;gap:16px;} 
+  .comparison-card span{display:inline-flex;align-items:center;gap:8px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;font-size:.75rem;color:var(--ua-sky);} 
+  .comparison-card strong{font-size:1.8rem;font-family:"Playfair Display",serif;} 
+  .comparison-card ul{margin:0;padding-left:1.1rem;display:grid;gap:.32rem;} 
+
+  .timeline{position:relative;padding:clamp(48px,10vw,80px);border-radius:var(--radius);background:#0A0B10;color:#f7fbff;box-shadow:var(--shadow);} 
+  .timeline::before{content:"";position:absolute;inset:12% auto 12% 22px;width:2px;background:linear-gradient(180deg,rgba(255,182,72,.65),rgba(0,178,255,.55));} 
+  .timeline-list{list-style:none;margin:0;padding:0;display:grid;gap:clamp(20px,3vw,32px);} 
+  .timeline-step{padding-left:72px;position:relative;} 
+  .timeline-step::before{content:attr(data-step);position:absolute;left:0;top:4px;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:linear-gradient(120deg,var(--ua-sun),var(--ua-sky));color:#0A0B10;font-weight:900;box-shadow:0 12px 28px rgba(0,178,255,.28);} 
+  .timeline-step h3{margin:0;font-size:1.25rem;} 
+  .timeline-step p{margin:.45rem 0 0;color:rgba(255,255,255,.76);} 
+
+  .testimonial-band{background:#05060a;color:#fff;border-radius:var(--radius);padding:clamp(32px,6vw,60px);display:grid;gap:36px;box-shadow:var(--shadow);} 
+  .testimonial-header{display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;align-items:flex-end;} 
+  .testimonial-slider{display:grid;gap:clamp(18px,4vw,26px);} 
+  .testimonial-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:clamp(18px,3vw,28px);display:grid;gap:12px;} 
+  .testimonial-card p{margin:0;font-size:1.02rem;line-height:1.55;} 
+  .testimonial-card span{font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.7);} 
+
+  .cta-panel{background:linear-gradient(135deg,color-mix(in oklab,var(--ua-sun) 60%,#0b1224) 0%,color-mix(in oklab,var(--ua-sky) 70%,#0b1224) 100%);color:#0b1224;border-radius:var(--radius);padding:clamp(32px,6vw,64px);display:grid;gap:clamp(18px,2.5vw,28px);text-align:center;box-shadow:var(--shadow);} 
+  .cta-panel h2{margin:0;font-size:clamp(2rem,4.6vw,3.4rem);font-family:"Playfair Display";} 
+  .cta-actions{display:flex;justify-content:center;gap:.8rem;flex-wrap:wrap;} 
+  .cta-panel .btn-outline{color:#0b1224;border-color:rgba(11,18,36,.25);} 
+
+  footer.ua-footer{position:relative;background:#05060a;color:#f5f7ff;padding-block:clamp(64px,10vw,120px) clamp(36px,8vw,72px);overflow:hidden;}
+  footer.ua-footer::before{content:"";position:absolute;inset:-25% -35% auto -25%;width:520px;height:520px;background:radial-gradient(120% 120% at 20% 40%, rgba(0,178,255,.25), transparent 68%);opacity:.75;pointer-events:none;}
+  footer.ua-footer::after{content:"";position:absolute;inset:auto -20% -35% 55%;width:420px;height:420px;background:radial-gradient(120% 120% at 50% 50%, rgba(255,182,72,.22), transparent 72%);pointer-events:none;}
+  .ua-footer-inner{position:relative;z-index:1;width:var(--container);margin-inline:auto;display:grid;gap:clamp(40px,6vw,72px);} 
+  .ua-footer-banner{display:grid;gap:clamp(12px,1.8vw,20px);text-transform:uppercase;letter-spacing:.08em;} 
+  .ua-footer-banner .ua-tag{display:inline-flex;align-items:center;gap:8px;padding:.45rem .9rem;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);font-weight:800;font-size:.76rem;} 
+  .ua-footer-banner h2{margin:0;font-size:clamp(2.4rem,6vw,3.9rem);font-weight:900;letter-spacing:-.02em;} 
+  .ua-footer-banner p{text-transform:none;letter-spacing:0;font-size:clamp(1rem,1.4vw,1.2rem);color:rgba(245,247,255,.78);margin:0;max-width:56ch;} 
+  .ua-footer-cta{display:inline-flex;align-items:center;gap:.55rem;padding:.9rem 1.5rem;border-radius:999px;font-weight:900;background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));color:#0A0B10;box-shadow:0 12px 30px rgba(0,178,255,.25);} 
+  .ua-footer-cta span{font-size:1.3rem;} 
+  .ua-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:clamp(20px,4vw,36px);} 
+  .ua-footer-col h4{margin:0 0 .65rem;font-weight:900;letter-spacing:.06em;} 
+  .ua-footer-col ul{list-style:none;margin:0;padding:0;display:grid;gap:.4rem;} 
+  .ua-footer-col a{color:rgba(245,247,255,.75);} 
+  .ua-footer-col a:hover{color:#fff;} 
+  .ua-footer-contact{display:grid;gap:.35rem;font-size:.95rem;} 
+  .ua-footer-contact a{color:#fff;font-weight:700;} 
+  .ua-footer-bottom{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px;border-top:1px solid rgba(255,255,255,.12);padding-top:18px;font-size:.85rem;color:rgba(245,247,255,.6);} 
+  .ua-footer-brand{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:1000;letter-spacing:.08em;text-transform:uppercase;} 
+  .ua-footer-social{display:flex;gap:14px;font-size:1.1rem;} 
+  .ua-footer-social a{color:inherit;} 
+  .ua-footer-social a:hover{color:#fff;} 
+
+  @media (max-width:720px){
+    .hero{min-height:auto;padding-block:120px 96px;}
+    .timeline::before{inset:18% auto 18% 18px;}
+    .timeline-step{padding-left:64px;}
+    .ua-footer-banner{justify-items:flex-start;}
+    .ua-footer-cta{width:100%;justify-content:center;}
+    .ua-footer-bottom{flex-direction:column;align-items:flex-start;}
+  }
+</style>
+{% endblock %}
 
 {% block content %}
+<div class="page-shell">
+  <div class="ua-progress" id="uaProgress"></div>
 
-<style>
-   /* ------------------ Base Reset ------------------ */
-    *,*::before,*::after{box-sizing:border-box}
-    html,body{margin:0;padding:0}
-    img{max-width:100%;display:block}
-    a{color:inherit;text-decoration:none}
-    :root{
-      --ink:#0b1a2b;
-      --muted:#5c6b7a;
-      --brand:#0e6ba8;
-      --brand-2:#107e7d;
-      --accent:#6b8e23;
-      --bg:#ffffff;
-      --bg-2:#f6f8fb;
-      --card:#ffffff;
-      --shadow:0 10px 30px rgba(0,0,0,.08);
-      --radius:14px;
-    }
-    body{font-family: Arial, Helvetica, sans-serif; color: #000; background:var(--bg); line-height:1.6}
-    .container{width:min(1200px,92%);margin-inline:auto}
-
-    /* ------------------ Top Notice & Nav ------------------ */
-    .topline{font-size:.8rem;letter-spacing:.08em;text-align:center;padding:.75rem 1rem;color:var(--muted)}
-    .nav{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid #e8edf3}
-    .nav .bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 0}
-    .logo{display:flex;align-items:center;gap:.6rem;font-weight:800;letter-spacing:.02em}
-    .logo .dot{width:10px;height:10px;border-radius:50%;background:var(--brand)}
-    .navlinks{display:flex;gap:1rem;flex-wrap:wrap}
-    .navlinks a{padding:.55rem .9rem;border-radius:999px;border:1px solid #e3e9f0;font-size:.92rem;color:#1d2a39}
-    .navlinks a:hover,.navlinks a.active{background:var(--ink);color:#fff;border-color:var(--ink)}
-
-    /* ------------------ Hero ------------------ */
-    .hero{position:relative;width: 100%;min-height:40vh;display:grid;place-items:center;}
-    .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.25))}
-    .hero .inner{position:relative;z-index:1;text-align:center;color:#fff;padding:3rem 1rem}
-    .eyebrow{font-size:.85rem;letter-spacing:.18em;opacity:.9}
-    h1.display{font-size:clamp(2.2rem,4vw,3.5rem);margin:.6rem 0 1rem;letter-spacing:.02em}
-    .lead{max-width:850px;margin:0 auto;font-size:1.05rem;opacity:.95}
-    .btn{display:inline-flex;align-items:center;gap:.5rem;margin-top:1.25rem;background:var(--accent);color:#fff;padding:.8rem 1.2rem;border-radius:999px;font-weight:700}
-    .btn:hover{filter:brightness(.95)}
-   .video-bg video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    /* ------------------ Royal-Style Explore Section ------------------ */
-    .rc-block{padding:3.5rem 0;border-top:1px solid #eef3f8}
-    .rc-title{letter-spacing:.14em;text-align:center;color:var(--muted);font-size:.82rem}
-    .rc-head{font-size:clamp(1.6rem,3.5vw,2.6rem);text-align:center;margin:.4rem 0 1.2rem;letter-spacing:.02em}
-    .rc-subnav{display:flex;justify-content:center;gap:.8rem;flex-wrap:wrap;margin-bottom:1.2rem}
-    .rc-subnav a{font-size:.86rem;padding:.5rem .9rem;border-radius:999px;border:1px solid #e3e9f0}
-    .rc-desc{max-width:980px;margin:0 auto 2rem;color:var(--muted);text-align:center}
-    .rc-section-title{margin:2.5rem 0 .4rem;color:#1d2a39;font-size:.9rem;letter-spacing:.18em}
-    .rc-section-head{font-size:clamp(1.4rem,2.8vw,2.1rem);margin:.2rem 0 .6rem}
-    .rc-section-copy{max-width:900px;color:var(--muted)}
-
-    .mosaic{display:grid;gap:12px;grid-template-columns:repeat(6,1fr)}
-    .tile{position:relative;overflow:hidden;border-radius:12px;box-shadow:var(--shadow);min-height:170px}
-    .tile img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
-    .tile:hover img{transform:scale(1.08)}
-    .tile .label{position:absolute;inset:auto 0 0 0;padding:1rem;background:linear-gradient(180deg,transparent,rgba(0,0,0,.75));color:#fff;text-transform:uppercase;font-weight:900;letter-spacing:.08em;text-align:center}
-    .tile.feature{grid-column:span 3;grid-row:span 2;min-height:360px}
-    .tile.t2{grid-column:span 2}
-
-    @media (max-width:900px){.mosaic{grid-template-columns:repeat(2,1fr)}.tile.feature{grid-column:1/-1;grid-row:auto;min-height:260px}.tile.t2{grid-column:auto}}
-
-    /* ------------------ Cards Section (Packages) ------------------ */
-    section{padding:3rem 0}
-    section h2{font-size:clamp(1.4rem,3vw,2rem);margin:0 0 .6rem}
-    .section-intro{color:var(--muted);margin:0 0 1.5rem}
-    .grid{display:grid;gap:1.2rem}
-    .grid-3{grid-template-columns:repeat(3,1fr)}
-    @media (max-width:980px){.grid-3{grid-template-columns:repeat(2,1fr)}}
-    @media (max-width:680px){.grid-3{grid-template-columns:1fr}}
-
-    .card{position:relative;overflow:hidden;border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow)}
-    .card .imgwrap{position:relative;height:220px}
-    .card .imgwrap img{width:100%;height:100%;object-fit:cover}
-    .card .badge{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.7);color:#fff;padding:.35rem .6rem;border-radius:999px;font-size:.78rem}
-    .card .body{padding:1rem 1rem 1.2rem}
-    .card h3{margin:.2rem 0 .35rem;font-size:1.15rem}
-    .card ul{margin:.6rem 0 0 1rem;color:var(--muted)}
-
-    /* ------------------ URS Highlights ------------------ */
-    .highlights{background:var(--bg-2);border-top:1px solid #eef3f8;border-bottom:1px solid #eef3f8}
-    .pill_packagegrid{display:grid;gap:.8rem;grid-template-columns:repeat(3,1fr)}
-    .pill_package{background:#fff;border:1px solid #e9eef4;border-radius:12px;padding:1rem;box-shadow:var(--shadow)}
-    .pill_package b{display:block;margin-bottom:.35rem}
-    @media (max-width:820px){.pill_packagegrid{grid-template-columns:1fr}}
-
-    /* ------------------ CTA Banner ------------------ */
-    .cta{position:relative;margin:2.5rem 0 0;background:url('{% static "assets/packages/banner.jpg" %}') center/cover no-repeat;border-radius:18px;overflow:hidden}
-    .cta::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.45)}
-    .cta .inner{position:relative;color:#fff;padding:2.2rem;text-align:center}
-    .cta .inner p{opacity:.95}
-
-    /* ------------------ Utility ------------------ */
-    .sr{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
-
-    /* FAQ pill_package Fix */
-    .pill_package {
-      word-break: break-word;
-      overflow-wrap: anywhere;
-      min-width: 0;
-    }
-    #faq .grid {
-      min-width: 0;
-    }
-    @media (max-width:680px) {
-      #faq .grid {
-        grid-template-columns: 1fr !important;
-      }
-    }
-  </style>
-  <!-- <div class="topline">THIS IS UNWIND AFRICA</div> -->
-  <!-- <nav class="nav">
-    <div class="container bar">
-      <div class="logo"><span class="dot"></span> <span>Unwind Africa</span></div>
-      <div class="navlinks">
-        <a href="#explore" class="active">Explore</a>
-        <a href="#solo">Solo</a>
-        <a href="#family">Family</a>
-        <a href="#group">Group</a>
-        <a href="#photo">Photography</a>
-        <a href="#faq">FAQ</a>
-      </div>
-   </div>
-  </nav> -->
-
-  <!-- HERO -->
   <header class="hero">
-     {% include './partials/header/navbar.html'%}
-     {% include './partials/header/hamburger-menu.html' with faq_link="/about#faq"%}
-   <div class="video-bg">
-      <video autoplay muted loop playsinline>
-        <source src="{% static 'assets/videos/spa2.mp4' %}" type="video/mp4">
-      </video>
+    <div class="hero-media" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=2000&auto=format&fit=crop" alt="Celebratory crowd under dusk sky" />
     </div>
-    <div class="inner container">
-      <div class="eyebrow">WELLNESS • LUXURY • MEMORIES</div>
-      <h1 class="display">Explore Signature Experiences</h1>
-      <p class="lead">From spa-soaked solo escapes to unforgettable family and group getaways — plus pro photography to capture it all. Flexible payment plans, bespoke planning, and premium partners across Africa.</p>
-      <a class="btn" href="#faq">View Packages & Pricing</a>
+    <div class="hero-inner">
+      <span class="hero-tag">Retreats • Celebrations • Creative Productions</span>
+      <h1>Curated packages that trade stress for presence.</h1>
+      <p>Choose a hosted escape or start from a blank canvas. Every tier blends high-touch planning, vetted partners, and glow-inducing rituals tailored to your group.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="{% url 'contact' %}">Start a brief</a>
+        <a class="btn btn-outline" href="#packages">Browse packages</a>
+      </div>
     </div>
   </header>
 
-  <!-- ROYAL-CARIBBEAN STYLE SECTION (Requested) -->
-  <section id="explore" class="rc-block">
-    <div class="container">
-      <div class="rc-title">EXPLORE MORE WAYS TO UNWIND</div>
-      <h2 class="rc-head">Over 25 Experiences To Choose From</h2>
-      <div class="rc-subnav">
-        <a href="#solo">Me Time (Solo)</a>
-        <a href="#family">Family</a>
-        <a href="#group">Group Getaways</a>
-        <a href="#photo">Photography & Videography</a>
-        <a href="#urs">URS Plans</a>
-      </div>
-      <p class="rc-desc">Choose from a curated selection of wellness-focused services, luxury celebrations, scenic escapes, and bespoke experiences. Our team plans everything — spa sessions, private chefs, yacht cruises, anniversaries, proposals, therapy, mindfulness, and more — so you can unwind in style.</p>
-    </div>
-  </section>
-
-  <!-- SOLO PACKAGES -->
-  <section id="solo">
-    <div class="container">
-      <h2>Me Time – Solo Packages</h2>
-      <p class="section-intro">Indulge in self‑care with flower‑inspired itineraries. Every package includes concierge support, wellness activities, and options for therapy or coaching on request.</p>
-      <div class="grid grid-3">
-        <!-- Sunflower -->
-        <article class="card">
-          <div class="imgwrap"><span class="badge">1 Day</span>
-            <img data-src="{% static 'assets/home/sunflower.jpg' %}" alt="Sunflower package" />
-          </div>
-          <div class="body">
-            <h3>Sunflower</h3>
-            <p>Private room • Personalized spa treatment • Gourmet meal delivery.</p>
-            <ul>
-              <li>Check‑in day access (08:00–20:00)</li>
-              <li>Choice of massage or medi‑pedi</li>
-              <li>Mindfulness guide & tea ritual</li>
-            </ul>
-          </div>
-        </article>
-        <!-- Daisy -->
-        <article class="card">
-          <div class="imgwrap"><span class="badge">2D / 1N</span>
-            <img data-src="{% static 'assets/home/daisy.jpg' %}" alt="Daisy package" />
-          </div>
-          <div class="body">
-            <h3>Daisy</h3>
-            <p>Serene villa • In‑room meditation • Calming activities.</p>
-            <ul>
-              <li>Breakfast & dinner included</li>
-              <li>Guided breathwork session</li>
-              <li>Evening bath & aromatherapy</li>
-            </ul>
-          </div>
-        </article>
-        <!-- Lily -->
-        <article class="card">
-          <div class="imgwrap"><span class="badge">3D / 2N</span>
-            <img data-src="{% static 'assets/home/lily.jpg' %}" alt="Lily package" />
-          </div>
-          <div class="body">
-            <h3>Lily</h3>
-            <p>Luxury self‑care: spa, gourmet meals, and private excursions.</p>
-            <ul>
-              <li>Sunrise yoga • Late checkout</li>
-              <li>Driver for 1 city tour</li>
-              <li>Photo mini‑session (optional)</li>
-            </ul>
-          </div>
-        </article>
-        <!-- Rose -->
-        <article class="card">
-          <div class="imgwrap"><span class="badge">4D / 3N</span>
-            <img data-src="{% static 'assets/home/rose.jpg' %}" alt="Rose package" />
-          </div>
-          <div class="body">
-            <h3>Rose</h3>
-            <p>Private villa • Customized therapies • Exclusive wellness center access.</p>
-            <ul>
-              <li>Private chef tasting night</li>
-              <li>Mindfulness & sound bath</li>
-              <li>Complimentary late checkout</li>
-            </ul>
-          </div>
-        </article>
-        <!-- Orchid -->
-        <article class="card">
-          <div class="imgwrap"><span class="badge">5D / 4N</span>
-            <img data-src="{% static 'assets/home/orchid.jpg' %}" alt="Orchid package" />
-          </div>
-          <div class="body">
-            <h3>Orchid</h3>
-            <p>Ultimate solo luxury • Personalized attention • Private activities.</p>
-            <ul>
-              <li>Full spa itinerary & concierge</li>
-              <li>Private boat or picnic option</li>
-              <li>Premium photo add‑on available</li>
-            </ul>
-          </div>
-        </article>
+  <section class="meta-bar" aria-label="Package quick facts">
+    <div class="meta-bar-inner">
+      <div>Average planning window — <strong>6 to 12 weeks</strong></div>
+      <div class="meta-bar-list">
+        <span class="meta-bar-chip">Dedicated concierge</span>
+        <span class="meta-bar-chip">Transparent pricing</span>
+        <span class="meta-bar-chip">Local partner network</span>
       </div>
     </div>
   </section>
 
-  <!-- FAMILY PACKAGES -->
-  <section id="family" class="highlights">
+  <section id="packages" class="section">
     <div class="container">
-      <h2>Family Packages</h2>
-      <p class="section-intro">Designed for bonding and ease. For families with more than 5 members, contact us for a custom quote.</p>
-      <div class="grid grid-3">
-        <article class="card">
-          <div class="imgwrap"><span class="badge">2D / 1N</span><img data-src="{% static 'assets/packages/treats.jpg' %}" alt="Oakwood family" /></div>
-          <div class="body"><h3>Oakwood (Weekend Getaway)</h3><p>Relaxed pace with family‑friendly activities and cozy lodging.</p><ul><li>Welcome treats • Game night kit</li><li>Breakfast for 5</li><li>Mini‑shoot add‑on</li></ul></div>
-        </article>
-        <article class="card">
-          <div class="imgwrap"><span class="badge">3D / 2N</span><img data-src="{% static 'assets/packages/kids.jpg' %}" alt="Willow family" /></div>
-          <div class="body"><h3>Willow</h3><p>Balance of relaxation and exploration for all ages.</p><ul><li>Guided family activity</li><li>One spa session for parents</li><li>Kiddies corner access</li></ul></div>
-        </article>
-        <article class="card">
-          <div class="imgwrap"><span class="badge">4D / 3N</span><img data-src="{% static 'assets/packages/driver.jpeg' %}" alt="Palm Grove family" /></div>
-          <div class="body"><h3>Palm Grove</h3><p>Adventure, beach time, and scenic picnics.</p><ul><li>Two guided outings</li><li>Family photo session</li><li>Private driver (4 hrs)</li></ul></div>
-        </article>
-        <article class="card">
-          <div class="imgwrap"><span class="badge">5D / 4N</span><img data-src="{% static 'assets/packages/chef.jpg' %}" alt="Cypress family" /></div>
-          <div class="body"><h3>Cypress</h3><p>Extended retreat with flexible daily plans.</p><ul><li>Chef‑prepared dinner (1 night)</li><li>Couples spa add‑on</li><li>Kids club access</li></ul></div>
-        </article>
-        <article class="card">
-          <div class="imgwrap"><span class="badge">7D / 6N</span><img data-src="{% static 'assets/packages/excursion.jpeg' %}" alt="Maple family" /></div>
-          <div class="body"><h3>Maple</h3><p>Ultimate family vacation — everything handled by our team.</p><ul><li>Three excursions included</li><li>Daily breakfast • 2 dinners</li><li>Complimentary video montage</li></ul></div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- GROUP GETAWAYS -->
-  <section id="group">
-    <div class="container">
-      <h2>Group Getaways</h2>
-      <p class="section-intro">Luxurious group escapes that create lifelong memories. Spa treatments, shared activities, private boat cruises, and breathtaking views.</p>
-      <div class="grid grid-3">
-        <article class="card"><div class="imgwrap"><span class="badge">7 Days</span><img data-src="{% static 'assets/home/packages/royal.jpeg' %}" alt="Royal group" /></div><div class="body"><h3>Royal</h3><p>Ultimate 7‑day luxury — unwind in style.</p><ul><li>VIP welcomes & private transfers</li><li>Daily activity plan</li><li>Signature group dinner</li></ul></div></article>
-        <article class="card"><div class="imgwrap"><span class="badge">4N / 3D</span><img data-src="{% static 'assets/home/packages/presidential.jpeg' %}" alt="Presidential group" /></div><div class="body"><h3>Presidential</h3><p>4 nights of pure bliss and relaxation.</p><ul><li>Resort access • Spa circuit</li><li>Sunset cruise or rooftop soirée</li><li>Dedicated host</li></ul></div></article>
-        <article class="card"><div class="imgwrap"><span class="badge">3N / 2D</span><img data-src="{% static 'assets/home/packages/elite.jpg' %}" alt="Elite group" /></div><div class="body"><h3>Elite</h3><p>Short, premium reboot for high‑energy squads.</p><ul><li>Welcome brunch</li><li>Adventure add‑on (ATV / hike)</li><li>Poolside DJ hour</li></ul></div></article>
-        <article class="card"><div class="imgwrap"><span class="badge">2N / 3D</span><img data-src="{% static 'assets/home/packages/ultimate.jpg' %}" alt="Ultimate group" /></div><div class="body"><h3>Ultimate</h3><p>Packed with highlights for quick getaways.</p><ul><li>Chef tasting or tapas tour</li><li>Night spa • Movie under stars</li><li>Airport meet & greet</li></ul></div></article>
-        <article class="card"><div class="imgwrap"><span class="badge">2D / 1N</span><img data-src="{% static 'assets/home/packages/imperial.jpg' %}" alt="Imperial group" /></div><div class="body"><h3>Imperial</h3><p>Short, imperial‑level comfort.</p><ul><li>Signature lunch</li><li>Massage for 2</li><li>Private lounge hour</li></ul></div></article>
-        <article class="card"><div class="imgwrap"><span class="badge">1 Day</span><img data-src="{% static 'assets/home/packages/classic.jpg' %}" alt="Classic group" /></div><div class="body"><h3>Classic</h3><p>Day of relaxation and fun.</p><ul><li>Pool access & games</li><li>Snack platters</li><li>Host‑led activities</li></ul></div></article>
-      </div>
-    </div>
-  </section>
-
-  <!-- PHOTOGRAPHY & VIDEOGRAPHY -->
-  <section id="photo" class="highlights">
-    <div class="container">
-      <h2>Photography & Videography</h2>
-      <p class="section-intro">Capture your story with romantic golden‑hour sessions, family portraits, weddings, proposals, and aerial landscapes.</p>
-      <div class="grid grid-3">
-        <article class="card"><div class="imgwrap"><span class="badge">Love Story</span><img data-src="{% static 'assets/home/packages/sunset.jpg' %}" alt="Sunset Serenade" /></div><div class="body"><h3>Sunset Serenade</h3><p>Romantic golden hour on the beach.</p><ul><li>60–90 mins • 20+ edits</li><li>Location styling guide</li><li>Optional violinist add‑on</li></ul></div></article>
-        <article class="card"><div class="imgwrap"><span class="badge">Family</span><img data-src="{% static 'assets/home/packages/family-ties.jpg' %}" alt="Family Ties" /></div><div class="body"><h3>Family Ties</h3><p>Document family bonding in serene spaces.</p><ul><li>Wardrobe coordination</li><li>Prints available</li><li>Grandparents add‑on</li></ul></div></article>
-        <article class="card"><div class="imgwrap"><span class="badge">Newborn</span><img data-src="{% static 'assets/home/packages/new-beginnings.jpg' %}" alt="New Beginnings" /></div><div class="body"><h3>New Beginnings</h3><p>Tender, intimate shots for newborn arrivals.</p><ul><li>Home or studio</li><li>Sanitized props</li><li>Sibling inclusion</li></ul></div></article>
-        <article class="card"><div class="imgwrap"><span class="badge">Nature's Canvas</span><img data-src="{% static 'assets/home/packages/oceanic-odyssey.jpg' %}" alt="Oceanic Odyssey" /></div><div class="body"><h3>Oceanic Odyssey</h3><p>Waves, sunsets, and dramatic ocean views.</p><ul><li>Sunset timing plan</li><li>Safety assistant</li><li>Drone add‑on</li></ul></div></article>
-        <article class="card"><div class="imgwrap"><span class="badge">Proposal</span><img data-src="{% static 'assets/home/packages/proposal.jpg' %}" alt="Proposal Perfection" /></div><div class="body"><h3>Proposal Perfection</h3><p>Capture the surprise and magic of your moment.</p><ul><li>Planner coordination</li><li>Hidden‑lens setup</li><li>Same‑day preview</li></ul></div></article>
-        <article class="card"><div class="imgwrap"><span class="badge">Wedding</span><img data-src="{% static 'assets/home/packages/wedding.jpg' %}" alt="Wedding Wonderland" /></div><div class="body"><h3>Wedding Wonderland</h3><p>Elegant coverage with cinematic edits.</p><ul><li>Multiple shooters</li><li>Highlight film</li><li>Album design option</li></ul></div></article>
-      </div>
-    </div>
-  </section>
-
-  <!-- URS HIGHLIGHTS -->
-  <section id="urs">
-    <div class="container">
-      <h2>Unwind Relaxation Services (URS)</h2>
-      <p class="section-intro">Flexible quarterly payments for annual benefits that are worth more than you pay — empowering balance, connection, and mental well‑being.</p>
-      <div class="pill_packagegrid">
-        <div class="pill_package"><b>Relaxation Essentials</b><span>Massages, medi‑pedi sessions, and more.</span></div>
-        <div class="pill_package"><b>Luxury Experiences</b><span>Private jet travel, luxury cars, exclusive events.</span></div>
-        <div class="pill_package"><b>Wellness Focus</b><span>Counseling, therapy, and mindfulness activities.</span></div>
-        <div class="pill_package"><b>Celebrations</b><span>Birthdays, anniversaries, and weekend getaways.</span></div>
-        <div class="pill_package"><b>Capturing Memories</b><span>Photography & videography for your moments.</span></div>
-        <div class="pill_package"><b>Exclusive Access</b><span>Debutante balls, orchestral nights, VIP gatherings.</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ / DETAILS -->
-  <section id="faq" class="highlights">
-    <div class="container">
-      <h2>Frequently Asked</h2>
-      <div class="grid" style="grid-template-columns:repeat(2,1fr);gap:1.2rem">
-        <div class="pill_package">
-          <b>Can you customize any package?</b>
-          <div>Yes. All itineraries are fully customizable — add private chefs, therapy sessions, yacht cruises, proposals, or extra nights.</div>
+      <div class="section-head section-ghost" data-ghost="PACKAGES">
+        <div>
+          <p class="kicker">Signature collections</p>
+          <h2>Pick the rhythm that fits your people.</h2>
+          <p>Every package is a starting point. We re-score the details to match your headcount, travel flow, wellness priorities, and production goals.</p>
         </div>
-        <div class="pill_package">
-          <b>How do payments work?</b>
-          <div>We offer flexible quarterly plans under URS. Secure with a deposit; balance is scheduled before travel dates.</div>
+        <a class="btn btn-primary" href="{% url 'contact' %}">Build my experience</a>
+      </div>
+
+      <div class="package-grid">
+        <article class="package-card">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1600&auto=format&fit=crop" alt="Couple by a cliffside pool" />
+            <span class="badge">Serenity</span>
+          </div>
+          <div class="body">
+            <h3>Intimate Retreats</h3>
+            <p>48–96 hour escapes for couples, founders, or boutique teams craving guided rest rituals.</p>
+            <ul>
+              <li>Pre-trip wellness consult, menus &amp; playlists</li>
+              <li>Luxury villa or eco-lodge with on-site host</li>
+              <li>Breathwork, private chef table, candlelit soak</li>
+            </ul>
+            <div class="package-card-footer">
+              <span>From ₦4.8M</span>
+              <a href="{% url 'contact' %}" class="btn btn-outline" style="border-color:var(--ua-ink);color:var(--ua-ink);padding:.55rem 1rem;">Enquire</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="package-card">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1600&auto=format&fit=crop" alt="Dinner under abstract lighting" />
+            <span class="badge">Signature</span>
+          </div>
+          <div class="body">
+            <h3>Celebration Weekenders</h3>
+            <p>Design-led parties and milestone weekends with live art, lighting, and concierge guest flow.</p>
+            <ul>
+              <li>Creative direction, mood boards &amp; tech rider</li>
+              <li>Venue scouting plus vendor &amp; talent management</li>
+              <li>Run-of-show, guest comms, wardrobe support</li>
+            </ul>
+            <div class="package-card-footer">
+              <span>From ₦8.9M</span>
+              <a href="{% url 'contact' %}" class="btn btn-outline" style="border-color:var(--ua-ink);color:var(--ua-ink);padding:.55rem 1rem;">Enquire</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="package-card">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1600&auto=format&fit=crop" alt="Cultural group exploring a market" />
+            <span class="badge">Culture</span>
+          </div>
+          <div class="body">
+            <h3>Immersion Circuits</h3>
+            <p>Multi-city cultural residencies weaving food, art, and philanthropic touchpoints for communities &amp; brands.</p>
+            <ul>
+              <li>Country-to-country logistics &amp; immigration desk</li>
+              <li>Impact collaborations with storytellers &amp; artisans</li>
+              <li>Content studio, live broadcast &amp; post-event recap</li>
+            </ul>
+            <div class="package-card-footer">
+              <span>From ₦14.5M</span>
+              <a href="{% url 'contact' %}" class="btn btn-outline" style="border-color:var(--ua-ink);color:var(--ua-ink);padding:.55rem 1rem;">Enquire</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="package-card">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1600&auto=format&fit=crop" alt="Corporate team workshop by the beach" />
+            <span class="badge">Corporate</span>
+          </div>
+          <div class="body">
+            <h3>Leadership Offsites</h3>
+            <p>Strategy &amp; culture labs tailored for executive teams balancing deep work, restorative play, and storytelling.</p>
+            <ul>
+              <li>Program design with facilitators &amp; coaches</li>
+              <li>Hybrid AV, boardroom-to-sunset logistics crew</li>
+              <li>Brand staging, merchandising &amp; capture crew</li>
+            </ul>
+            <div class="package-card-footer">
+              <span>From ₦11.2M</span>
+              <a href="{% url 'contact' %}" class="btn btn-outline" style="border-color:var(--ua-ink);color:var(--ua-ink);padding:.55rem 1rem;">Enquire</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section comparison" aria-labelledby="comparison-title">
+    <div class="container">
+      <div class="section-head section-ghost" data-ghost="ADD-ON">
+        <div>
+          <p class="kicker">Scale with intention</p>
+          <h2 id="comparison-title">Layer the detail you need, keep the calm you want.</h2>
+          <p>Choose your base package, then snap in enhancements to match your vision and budget. Everything is modular so you only pay for impact.</p>
         </div>
-        <div class="pill_package">
-          <b>What’s included?</b>
-          <div>Core inclusions are listed on each card. Most packages include concierge support, select meals, wellness activities, and photo add‑ons.</div>
+      </div>
+
+      <div class="comparison-grid">
+        <div class="comparison-card">
+          <span>Wellness layer</span>
+          <strong>Deep Nourish</strong>
+          <p>Bring in universe-calming rituals guided by vetted practitioners.</p>
+          <ul>
+            <li>Sound bath + guided breathwork studio</li>
+            <li>Nutritionist-curated menus &amp; cold plunge concierge</li>
+            <li>Nightly turndown rituals &amp; sensory gift packs</li>
+          </ul>
         </div>
-        <div class="pill_package">
-          <b>Large families & corporate groups?</b>
-          <div>For groups over 5 family members or corporate retreats, we prepare a tailored quote with bulk perks.</div>
+        <div class="comparison-card">
+          <span>Story layer</span>
+          <strong>Tell &amp; Archive</strong>
+          <p>Our creative pod crafts the narrative while you stay present.</p>
+          <ul>
+            <li>Run-and-gun film crew + stills photographer</li>
+            <li>Editing suite with overnight hero reel delivery</li>
+            <li>Micro-website &amp; community galleries in 72 hours</li>
+          </ul>
+        </div>
+        <div class="comparison-card">
+          <span>Impact layer</span>
+          <strong>Give Back</strong>
+          <p>Co-create cultural exchange with local communities &amp; artisans.</p>
+          <ul>
+            <li>Cause-aligned partner sourcing &amp; vetting</li>
+            <li>Legacy gifting featuring regional makers</li>
+            <li>Impact reporting &amp; stakeholder storytelling</li>
+          </ul>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- CTA BANNER -->
-  <div class="container cta">
-    <div class="inner">
-      <h2>Ready to Get Started?</h2>
-      <p>Tell us your dates and preferences — we’ll handle the rest.</p>
-      <a class="btn" href="#">Request a Quote</a>
+  <section class="section" aria-labelledby="timeline-title">
+    <div class="container">
+      <div class="section-head section-ghost" data-ghost="PROCESS">
+        <div>
+          <p class="kicker">How it flows</p>
+          <h2 id="timeline-title">Concierge planning that feels like exhaling.</h2>
+          <p>We combine production-grade project management with calm-first rituals so decision-making stays clear and timeline-friendly.</p>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <ol class="timeline-list">
+          <li class="timeline-step" data-step="01">
+            <h3>Discovery &amp; alignment</h3>
+            <p>We host a 45-minute vision interview, decode your priorities, and deliver a proposal with tiered budgets + visuals in 72 hours.</p>
+          </li>
+          <li class="timeline-step" data-step="02">
+            <h3>Design &amp; partner lock</h3>
+            <p>Once booked, we secure venues, talent, and logistics while sharing a living lookbook, timeline, and guest comms hub.</p>
+          </li>
+          <li class="timeline-step" data-step="03">
+            <h3>Production &amp; on-site hosting</h3>
+            <p>During your experience our concierge leads vendor orchestration, wellbeing check-ins, and surprise moments so you can simply arrive.</p>
+          </li>
+          <li class="timeline-step" data-step="04">
+            <h3>Afterglow &amp; reporting</h3>
+            <p>Post-event we deliver highlight content, budget reconciliation, guest feedback, and next-step recommendations for your community.</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="testimonial-title">
+    <div class="container">
+      <div class="testimonial-band">
+        <div class="testimonial-header">
+          <div>
+            <p class="kicker">Client voices</p>
+            <h2 id="testimonial-title">“They handled the chaos so we could live in the moments.”</h2>
+          </div>
+          <a class="btn btn-primary" href="{% url 'contact' %}">Plan my escape</a>
+        </div>
+        <div class="testimonial-slider">
+          <article class="testimonial-card">
+            <p>“Unwind Africa choreographed our founders’ retreat in Accra with intuitive detail. From intention-setting circles to chef collaborations, every touchpoint felt like us.”</p>
+            <span>— Temi, VC Collective</span>
+          </article>
+          <article class="testimonial-card">
+            <p>“Our anniversary weekend became a multi-sensory story. They surprised us with a private highlife session under the stars and managed family logistics effortlessly.”</p>
+            <span>— Ada &amp; Yomi, Intimate Celebration</span>
+          </article>
+          <article class="testimonial-card">
+            <p>“We run a fast scaling team. They turned a leadership offsite into a restorative strategy lab with wellness pods, content capture, and zero stress.”</p>
+            <span>— Kweku, Product Lead</span>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="cta-title">
+    <div class="container">
+      <div class="cta-panel">
+        <span class="kicker">Ready when you are</span>
+        <h2 id="cta-title">Let’s script the experience everyone keeps talking about.</h2>
+        <p>Drop a few lines about your gathering and our concierge will reply within 24 hours with next steps, dates, and ideas for bonus glow.</p>
+        <div class="cta-actions">
+          <a class="btn btn-primary" href="{% url 'contact' %}">Send brief</a>
+          <a class="btn btn-outline" href="tel:+2348062067832">Call concierge</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block site_footer %}
+<footer class="ua-footer" id="contact">
+  <div class="ua-footer-inner">
+    <div class="ua-footer-banner">
+      <span class="ua-tag">Thank you for unwinding with us</span>
+      <h2>Next-level gatherings for teams, lovers &amp; dreamers.</h2>
+      <p>We choreograph immersive escapes, wellness residencies, and celebration weekends across Africa so you can savour every moment.</p>
+      <a class="ua-footer-cta" href="{% url 'contact' %}"><span>&rarr;</span> Start your brief</a>
+    </div>
+
+    <div class="ua-footer-grid">
+      <div class="ua-footer-col ua-footer-contact">
+        <h4>Concierge Desk</h4>
+        <a href="tel:+2348062067832">+234 806 206 7832</a>
+        <a href="tel:+2348038268669">+234 803 826 8669</a>
+        <a href="mailto:info@unwindafrica.com">info@unwindafrica.com</a>
+        <p>Mon – Sat · 9am – 7pm WAT</p>
+        <p>Lagos • Accra • Cape Town</p>
+      </div>
+      <div class="ua-footer-col">
+        <h4>Experiences</h4>
+        <ul>
+          <li><a href="#packages">Signature packages</a></li>
+          <li><a href="#comparison-title">Add-on layers</a></li>
+          <li><a href="#timeline-title">Process</a></li>
+          <li><a href="#testimonial-title">Stories</a></li>
+        </ul>
+      </div>
+      <div class="ua-footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="{% url 'home' %}#why-us">Why Unwind</a></li>
+          <li><a href="{% url 'home' %}#blog">Journal</a></li>
+          <li><a href="{% url 'packages' %}">Packages</a></li>
+          <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+      </div>
+      <div class="ua-footer-col">
+        <h4>Stay in the loop</h4>
+        <p class="muted">Monthly rituals, destination reveals, and calm-first planning intel.</p>
+        <form class="nl" action="#" method="post">
+          {% csrf_token %}
+          <input type="email" name="email" placeholder="Email address" aria-label="Email address" required />
+          <button class="btn secondary-ink" type="submit">Subscribe</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="ua-footer-bottom">
+      <div class="ua-footer-brand">Unwind Africa®</div>
+      <div>© <span id="year"></span> Unwind Africa. Crafted for people who choose calm.</div>
+      <div class="ua-footer-social">
+        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+      </div>
     </div>
   </div>
+</footer>
+{% endblock %}
 
-  <!-- Image Fallback + Lazy Loader (ensures images show) -->
-  <script>
-    (function(){
-      const FALLBACKS = {
-        // SOLO
-        "assets/packages/solo/solo-feature.jpg":"https://images.unsplash.com/photo-1506126613408-eca07ce68773",
-        "assets/packages/solo/daisy.jpg":"https://images.unsplash.com/photo-1544367567-0f2fcb009e0b",
-        "assets/packages/solo/lily.jpg":"https://images.unsplash.com/photo-1515378791036-0648a3ef77b2",
-        "assets/packages/solo/rose.jpg":"https://images.unsplash.com/photo-1494790108377-be9c29b29330",
-        "assets/packages/solo/orchid.jpg":"https://images.unsplash.com/photo-1515378960530-7c0da6231fb1",
-        "assets/packages/solo/sunflower.jpg":"https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9",
-        // FAMILY
-        "assets/packages/family/oakwood.jpg":"https://images.unsplash.com/photo-1504151932400-72d4384f04b3",
-        "assets/packages/family/willow.jpg":"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
-        "assets/packages/family/palm-grove.jpg":"https://images.unsplash.com/photo-1502602898657-3e91760cbb34",
-        "assets/packages/family/cypress.jpg":"https://images.unsplash.com/photo-1500048993953-d23a436266cf",
-        "assets/packages/family/maple.jpg":"https://images.unsplash.com/photo-1521335629791-ce4aec67dd53",
-        // GROUP
-        "assets/packages/group/royal.jpg":"https://images.unsplash.com/photo-1519823551278-64ac92734fb1",
-        "assets/packages/group/presidential.jpg":"https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-        "assets/packages/group/elite.jpg":"https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1",
-        "assets/packages/group/ultimate.jpg":"https://images.unsplash.com/photo-1491553895911-0055eca6402d",
-        "assets/packages/group/imperial.jpg":"https://images.unsplash.com/photo-1519340241574-2cec6aef0c01",
-        "assets/packages/group/classic.jpg":"https://images.unsplash.com/photo-1512428559087-560fa5ceab42",
-        // PHOTO
-        "assets/packages/photo/sunset-serenade.jpg":"https://images.unsplash.com/photo-1497215728101-4950a8d62bcd",
-        "assets/packages/photo/family-ties.jpg":"https://images.unsplash.com/photo-1511895426328-dc8714191300",
-        "assets/packages/photo/new-beginnings.jpg":"https://images.unsplash.com/photo-1500534314209-a25ddb2bd429",
-        "assets/packages/photo/oceanic-odyssey.jpg":"https://images.unsplash.com/photo-1493558103817-58b2924bce98",
-        "assets/packages/photo/proposal.jpg":"https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
-        "assets/packages/photo/wedding.jpg":"https://images.unsplash.com/photo-1522673607200-164d1b6ce486",
-        // Generic
-        "assets/packages/hero.jpg":"https://images.unsplash.com/photo-1491553895911-0055eca6402d",
-        "assets/packages/banner.jpg":"https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
-      };
+{% block extra_js %}
+<script>
+  (function(){
+    const bar = document.getElementById('uaProgress');
+    const target = document.scrollingElement || document.documentElement;
+    if (!bar || !target) return;
+    const update = () => {
+      const max = target.scrollHeight - target.clientHeight;
+      const value = max > 0 ? (target.scrollTop / max) * 100 : 0;
+      bar.style.width = value + '%';
+      bar.style.opacity = max > 0 ? 1 : 0;
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  })();
 
-      const lazyImgs = document.querySelectorAll('img[data-src]');
-      const load = (img)=>{
-        const src = img.getAttribute('data-src') || img.src; img.src = src;
-        img.onerror = ()=>{
-          try{
-            const path = new URL(img.src).pathname.replace(/^\//,'');
-            const fb = FALLBACKS[path];
-            if(fb){ img.src = fb; img.onerror = null; }
-          }catch(e){ img.src = img.src; }
-        };
-      };
-      if('IntersectionObserver' in window){
-        const io = new IntersectionObserver((entries,obs)=>{
-          entries.forEach(e=>{ if(e.isIntersecting){ load(e.target); obs.unobserve(e.target);} });
-        },{rootMargin:'150px'});
-        lazyImgs.forEach(i=>io.observe(i));
-      } else { lazyImgs.forEach(load); }
-    })();
-  </script>
-
-{% endblock %}  
+  const yearNode = document.getElementById('year');
+  if (yearNode) {
+    yearNode.textContent = new Date().getFullYear();
+  }
+</script>
+{% endblock %}

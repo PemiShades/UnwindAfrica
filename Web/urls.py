@@ -10,7 +10,7 @@ urlpatterns = [
     path('blog/<slug:slug>/', views.blog_detail, name='blog_detail'),
     path('unwind-thrive/', views.unwind_thrive, name='services'),
 
-
+    path("quotes/request/", views.quote_request, name="quote_request"),
 
     path('blog/', views.blog_list, name='blog'),
     path('blog/', views.blog_list, name='blog_list'),
