@@ -72,6 +72,28 @@
   .package-card h3{margin:0;font-size:1.25rem;font-family:"Playfair Display",serif;} 
   .package-card ul{margin:0;padding-left:1.2rem;display:grid;gap:.35rem;color:color-mix(in oklab,var(--ua-ink) 60%,#5f6a7d);} 
   .package-card-footer{display:flex;justify-content:space-between;align-items:center;font-weight:800;text-transform:uppercase;font-size:.78rem;letter-spacing:.1em;color:#0e1c2c;} 
+  .package-collections{display:grid;gap:clamp(48px,8vw,72px);}
+  .package-collection{display:grid;gap:clamp(24px,6vw,40px);}
+  .collection-header{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:clamp(20px,5vw,36px);align-items:stretch;}
+  .collection-copy{display:grid;gap:1rem;}
+  .collection-tag{display:inline-flex;align-items:center;gap:.45rem;padding:.5rem 1rem;border-radius:999px;border:1px solid rgba(10,18,32,.12);background:rgba(0,178,255,.08);color:var(--ua-sky);font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:.7rem;}
+  .collection-copy h3{margin:0;font-size:clamp(1.9rem,4vw,2.7rem);}
+  .collection-copy p{margin:0;color:color-mix(in oklab,var(--ua-ink) 58%,#6c7c94);}
+  .collection-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.9rem;}
+  .collection-metric{background:color-mix(in oklab,#fff 93%,var(--ua-sky) 7%);border-radius:14px;padding:1rem;box-shadow:0 12px 28px rgba(10,15,30,.08);display:grid;gap:.35rem;}
+  .collection-metric strong{font-size:.9rem;letter-spacing:.08em;text-transform:uppercase;}
+  .collection-metric span{font-size:.85rem;color:color-mix(in oklab,var(--ua-ink) 55%,#73819b);}
+  .package-card--hero .media{aspect-ratio:4/3;}
+  .package-card--hero .body{padding:clamp(1.6rem,3vw,2.4rem);gap:1.1rem;}
+  .package-card--hero .package-card-footer{margin-top:auto;}
+  .collection-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:clamp(16px,3vw,26px);}
+  .package-card--mini .body{padding:clamp(1.2rem,2.5vw,1.6rem);gap:12px;}
+  .package-card--mini ul{gap:.45rem;}
+  .package-card-footer .package-cta{display:inline-flex;align-items:center;gap:.35rem;padding:.55rem 1.1rem;border-radius:999px;border:1px solid rgba(10,18,32,.18);background:rgba(0,178,255,.1);color:#0b1a2b;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;transition:transform .2s ease,background .2s ease,box-shadow .2s ease;}
+  .package-card-footer .package-cta:hover{transform:translateY(-2px);background:rgba(0,178,255,.14);box-shadow:0 8px 16px rgba(10,18,32,.12);}
+  .package-card-footer .package-cta:focus-visible{outline:3px solid rgba(0,178,255,.4);outline-offset:2px;}
+  @media (max-width:900px){.collection-header{grid-template-columns:1fr;}.package-card--hero{order:-1;}}
+
 
   .comparison{background:color-mix(in oklab,#fff 92%,var(--ua-sky) 8% / 12%);border-block:1px solid #dfe8f3;} 
   .comparison-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:clamp(16px,3vw,24px);} 
@@ -175,86 +197,529 @@
         <a class="btn btn-primary" href="{% url 'contact' %}">Build my experience</a>
       </div>
 
-      <div class="package-grid">
-        <article class="package-card">
-          <div class="media">
-            <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1600&auto=format&fit=crop" alt="Couple by a cliffside pool" />
-            <span class="badge">Serenity</span>
-          </div>
-          <div class="body">
-            <h3>Intimate Retreats</h3>
-            <p>48–96 hour escapes for couples, founders, or boutique teams craving guided rest rituals.</p>
-            <ul>
-              <li>Pre-trip wellness consult, menus &amp; playlists</li>
-              <li>Luxury villa or eco-lodge with on-site host</li>
-              <li>Breathwork, private chef table, candlelit soak</li>
-            </ul>
-            <div class="package-card-footer">
-              <span>From ₦4.8M</span>
-              <a href="{% url 'contact' %}" class="btn btn-outline" style="border-color:var(--ua-ink);color:var(--ua-ink);padding:.55rem 1rem;">Enquire</a>
-            </div>
-          </div>
-        </article>
 
-        <article class="package-card">
-          <div class="media">
-            <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1600&auto=format&fit=crop" alt="Dinner under abstract lighting" />
-            <span class="badge">Signature</span>
-          </div>
-          <div class="body">
-            <h3>Celebration Weekenders</h3>
-            <p>Design-led parties and milestone weekends with live art, lighting, and concierge guest flow.</p>
-            <ul>
-              <li>Creative direction, mood boards &amp; tech rider</li>
-              <li>Venue scouting plus vendor &amp; talent management</li>
-              <li>Run-of-show, guest comms, wardrobe support</li>
-            </ul>
-            <div class="package-card-footer">
-              <span>From ₦8.9M</span>
-              <a href="{% url 'contact' %}" class="btn btn-outline" style="border-color:var(--ua-ink);color:var(--ua-ink);padding:.55rem 1rem;">Enquire</a>
+      <div class="package-collections">
+        <section class="package-collection">
+          <div class="collection-header">
+            <div class="collection-copy">
+              <span class="collection-tag">Solo rituals</span>
+              <h3>Bloom Series</h3>
+              <p>Flower-inspired escapes for intentional reset. Pick your pace and we layer in therapists, chefs, and mood-managed playlists.</p>
+              <div class="collection-metrics">
+                <div class="collection-metric">
+                  <strong>1&ndash;5 day escapes</strong>
+                  <span>Mindful itineraries for founders, creatives, and calm seekers.</span>
+                </div>
+                <div class="collection-metric">
+                  <strong>Concierge-led</strong>
+                  <span>Pre-arrival moodboards, daily flow, and wellness hosts.</span>
+                </div>
+                <div class="collection-metric">
+                  <strong>Modular add-ons</strong>
+                  <span>Therapy, photo pods, private cruises &amp; chef tables.</span>
+                </div>
+              </div>
             </div>
+            <article class="package-card package-card--hero">
+              <div class="media">
+                <img src="{% static 'assets/home/orchid.jpg' %}" alt="Orchid solo retreat" />
+                <span class="badge">5D / 4N</span>
+              </div>
+              <div class="body">
+                <h3>Orchid</h3>
+                <p>Ultimate solo luxury with a private concierge and curated adventures.</p>
+                <ul>
+                  <li>Full spa itinerary &amp; on-call host</li>
+                  <li>Private boat or picnic experience</li>
+                  <li>Premium photo add-on available</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>Signature glow tier</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Orchid (Solo)">Design my retreat</a>
+                </div>
+              </div>
+            </article>
           </div>
-        </article>
+          <div class="collection-grid">
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/home/sunflower.jpg' %}" alt="Sunflower solo package" />
+                <span class="badge">1 Day</span>
+              </div>
+              <div class="body">
+                <h3>Sunflower</h3>
+                <p>Private room, bespoke spa treatment, and gourmet meal delivery.</p>
+                <ul>
+                  <li>Check-in day access (08:00-20:00)</li>
+                  <li>Choice of massage or medi-pedi</li>
+                  <li>Mindfulness guide &amp; tea ritual</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>Daycation</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Sunflower (Solo)">Plan this</a>
+                </div>
+              </div>
+            </article>
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/home/daisy.jpg' %}" alt="Daisy solo package" />
+                <span class="badge">2D / 1N</span>
+              </div>
+              <div class="body">
+                <h3>Daisy</h3>
+                <p>Serene villa stay with in-room meditation and calming rituals.</p>
+                <ul>
+                  <li>Breakfast &amp; dinner included</li>
+                  <li>Guided breathwork session</li>
+                  <li>Evening bath &amp; aromatherapy</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>2D / 1N</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Daisy (Solo)">Plan this</a>
+                </div>
+              </div>
+            </article>
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/home/lily.jpg' %}" alt="Lily solo package" />
+                <span class="badge">3D / 2N</span>
+              </div>
+              <div class="body">
+                <h3>Lily</h3>
+                <p>Luxury self-care with spa indulgence and curated excursions.</p>
+                <ul>
+                  <li>Sunrise yoga &amp; late checkout</li>
+                  <li>Driver for one city tour</li>
+                  <li>Photo mini-session optional</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>3D / 2N</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Lily (Solo)">Plan this</a>
+                </div>
+              </div>
+            </article>
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/home/rose.jpg' %}" alt="Rose solo package" />
+                <span class="badge">4D / 3N</span>
+              </div>
+              <div class="body">
+                <h3>Rose</h3>
+                <p>Private villa energy with custom therapies and exclusive access.</p>
+                <ul>
+                  <li>Private chef tasting night</li>
+                  <li>Mindfulness and sound bath</li>
+                  <li>Complimentary late checkout</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>4D / 3N</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Rose (Solo)">Plan this</a>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
 
-        <article class="package-card">
-          <div class="media">
-            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1600&auto=format&fit=crop" alt="Cultural group exploring a market" />
-            <span class="badge">Culture</span>
-          </div>
-          <div class="body">
-            <h3>Immersion Circuits</h3>
-            <p>Multi-city cultural residencies weaving food, art, and philanthropic touchpoints for communities &amp; brands.</p>
-            <ul>
-              <li>Country-to-country logistics &amp; immigration desk</li>
-              <li>Impact collaborations with storytellers &amp; artisans</li>
-              <li>Content studio, live broadcast &amp; post-event recap</li>
-            </ul>
-            <div class="package-card-footer">
-              <span>From ₦14.5M</span>
-              <a href="{% url 'contact' %}" class="btn btn-outline" style="border-color:var(--ua-ink);color:var(--ua-ink);padding:.55rem 1rem;">Enquire</a>
+        <section class="package-collection">
+          <div class="collection-header">
+            <div class="collection-copy">
+              <span class="collection-tag">Family escapes</span>
+              <h3>The Kinship Edit</h3>
+              <p>Comfort-first multi-night stays with built-in play, easy logistics, and keepsakes for every generation.</p>
+              <div class="collection-metrics">
+                <div class="collection-metric">
+                  <strong>Multi-room villas</strong>
+                  <span>Curated for families of 3-8 with adjoining suites.</span>
+                </div>
+                <div class="collection-metric">
+                  <strong>Play &amp; rest balance</strong>
+                  <span>Guided outings, quiet time pods, and kid-approved menus.</span>
+                </div>
+                <div class="collection-metric">
+                  <strong>Memory makers</strong>
+                  <span>Complimentary content capture and celebration styling.</span>
+                </div>
+              </div>
             </div>
+            <article class="package-card package-card--hero">
+              <div class="media">
+                <img src="{% static 'assets/packages/excursion.jpeg' %}" alt="Maple family getaway" />
+                <span class="badge">7D / 6N</span>
+              </div>
+              <div class="body">
+                <h3>Maple</h3>
+                <p>Ultimate family week with every detail handled by our team.</p>
+                <ul>
+                  <li>Three curated excursions included</li>
+                  <li>Daily breakfast plus two hosted dinners</li>
+                  <li>Complimentary video montage</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>Extended stay</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Maple (Family)">Design our week</a>
+                </div>
+              </div>
+            </article>
           </div>
-        </article>
+          <div class="collection-grid">
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/packages/treats.jpg' %}" alt="Oakwood family weekend" />
+                <span class="badge">2D / 1N</span>
+              </div>
+              <div class="body">
+                <h3>Oakwood</h3>
+                <p>Relaxed pace with family-friendly activities and cozy lodging.</p>
+                <ul>
+                  <li>Welcome treats &amp; game night kit</li>
+                  <li>Breakfast for five guests</li>
+                  <li>Mini photo shoot add-on</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>Weekender</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Oakwood (Family)">Plan this</a>
+                </div>
+              </div>
+            </article>
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/packages/kids.jpg' %}" alt="Willow family package" />
+                <span class="badge">3D / 2N</span>
+              </div>
+              <div class="body">
+                <h3>Willow</h3>
+                <p>Balanced relaxation and exploration tailored for all ages.</p>
+                <ul>
+                  <li>Guided family activity</li>
+                  <li>One spa session for parents</li>
+                  <li>Kids corner access</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>3D / 2N</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Willow (Family)">Plan this</a>
+                </div>
+              </div>
+            </article>
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/packages/driver.jpeg' %}" alt="Palm Grove family package" />
+                <span class="badge">4D / 3N</span>
+              </div>
+              <div class="body">
+                <h3>Palm Grove</h3>
+                <p>Adventure-rich stay with beach time, scenic picnics, and leisure.</p>
+                <ul>
+                  <li>Two guided outings</li>
+                  <li>Family photo session</li>
+                  <li>Private driver (4 hrs)</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>4D / 3N</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Palm Grove (Family)">Plan this</a>
+                </div>
+              </div>
+            </article>
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/packages/chef.jpg' %}" alt="Cypress family package" />
+                <span class="badge">5D / 4N</span>
+              </div>
+              <div class="body">
+                <h3>Cypress</h3>
+                <p>Extended retreat with flexible daily plans and premium dining.</p>
+                <ul>
+                  <li>Chef-prepared dinner (one night)</li>
+                  <li>Couples spa add-on</li>
+                  <li>Kids club access</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>5D / 4N</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Cypress (Family)">Plan this</a>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
 
-        <article class="package-card">
-          <div class="media">
-            <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1600&auto=format&fit=crop" alt="Corporate team workshop by the beach" />
-            <span class="badge">Corporate</span>
-          </div>
-          <div class="body">
-            <h3>Leadership Offsites</h3>
-            <p>Strategy &amp; culture labs tailored for executive teams balancing deep work, restorative play, and storytelling.</p>
-            <ul>
-              <li>Program design with facilitators &amp; coaches</li>
-              <li>Hybrid AV, boardroom-to-sunset logistics crew</li>
-              <li>Brand staging, merchandising &amp; capture crew</li>
-            </ul>
-            <div class="package-card-footer">
-              <span>From ₦11.2M</span>
-              <a href="{% url 'contact' %}" class="btn btn-outline" style="border-color:var(--ua-ink);color:var(--ua-ink);padding:.55rem 1rem;">Enquire</a>
+        <section class="package-collection">
+          <div class="collection-header">
+            <div class="collection-copy">
+              <span class="collection-tag">Group gatherings</span>
+              <h3>The Prestige Collection</h3>
+              <p>For teams and crews craving cinematic, high-energy escapes with seamless staging and luxury concierge flow.</p>
+              <div class="collection-metrics">
+                <div class="collection-metric">
+                  <strong>Scaled hospitality</strong>
+                  <span>Dedicated event captains, talent wranglers, and AV pods.</span>
+                </div>
+                <div class="collection-metric">
+                  <strong>Impact moments</strong>
+                  <span>Signature dinners, immersive lighting, and content capture.</span>
+                </div>
+                <div class="collection-metric">
+                  <strong>Anywhere in Africa</strong>
+                  <span>Partner network across Lagos, Accra, Cape Town &amp; beyond.</span>
+                </div>
+              </div>
             </div>
+            <article class="package-card package-card--hero">
+              <div class="media">
+                <img src="{% static 'assets/home/packages/royal.jpeg' %}" alt="Royal group experience" />
+                <span class="badge">7 Days</span>
+              </div>
+              <div class="body">
+                <h3>Royal</h3>
+                <p>Ultimate 7-day luxury with VIP welcomes and a choreographed itinerary.</p>
+                <ul>
+                  <li>VIP welcomes &amp; private transfers</li>
+                  <li>Daily activity plan</li>
+                  <li>Signature group dinner</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>Flagship</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Royal (Group)">Design our escape</a>
+                </div>
+              </div>
+            </article>
           </div>
-        </article>
+          <div class="collection-grid">
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/home/packages/presidential.jpeg' %}" alt="Presidential group package" />
+                <span class="badge">4N / 3D</span>
+              </div>
+              <div class="body">
+                <h3>Presidential</h3>
+                <p>Four-night escape packed with wellness, culture, and skyline views.</p>
+                <ul>
+                  <li>Resort access &amp; spa circuit</li>
+                  <li>Sunset cruise or rooftop soiree</li>
+                  <li>Dedicated host</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>4N / 3D</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Presidential (Group)">Plan this</a>
+                </div>
+              </div>
+            </article>
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/home/packages/elite.jpg' %}" alt="Elite group package" />
+                <span class="badge">3N / 2D</span>
+              </div>
+              <div class="body">
+                <h3>Elite</h3>
+                <p>Short, premium reboot for high-energy squads and creative teams.</p>
+                <ul>
+                  <li>Welcome brunch</li>
+                  <li>Adventure add-on (ATV or hike)</li>
+                  <li>Poolside DJ hour</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>3N / 2D</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Elite (Group)">Plan this</a>
+                </div>
+              </div>
+            </article>
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/home/packages/ultimate.jpg' %}" alt="Ultimate group package" />
+                <span class="badge">2N / 3D</span>
+              </div>
+              <div class="body">
+                <h3>Ultimate</h3>
+                <p>High-impact highlights for quick getaways and reward trips.</p>
+                <ul>
+                  <li>Chef tasting or tapas tour</li>
+                  <li>Night spa &amp; movie under the stars</li>
+                  <li>Airport meet &amp; greet</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>2N / 3D</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Ultimate (Group)">Plan this</a>
+                </div>
+              </div>
+            </article>
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/home/packages/imperial.jpg' %}" alt="Imperial group package" />
+                <span class="badge">2D / 1N</span>
+              </div>
+              <div class="body">
+                <h3>Imperial</h3>
+                <p>Compact but lavish comfort with curated pampering time.</p>
+                <ul>
+                  <li>Signature lunch</li>
+                  <li>Massage for two</li>
+                  <li>Private lounge hour</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>2D / 1N</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Imperial (Group)">Plan this</a>
+                </div>
+              </div>
+            </article>
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/home/packages/classic.jpg' %}" alt="Classic group package" />
+                <span class="badge">1 Day</span>
+              </div>
+              <div class="body">
+                <h3>Classic</h3>
+                <p>Day of relaxation and fun with hosted games and chill zones.</p>
+                <ul>
+                  <li>Pool access &amp; games</li>
+                  <li>Snack platters</li>
+                  <li>Host-led activities</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>1 Day</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Classic (Group)">Plan this</a>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="package-collection">
+          <div class="collection-header">
+            <div class="collection-copy">
+              <span class="collection-tag">Story capture</span>
+              <h3>Lens &amp; Light Atelier</h3>
+              <p>Professional storytelling pods for proposals, family milestones, and destination weddings.</p>
+              <div class="collection-metrics">
+                <div class="collection-metric">
+                  <strong>Creative direction</strong>
+                  <span>Styling guides, shot lists, and on-site posing support.</span>
+                </div>
+                <div class="collection-metric">
+                  <strong>Fast turnaround</strong>
+                  <span>Preview edits within 24 hours on select packages.</span>
+                </div>
+                <div class="collection-metric">
+                  <strong>Upgrade ready</strong>
+                  <span>Drone, live music, and motion film add-ons.</span>
+                </div>
+              </div>
+            </div>
+            <article class="package-card package-card--hero">
+              <div class="media">
+                <img src="{% static 'assets/home/packages/wedding.jpg' %}" alt="Wedding Wonderland coverage" />
+                <span class="badge">Wedding</span>
+              </div>
+              <div class="body">
+                <h3>Wedding Wonderland</h3>
+                <p>Elegant coverage with cinematic edits for celebrations and unions.</p>
+                <ul>
+                  <li>Multiple shooters</li>
+                  <li>Highlight film</li>
+                  <li>Album design option</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>Signature coverage</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Photography - Wedding Wonderland">Book the crew</a>
+                </div>
+              </div>
+            </article>
+          </div>
+          <div class="collection-grid">
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/home/packages/sunset.jpg' %}" alt="Sunset Serenade session" />
+                <span class="badge">Love Story</span>
+              </div>
+              <div class="body">
+                <h3>Sunset Serenade</h3>
+                <p>Romantic golden-hour portraits along coastlines or rooftops.</p>
+                <ul>
+                  <li>60-90 minute session with 20+ edits</li>
+                  <li>Location styling guide</li>
+                  <li>Optional violinist add-on</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>Golden hour</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Photography - Sunset Serenade">Plan this</a>
+                </div>
+              </div>
+            </article>
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/home/packages/family-ties.jpg' %}" alt="Family Ties session" />
+                <span class="badge">Family</span>
+              </div>
+              <div class="body">
+                <h3>Family Ties</h3>
+                <p>Document family bonding in serene spaces with guided posing.</p>
+                <ul>
+                  <li>Wardrobe coordination</li>
+                  <li>Prints available</li>
+                  <li>Grandparents add-on</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>Portrait</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Photography - Family Ties">Plan this</a>
+                </div>
+              </div>
+            </article>
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/home/packages/new-beginnings.jpg' %}" alt="New Beginnings newborn session" />
+                <span class="badge">Newborn</span>
+              </div>
+              <div class="body">
+                <h3>New Beginnings</h3>
+                <p>Tender, intimate portraits for newborn arrivals at home or studio.</p>
+                <ul>
+                  <li>Home or studio location</li>
+                  <li>Sanitized props prepared</li>
+                  <li>Sibling inclusion</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>Soft focus</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Photography - New Beginnings">Plan this</a>
+                </div>
+              </div>
+            </article>
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/home/packages/oceanic-odyssey.jpg' %}" alt="Oceanic Odyssey session" />
+                <span class="badge">Nature's Canvas</span>
+              </div>
+              <div class="body">
+                <h3>Oceanic Odyssey</h3>
+                <p>Dramatic coastal visuals with safety support and optional drone.</p>
+                <ul>
+                  <li>Sunset timing plan</li>
+                  <li>Safety assistant</li>
+                  <li>Drone add-on</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>Coastal</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Photography - Oceanic Odyssey">Plan this</a>
+                </div>
+              </div>
+            </article>
+            <article class="package-card package-card--mini">
+              <div class="media">
+                <img src="{% static 'assets/home/packages/proposal.jpg' %}" alt="Proposal Perfection session" />
+                <span class="badge">Proposal</span>
+              </div>
+              <div class="body">
+                <h3>Proposal Perfection</h3>
+                <p>Capture the surprise and magic of your proposal moment.</p>
+                <ul>
+                  <li>Planner coordination</li>
+                  <li>Hidden-lens setup</li>
+                  <li>Same-day preview</li>
+                </ul>
+                <div class="package-card-footer">
+                  <span>Surprise</span>
+                  <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Photography - Proposal Perfection">Plan this</a>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
       </div>
     </div>
   </section>

@@ -1,0 +1,467 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}Packages — Unwind Africa{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ua-sky:#00B2FF;
+    --ua-sea:#00C2FF;
+    --ua-sun:#FFB648;
+    --ua-ink:#0A0B10;
+    --ua-paper:#FFFFFF;
+    --ua-stone:#11131b;
+    --ua-soft:#f5f8fc;
+    --radius:18px;
+    --shadow:0 12px 40px rgba(10,11,16,.18);
+    --container:min(1160px, 92vw);
+  }
+
+  body{
+    background:var(--ua-paper);
+    color:var(--ua-ink);
+  }
+
+  .ua-progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));z-index:9999;opacity:0;pointer-events:none;transition:width .15s ease,opacity .2s ease;}
+
+  .page-shell{overflow:hidden;}
+
+  .hero{position:relative;color:#fff;min-height:68vh;display:grid;place-items:center;padding-block:clamp(96px,18vw,180px);}
+  .hero::before{content:"";position:absolute;inset:0;background:linear-gradient(130deg,rgba(10,13,20,.88),rgba(10,13,20,.55));z-index:1;}
+  .hero-media{position:absolute;inset:0;z-index:0;overflow:hidden;}
+  .hero-media img{width:100%;height:100%;object-fit:cover;filter:brightness(.65) saturate(1.1);}
+  .hero-inner{position:relative;z-index:2;width:var(--container);margin-inline:auto;display:grid;gap:clamp(24px,4vw,36px);text-align:center;}
+  .hero-tag{display:inline-flex;align-items:center;gap:8px;margin-inline:auto;padding:.55rem 1.1rem;border-radius:999px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:.76rem;}
+  .hero h1{margin:0;font-family:"Playfair Display",ui-serif,Georgia,serif;font-size:clamp(2.6rem,6vw,5.2rem);letter-spacing:-.02em;}
+  .hero p{margin:0 auto;max-width:70ch;font-size:clamp(1.05rem,1.8vw,1.25rem);color:rgba(255,255,255,.82);} 
+  .hero-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:.9rem;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;padding:.9rem 1.4rem;border-radius:999px;font-weight:800;border:2px solid transparent;text-transform:uppercase;letter-spacing:.08em;transition:transform .2s ease,box-shadow .2s ease;} 
+  .btn-primary{background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));color:#0b172a;box-shadow:0 14px 34px rgba(0,178,255,.28);} 
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 18px 44px rgba(0,178,255,.32);} 
+  .btn-outline{background:transparent;color:#fff;border-color:rgba(255,255,255,.45);} 
+  .btn-outline:hover{transform:translateY(-3px);} 
+  .secondary-ink{background:#0A0B10;color:#fff;border:1px solid rgba(12,18,32,.85);box-shadow:0 10px 24px rgba(10,11,16,.24);} 
+  .secondary-ink:hover{transform:translateY(-3px);} 
+
+  .meta-bar{background:#0A0B10;color:#f7fbff;border-block:1px solid rgba(255,255,255,.08);} 
+  .meta-bar-inner{width:var(--container);margin-inline:auto;padding:12px 0;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;font-size:.9rem;} 
+  .meta-bar-list{display:flex;gap:.55rem;flex-wrap:wrap;align-items:center;} 
+  .meta-bar-chip{padding:.45rem .8rem;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);font-weight:700;text-transform:uppercase;font-size:.75rem;letter-spacing:.08em;} 
+
+  .section{padding-block:clamp(72px,12vw,132px);} 
+  .container{width:var(--container);margin-inline:auto;} 
+  .section-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:clamp(18px,4vw,32px);align-items:flex-end;margin-bottom:clamp(28px,5vw,48px);} 
+  .section-head h2{margin:0;font-family:"Playfair Display",ui-serif,Georgia,serif;font-size:clamp(2rem,5vw,3.3rem);letter-spacing:-.01em;} 
+  .section-head p{margin:0;max-width:60ch;color:color-mix(in oklab,var(--ua-ink) 66%,#60708c);} 
+  .muted{color:color-mix(in oklab,var(--ua-ink) 55%,#5f6a7d);} 
+  .kicker{text-transform:uppercase;font-weight:900;letter-spacing:.18em;color:var(--ua-sky);font-size:.75rem;margin-bottom:12px;} 
+  .section-ghost{position:relative;} 
+  .section-ghost::after{content:attr(data-ghost);position:absolute;inset:auto 0 100% 0;transform:translateY(70%);font-weight:900;font-size:clamp(3.4rem,14vw,12rem);letter-spacing:.04em;color:#0b1320;opacity:.05;pointer-events:none;text-align:center;} 
+
+  .package-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:clamp(18px,3vw,28px);} 
+  .package-card{background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);display:grid;grid-template-rows:auto 1fr;} 
+  .package-card .media{position:relative;aspect-ratio:16/11;overflow:hidden;} 
+  .package-card img{width:100%;height:100%;object-fit:cover;transition:transform .45s ease,filter .45s ease;filter:grayscale(95%) contrast(1.05);} 
+  .package-card:hover img{transform:scale(1.06);filter:none;} 
+  .package-card .badge{position:absolute;left:14px;top:14px;padding:.42rem .7rem;border-radius:999px;background:#0A0B10;color:#fff;font-weight:800;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;} 
+  .package-card .body{padding:clamp(18px,3vw,26px);display:grid;gap:14px;} 
+  .package-card h3{margin:0;font-size:1.25rem;font-family:"Playfair Display",serif;} 
+  .package-card ul{margin:0;padding-left:1.2rem;display:grid;gap:.35rem;color:color-mix(in oklab,var(--ua-ink) 60%,#5f6a7d);} 
+  .package-card-footer{display:flex;justify-content:space-between;align-items:center;font-weight:800;text-transform:uppercase;font-size:.78rem;letter-spacing:.1em;color:#0e1c2c;} 
+
+  .comparison{background:color-mix(in oklab,#fff 92%,var(--ua-sky) 8% / 12%);border-block:1px solid #dfe8f3;} 
+  .comparison-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:clamp(16px,3vw,24px);} 
+  .comparison-card{background:#fff;border-radius:var(--radius);padding:clamp(18px,3vw,26px);box-shadow:var(--shadow);display:grid;gap:16px;} 
+  .comparison-card span{display:inline-flex;align-items:center;gap:8px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;font-size:.75rem;color:var(--ua-sky);} 
+  .comparison-card strong{font-size:1.8rem;font-family:"Playfair Display",serif;} 
+  .comparison-card ul{margin:0;padding-left:1.1rem;display:grid;gap:.32rem;} 
+
+  .timeline{position:relative;padding:clamp(48px,10vw,80px);border-radius:var(--radius);background:#0A0B10;color:#f7fbff;box-shadow:var(--shadow);} 
+  .timeline::before{content:"";position:absolute;inset:12% auto 12% 22px;width:2px;background:linear-gradient(180deg,rgba(255,182,72,.65),rgba(0,178,255,.55));} 
+  .timeline-list{list-style:none;margin:0;padding:0;display:grid;gap:clamp(20px,3vw,32px);} 
+  .timeline-step{padding-left:72px;position:relative;} 
+  .timeline-step::before{content:attr(data-step);position:absolute;left:0;top:4px;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:linear-gradient(120deg,var(--ua-sun),var(--ua-sky));color:#0A0B10;font-weight:900;box-shadow:0 12px 28px rgba(0,178,255,.28);} 
+  .timeline-step h3{margin:0;font-size:1.25rem;} 
+  .timeline-step p{margin:.45rem 0 0;color:rgba(255,255,255,.76);} 
+
+  .testimonial-band{background:#05060a;color:#fff;border-radius:var(--radius);padding:clamp(32px,6vw,60px);display:grid;gap:36px;box-shadow:var(--shadow);} 
+  .testimonial-header{display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;align-items:flex-end;} 
+  .testimonial-slider{display:grid;gap:clamp(18px,4vw,26px);} 
+  .testimonial-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:clamp(18px,3vw,28px);display:grid;gap:12px;} 
+  .testimonial-card p{margin:0;font-size:1.02rem;line-height:1.55;} 
+  .testimonial-card span{font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.7);} 
+
+  .cta-panel{background:linear-gradient(135deg,color-mix(in oklab,var(--ua-sun) 60%,#0b1224) 0%,color-mix(in oklab,var(--ua-sky) 70%,#0b1224) 100%);color:#0b1224;border-radius:var(--radius);padding:clamp(32px,6vw,64px);display:grid;gap:clamp(18px,2.5vw,28px);text-align:center;box-shadow:var(--shadow);} 
+  .cta-panel h2{margin:0;font-size:clamp(2rem,4.6vw,3.4rem);font-family:"Playfair Display";} 
+  .cta-actions{display:flex;justify-content:center;gap:.8rem;flex-wrap:wrap;} 
+  .cta-panel .btn-outline{color:#0b1224;border-color:rgba(11,18,36,.25);} 
+
+  footer.ua-footer{position:relative;background:#05060a;color:#f5f7ff;padding-block:clamp(64px,10vw,120px) clamp(36px,8vw,72px);overflow:hidden;}
+  footer.ua-footer::before{content:"";position:absolute;inset:-25% -35% auto -25%;width:520px;height:520px;background:radial-gradient(120% 120% at 20% 40%, rgba(0,178,255,.25), transparent 68%);opacity:.75;pointer-events:none;}
+  footer.ua-footer::after{content:"";position:absolute;inset:auto -20% -35% 55%;width:420px;height:420px;background:radial-gradient(120% 120% at 50% 50%, rgba(255,182,72,.22), transparent 72%);pointer-events:none;}
+  .ua-footer-inner{position:relative;z-index:1;width:var(--container);margin-inline:auto;display:grid;gap:clamp(40px,6vw,72px);} 
+  .ua-footer-banner{display:grid;gap:clamp(12px,1.8vw,20px);text-transform:uppercase;letter-spacing:.08em;} 
+  .ua-footer-banner .ua-tag{display:inline-flex;align-items:center;gap:8px;padding:.45rem .9rem;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);font-weight:800;font-size:.76rem;} 
+  .ua-footer-banner h2{margin:0;font-size:clamp(2.4rem,6vw,3.9rem);font-weight:900;letter-spacing:-.02em;} 
+  .ua-footer-banner p{text-transform:none;letter-spacing:0;font-size:clamp(1rem,1.4vw,1.2rem);color:rgba(245,247,255,.78);margin:0;max-width:56ch;} 
+  .ua-footer-cta{display:inline-flex;align-items:center;gap:.55rem;padding:.9rem 1.5rem;border-radius:999px;font-weight:900;background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));color:#0A0B10;box-shadow:0 12px 30px rgba(0,178,255,.25);} 
+  .ua-footer-cta span{font-size:1.3rem;} 
+  .ua-footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:clamp(20px,4vw,36px);} 
+  .ua-footer-col h4{margin:0 0 .65rem;font-weight:900;letter-spacing:.06em;} 
+  .ua-footer-col ul{list-style:none;margin:0;padding:0;display:grid;gap:.4rem;} 
+  .ua-footer-col a{color:rgba(245,247,255,.75);} 
+  .ua-footer-col a:hover{color:#fff;} 
+  .ua-footer-contact{display:grid;gap:.35rem;font-size:.95rem;} 
+  .ua-footer-contact a{color:#fff;font-weight:700;} 
+  .ua-footer-bottom{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px;border-top:1px solid rgba(255,255,255,.12);padding-top:18px;font-size:.85rem;color:rgba(245,247,255,.6);} 
+  .ua-footer-brand{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:1000;letter-spacing:.08em;text-transform:uppercase;} 
+  .ua-footer-social{display:flex;gap:14px;font-size:1.1rem;} 
+  .ua-footer-social a{color:inherit;} 
+  .ua-footer-social a:hover{color:#fff;} 
+
+  @media (max-width:720px){
+    .hero{min-height:auto;padding-block:120px 96px;}
+    .timeline::before{inset:18% auto 18% 18px;}
+    .timeline-step{padding-left:64px;}
+    .ua-footer-banner{justify-items:flex-start;}
+    .ua-footer-cta{width:100%;justify-content:center;}
+    .ua-footer-bottom{flex-direction:column;align-items:flex-start;}
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+  <div class="ua-progress" id="uaProgress"></div>
+
+  <header class="hero">
+    <div class="hero-media" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=2000&auto=format&fit=crop" alt="Celebratory crowd under dusk sky" />
+    </div>
+    <div class="hero-inner">
+      <span class="hero-tag">Retreats • Celebrations • Creative Productions</span>
+      <h1>Curated packages that trade stress for presence.</h1>
+      <p>Choose a hosted escape or start from a blank canvas. Every tier blends high-touch planning, vetted partners, and glow-inducing rituals tailored to your group.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="{% url 'contact' %}">Start a brief</a>
+        <a class="btn btn-outline" href="#packages">Browse packages</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="meta-bar" aria-label="Package quick facts">
+    <div class="meta-bar-inner">
+      <div>Average planning window — <strong>6 to 12 weeks</strong></div>
+      <div class="meta-bar-list">
+        <span class="meta-bar-chip">Dedicated concierge</span>
+        <span class="meta-bar-chip">Transparent pricing</span>
+        <span class="meta-bar-chip">Local partner network</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="packages" class="section">
+    <div class="container">
+      <div class="section-head section-ghost" data-ghost="PACKAGES">
+        <div>
+          <p class="kicker">Signature collections</p>
+          <h2>Pick the rhythm that fits your people.</h2>
+          <p>Every package is a starting point. We re-score the details to match your headcount, travel flow, wellness priorities, and production goals.</p>
+        </div>
+        <a class="btn btn-primary" href="{% url 'contact' %}">Build my experience</a>
+      </div>
+
+      <div class="package-grid">
+        <article class="package-card">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1600&auto=format&fit=crop" alt="Couple by a cliffside pool" />
+            <span class="badge">Serenity</span>
+          </div>
+          <div class="body">
+            <h3>Intimate Retreats</h3>
+            <p>48–96 hour escapes for couples, founders, or boutique teams craving guided rest rituals.</p>
+            <ul>
+              <li>Pre-trip wellness consult, menus &amp; playlists</li>
+              <li>Luxury villa or eco-lodge with on-site host</li>
+              <li>Breathwork, private chef table, candlelit soak</li>
+            </ul>
+            <div class="package-card-footer">
+              <span>From ₦4.8M</span>
+              <a href="{% url 'contact' %}" class="btn btn-outline" style="border-color:var(--ua-ink);color:var(--ua-ink);padding:.55rem 1rem;">Enquire</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="package-card">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1600&auto=format&fit=crop" alt="Dinner under abstract lighting" />
+            <span class="badge">Signature</span>
+          </div>
+          <div class="body">
+            <h3>Celebration Weekenders</h3>
+            <p>Design-led parties and milestone weekends with live art, lighting, and concierge guest flow.</p>
+            <ul>
+              <li>Creative direction, mood boards &amp; tech rider</li>
+              <li>Venue scouting plus vendor &amp; talent management</li>
+              <li>Run-of-show, guest comms, wardrobe support</li>
+            </ul>
+            <div class="package-card-footer">
+              <span>From ₦8.9M</span>
+              <a href="{% url 'contact' %}" class="btn btn-outline" style="border-color:var(--ua-ink);color:var(--ua-ink);padding:.55rem 1rem;">Enquire</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="package-card">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1600&auto=format&fit=crop" alt="Cultural group exploring a market" />
+            <span class="badge">Culture</span>
+          </div>
+          <div class="body">
+            <h3>Immersion Circuits</h3>
+            <p>Multi-city cultural residencies weaving food, art, and philanthropic touchpoints for communities &amp; brands.</p>
+            <ul>
+              <li>Country-to-country logistics &amp; immigration desk</li>
+              <li>Impact collaborations with storytellers &amp; artisans</li>
+              <li>Content studio, live broadcast &amp; post-event recap</li>
+            </ul>
+            <div class="package-card-footer">
+              <span>From ₦14.5M</span>
+              <a href="{% url 'contact' %}" class="btn btn-outline" style="border-color:var(--ua-ink);color:var(--ua-ink);padding:.55rem 1rem;">Enquire</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="package-card">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1600&auto=format&fit=crop" alt="Corporate team workshop by the beach" />
+            <span class="badge">Corporate</span>
+          </div>
+          <div class="body">
+            <h3>Leadership Offsites</h3>
+            <p>Strategy &amp; culture labs tailored for executive teams balancing deep work, restorative play, and storytelling.</p>
+            <ul>
+              <li>Program design with facilitators &amp; coaches</li>
+              <li>Hybrid AV, boardroom-to-sunset logistics crew</li>
+              <li>Brand staging, merchandising &amp; capture crew</li>
+            </ul>
+            <div class="package-card-footer">
+              <span>From ₦11.2M</span>
+              <a href="{% url 'contact' %}" class="btn btn-outline" style="border-color:var(--ua-ink);color:var(--ua-ink);padding:.55rem 1rem;">Enquire</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section comparison" aria-labelledby="comparison-title">
+    <div class="container">
+      <div class="section-head section-ghost" data-ghost="ADD-ON">
+        <div>
+          <p class="kicker">Scale with intention</p>
+          <h2 id="comparison-title">Layer the detail you need, keep the calm you want.</h2>
+          <p>Choose your base package, then snap in enhancements to match your vision and budget. Everything is modular so you only pay for impact.</p>
+        </div>
+      </div>
+
+      <div class="comparison-grid">
+        <div class="comparison-card">
+          <span>Wellness layer</span>
+          <strong>Deep Nourish</strong>
+          <p>Bring in universe-calming rituals guided by vetted practitioners.</p>
+          <ul>
+            <li>Sound bath + guided breathwork studio</li>
+            <li>Nutritionist-curated menus &amp; cold plunge concierge</li>
+            <li>Nightly turndown rituals &amp; sensory gift packs</li>
+          </ul>
+        </div>
+        <div class="comparison-card">
+          <span>Story layer</span>
+          <strong>Tell &amp; Archive</strong>
+          <p>Our creative pod crafts the narrative while you stay present.</p>
+          <ul>
+            <li>Run-and-gun film crew + stills photographer</li>
+            <li>Editing suite with overnight hero reel delivery</li>
+            <li>Micro-website &amp; community galleries in 72 hours</li>
+          </ul>
+        </div>
+        <div class="comparison-card">
+          <span>Impact layer</span>
+          <strong>Give Back</strong>
+          <p>Co-create cultural exchange with local communities &amp; artisans.</p>
+          <ul>
+            <li>Cause-aligned partner sourcing &amp; vetting</li>
+            <li>Legacy gifting featuring regional makers</li>
+            <li>Impact reporting &amp; stakeholder storytelling</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="timeline-title">
+    <div class="container">
+      <div class="section-head section-ghost" data-ghost="PROCESS">
+        <div>
+          <p class="kicker">How it flows</p>
+          <h2 id="timeline-title">Concierge planning that feels like exhaling.</h2>
+          <p>We combine production-grade project management with calm-first rituals so decision-making stays clear and timeline-friendly.</p>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <ol class="timeline-list">
+          <li class="timeline-step" data-step="01">
+            <h3>Discovery &amp; alignment</h3>
+            <p>We host a 45-minute vision interview, decode your priorities, and deliver a proposal with tiered budgets + visuals in 72 hours.</p>
+          </li>
+          <li class="timeline-step" data-step="02">
+            <h3>Design &amp; partner lock</h3>
+            <p>Once booked, we secure venues, talent, and logistics while sharing a living lookbook, timeline, and guest comms hub.</p>
+          </li>
+          <li class="timeline-step" data-step="03">
+            <h3>Production &amp; on-site hosting</h3>
+            <p>During your experience our concierge leads vendor orchestration, wellbeing check-ins, and surprise moments so you can simply arrive.</p>
+          </li>
+          <li class="timeline-step" data-step="04">
+            <h3>Afterglow &amp; reporting</h3>
+            <p>Post-event we deliver highlight content, budget reconciliation, guest feedback, and next-step recommendations for your community.</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="testimonial-title">
+    <div class="container">
+      <div class="testimonial-band">
+        <div class="testimonial-header">
+          <div>
+            <p class="kicker">Client voices</p>
+            <h2 id="testimonial-title">“They handled the chaos so we could live in the moments.”</h2>
+          </div>
+          <a class="btn btn-primary" href="{% url 'contact' %}">Plan my escape</a>
+        </div>
+        <div class="testimonial-slider">
+          <article class="testimonial-card">
+            <p>“Unwind Africa choreographed our founders’ retreat in Accra with intuitive detail. From intention-setting circles to chef collaborations, every touchpoint felt like us.”</p>
+            <span>— Temi, VC Collective</span>
+          </article>
+          <article class="testimonial-card">
+            <p>“Our anniversary weekend became a multi-sensory story. They surprised us with a private highlife session under the stars and managed family logistics effortlessly.”</p>
+            <span>— Ada &amp; Yomi, Intimate Celebration</span>
+          </article>
+          <article class="testimonial-card">
+            <p>“We run a fast scaling team. They turned a leadership offsite into a restorative strategy lab with wellness pods, content capture, and zero stress.”</p>
+            <span>— Kweku, Product Lead</span>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="cta-title">
+    <div class="container">
+      <div class="cta-panel">
+        <span class="kicker">Ready when you are</span>
+        <h2 id="cta-title">Let’s script the experience everyone keeps talking about.</h2>
+        <p>Drop a few lines about your gathering and our concierge will reply within 24 hours with next steps, dates, and ideas for bonus glow.</p>
+        <div class="cta-actions">
+          <a class="btn btn-primary" href="{% url 'contact' %}">Send brief</a>
+          <a class="btn btn-outline" href="tel:+2348062067832">Call concierge</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block site_footer %}
+<footer class="ua-footer" id="contact">
+  <div class="ua-footer-inner">
+    <div class="ua-footer-banner">
+      <span class="ua-tag">Thank you for unwinding with us</span>
+      <h2>Next-level gatherings for teams, lovers &amp; dreamers.</h2>
+      <p>We choreograph immersive escapes, wellness residencies, and celebration weekends across Africa so you can savour every moment.</p>
+      <a class="ua-footer-cta" href="{% url 'contact' %}"><span>&rarr;</span> Start your brief</a>
+    </div>
+
+    <div class="ua-footer-grid">
+      <div class="ua-footer-col ua-footer-contact">
+        <h4>Concierge Desk</h4>
+        <a href="tel:+2348062067832">+234 806 206 7832</a>
+        <a href="tel:+2348038268669">+234 803 826 8669</a>
+        <a href="mailto:info@unwindafrica.com">info@unwindafrica.com</a>
+        <p>Mon – Sat · 9am – 7pm WAT</p>
+        <p>Lagos • Accra • Cape Town</p>
+      </div>
+      <div class="ua-footer-col">
+        <h4>Experiences</h4>
+        <ul>
+          <li><a href="#packages">Signature packages</a></li>
+          <li><a href="#comparison-title">Add-on layers</a></li>
+          <li><a href="#timeline-title">Process</a></li>
+          <li><a href="#testimonial-title">Stories</a></li>
+        </ul>
+      </div>
+      <div class="ua-footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="{% url 'home' %}#why-us">Why Unwind</a></li>
+          <li><a href="{% url 'home' %}#blog">Journal</a></li>
+          <li><a href="{% url 'packages' %}">Packages</a></li>
+          <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+      </div>
+      <div class="ua-footer-col">
+        <h4>Stay in the loop</h4>
+        <p class="muted">Monthly rituals, destination reveals, and calm-first planning intel.</p>
+        <form class="nl" action="#" method="post">
+          {% csrf_token %}
+          <input type="email" name="email" placeholder="Email address" aria-label="Email address" required />
+          <button class="btn secondary-ink" type="submit">Subscribe</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="ua-footer-bottom">
+      <div class="ua-footer-brand">Unwind Africa®</div>
+      <div>© <span id="year"></span> Unwind Africa. Crafted for people who choose calm.</div>
+      <div class="ua-footer-social">
+        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+      </div>
+    </div>
+  </div>
+</footer>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function(){
+    const bar = document.getElementById('uaProgress');
+    const target = document.scrollingElement || document.documentElement;
+    if (!bar || !target) return;
+    const update = () => {
+      const max = target.scrollHeight - target.clientHeight;
+      const value = max > 0 ? (target.scrollTop / max) * 100 : 0;
+      bar.style.width = value + '%';
+      bar.style.opacity = max > 0 ? 1 : 0;
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  })();
+
+  const yearNode = document.getElementById('year');
+  if (yearNode) {
+    yearNode.textContent = new Date().getFullYear();
+  }
+</script>
+{% endblock %}
