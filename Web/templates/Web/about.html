@@ -72,14 +72,83 @@ a{text-decoration:none;color:inherit;}
 .timeline-card h3{margin:0;font-family:"Playfair Display", serif;font-size:1.35rem;}
 .timeline-card p{margin:0;color:color-mix(in oklab,var(--ua-ink) 70%,#5d6a7d);} 
 
-.team{background:var(--ua-fog);} 
-.team-grid{display:grid;gap:clamp(18px,3.2vw,28px);grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
-.team-card{background:#fff;border-radius:var(--radius);padding:clamp(20px,3vw,26px);box-shadow:var(--shadow);display:grid;gap:12px;text-align:center;transition:transform .2s ease,box-shadow .2s ease;}
-.team-card:hover{transform:translateY(-6px);box-shadow:0 26px 52px rgba(10,11,16,.18);} 
-.team-card img{width:108px;height:108px;margin-inline:auto;border-radius:50%;object-fit:cover;box-shadow:0 12px 22px rgba(10,11,16,.18);} 
-.team-card h3{margin:0;font-family:"Playfair Display", serif;font-size:1.2rem;} 
-.team-card p{margin:0;color:color-mix(in oklab,var(--ua-ink) 64%,#5d6a7d);font-size:.92rem;} 
-
+.team{
+  position:relative;
+  background:linear-gradient(180deg,#f5f7fb 0%,#eef2f8 100%);
+}
+.team .container{
+  position:relative;
+  z-index:1;
+}
+.team-grid{
+  display:grid;
+  gap:clamp(24px,3vw,32px);
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+}
+.team-card{
+  position:relative;
+  display:grid;
+  gap:clamp(16px,2vw,20px);
+  padding:clamp(28px,3vw,34px);
+  border-radius:calc(var(--radius) + 4px);
+  background:#fff;
+  border:1px solid rgba(9,22,44,.08);
+  box-shadow:0 22px 44px rgba(9,22,44,.08);
+  justify-items:start;
+  text-align:left;
+  transition:transform .3s ease,box-shadow .3s ease,border-color .3s ease;
+}
+.team-card:hover{
+  transform:translateY(-10px);
+  box-shadow:0 32px 56px rgba(9,22,44,.14);
+  border-color:rgba(9,22,44,.16);
+}
+.team-card>*{
+  position:relative;
+  z-index:1;
+}
+.team-card img{
+  width:100%;
+  aspect-ratio:1;
+  border-radius:calc(var(--radius) + 2px);
+  object-fit:cover;
+  border:1px solid rgba(9,22,44,.08);
+  box-shadow:0 12px 24px rgba(9,22,44,.08);
+  transition:transform .3s ease,box-shadow .3s ease;
+}
+.team-card:hover img{
+  transform:translateY(-6px);
+  box-shadow:0 20px 40px rgba(9,22,44,.18);
+}
+.role-tag{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  align-self:start;
+  padding:.55rem 1.2rem;
+  border-radius:999px;
+  font-size:.72rem;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  background:#0c1f3f;
+  color:#f5f8ff;
+}
+.team-card h3{
+  margin:0;
+  font-family:"Playfair Display", serif;
+  font-size:clamp(1.34rem,2.2vw,1.62rem);
+  letter-spacing:-.01em;
+  line-height:1.24;
+  color:#0a1b33;
+}
+.team-card .bio{
+  margin:0;
+  font-size:.96rem;
+  line-height:1.68;
+  color:color-mix(in oklab,var(--ua-ink) 62%,#5b6574);
+  max-width:34ch;
+}
 .faq{background:#0A0B10;color:#f6f9ff;} 
 .faq .container{display:grid;gap:clamp(24px,4vw,36px);} 
 .faq-item{background:rgba(246,249,255,.08);border-radius:var(--radius);padding:clamp(18px,3vw,26px);border:1px solid rgba(255,255,255,.12);transition:transform .2s ease,background .2s ease;} 
@@ -94,7 +163,7 @@ a{text-decoration:none;color:inherit;}
 
 @media (max-width:640px){
   .hero-actions .btn{width:100%;justify-content:center;}
-  .team-card{padding:20px;}
+  .team-card{padding:24px;}
 }
 </style>
 {% endblock %}
@@ -206,35 +275,30 @@ a{text-decoration:none;color:inherit;}
           <img src="{% static 'assets/about/IMG-20240625-WA0034 1.png' %}" alt="Olajumoke Ogudipe" />
           <h3>Olajumoke Ogudipe</h3>
           <p class="bio">Leads the vision, partnerships, and concierge experience.</p>
-          <a class="cta-link" href="{% url 'contact' %}">Connect <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h11m0 0-4-4m4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         </article>
         <article class="team-card" role="listitem">
           <span class="role-tag">LIFE COACHING &AMP; TRAUMA-INFORMED SPECIALIST</span>
           <img src="{% static 'assets/about/IMG-20250517-WA0019 (1).jpg' %}" alt="Grace Henshaw" />
           <h3>Grace Henshaw</h3>
           <p class="bio">Designs wellness frameworks and gentle integration rituals.</p>
-          <a class="cta-link" href="{% url 'contact' %}">Connect <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h11m0 0-4-4m4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         </article>
         <article class="team-card" role="listitem">
           <span class="role-tag">MEDIA DIRECTOR</span>
           <img src="{% static 'assets/about/DSC_0745 1.jpg' %}" alt="Yomi Sodunke" />
           <h3>Yomi Sodunke</h3>
           <p class="bio">Captures stories and crafts cinematic recaps for every gathering.</p>
-          <a class="cta-link" href="{% url 'contact' %}">Connect <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h11m0 0-4-4m4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         </article>
         <article class="team-card" role="listitem">
           <span class="role-tag">EVENT COORDINATOR</span>
           <img src="{% static 'assets/about/passport Feyikemi (1).jpg' %}" alt="Feyikemi Adeniran" />
           <h3>Feyikemi Adeniran</h3>
           <p class="bio">Runs onsite flow and guest logistics with calm precision.</p>
-          <a class="cta-link" href="{% url 'contact' %}">Connect <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h11m0 0-4-4m4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         </article>
         <article class="team-card" role="listitem">
           <span class="role-tag">RELAXATION SPECIALIST</span>
           <img src="{% static 'assets/about/be10a6a1f4e9342511bbfedd8949bbfd_0 (2).jpg' %}" alt="Tope Olujobi" />
           <h3>Tope Olujobi</h3>
           <p class="bio">Curates spa therapies and sensory layers that ground each guest.</p>
-          <a class="cta-link" href="{% url 'contact' %}">Connect <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h11m0 0-4-4m4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         </article>
       </div>
     </div>
