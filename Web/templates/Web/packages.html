@@ -92,6 +92,19 @@
   .package-card-footer .package-cta{display:inline-flex;align-items:center;gap:.35rem;padding:.55rem 1.1rem;border-radius:999px;border:1px solid rgba(10,18,32,.18);background:rgba(0,178,255,.1);color:#0b1a2b;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;transition:transform .2s ease,background .2s ease,box-shadow .2s ease;}
   .package-card-footer .package-cta:hover{transform:translateY(-2px);background:rgba(0,178,255,.14);box-shadow:0 8px 16px rgba(10,18,32,.12);}
   .package-card-footer .package-cta:focus-visible{outline:3px solid rgba(0,178,255,.4);outline-offset:2px;}
+  .urs-collection{background:color-mix(in oklab,#fff 92%,var(--ua-sky) 8% / 12%);border-radius:var(--radius);padding:clamp(24px,5vw,40px);box-shadow:var(--shadow);}
+  .urs-collection .collection-header{align-items:start;}
+  .urs-overview{background:#0A0B10;color:#f7fbff;border-radius:16px;padding:clamp(18px,3vw,26px);display:grid;gap:12px;box-shadow:0 18px 38px rgba(10,11,16,.2);}
+  .urs-overview__kicker{text-transform:uppercase;letter-spacing:.16em;font-weight:800;font-size:.75rem;color:rgba(255,255,255,.7);}
+  .urs-overview__list{margin:0;padding-left:1.15rem;display:grid;gap:.45rem;font-size:.92rem;color:rgba(255,255,255,.86);}
+  .urs-overview .package-cta{justify-self:start;background:#fff;color:#0A0B10;border:1px solid rgba(255,255,255,.3);padding:.6rem 1.2rem;border-radius:999px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;transition:transform .2s ease,box-shadow .2s ease;}
+  .urs-overview .package-cta:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(10,11,16,.35);}
+  .urs-pill-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:clamp(12px,3vw,20px);margin-top:clamp(20px,4vw,28px);}
+  .urs-pill{padding:clamp(16px,3vw,22px);border-radius:14px;border:1px solid rgba(10,11,16,.08);background:rgba(10,11,16,.04);display:grid;gap:6px;box-shadow:0 10px 18px rgba(10,11,16,.08);}
+  .urs-pill b{font-family:"Playfair Display",ui-serif,Georgia,serif;font-size:1.05rem;color:color-mix(in oklab,var(--ua-ink) 82%,#1a2535);}
+  .urs-pill span{color:color-mix(in oklab,var(--ua-ink) 58%,#5f6a7d);font-size:.9rem;}
+  @media (max-width:900px){.urs-collection{padding:clamp(20px,6vw,32px);}}
+
   @media (max-width:900px){.collection-header{grid-template-columns:1fr;}.package-card--hero{order:-1;}}
 
 
@@ -201,12 +214,12 @@
 
 
       <div class="package-collections">
-        <section class="package-collection">
+        <section id="solo" class="package-collection">
           <div class="collection-header">
             <div class="collection-copy">
-              <span class="collection-tag">Solo rituals</span>
-              <h3>Bloom Series</h3>
-              <p>Flower-inspired escapes for intentional reset. Pick your pace and we layer in therapists, chefs, and mood-managed playlists.</p>
+              <span class="collection-tag">Me Time &ndash; Solo Packages</span>
+              <h3>Me Time &ndash; Solo Packages</h3>
+              <p>Tailored solo escapes with wellness hosts, therapists, and curated rituals that reset your rhythm.</p>
               <div class="collection-metrics">
                 <div class="collection-metric">
                   <strong>1&ndash;5 day escapes</strong>
@@ -322,12 +335,12 @@
           </div>
         </section>
 
-        <section class="package-collection">
+        <section id="family" class="package-collection">
           <div class="collection-header">
             <div class="collection-copy">
-              <span class="collection-tag">Family escapes</span>
-              <h3>The Kinship Edit</h3>
-              <p>Comfort-first multi-night stays with built-in play, easy logistics, and keepsakes for every generation.</p>
+              <span class="collection-tag">Family Packages</span>
+              <h3>Family Packages</h3>
+              <p>Comfort-first stays with built-in play, logistics handled, and keepsakes for every generation.</p>
               <div class="collection-metrics">
                 <div class="collection-metric">
                   <strong>Multi-room villas</strong>
@@ -443,12 +456,12 @@
           </div>
         </section>
 
-        <section class="package-collection">
+        <section id="group" class="package-collection">
           <div class="collection-header">
             <div class="collection-copy">
-              <span class="collection-tag">Group gatherings</span>
-              <h3>The Prestige Collection</h3>
-              <p>For teams and crews craving cinematic, high-energy escapes with seamless staging and luxury concierge flow.</p>
+              <span class="collection-tag">Group Getaways</span>
+              <h3>Group Getaways</h3>
+              <p>For teams and crews craving cinematic escapes with seamless staging and luxury concierge flow.</p>
               <div class="collection-metrics">
                 <div class="collection-metric">
                   <strong>Scaled hospitality</strong>
@@ -583,12 +596,12 @@
           </div>
         </section>
 
-        <section class="package-collection">
+        <section id="photo" class="package-collection">
           <div class="collection-header">
             <div class="collection-copy">
-              <span class="collection-tag">Story capture</span>
-              <h3>Lens &amp; Light Atelier</h3>
-              <p>Professional storytelling pods for proposals, family milestones, and destination weddings.</p>
+              <span class="collection-tag">Photography &amp; Videography</span>
+              <h3>Photography &amp; Videography</h3>
+              <p>Professional storytelling pods for proposals, milestones, and destination weddings.</p>
               <div class="collection-metrics">
                 <div class="collection-metric">
                   <strong>Creative direction</strong>
@@ -722,6 +735,34 @@
             </article>
           </div>
         </section>
+
+        <section id="urs" class="package-collection urs-collection">
+          <div class="collection-header">
+            <div class="collection-copy">
+              <span class="collection-tag">Unwind Relaxation Services</span>
+              <h3>Unwind Relaxation Services (URS)</h3>
+              <p>Flexible quarterly membership delivering self-care rituals, celebration planning, and exclusive access tailored to your lifestyle.</p>
+            </div>
+            <div class="urs-overview">
+              <span class="urs-overview__kicker">Member highlights</span>
+              <ul class="urs-overview__list">
+                <li>Dedicated lifestyle concierge with quarterly strategy calls</li>
+                <li>Priority booking across Unwind Africa experiences</li>
+                <li>Access to private URS-only gatherings and partner perks</li>
+              </ul>
+              <a class="package-cta" href="{% url 'contact' %}" data-open-quote="Unwind Relaxation Services (URS)">Join URS</a>
+            </div>
+          </div>
+          <div class="urs-pill-grid">
+            <div class="urs-pill"><b>Relaxation Essentials</b><span>Massages, medi-pedi sessions, aromatherapy, and breathwork add-ons.</span></div>
+            <div class="urs-pill"><b>Luxury Experiences</b><span>Private jet coordination, premium vehicles, VIP nightlife, and suites.</span></div>
+            <div class="urs-pill"><b>Wellness Focus</b><span>Counselling, therapy, mindfulness residencies, and nutrition pods.</span></div>
+            <div class="urs-pill"><b>Celebrations</b><span>Birthdays, anniversaries, vow renewals, and destination surprises.</span></div>
+            <div class="urs-pill"><b>Capturing Memories</b><span>Content teams for proposals, family milestones, and corporate recaps.</span></div>
+            <div class="urs-pill"><b>Exclusive Access</b><span>Invite-only galas, orchestral nights, and curated cultural immersions.</span></div>
+          </div>
+        </section>
+
       </div>
     </div>
   </section>

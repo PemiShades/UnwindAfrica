@@ -251,21 +251,8 @@ a{ color:inherit; text-decoration:none }
 .packages-teaser{ display:grid; gap: clamp(28px, 5vw, 42px); }
 .packages-teaser-grid{
   display:grid;
-  gap: clamp(20px, 4vw, 32px);
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-}
-.packages-teaser-grid .teaser-card--highlight{
-  grid-column: 1 / -1;
-}
-@media (min-width: 960px){
-  .packages-teaser-grid .teaser-card--highlight{
-    display:grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-  }
-  .packages-teaser-grid .teaser-card--highlight .teaser-card__media{
-    aspect-ratio:auto;
-    min-height:100%;
-  }
+  gap: clamp(20px, 3.5vw, 32px);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 .teaser-card{
   position:relative;
@@ -276,10 +263,15 @@ a{ color:inherit; text-decoration:none }
   display:flex;
   flex-direction:column;
   isolation:isolate;
+  min-height:100%;
 }
-.teaser-card--highlight{
+.teaser-card--glow{
+  background: linear-gradient(135deg, color-mix(in oklab, var(--ua-sun) 62%, #fff) 0%, color-mix(in oklab, var(--ua-sky) 70%, #fff) 100%);
+  color:#0A0B10;
+}
+.teaser-card--ink{
   background:#0A0B10;
-  color:#fff;
+  color:#f6f9ff;
 }
 .teaser-card__media{
   position:relative;
@@ -308,9 +300,9 @@ a{ color:inherit; text-decoration:none }
 }
 .teaser-card:hover .teaser-card__media::after,
 .teaser-card:focus-within .teaser-card__media::after{ opacity:1; }
-.teaser-card--highlight .teaser-card__media::after{
-  opacity:1;
-  background:linear-gradient(120deg, rgba(10,11,16,.75) 5%, rgba(10,11,16,.25) 95%);
+.teaser-card--ink .teaser-card__media::after{
+  opacity:.6;
+  background:linear-gradient(130deg, rgba(10,11,16,.85) 0%, rgba(10,11,16,.45) 100%);
 }
 .teaser-card__tag{
   position:absolute;
@@ -326,10 +318,16 @@ a{ color:inherit; text-decoration:none }
   border-radius:999px;
   box-shadow:0 8px 18px rgba(0,178,255,.22);
 }
-.teaser-card--highlight .teaser-card__tag{
-  background:rgba(255,255,255,.12);
+.teaser-card--glow .teaser-card__tag{
+  background:rgba(10,11,16,.12);
+  color:#0A0B10;
+  border:1px solid rgba(10,11,16,.14);
+  box-shadow:none;
+}
+.teaser-card--ink .teaser-card__tag{
+  background:rgba(255,255,255,.14);
   color:#fff;
-  border:1px solid rgba(255,255,255,.2);
+  border:1px solid rgba(255,255,255,.25);
   box-shadow:none;
 }
 .teaser-card__body{
@@ -347,12 +345,12 @@ a{ color:inherit; text-decoration:none }
   margin:0;
   color: color-mix(in oklab, var(--ua-ink) 75%, #5b6c80);
 }
-.teaser-card--highlight .teaser-card__body{
-  background: linear-gradient(135deg, rgba(10,11,16,.94) 0%, rgba(10,11,16,.78) 100%);
+.teaser-card--glow .teaser-card__body p{
+  color: color-mix(in oklab, #0A0B10 72%, #3b4a60);
 }
-.teaser-card--highlight .teaser-card__body h3{ color:#fff; }
-.teaser-card--highlight .teaser-card__body p,
-.teaser-card--highlight .teaser-card__body li{ color:rgba(255,255,255,.86); }
+.teaser-card--ink .teaser-card__body h3{ color:#fff; }
+.teaser-card--ink .teaser-card__body p,
+.teaser-card--ink .teaser-card__body li{ color:rgba(245,247,255,.82); }
 .teaser-card__list{
   margin:0;
   padding-left:1.15rem;
@@ -362,18 +360,70 @@ a{ color:inherit; text-decoration:none }
   font-size:.95rem;
 }
 .teaser-card__list li{ line-height:1.5; }
-.packages-teaser__cta{
+.packages-teaser-footer{
   display:flex;
-  justify-content:center;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap: clamp(16px, 3vw, 24px);
 }
-.packages-teaser__cta .btn{
-  min-width: 220px;
+.packages-teaser-urs{
+  display:flex;
+  align-items:center;
+  gap: clamp(12px, 3vw, 18px);
+  background: color-mix(in oklab,#fff 94%, var(--ua-sky) 6% / 14%);
+  border-radius: var(--radius);
+  border:1px solid rgba(10,11,16,.08);
+  padding: clamp(16px, 3.4vw, 24px);
+  flex:1 1 360px;
+  box-shadow:0 14px 28px rgba(0,178,255,.12);
+}
+.urs-chip{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  font-size:.68rem;
+  padding:.4rem .9rem;
+  border-radius:999px;
+  background:#0A0B10;
+  color:#fff;
+}
+.packages-teaser-urs__copy{ flex:1; min-width:0; }
+.packages-teaser-urs__copy h4{
+  margin:0 0 6px;
+  font-family:"Playfair Display", ui-serif, Georgia, serif;
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+}
+.packages-teaser-urs__copy p{
+  margin:0;
+  color: color-mix(in oklab, var(--ua-ink) 68%, #526176);
+}
+.packages-teaser-urs .link-cta{
+  color:#0A0B10;
+  font-weight:900;
+  letter-spacing:.1em;
+}
+.packages-teaser-footer .primary-solid{
+  flex:0 0 auto;
+  min-width:220px;
 }
 @media (max-width: 680px){
-  .packages-teaser__cta .btn{
+  .packages-teaser-footer{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .packages-teaser-urs{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  .packages-teaser-footer .primary-solid{
     width:100%;
   }
 }
+
 
 /* Events section accents */
 .events{ background: color-mix(in oklab, #fff 96%, var(--ua-sky) 4% / 7%); border-block:1px solid #ecf1f6 }
@@ -684,14 +734,14 @@ a:focus, button:focus, input:focus{ outline:3px solid var(--ua-sky); outline-off
           <p class="ed-kicker">Signature packages</p>
           <h2 class="ed-title">Choose your favourite way to unwind</h2>
           <div class="rule" aria-hidden="true"></div>
-          <p class="ed-sub">Me Time (Solo) for personal glow, Family escapes for multi-gen memories, and Group Getaways when your crew wants a cinematic escape.</p>
+          <p class="ed-sub">Me Time (Solo) for personal glow, Family packages for multi-gen memories, Group Getaways for cinematic escapes, and Photography &amp; Videography to bottle every moment.</p>
         </div>
         <a class="btn primary-outline" href="{% url 'contact' %}">Plan with us</a>
       </div>
 
       <div class="packages-teaser">
         <div class="packages-teaser-grid">
-          <article class="teaser-card teaser-card--highlight">
+          <article class="teaser-card teaser-card--glow">
             <div class="teaser-card__media">
               <img loading="lazy" src="{% static 'assets/home/orchid.jpg' %}" alt="Me Time solo retreat experience" />
               <span class="teaser-card__tag">Me Time</span>
@@ -713,7 +763,7 @@ a:focus, button:focus, input:focus{ outline:3px solid var(--ua-sky); outline-off
               <span class="teaser-card__tag">Family</span>
             </div>
             <div class="teaser-card__body">
-              <h3>Family</h3>
+              <h3>Family Packages</h3>
               <p>Comfort-forward escapes with multi-room villas, built-in play, and keepsakes so every generation feels seen.</p>
               <ul class="teaser-card__list">
                 <li>Curated excursions that balance play with calm downtime</li>
@@ -738,9 +788,33 @@ a:focus, button:focus, input:focus{ outline:3px solid var(--ua-sky); outline-off
               </ul>
             </div>
           </article>
+
+          <article class="teaser-card teaser-card--ink">
+            <div class="teaser-card__media">
+              <img loading="lazy" src="{% static 'assets/home/packages/wedding.jpg' %}" alt="Photography and videography team in action" />
+              <span class="teaser-card__tag">Capture</span>
+            </div>
+            <div class="teaser-card__body">
+              <h3>Photography &amp; Videography</h3>
+              <p>Story-driven creatives capturing proposals, milestones, and editorial content across Africa.</p>
+              <ul class="teaser-card__list">
+                <li>Creative direction, styling guides, and shot planning</li>
+                <li>72-hour highlight reels with retouched galleries</li>
+                <li>Drone, live music, and proposal staging add-ons</li>
+              </ul>
+            </div>
+          </article>
         </div>
 
-        <div class="packages-teaser__cta">
+        <div class="packages-teaser-footer">
+          <div class="packages-teaser-urs">
+            <span class="urs-chip">URS</span>
+            <div class="packages-teaser-urs__copy">
+              <h4>Unwind Relaxation Services</h4>
+              <p>Membership built for quarterly rituals, celebration planning, and exclusive access perks when you want more than a one-off escape.</p>
+            </div>
+            <a class="btn link-cta" href="{% url 'packages' %}#urs">Explore URS</a>
+          </div>
           <a class="btn primary-solid" href="{% url 'packages' %}">Browse all packages</a>
         </div>
       </div>
