@@ -1,4 +1,4 @@
-﻿{% extends "Web/main.html" %}
+{% extends "Web/main.html" %}
 {% load static %}
 
 {% block title %}Packages — Unwind Africa{% endblock %}
@@ -76,7 +76,7 @@
   .package-collection{display:grid;gap:clamp(24px,6vw,40px);}
   .collection-header{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:clamp(20px,5vw,36px);align-items:stretch;}
   .collection-copy{display:grid;gap:1rem;}
-  .collection-tag{display:inline-flex;align-items:center;gap:.45rem;padding:.5rem 1rem;border-radius:999px;border:1px solid rgba(10,18,32,.12);background:rgba(0,178,255,.08);color:var(--ua-sky);font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:.7rem;}
+  .collection-tag{display:inline-flex;align-items:center;gap:.35rem;padding:.35rem .65rem;border-radius:999px;border:1px solid rgba(10,18,32,.12);background:rgba(0,178,255,.08);color:var(--ua-sky);font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:.6rem;line-height:1;}
   .collection-copy h3{margin:0;font-size:clamp(1.9rem,4vw,2.7rem);}
   .collection-copy p{margin:0;color:color-mix(in oklab,var(--ua-ink) 58%,#6c7c94);}
   .collection-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.9rem;}
@@ -161,6 +161,8 @@
   <div class="ua-progress" id="uaProgress"></div>
 
   <header class="hero">
+    {% include './partials/header/navbar.html'%}
+  {% include './partials/header/hamburger-menu.html' with faq_link="/about#faq"%}
     <div class="hero-media" aria-hidden="true">
       <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=2000&auto=format&fit=crop" alt="Celebratory crowd under dusk sky" />
     </div>

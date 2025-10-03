@@ -40,7 +40,8 @@ body{
   color:var(--ua-ink);
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;\n  overflow-x:hidden;
+  text-rendering: optimizeLegibility;  
+  overflow-x:hidden;
 }
 h1,h2,h3,h4,h5,h6{ font-family:"Playfair Display", ui-serif, Georgia, serif; margin:.2em 0 }
 img{ max-width:100%; height:auto; display:block }
@@ -174,6 +175,7 @@ a{ color:inherit; text-decoration:none }
   padding: clamp(72px, 12vw, 160px) 0 clamp(48px, 10vw, 120px);
   text-align:center;
 }
+.hero-inner .ed-sub{ margin-inline:auto; text-align:center; }
 .hero-actions{ display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; margin:.8rem 0 1.1rem }
 .hero-chips{
   display:flex; gap:.5rem; justify-content:center; flex-wrap:wrap;
@@ -243,6 +245,135 @@ a{ color:inherit; text-decoration:none }
   transition: filter .35s ease, transform .4s ease;
 }
 .img-mono:hover img{ filter: grayscale(0%) contrast(1.02) saturate(1.05); transform: scale(1.02) }
+
+
+/* Packages teaser cards */
+.packages-teaser{ display:grid; gap: clamp(28px, 5vw, 42px); }
+.packages-teaser-grid{
+  display:grid;
+  gap: clamp(20px, 4vw, 32px);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+.packages-teaser-grid .teaser-card--highlight{
+  grid-column: 1 / -1;
+}
+@media (min-width: 960px){
+  .packages-teaser-grid .teaser-card--highlight{
+    display:grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  }
+  .packages-teaser-grid .teaser-card--highlight .teaser-card__media{
+    aspect-ratio:auto;
+    min-height:100%;
+  }
+}
+.teaser-card{
+  position:relative;
+  background:#fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  isolation:isolate;
+}
+.teaser-card--highlight{
+  background:#0A0B10;
+  color:#fff;
+}
+.teaser-card__media{
+  position:relative;
+  aspect-ratio: 16 / 11;
+  overflow:hidden;
+}
+.teaser-card__media img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  filter: grayscale(92%) contrast(1.05);
+  transition: transform .45s ease, filter .45s ease;
+}
+.teaser-card:hover .teaser-card__media img,
+.teaser-card:focus-within .teaser-card__media img{
+  transform: scale(1.05);
+  filter: grayscale(0%) contrast(1.02) saturate(1.05);
+}
+.teaser-card__media::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(140deg, rgba(10,11,16,.05) 0%, rgba(10,11,16,.4) 100%);
+  opacity:0;
+  transition:opacity .4s ease;
+}
+.teaser-card:hover .teaser-card__media::after,
+.teaser-card:focus-within .teaser-card__media::after{ opacity:1; }
+.teaser-card--highlight .teaser-card__media::after{
+  opacity:1;
+  background:linear-gradient(120deg, rgba(10,11,16,.75) 5%, rgba(10,11,16,.25) 95%);
+}
+.teaser-card__tag{
+  position:absolute;
+  left:16px;
+  top:16px;
+  background: linear-gradient(90deg, var(--ua-sun), var(--ua-sky));
+  color:#0A0B10;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  font-size:.68rem;
+  padding:.38rem .75rem;
+  border-radius:999px;
+  box-shadow:0 8px 18px rgba(0,178,255,.22);
+}
+.teaser-card--highlight .teaser-card__tag{
+  background:rgba(255,255,255,.12);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.2);
+  box-shadow:none;
+}
+.teaser-card__body{
+  padding: clamp(22px, 3vw, 32px);
+  display:grid;
+  gap: clamp(12px, 2vw, 18px);
+}
+.teaser-card__body h3{
+  margin:0;
+  font-family:"Playfair Display", ui-serif, Georgia, serif;
+  font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+  letter-spacing:-.01em;
+}
+.teaser-card__body p{
+  margin:0;
+  color: color-mix(in oklab, var(--ua-ink) 75%, #5b6c80);
+}
+.teaser-card--highlight .teaser-card__body{
+  background: linear-gradient(135deg, rgba(10,11,16,.94) 0%, rgba(10,11,16,.78) 100%);
+}
+.teaser-card--highlight .teaser-card__body h3{ color:#fff; }
+.teaser-card--highlight .teaser-card__body p,
+.teaser-card--highlight .teaser-card__body li{ color:rgba(255,255,255,.86); }
+.teaser-card__list{
+  margin:0;
+  padding-left:1.15rem;
+  list-style:disc;
+  display:grid;
+  gap:6px;
+  font-size:.95rem;
+}
+.teaser-card__list li{ line-height:1.5; }
+.packages-teaser__cta{
+  display:flex;
+  justify-content:center;
+}
+.packages-teaser__cta .btn{
+  min-width: 220px;
+}
+@media (max-width: 680px){
+  .packages-teaser__cta .btn{
+    width:100%;
+  }
+}
 
 /* Events section accents */
 .events{ background: color-mix(in oklab, #fff 96%, var(--ua-sky) 4% / 7%); border-block:1px solid #ecf1f6 }
@@ -546,60 +677,72 @@ a:focus, button:focus, input:focus{ outline:3px solid var(--ua-sky); outline-off
   <!-- =========================
        PACKAGES
   ========================== -->
-  <section id="packages" class="section">
+  <section id="packages" class="section packages-teaser-section">
     <div class="container">
-      <div class="section-head ed-ghost" data-ghost="UNWIND">
+      <div class="section-head ed-ghost" data-ghost="ESCAPES">
         <div>
-          <p class="ed-kicker">Packages</p>
-          <h2 class="ed-title">Pick your style of unwind</h2>
+          <p class="ed-kicker">Signature packages</p>
+          <h2 class="ed-title">Choose your favourite way to unwind</h2>
           <div class="rule" aria-hidden="true"></div>
-          <p class="ed-sub">From intimate getaways to city-scale productions — transparent tiers, concierge care.</p>
+          <p class="ed-sub">Me Time (Solo) for personal glow, Family escapes for multi-gen memories, and Group Getaways when your crew wants a cinematic escape.</p>
         </div>
-        <a class="btn primary-outline" href="#contact">Talk to a planner</a>
+        <a class="btn primary-outline" href="{% url 'contact' %}">Plan with us</a>
       </div>
 
-      <div class="tiles img-mono">
-        <!-- Intimate Retreats -->
-        <article class="tile">
-          <div class="media">
-            <img src="https://images.unsplash.com/photo-1519822471110-9f6b79f4a2f2?q=80&w=1800&auto=format&fit=crop" alt="Intimate retreats by the coast" />
-            <span class="chip">Retreats</span>
-          </div>
-          <div class="body">
-            <h3>Intimate Retreats</h3>
-            <p class="muted">Wellness-forward weekends for couples, families, and small teams.</p>
-            <div class="meta"><span>Calm • Care • Connection</span></div>
-            <a class="btn link-cta" href="#contact">Explore →</a>
-          </div>
-        </article>
+      <div class="packages-teaser">
+        <div class="packages-teaser-grid">
+          <article class="teaser-card teaser-card--highlight">
+            <div class="teaser-card__media">
+              <img loading="lazy" src="{% static 'assets/home/orchid.jpg' %}" alt="Me Time solo retreat experience" />
+              <span class="teaser-card__tag">Me Time</span>
+            </div>
+            <div class="teaser-card__body">
+              <h3>Me Time (Solo)</h3>
+              <p>Concierge-led rituals for founders, creatives, and calm seekers ready to reset without compromise.</p>
+              <ul class="teaser-card__list">
+                <li>Private concierge with spa and chef pairings</li>
+                <li>Mindful itineraries from daycations to five-night stays</li>
+                <li>Optional therapy, photography, and golden-hour cruises</li>
+              </ul>
+            </div>
+          </article>
 
-        <!-- Signature Parties -->
-        <article class="tile">
-          <div class="media">
-            <img src="https://images.unsplash.com/photo-1541534401786-2077eed87a72?q=80&w=1800&auto=format&fit=crop" alt="Design-led signature party" />
-            <span class="chip">Parties</span>
-          </div>
-          <div class="body">
-            <h3>Signature Parties</h3>
-            <p class="muted">Design-led celebrations with real-time coordination.</p>
-            <div class="meta"><span>Rhythm • Style • Joy</span></div>
-            <a class="btn link-cta" href="#contact">Explore →</a>
-          </div>
-        </article>
+          <article class="teaser-card">
+            <div class="teaser-card__media">
+              <img loading="lazy" src="{% static 'assets/packages/excursion.jpeg' %}" alt="Family escape adventure" />
+              <span class="teaser-card__tag">Family</span>
+            </div>
+            <div class="teaser-card__body">
+              <h3>Family</h3>
+              <p>Comfort-forward escapes with multi-room villas, built-in play, and keepsakes so every generation feels seen.</p>
+              <ul class="teaser-card__list">
+                <li>Curated excursions that balance play with calm downtime</li>
+                <li>Hosted meals with kid-approved menus</li>
+                <li>Complimentary content capture for the memories</li>
+              </ul>
+            </div>
+          </article>
 
-        <!-- Cultural Experiences -->
-        <article class="tile">
-          <div class="media">
-            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1800&auto=format&fit=crop" alt="Cultural experiences and hidden gems" />
-            <span class="chip">Culture</span>
-          </div>
-          <div class="body">
-            <h3>Cultural Experiences</h3>
-            <p class="muted">Local insight, hidden-gem venues, authentic hospitality.</p>
-            <div class="meta"><span>Discovery • Flavor • Belonging</span></div>
-            <a class="btn link-cta" href="#contact">Explore →</a>
-          </div>
-        </article>
+          <article class="teaser-card">
+            <div class="teaser-card__media">
+              <img loading="lazy" src="{% static 'assets/home/packages/royal.jpeg' %}" alt="Group getaway experience" />
+              <span class="teaser-card__tag">Group</span>
+            </div>
+            <div class="teaser-card__body">
+              <h3>Group Getaways</h3>
+              <p>Scaled hospitality for teams and crews craving cinematic itineraries, impact moments, and luxury concierge flow.</p>
+              <ul class="teaser-card__list">
+                <li>Dedicated event captains and on-site hosts</li>
+                <li>Signature dinners, lighting, and AV pods</li>
+                <li>Partner network across Lagos, Accra, Cape Town &amp; beyond</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+
+        <div class="packages-teaser__cta">
+          <a class="btn primary-solid" href="{% url 'packages' %}">Browse all packages</a>
+        </div>
       </div>
     </div>
   </section>
@@ -733,13 +876,13 @@ a:focus, button:focus, input:focus{ outline:3px solid var(--ua-sky); outline-off
         <a class="btn primary-outline" href="#contact">Meet the creative team</a>
       </div>
 
-      <div class="masonry img-mono">
-        <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1600&auto=format&fit=crop" alt="Warm celebration" />
-        <img src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=1600&auto=format&fit=crop" alt="Dance floor" />
-        <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1600&auto=format&fit=crop" alt="Forest retreat" />
-        <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1600&auto=format&fit=crop" alt="Tablescape" />
-        <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600&auto=format&fit=crop" alt="Sunset crowd" />
-        <img src="https://images.unsplash.com/photo-1508908324153-eba7b449119e?q=80&w=1600&auto=format&fit=crop" alt="Market night" />
+      <div class="masonry">
+        <img loading="lazy" src="{% static 'assets/home/photography/show_1.jpeg' %}" alt="Romance" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_2.jpg' %}" alt="Event" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_7.jpg' %}" alt="Proposal" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_3.jpeg' %}" alt="Family" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_5.jpg' %}" alt="Dinner" />
+        <img loading="lazy" src="{% static 'assets/home/photography/show_6.jpg' %}" alt="Beach" />
       </div>
     </div>
   </section>
