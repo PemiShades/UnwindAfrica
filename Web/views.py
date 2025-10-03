@@ -112,3 +112,43 @@ def contact(request):
 
 def test(request):
     return render(request, 'Web/tss.html', {})
+
+# Web/views.py
+from django.http import JsonResponse
+from django.core.mail import send_mail
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
+
+@require_POST
+@csrf_protect
+def quote_request(request):
+    name = request.POST.get("name","").strip()
+    email = request.POST.get("email","").strip()
+    phone = request.POST.get("phone","").strip()
+    package = request.POST.get("package","").strip()
+    dates = request.POST.get("dates","").strip()
+    group_size = request.POST.get("group_size","").strip()
+    notes = request.POST.get("notes","").strip()
+    page = request.POST.get("page","").strip()
+    utm = request.POST.get("utm","").strip()
+
+    if not name or not email or not package:
+        return JsonResponse({"ok": False, "error": "Name, email and package are required."}, status=400)
+
+    # (Optional) Persist to DB if you have a Quote model
+    # Quote.objects.create(...)
+
+    # (Optional) Email notification to your team
+    subject = f"[Quote] {package} — {name}"
+    body = (
+        f"Name: {name}\nEmail: {email}\nPhone: {phone}\n"
+        f"Package: {package}\nDates: {dates}\nGroup size: {group_size}\n"
+        f"Notes:\n{notes}\n\n"
+        f"Page: {page}\nReferrer: {utm}\n"
+    )
+    try:
+        send_mail(subject, body, "no-reply@unwindafrica.com", ["hello@unwindafrica.com"], fail_silently=True)
+    except Exception:
+        pass
+
+    return JsonResponse({"ok": True})

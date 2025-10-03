@@ -1,162 +1,135 @@
-<!DOCTYPE html>
-<html>
+﻿<!DOCTYPE html>
+<html lang="en">
 <head>
-	{% load static %}
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- 	<link rel="stylesheet" type="text/css" href="{% static '/css/main.css' %}">	
-	<link rel="stylesheet" type="text/css" href="{% static '/css/header.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static '/css/about-1.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static '/css/marquee_section.css' %}"> -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-<link rel="icon" href="{% static 'images/LOGO.png' %}" type="image/x-icon">
-	<link href="https://fonts.googleapis.com/css2?family=Saira:wght@400;600;700&display=swap" rel="stylesheet">
-	<script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  {% load static %}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="icon" href="{% static 'images/LOGO.png' %}" type="image/x-icon" />
+
+  <!-- Fonts (deduped) -->
+  <link href="https://fonts.googleapis.com/css2?family=Saira:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.cdnfonts.com/css/malibu" rel="stylesheet" />
+
+  <!-- Vendor CSS (deduped) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Saira:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+
+  <!-- Tailwind (CDN for dev only) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Your CSS -->
   <link rel="stylesheet" href="{% static 'css/index.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'css/packages_section.css' %}">
-  <link rel="stylesheet" href="{% static 'css/home.css' %}">
-	<title>{% block title %} {% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/packages_section.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/home.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+
+  {% block extra_css %}{% endblock %}
+  <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
-	{% block content %}
-	{% endblock %}
-	<!-- Optional: Animate.css CDN (for fadeIn animations) -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  {% block content %}{% endblock %}
 
-<!-- Animate.css for entrance effects (optional but beautiful) -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  {% block site_footer %}
+  <footer class="ua-footer" aria-label="Unwind Africa footer">
+    <div class="ua-footer-inner">
+      <div class="ua-footer-banner">
+        <span class="ua-tag">It's time to unwind!!</span>
+        <h2>Your next unforgettable experience starts here</h2>
+        <p>We design the kind of celebrations, retreats, and cultural immersions that linger long after the lights come up.</p>
+        <a class="ua-footer-cta" href="#contact" aria-label="Plan your next Unwind Africa experience"><span>&#8677;</span>Plan my experience</a>
+      </div>
 
-<!-- Animate.css for smooth entrance animations -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-
-<!-- FOOTER -->
-<footer>
-  <div class="foot">
-    <div class="foot-grid">
-      
-      <!-- Brand & Address -->
-      <div>
-        <div class="brand" style="margin-bottom:8px">
-          <span class="brand-badge"><span>UA</span></span> Unwind Africa
+      <div class="ua-footer-grid">
+        <div class="ua-footer-col">
+          <h4>Studio</h4>
+          <div class="ua-footer-contact">
+            <span>No 8, Providence Street</span>
+            <span>Lekki Phase 1, Lagos</span>
+            <a href="tel:+2348062067832">+234 806 206 7832</a>
+            <a href="mailto:info@unwindafrica.com">info@unwindafrica.com</a>
+          </div>
         </div>
-        <p style="margin:8px 0; font-size:14px; color:#5d6b81;">
-          No 8, Providence Street,<br>
-          Lekki Phase 1,<br>
-          Lagos, Nigeria.
-        </p>
-        <small>© <span id="year"></span> Unwind Africa. Crafted with Luxury & Care.</small>
+
+        <div class="ua-footer-col">
+          <h4>Experiences</h4>
+          <ul>
+            <li><a href="#packages">Retreats &amp; wellness</a></li>
+            <li><a href="#events">Signature parties</a></li>
+            <li><a href="#showcase">Creative showcase</a></li>
+          </ul>
+        </div>
+
+        <div class="ua-footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="/about">About Unwind Africa</a></li>
+            <li><a href="/blog">Journal</a></li>
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+        </div>
+
+        <div class="ua-footer-col">
+          <h4>Stay in the loop</h4>
+          <p style="margin:0 0 .8rem; color:rgba(245,247,255,.7);">Receive curated itineraries and insider venue drops.</p>
+          <form onsubmit="event.preventDefault();alert('Subscribed!');">
+            <input type="email" name="newsletter-email" placeholder="Email address" required
+              style="width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(5,6,10,.65);color:#fff;" />
+            <button class="btn secondary-ink" style="width:100%;margin-top:10px;">Keep me inspired</button>
+          </form>
+        </div>
       </div>
 
-      <!-- Company Links -->
-      <div>
-        <strong>Company</strong>
-        <div><a href="/about">About</a></div>
-        <div><a href="/blog">Blog</a></div>
-        <div><a href="#contact">Contact</a></div>
-      </div>
-
-      <!-- Explore Links -->
-      <div>
-        <strong>Explore</strong>
-        <div><a href="/packages">Packages</a></div>
-        <div><a href="#experiences">Experiences</a></div>
-        <div><a href="#top">Home</a></div>
-      </div>
-
-      <!-- Newsletter -->
-      <div>
-        <strong>Newsletter</strong>
-        <form onsubmit="event.preventDefault();alert('Subscribed!')">
-          <input placeholder="Email address" 
-                 style="width:100%;padding:10px;border-radius:10px;
-                        border:1px solid var(--border);background:#fff;margin:8px 0" />
-          <button class="btn btn-ghost" style="width:100%">Subscribe</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Contact Info & Socials -->
-    <div style="margin-top:40px; text-align:center">
-      <div style="margin-bottom:12px;">
-        <a href="mailto:Info@unwindafrica.com" 
-           style="font-weight:600; font-size:16px; color:#334155; text-decoration:none;">
-          Info@unwindafrica.com
-        </a>
-      </div>
-      <div style="margin-bottom:12px;">
-        <a href="tel:+2348062067832" style="margin-right:16px; color:#334155;">+234 8062067832</a>
-        <a href="tel:+2348038268669" style="color:#334155;">+234 8038268669</a>
-      </div>
-      <div class="socials" style="display:flex;justify-content:center;gap:16px;font-size:20px;color:#5d6b81;">
-        <a href="#" aria-label="Facebook" style="color:#1877f2;"><i class="fab fa-facebook-f"></i></a>
-        <a href="#" aria-label="Instagram" style="color:#e4405f;"><i class="fab fa-instagram"></i></a>
-        <a href="#" aria-label="Twitter" style="color:#1da1f2;"><i class="fab fa-twitter"></i></a>
+      <div class="ua-footer-bottom">
+        <div class="ua-footer-brand">Unwind Africa</div>
+        <div>&copy; <span id="year"></span> Crafted for unforgettable nights and luminous mornings.</div>
+        <div class="ua-footer-social">
+          <a href="https://www.instagram.com" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://www.facebook.com" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://www.twitter.com" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+        </div>
       </div>
     </div>
+  </footer>
+  {% endblock %}
 
-  </div>
-</footer>
-
-<script>
-  // auto-update year
-  document.getElementById("year").textContent = new Date().getFullYear();
-</script>
-
-
-
-
-
-
-<script>
-  // Auto-update year
-</script>
-
-</body>
+  <!-- Vendor JS (place BEFORE closing body) -->
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-  <script src="{% static 'javascript/main.js' %}">  </script>
-  <!-- In <head> -->
-<link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
-
-<!-- Required Scripts -->
-<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
-
-<script>
-  // AOS Init
-  AOS.init({ duration: 1000, once: true });
-
-  // Vanilla Tilt Init
-  VanillaTilt.init(document.querySelectorAll(".tilt"), {
-    max: 15,
-    speed: 400,
-    glare: true,
-    "max-glare": 0.2,
-  });
-
-  document.getElementById("year").textContent = new Date().getFullYear();
-  // Mouse Glow
-  const glow = document.getElementById("mouse-glow");
-  document.addEventListener("mousemove", (e) => {
-    const x = e.clientX - 80;
-    const y = e.clientY - 80;
-    glow.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-  });
-</script>
-  <!-- Before </body> -->
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-<!--   <script>
-    AOS.init({
-      once: true,
-      duration: 1000,
-      easing: 'ease-out-cubic',
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+
+  <!-- Your JS -->
+  <script src="{% static 'javascript/main.js' %}"></script>
+
+  <script>
+    // one-time year stamp
+    (function() {
+      var el = document.getElementById('year');
+      if (el) el.textContent = new Date().getFullYear();
+    })();
+
+    // AOS init
+    AOS.init({ duration: 1000, once: true });
+
+    // Vanilla Tilt
+    VanillaTilt.init(document.querySelectorAll(".tilt"), {
+      max: 15, speed: 400, glare: true, "max-glare": 0.2
     });
+
+    // Optional mouse glow (guarded)
+    (function(){
+      var glow = document.getElementById("mouse-glow");
+      if (!glow) return;
+      document.addEventListener("mousemove", function(e){
+        var x = e.clientX - 80, y = e.clientY - 80;
+        glow.style.transform = "translate3d(" + x + "px," + y + "px,0)";
+      });
+    })();
   </script>
- -->
+
+  {% block extra_js %}{% endblock %}
+</body>
 </html>

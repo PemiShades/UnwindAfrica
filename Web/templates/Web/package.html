@@ -1,0 +1,678 @@
+{% extends 'Web/main.html' %}
+{% load static %}
+
+{% block title %} Unwind Packages {% endblock %}
+
+{% block content %}
+
+<style>
+  /* ------------------ Base Reset ------------------ */
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  img,video{max-width:100%;display:block}
+  a{color:inherit;text-decoration:none}
+  :root{
+    --ink:#0b1a2b;
+    --muted:#5c6b7a;
+    --brand:#0e6ba8;
+    --brand-2:#107e7d;
+    --accent:#6b8e23;
+    --bg:#ffffff;
+    --bg-2:#f6f8fb;
+    --card:#ffffff;
+    --shadow:0 10px 30px rgba(0,0,0,.08);
+    --radius:14px;
+
+    /* gold system for premium buttons */
+    --gold-1:#cda434;
+    --gold-2:#f6e27a;
+    --gold-3:#9f7a20;
+    --ring:#8bb4ff;
+  }
+  body{font-family: Arial, Helvetica, sans-serif; color: #000; background:var(--bg); line-height:1.6}
+  .container{width:min(1200px,92%);margin-inline:auto}
+
+  /* ------------------ Top Notice & Nav ------------------ */
+  .topline{font-size:.8rem;letter-spacing:.08em;text-align:center;padding:.75rem 1rem;color:var(--muted)}
+  .nav{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid #e8edf3}
+  .nav .bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 0}
+  .logo{display:flex;align-items:center;gap:.6rem;font-weight:800;letter-spacing:.02em}
+  .logo .dot{width:10px;height:10px;border-radius:50%;background:var(--brand)}
+  .navlinks{display:flex;gap:1rem;flex-wrap:wrap}
+  .navlinks a{padding:.55rem .9rem;border-radius:999px;border:1px solid #e3e9f0;font-size:.92rem;color:#1d2a39}
+  .navlinks a:hover,.navlinks a.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+  /* ------------------ Hero ------------------ */
+  .hero{position:relative;width:100%;min-height:40vh;display:grid;place-items:center;}
+  .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.25))}
+  .hero .inner{position:relative;z-index:1;text-align:center;color:#fff;padding:3rem 1rem}
+  .eyebrow{font-size:.85rem;letter-spacing:.18em;opacity:.9}
+  h1.display{font-size:clamp(2.2rem,4vw,3.5rem);margin:.6rem 0 1rem;letter-spacing:.02em}
+  .lead{max-width:850px;margin:0 auto;font-size:1.05rem;opacity:.95}
+  .video-bg{position:absolute;inset:0;z-index:0}
+  .video-bg video{width:100%;height:100%;object-fit:cover}
+
+  /* ------------------ Premium Buttons ------------------ */
+  .btn{
+    --btn-bg: linear-gradient(135deg, var(--gold-1) 0%, var(--gold-2) 55%, var(--gold-3) 100%);
+    --btn-text: #1a1205;
+    --btn-shadow: 0 10px 22px rgba(205,164,52,.22), 0 2px 6px rgba(0,0,0,.06);
+    --btn-radius: 999px;
+
+    display:inline-flex; align-items:center; justify-content:center; gap:.55rem;
+    padding:.9rem 1.25rem;
+    border-radius: var(--btn-radius);
+    font-weight:800; letter-spacing:.02em;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    border:1px solid rgba(177,142,36,.55);
+    box-shadow: var(--btn-shadow);
+    cursor:pointer;
+    transition: transform .12s ease, box-shadow .2s ease, filter .2s ease;
+    text-shadow: 0 1px 0 rgba(255,255,255,.25);
+  }
+  .btn:hover{ transform: translateY(-1px); filter: saturate(1.05) brightness(1.02); }
+  .btn:active{ transform: translateY(0); filter: brightness(.98); }
+  .btn:focus-visible{ outline: 3px solid var(--ring); outline-offset: 2px; }
+
+  .btn-ghost{
+    display:inline-flex; align-items:center; justify-content:center; gap:.55rem;
+    padding:.9rem 1.15rem; border-radius:999px; font-weight:700;
+    background:#f3f6fb; color:#0b1a2b; border:1px solid #e3e9f0; box-shadow: 0 6px 16px rgba(0,0,0,.06);
+    transition: transform .12s ease, background .2s ease, border-color .2s ease;
+  }
+  .btn-ghost:hover{ transform: translateY(-1px); background:#eef3f9; border-color:#d7e1ee; }
+  .btn-soft{
+    display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+    padding:.85rem 1.1rem; border-radius:999px; font-weight:700;
+    background:#fff; color:#1d2a39; border:1px solid #e6eaf0; box-shadow: 0 8px 18px rgba(0,0,0,.06);
+  }
+  .btn-soft:hover{ background:#f9fbff; }
+
+  /* ------------------ Royal-Style Explore Section ------------------ */
+  .rc-block{padding:3.5rem 0;border-top:1px solid #eef3f8}
+  .rc-title{letter-spacing:.14em;text-align:center;color:var(--muted);font-size:.82rem}
+  .rc-head{font-size:clamp(1.6rem,3.5vw,2.6rem);text-align:center;margin:.4rem 0 1.2rem;letter-spacing:.02em}
+  .rc-subnav{display:flex;justify-content:center;gap:.8rem;flex-wrap:wrap;margin-bottom:1.2rem}
+  .rc-subnav a{font-size:.86rem;padding:.5rem .9rem;border-radius:999px;border:1px solid #e3e9f0}
+  .rc-desc{max-width:980px;margin:0 auto 2rem;color:var(--muted);text-align:center}
+  .rc-section-title{margin:2.5rem 0 .4rem;color:#1d2a39;font-size:.9rem;letter-spacing:.18em}
+  .rc-section-head{font-size:clamp(1.4rem,2.8vw,2.1rem);margin:.2rem 0 .6rem}
+  .rc-section-copy{max-width:900px;color:var(--muted)}
+
+  /* ------------------ Grid & Cards ------------------ */
+  .mosaic{display:grid;gap:12px;grid-template-columns:repeat(6,1fr)}
+  .tile{position:relative;overflow:hidden;border-radius:12px;box-shadow:var(--shadow);min-height:170px}
+  .tile img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
+  .tile:hover img{transform:scale(1.08)}
+  .tile .label{position:absolute;inset:auto 0 0 0;padding:1rem;background:linear-gradient(180deg,transparent,rgba(0,0,0,.75));color:#fff;text-transform:uppercase;font-weight:900;letter-spacing:.08em;text-align:center}
+  .tile.feature{grid-column:span 3;grid-row:span 2;min-height:360px}
+  .tile.t2{grid-column:span 2}
+
+  @media (max-width:900px){.mosaic{grid-template-columns:repeat(2,1fr)}.tile.feature{grid-column:1/-1;grid-row:auto;min-height:260px}.tile.t2{grid-column:auto}}
+
+  section{padding:3rem 0}
+  section h2{font-size:clamp(1.4rem,3vw,2rem);margin:0 0 .6rem}
+  .section-intro{color:var(--muted);margin:0 0 1.5rem}
+  .grid{display:grid;gap:1.2rem}
+  .grid-3{grid-template-columns:repeat(3,1fr)}
+  @media (max-width:980px){.grid-3{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:680px){.grid-3{grid-template-columns:1fr}}
+
+  .card{position:relative;overflow:hidden;border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow)}
+  .card .imgwrap{position:relative;aspect-ratio: 3 / 2;background:#e9eef4}
+  .card .imgwrap img{width:100%;height:100%;object-fit:cover}
+  .card .badge{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.7);color:#fff;padding:.35rem .6rem;border-radius:999px;font-size:.78rem}
+  .card .body{padding:1rem 1rem 1.2rem}
+  .card h3{margin:.2rem 0 .35rem;font-size:1.15rem}
+  .card ul{margin:.6rem 0 0 1rem;color:var(--muted)}
+
+  /* ------------------ URS Highlights ------------------ */
+  .highlights{background:var(--bg-2);border-top:1px solid #eef3f8;border-bottom:1px solid #eef3f8}
+  .pill_packagegrid{display:grid;gap:.8rem;grid-template-columns:repeat(3,1fr)}
+  .pill_package{background:#fff;border:1px solid #e9eef4;border-radius:12px;padding:1rem;box-shadow:var(--shadow)}
+  .pill_package b{display:block;margin-bottom:.35rem}
+  @media (max-width:820px){.pill_packagegrid{grid-template-columns:1fr}}
+
+  /* ------------------ CTA Banner (fixed overlay) ------------------ */
+  .cta{
+    position:relative;
+    margin:2.5rem 0 0;
+    background:url('{% static "assets/packages/banner.jpg" %}') center/cover no-repeat;
+    border-radius:18px;
+    overflow:hidden;
+  }
+  .cta::after{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(0,0,0,.36), rgba(0,0,0,.48)),
+                radial-gradient(120% 120% at 0% 0%, rgba(205,164,52,.15), transparent 60%);
+    pointer-events:none; /* <<< lets clicks pass through */
+    z-index:1;           /* overlay sits below the inner */
+  }
+  .cta .inner{
+    position:relative;
+    z-index:2;           /* <<< ensures the button stays above the overlay */
+    color:#fff;
+    padding:2.4rem 1.8rem;
+    text-align:center;
+  }
+  .cta .inner h2{ margin:0 0 .25rem; font-size:clamp(1.4rem,3vw,2rem); }
+  .cta .inner p{ opacity:.95; margin:0 0 .8rem; }
+  .cta .actions{ display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; }
+
+  /* ------------------ Utility ------------------ */
+  .sr{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
+
+  /* FAQ pill_package Fix */
+  .pill_package { word-break: break-word; overflow-wrap: anywhere; min-width: 0; }
+  #faq .grid { min-width: 0; }
+  @media (max-width:680px) { #faq .grid { grid-template-columns: 1fr !important; } }
+
+  /* ------------------ Modal (centered, elegant) ------------------ */
+  .ua-modal{
+    position:fixed; inset:0; z-index:1000;
+    display:none;
+  }
+  .ua-modal[data-open]{ display:block; }
+  .ua-modal__overlay{
+    position:absolute; inset:0;
+    background: rgba(2,8,23,.55);
+    backdrop-filter: blur(2px);
+  }
+  .ua-modal__dialog{
+    position:absolute; inset:0;
+    display:grid; place-items:center; padding:18px;
+  }
+  .ua-modal__card{
+    width:min(760px, 92vw);
+    background:#fff; border-radius:20px;
+    box-shadow: 0 24px 70px rgba(0,0,0,.28);
+    overflow:hidden;
+    animation: modalIn .2s ease-out;
+  }
+  @keyframes modalIn{ from{ transform:translateY(10px); opacity:.7 } to{ transform:none; opacity:1 } }
+  .ua-modal__head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 18px; border-bottom:1px solid #eef3f8;
+    background: linear-gradient(180deg,#fff, #fbfcff);
+  }
+  .ua-modal__title{ margin:0; font-size:1.15rem; letter-spacing:.02em; color:#0b1a2b; }
+  .ua-modal__close{
+    appearance:none; border:0; background:#fff; color:#1d2a39;
+    width:36px; height:36px; border-radius:999px; cursor:pointer;
+    font-size:1.2rem; line-height:36px; text-align:center;
+    border:1px solid #e6eaf0; box-shadow: 0 8px 18px rgba(0,0,0,.06);
+  }
+  .ua-modal__close:hover{ background:#f8fafc; }
+  .ua-modal__body{ padding:18px; }
+
+  /* form */
+  .ua-form .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .ua-form .row-1{grid-template-columns:1fr}
+  .ua-form .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+  .ua-form .field label{font-size:.9rem;color:#344255}
+  .ua-form .field input,.ua-form .field select,.ua-form .field textarea{
+    border:1px solid #dfe7f0;border-radius:10px;padding:.75rem .8rem;font-size:1rem;outline:none;
+    background:#fff; color:#0b1a2b;
+  }
+  .ua-form .field input:focus,.ua-form .field select:focus,.ua-form .field textarea:focus{
+    border-color:#c9d6ea; box-shadow: 0 0 0 3px rgba(139,180,255,.25);
+  }
+  .ua-form .help{font-size:.8rem;color:#6b7a8b}
+  .ua-modal__actions{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}
+  .ua-status{margin-top:10px;font-size:.9rem}
+  .ua-status.ok{color:#0a7a4b}
+  .ua-status.err{color:#b02a37}
+  .required::after{content:" *";color:#b02a37}
+  @media (max-width:680px){.ua-form .row{grid-template-columns:1fr}}
+</style>
+
+<!-- HERO -->
+<header class="hero">
+  {% include './partials/header/navbar.html'%}
+  {% include './partials/header/hamburger-menu.html' with faq_link="/about#faq"%}
+  <div class="video-bg">
+    <video autoplay muted loop playsinline preload="none" poster="{% static 'assets/videos/spa2_poster.jpg' %}" fetchpriority="high">
+      <source src="{% static 'assets/videos/spa2.webm' %}" type="video/webm">
+      <source src="{% static 'assets/videos/spa2.mp4' %}" type="video/mp4">
+    </video>
+  </div>
+  <div class="inner container">
+    <div class="eyebrow">WELLNESS • LUXURY • MEMORIES</div>
+    <h1 class="display">Explore Signature Experiences</h1>
+    <p class="lead">From spa-soaked solo escapes to unforgettable family and group getaways — plus pro photography to capture it all. Flexible payment plans, bespoke planning, and premium partners across Africa.</p>
+    <a class="btn" href="#faq">View Packages & Pricing</a>
+  </div>
+</header>
+
+<!-- ROYAL-CARIBBEAN STYLE SECTION -->
+<section id="explore" class="rc-block">
+  <div class="container">
+    <div class="rc-title">EXPLORE MORE WAYS TO UNWIND</div>
+    <h2 class="rc-head">Over 25 Experiences To Choose From</h2>
+    <div class="rc-subnav">
+      <a href="#solo">Me Time (Solo)</a>
+      <a href="#family">Family</a>
+      <a href="#group">Group Getaways</a>
+      <a href="#photo">Photography & Videography</a>
+      <a href="#urs">URS Plans</a>
+    </div>
+    <p class="rc-desc">Choose from a curated selection of wellness-focused services, luxury celebrations, scenic escapes, and bespoke experiences. Our team plans everything — spa sessions, private chefs, yacht cruises, anniversaries, proposals, therapy, mindfulness, and more — so you can unwind in style.</p>
+  </div>
+</section>
+
+<!-- SOLO PACKAGES -->
+<section id="solo">
+  <div class="container">
+    <h2>Me Time – Solo Packages</h2>
+    <p class="section-intro">Indulge in self-care with flower-inspired itineraries. Every package includes concierge support, wellness activities, and options for therapy or coaching on request.</p>
+    <div class="grid grid-3">
+      <article class="card">
+        <div class="imgwrap"><span class="badge">1 Day</span>
+          <img src="{% static 'assets/home/sunflower.jpg' %}" alt="Sunflower package" loading="lazy" decoding="async">
+        </div>
+        <div class="body">
+          <h3>Sunflower</h3>
+          <p>Private room • Personalized spa treatment • Gourmet meal delivery.</p>
+          <ul>
+            <li>Check-in day access (08:00–20:00)</li>
+            <li>Choice of massage or medi-pedi</li>
+            <li>Mindfulness guide & tea ritual</li>
+          </ul>
+          <button class="btn" type="button" data-open-quote="Sunflower (Solo)">Get Quote</button>
+        </div>
+      </article>
+      <article class="card">
+        <div class="imgwrap"><span class="badge">2D / 1N</span>
+          <img src="{% static 'assets/home/daisy.jpg' %}" alt="Daisy package" loading="lazy" decoding="async">
+        </div>
+        <div class="body">
+          <h3>Daisy</h3>
+          <p>Serene villa • In-room meditation • Calming activities.</p>
+          <ul>
+            <li>Breakfast & dinner included</li>
+            <li>Guided breathwork session</li>
+            <li>Evening bath & aromatherapy</li>
+          </ul>
+          <button class="btn" type="button" data-open-quote="Daisy (Solo)">Get Quote</button>
+        </div>
+      </article>
+      <article class="card">
+        <div class="imgwrap"><span class="badge">3D / 2N</span>
+          <img src="{% static 'assets/home/lily.jpg' %}" alt="Lily package" loading="lazy" decoding="async">
+        </div>
+        <div class="body">
+          <h3>Lily</h3>
+          <p>Luxury self-care: spa, gourmet meals, and private excursions.</p>
+          <ul>
+            <li>Sunrise yoga • Late checkout</li>
+            <li>Driver for 1 city tour</li>
+            <li>Photo mini-session (optional)</li>
+          </ul>
+          <button class="btn" type="button" data-open-quote="Lily (Solo)">Get Quote</button>
+        </div>
+      </article>
+      <article class="card">
+        <div class="imgwrap"><span class="badge">4D / 3N</span>
+          <img src="{% static 'assets/home/rose.jpg' %}" alt="Rose package" loading="lazy" decoding="async">
+        </div>
+        <div class="body">
+          <h3>Rose</h3>
+          <p>Private villa • Customized therapies • Exclusive wellness center access.</p>
+          <ul>
+            <li>Private chef tasting night</li>
+            <li>Mindfulness & sound bath</li>
+            <li>Complimentary late checkout</li>
+          </ul>
+          <button class="btn" type="button" data-open-quote="Rose (Solo)">Get Quote</button>
+        </div>
+      </article>
+      <article class="card">
+        <div class="imgwrap"><span class="badge">5D / 4N</span>
+          <img src="{% static 'assets/home/orchid.jpg' %}" alt="Orchid package" loading="lazy" decoding="async">
+        </div>
+        <div class="body">
+          <h3>Orchid</h3>
+          <p>Ultimate solo luxury • Personalized attention • Private activities.</p>
+          <ul>
+            <li>Full spa itinerary & concierge</li>
+            <li>Private boat or picnic option</li>
+            <li>Premium photo add-on available</li>
+          </ul>
+          <button class="btn" type="button" data-open-quote="Orchid (Solo)">Get Quote</button>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- FAMILY PACKAGES -->
+<section id="family" class="highlights">
+  <div class="container">
+    <h2>Family Packages</h2>
+    <p class="section-intro">Designed for bonding and ease. For families with more than 5 members, contact us for a custom quote.</p>
+    <div class="grid grid-3">
+      <article class="card">
+        <div class="imgwrap"><span class="badge">2D / 1N</span>
+          <img src="{% static 'assets/packages/treats.jpg' %}" alt="Oakwood family" loading="lazy" decoding="async">
+        </div>
+        <div class="body"><h3>Oakwood (Weekend Getaway)</h3><p>Relaxed pace with family-friendly activities and cozy lodging.</p><ul><li>Welcome treats • Game night kit</li><li>Breakfast for 5</li><li>Mini-shoot add-on</li></ul><button class="btn" type="button" data-open-quote="Oakwood (Family)">Get Quote</button></div>
+      </article>
+      <article class="card">
+        <div class="imgwrap"><span class="badge">3D / 2N</span>
+          <img src="{% static 'assets/packages/kids.jpg' %}" alt="Willow family" loading="lazy" decoding="async">
+        </div>
+        <div class="body"><h3>Willow</h3><p>Balance of relaxation and exploration for all ages.</p><ul><li>Guided family activity</li><li>One spa session for parents</li><li>Kiddies corner access</li></ul><button class="btn" type="button" data-open-quote="Willow (Family)">Get Quote</button></div>
+      </article>
+      <article class="card">
+        <div class="imgwrap"><span class="badge">4D / 3N</span>
+          <img src="{% static 'assets/packages/driver.jpeg' %}" alt="Palm Grove family" loading="lazy" decoding="async">
+        </div>
+        <div class="body"><h3>Palm Grove</h3><p>Adventure, beach time, and scenic picnics.</p><ul><li>Two guided outings</li><li>Family photo session</li><li>Private driver (4 hrs)</li></ul><button class="btn" type="button" data-open-quote="Palm Grove (Family)">Get Quote</button></div>
+      </article>
+      <article class="card">
+        <div class="imgwrap"><span class="badge">5D / 4N</span>
+          <img src="{% static 'assets/packages/chef.jpg' %}" alt="Cypress family" loading="lazy" decoding="async">
+        </div>
+        <div class="body"><h3>Cypress</h3><p>Extended retreat with flexible daily plans.</p><ul><li>Chef-prepared dinner (1 night)</li><li>Couples spa add-on</li><li>Kids club access</li></ul><button class="btn" type="button" data-open-quote="Cypress (Family)">Get Quote</button></div>
+      </article>
+      <article class="card">
+        <div class="imgwrap"><span class="badge">7D / 6N</span>
+          <img src="{% static 'assets/packages/excursion.jpeg' %}" alt="Maple family" loading="lazy" decoding="async">
+        </div>
+        <div class="body"><h3>Maple</h3><p>Ultimate family vacation — everything handled by our team.</p><ul><li>Three excursions included</li><li>Daily breakfast • 2 dinners</li><li>Complimentary video montage</li></ul><button class="btn" type="button" data-open-quote="Maple (Family)">Get Quote</button></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- GROUP GETAWAYS -->
+<section id="group">
+  <div class="container">
+    <h2>Group Getaways</h2>
+    <p class="section-intro">Luxurious group escapes that create lifelong memories. Spa treatments, shared activities, private boat cruises, and breathtaking views.</p>
+    <div class="grid grid-3">
+      <article class="card"><div class="imgwrap"><span class="badge">7 Days</span><img src="{% static 'assets/home/packages/royal.jpeg' %}" alt="Royal group" loading="lazy" decoding="async"></div><div class="body"><h3>Royal</h3><p>Ultimate 7-day luxury — unwind in style.</p><ul><li>VIP welcomes & private transfers</li><li>Daily activity plan</li><li>Signature group dinner</li></ul><button class="btn" type="button" data-open-quote="Royal (Group)">Get Quote</button></div></article>
+      <article class="card"><div class="imgwrap"><span class="badge">4N / 3D</span><img src="{% static 'assets/home/packages/presidential.jpeg' %}" alt="Presidential group" loading="lazy" decoding="async"></div><div class="body"><h3>Presidential</h3><p>4 nights of pure bliss and relaxation.</p><ul><li>Resort access • Spa circuit</li><li>Sunset cruise or rooftop soirée</li><li>Dedicated host</li></ul><button class="btn" type="button" data-open-quote="Presidential (Group)">Get Quote</button></div></article>
+      <article class="card"><div class="imgwrap"><span class="badge">3N / 2D</span><img src="{% static 'assets/home/packages/elite.jpg' %}" alt="Elite group" loading="lazy" decoding="async"></div><div class="body"><h3>Elite</h3><p>Short, premium reboot for high-energy squads.</p><ul><li>Welcome brunch</li><li>Adventure add-on (ATV / hike)</li><li>Poolside DJ hour</li></ul><button class="btn" type="button" data-open-quote="Elite (Group)">Get Quote</button></div></article>
+      <article class="card"><div class="imgwrap"><span class="badge">2N / 3D</span><img src="{% static 'assets/home/packages/ultimate.jpg' %}" alt="Ultimate group" loading="lazy" decoding="async"></div><div class="body"><h3>Ultimate</h3><p>Packed with highlights for quick getaways.</p><ul><li>Chef tasting or tapas tour</li><li>Night spa • Movie under stars</li><li>Airport meet & greet</li></ul><button class="btn" type="button" data-open-quote="Ultimate (Group)">Get Quote</button></div></article>
+      <article class="card"><div class="imgwrap"><span class="badge">2D / 1N</span><img src="{% static 'assets/home/packages/imperial.jpg' %}" alt="Imperial group" loading="lazy" decoding="async"></div><div class="body"><h3>Imperial</h3><p>Short, imperial-level comfort.</p><ul><li>Signature lunch</li><li>Massage for 2</li><li>Private lounge hour</li></ul><button class="btn" type="button" data-open-quote="Imperial (Group)">Get Quote</button></div></article>
+      <article class="card"><div class="imgwrap"><span class="badge">1 Day</span><img src="{% static 'assets/home/packages/classic.jpg' %}" alt="Classic group" loading="lazy" decoding="async"></div><div class="body"><h3>Classic</h3><p>Day of relaxation and fun.</p><ul><li>Pool access & games</li><li>Snack platters</li><li>Host-led activities</li></ul><button class="btn" type="button" data-open-quote="Classic (Group)">Get Quote</button></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- PHOTOGRAPHY & VIDEOGRAPHY -->
+<section id="photo" class="highlights">
+  <div class="container">
+    <h2>Photography & Videography</h2>
+    <p class="section-intro">Capture your story with romantic golden-hour sessions, family portraits, weddings, proposals, and aerial landscapes.</p>
+    <div class="grid grid-3">
+      <article class="card"><div class="imgwrap"><span class="badge">Love Story</span><img src="{% static 'assets/home/packages/sunset.jpg' %}" alt="Sunset Serenade" loading="lazy" decoding="async"></div><div class="body"><h3>Sunset Serenade</h3><p>Romantic golden hour on the beach.</p><ul><li>60–90 mins • 20+ edits</li><li>Location styling guide</li><li>Optional violinist add-on</li></ul><button class="btn" type="button" data-open-quote="Photography — Sunset Serenade">Get Quote</button></div></article>
+      <article class="card"><div class="imgwrap"><span class="badge">Family</span><img src="{% static 'assets/home/packages/family-ties.jpg' %}" alt="Family Ties" loading="lazy" decoding="async"></div><div class="body"><h3>Family Ties</h3><p>Document family bonding in serene spaces.</p><ul><li>Wardrobe coordination</li><li>Prints available</li><li>Grandparents add-on</li></ul><button class="btn" type="button" data-open-quote="Photography — Family Ties">Get Quote</button></div></article>
+      <article class="card"><div class="imgwrap"><span class="badge">Newborn</span><img src="{% static 'assets/home/packages/new-beginnings.jpg' %}" alt="New Beginnings" loading="lazy" decoding="async"></div><div class="body"><h3>New Beginnings</h3><p>Tender, intimate shots for newborn arrivals.</p><ul><li>Home or studio</li><li>Sanitized props</li><li>Sibling inclusion</li></ul><button class="btn" type="button" data-open-quote="Photography — New Beginnings">Get Quote</button></div></article>
+      <article class="card"><div class="imgwrap"><span class="badge">Nature's Canvas</span><img src="{% static 'assets/home/packages/oceanic-odyssey.jpg' %}" alt="Oceanic Odyssey" loading="lazy" decoding="async"></div><div class="body"><h3>Oceanic Odyssey</h3><p>Waves, sunsets, and dramatic ocean views.</p><ul><li>Sunset timing plan</li><li>Safety assistant</li><li>Drone add-on</li></ul><button class="btn" type="button" data-open-quote="Photography — Oceanic Odyssey">Get Quote</button></div></article>
+      <article class="card"><div class="imgwrap"><span class="badge">Proposal</span><img src="{% static 'assets/home/packages/proposal.jpg' %}" alt="Proposal Perfection" loading="lazy" decoding="async"></div><div class="body"><h3>Proposal Perfection</h3><p>Capture the surprise and magic of your moment.</p><ul><li>Planner coordination</li><li>Hidden-lens setup</li><li>Same-day preview</li></ul><button class="btn" type="button" data-open-quote="Photography — Proposal Perfection">Get Quote</button></div></article>
+      <article class="card"><div class="imgwrap"><span class="badge">Wedding</span><img src="{% static 'assets/home/packages/wedding.jpg' %}" alt="Wedding Wonderland" loading="lazy" decoding="async"></div><div class="body"><h3>Wedding Wonderland</h3><p>Elegant coverage with cinematic edits.</p><ul><li>Multiple shooters</li><li>Highlight film</li><li>Album design option</li></ul><button class="btn" type="button" data-open-quote="Photography — Wedding Wonderland">Get Quote</button></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- URS HIGHLIGHTS -->
+<section id="urs">
+  <div class="container">
+    <h2>Unwind Relaxation Services (URS)</h2>
+    <p class="section-intro">Flexible quarterly payments for annual benefits that are worth more than you pay — empowering balance, connection, and mental well-being.</p>
+    <div class="pill_packagegrid">
+      <div class="pill_package"><b>Relaxation Essentials</b><span>Massages, medi-pedi sessions, and more.</span></div>
+      <div class="pill_package"><b>Luxury Experiences</b><span>Private jet travel, luxury cars, exclusive events.</span></div>
+      <div class="pill_package"><b>Wellness Focus</b><span>Counseling, therapy, and mindfulness activities.</span></div>
+      <div class="pill_package"><b>Celebrations</b><span>Birthdays, anniversaries, and weekend getaways.</span></div>
+      <div class="pill_package"><b>Capturing Memories</b><span>Photography & videography for your moments.</span></div>
+      <div class="pill_package"><b>Exclusive Access</b><span>Debutante balls, orchestral nights, VIP gatherings.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ / DETAILS -->
+<section id="faq" class="highlights">
+  <div class="container">
+    <h2>Frequently Asked</h2>
+    <div class="grid" style="grid-template-columns:repeat(2,1fr);gap:1.2rem">
+      <div class="pill_package">
+        <b>Can you customize any package?</b>
+        <div>Yes. All itineraries are fully customizable — add private chefs, therapy sessions, yacht cruises, proposals, or extra nights.</div>
+      </div>
+      <div class="pill_package">
+        <b>How do payments work?</b>
+        <div>We offer flexible quarterly plans under URS. Secure with a deposit; balance is scheduled before travel dates.</div>
+      </div>
+      <div class="pill_package">
+        <b>What’s included?</b>
+        <div>Core inclusions are listed on each card. Most packages include concierge support, select meals, wellness activities, and photo add-ons.</div>
+      </div>
+      <div class="pill_package">
+        <b>Large families & corporate groups?</b>
+        <div>For groups over 5 family members or corporate retreats, we prepare a tailored quote with bulk perks.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER (overlay fixed; premium buttons) -->
+<div class="container cta">
+  <div class="inner">
+    <h2>Ready to Get Started?</h2>
+    <p>Tell us your dates and preferences — we’ll handle the rest.</p>
+    <div class="actions">
+      <button class="btn" id="openQuoteBtn" type="button" aria-haspopup="dialog" aria-controls="quoteModal">
+        Request a Quote
+      </button>
+      <a href="/contact" class="btn-ghost">Talk to Concierge</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Request a Quote Modal (centered) ===== -->
+<div id="quoteModal" class="ua-modal" aria-hidden="true">
+  <div class="ua-modal__overlay" data-close></div>
+  <div class="ua-modal__dialog">
+    <div class="ua-modal__card" role="dialog" aria-modal="true" aria-labelledby="quoteTitle" aria-describedby="quoteDesc" tabindex="-1">
+      <div class="ua-modal__head">
+        <h3 id="quoteTitle" class="ua-modal__title">Request a Quote</h3>
+        <button class="ua-modal__close" type="button" aria-label="Close" data-close>×</button>
+      </div>
+      <div class="ua-modal__body">
+        <p id="quoteDesc" class="ua-desc" style="margin:0 0 6px;color:#5c6b7a">Give us a few details and we’ll craft a tailored plan.</p>
+
+        <form id="quoteForm" class="ua-form" method="post" action="{% url 'quote_request' %}">
+          {% csrf_token %}
+          <div class="row">
+            <div class="field">
+              <label class="required" for="q_name">Full Name</label>
+              <input id="q_name" name="name" type="text" placeholder="e.g., Segilola Awolesi" required>
+            </div>
+            <div class="field">
+              <label class="required" for="q_email">Email</label>
+              <input id="q_email" name="email" type="email" placeholder="you@example.com" required>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="q_phone">Phone / WhatsApp</label>
+              <input id="q_phone" name="phone" type="tel" placeholder="+234...">
+            </div>
+            <div class="field">
+              <label class="required" for="q_package">Package</label>
+              <select id="q_package" name="package" required>
+                <option value="" selected disabled>Select a package</option>
+                <option>Sunflower (Solo)</option>
+                <option>Daisy (Solo)</option>
+                <option>Lily (Solo)</option>
+                <option>Rose (Solo)</option>
+                <option>Orchid (Solo)</option>
+                <option>Oakwood (Family)</option>
+                <option>Willow (Family)</option>
+                <option>Palm Grove (Family)</option>
+                <option>Cypress (Family)</option>
+                <option>Maple (Family)</option>
+                <option>Royal (Group)</option>
+                <option>Presidential (Group)</option>
+                <option>Elite (Group)</option>
+                <option>Ultimate (Group)</option>
+                <option>Imperial (Group)</option>
+                <option>Classic (Group)</option>
+                <option>Photography — Sunset Serenade</option>
+                <option>Photography — Family Ties</option>
+                <option>Photography — New Beginnings</option>
+                <option>Photography — Oceanic Odyssey</option>
+                <option>Photography — Proposal Perfection</option>
+                <option>Photography — Wedding Wonderland</option>
+                <option>Custom / Not Listed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="q_dates">Preferred Date(s)</label>
+              <input id="q_dates" name="dates" type="text" placeholder="e.g., 18–21 Oct or flexible">
+            </div>
+            <div class="field">
+              <label for="q_group">Group Size</label>
+              <input id="q_group" name="group_size" type="number" min="1" placeholder="e.g., 2, 5, 12">
+            </div>
+          </div>
+
+          <div class="row row-1">
+            <div class="field">
+              <label for="q_notes">Notes / Preferences</label>
+              <textarea id="q_notes" name="notes" rows="4" placeholder="Dietary needs, room type, budget range, celebrations, etc."></textarea>
+              <div class="help">We’ll reply within 24 hours with options and pricing.</div>
+            </div>
+          </div>
+
+          <!-- Hidden context -->
+          <input type="hidden" name="page" value="{{ request.build_absolute_uri|default:'' }}">
+          <input type="hidden" name="utm" value="{{ request.META.HTTP_REFERER|default:'' }}">
+
+          <div class="ua-modal__actions">
+            <button class="btn-soft" type="button" data-close>Cancel</button>
+            <button class="btn" type="submit" id="quoteSubmitBtn">Send request</button>
+          </div>
+          <div class="ua-status" id="quoteStatus" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts: Modal + POST + Prefill + Save-Data -->
+<script>
+(function(){
+  const modal = document.getElementById('quoteModal');
+  const dialog = modal.querySelector('[role="dialog"]');
+  const openBtn = document.getElementById('openQuoteBtn');
+  const form = document.getElementById('quoteForm');
+  const statusEl = document.getElementById('quoteStatus');
+  const submitBtn = document.getElementById('quoteSubmitBtn');
+  const firstField = document.getElementById('q_name');
+  const focusable = () => dialog.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+
+  function open(){
+    modal.setAttribute('data-open','');
+    modal.setAttribute('aria-hidden','false');
+    document.documentElement.style.overflow = 'hidden';
+    setTimeout(()=> firstField?.focus(), 10);
+  }
+  function close(){
+    modal.removeAttribute('data-open');
+    modal.setAttribute('aria-hidden','true');
+    document.documentElement.style.overflow = '';
+    statusEl.textContent = "";
+    form.reset();
+    openBtn?.focus();
+  }
+
+  openBtn?.addEventListener('click', open);
+  modal.addEventListener('click', (e)=>{ if(e.target.closest('[data-close]') || e.target.classList.contains('ua-modal__overlay')) close(); });
+  window.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && modal.hasAttribute('data-open')) close();
+
+    // simple focus trap
+    if(e.key === 'Tab' && modal.hasAttribute('data-open')){
+      const nodes = Array.from(focusable());
+      if(!nodes.length) return;
+      const first = nodes[0], last = nodes[nodes.length - 1];
+      if(e.shiftKey && document.activeElement === first){ last.focus(); e.preventDefault(); }
+      else if(!e.shiftKey && document.activeElement === last){ first.focus(); e.preventDefault(); }
+    }
+  });
+
+  // Prefill when "Get Quote" buttons on cards are clicked
+  document.querySelectorAll('[data-open-quote]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const pkg = btn.getAttribute('data-open-quote');
+      const sel = document.getElementById('q_package');
+      if(pkg && sel){
+        let matched = false;
+        [...sel.options].forEach(o=>{ if(o.textContent===pkg){ sel.value=o.value; matched = true; } });
+        if(!matched){ sel.selectedIndex = 0; }
+      }
+      open();
+    });
+  });
+
+  // CSRF helper (Django)
+  function getCookie(name){
+    const v = document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith(name+'='));
+    return v ? decodeURIComponent(v.split('=')[1]) : '';
+  }
+  const csrftoken = getCookie('csrftoken');
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    statusEl.textContent = "";
+    submitBtn.disabled = true; submitBtn.textContent = "Sending…";
+
+    try{
+      const resp = await fetch(form.action || '/quotes/request/', {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrftoken},
+        body: new FormData(form),
+      });
+
+      if(!resp.ok){ throw new Error('Request failed: ' + resp.status); }
+
+      let data = {};
+      try { data = await resp.json(); } catch(_) {}
+
+      if(data.ok !== false){
+        statusEl.className = 'ua-status ok';
+        statusEl.textContent = "Thank you! We’ve received your request and will contact you shortly.";
+        setTimeout(close, 1400);
+      } else {
+        statusEl.className = 'ua-status err';
+        statusEl.textContent = data.error || "Sorry, something went wrong. Please try again.";
+      }
+    }catch(err){
+      statusEl.className = 'ua-status err';
+      statusEl.textContent = "Network error. Please check your connection and try again.";
+    }finally{
+      submitBtn.disabled = false; submitBtn.textContent = "Send request";
+    }
+  });
+
+  // Respect Save-Data for the hero video
+  if (navigator.connection && navigator.connection.saveData) {
+    document.querySelectorAll('.video-bg video').forEach(v=>{
+      v.removeAttribute('autoplay');
+      v.pause && v.pause();
+    });
+  }
+})();
+</script>
+
+{% endblock %}

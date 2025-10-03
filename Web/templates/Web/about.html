@@ -1,240 +1,343 @@
 {% extends 'Web/main.html' %}
 {% load static %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-{% block title %} About Us {% endblock %}
-{% block content %}
-	{% include './partials/header/navbar.html' with theme='dark'%}
-	{% include './partials/header/hamburger-menu.html' with faq_link='#faq' %}
-	{% load static %}
-	<div class="relative w-full  overflow-hidden py-4 bg-white" >
-	  <!-- Fade edges -->
-	  <div class="pointer-events-none absolute top-0 left-0 h-full w-32 bg-gradient-to-r from-white to-transparent z-10"></div>
-	  <div class="pointer-events-none absolute top-0 right-0 h-full w-32 bg-gradient-to-l from-white to-transparent z-10"></div>
 
-	  <!-- Scrolling content -->
-	  <div class="animate-marquee flex gap-16 w-max" style="margin-top: 100px;">
-	    <div class=" text-[6rem] sm:text-[9rem] md:text-[9rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
-	    <div class=" text-[6rem] sm:text-[9rem] md:text-[9rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
-	    <div class=" text-[6rem] sm:text-[9rem] md:text-[9rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
-	    <div class=" text-[6rem] sm:text-[9rem] md:text-[9rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
-	    <div class=" text-[6rem] sm:text-[9rem] md:text-[9rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
-	    <div class=" text-[6rem] sm:text-[9rem] md:text-[9rem] font-saira-bold ">Luxury. Connection. Wellness.</div>
-	  </div>
-	</div>
-	<!-- <div class="marquee-container pt-16 mx-auto overflow-hidden">
-	 <p class="marquee-text font-saira font-semibold text-2xl sm:text-5xl md:text-8xl">Luxury. Connection. Wellness.</p>
-	</div> -->
-	<div class="container mx-auto px-4">
-	 <div class="header">
-	    <h2 class="font-saira font-normal text-[20px] md:text-[40px] leading-text tracking-normal mb-20">
-	       <span class="font-light text-[15px] mr-3">ABOUT US</span>Unwind Africa curates luxurious, soulful experiences designed to restore calm and celebrate life’s finest moments. From solo escapes to
-	       family getaways, our tailored packages offer connection, relaxation, and wellness—because true serenity is not a luxury, but a necessity.
-	    </h2>
-	 </div>
-	 <!-- Include Animate.css for animations (optional but powerful) -->
+{% block title %}About - Unwind Africa{% endblock %}
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --ua-sky:#00B2FF;
+  --ua-sea:#00C2FF;
+  --ua-sun:#FFB648;
+  --ua-ink:#0A0B10;
+  --ua-paper:#FFFFFF;
+  --ua-fog:#F6F8FC;
+  --radius:18px;
+  --shadow:0 22px 48px rgba(10,11,16,.12);
+  --container:min(1120px, 92vw);
+}
 
-	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-	  <!-- Text Section -->
-	  <div class="flex flex-col md:flex-row justify-between items-center gap-10 mb-12 animate__animated animate__fadeInUp">
-	    <div class="flex flex-col items-start text-left">
-	      <h1 class="text-3xl md:text-5xl font-bold text-gray-900 leading-tight mb-2 relative after:block after:w-16 after:h-1 after:bg-teal-400 after:mt-2">
-	        Our Vision
-	      </h1>
-	    </div>
-	    <p class="text-gray-700 text-base sm:text-lg md:text-xl font-medium leading-relaxed max-w-3xl text-right md:text-center animate__animated animate__fadeIn animate__delay-1s">
-	      Empowering individuals, couples, families, and organizations to 
-	      <span class="text-teal-600">prioritize relaxation</span>, 
-	      <span class="text-teal-600">self-care</span>, and 
-	      <span class="text-teal-600">meaningful connections</span>, 
-	      fostering a culture of wellness and balance.
-	    </p>
-	  </div>
+.about-page{
+  background:var(--ua-paper);
+  color:var(--ua-ink);
+  font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow:hidden;
+}
+img{max-width:100%;display:block;height:auto;border-radius:var(--radius);}
+a{text-decoration:none;color:inherit;}
+.section{padding-block:clamp(72px,10vw,132px);} 
+.container{width:var(--container);margin-inline:auto;padding-inline:clamp(18px,3.5vw,42px);} 
 
-	  <!-- Image Section -->
-	  <div class="w-full rounded-xl overflow-hidden shadow-2xl animate__animated animate__fadeInUp animate__delay-2s">
-	    <img
-	      src="{% static './assets/about/ransford-quaye-X47o1phzMTU-unsplash.jpg' %}"
-	      alt="A happy family enjoying the beach, representing wellness and connection."
-	      class="w-full h-auto object-cover transition-transform duration-700 hover:scale-105 rounded-xl"
-	    />
-	  </div>
-	</div>
+.ed-kicker{text-transform:uppercase;font-weight:900;letter-spacing:.18em;font-size:.72rem;color:var(--ua-sky);} 
+.ed-title{font-family:"Playfair Display", ui-serif, Georgia, serif;font-weight:900;letter-spacing:-.015em;font-size:clamp(2.4rem,6vw,4.8rem);margin:0 0 clamp(12px,2vw,18px);} 
+.ed-sub{max-width:68ch;font-size:clamp(1rem,1.8vw,1.2rem);margin:0;color: 
+ color-mix(in oklab, #ffffff 70%, #ffffff);} 
+.rule{width:70px;height:4px;border-radius:3px;background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));margin-block:12px 20px;}
 
-	 <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 mt-8">
-	    <div class="w-full md:w-1/2 rounded-lg overflow-hidden shadow-lg">
-	       <img
-	          src="{% static './assets/about/olivia-bauso-8qnHYPEKtU0-unsplash 1.jpg' %}"
-	          alt="Family standing by the water, looking out at the sea, representing connection and peace."
-	          class="w-full h-auto object-cover rounded-lg"
-	       />
-	    </div>
+.about-hero{position:relative;min-height:78vh;display:flex;align-items:center;color:#fff;overflow:hidden;background:#04070e;}
+.about-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(4,7,14,.8) 0%,rgba(4,7,14,.3) 65%,rgba(4,7,14,.72) 100%);z-index:1;}
+.about-hero::after{content:"";position:absolute;inset:0;background:url("{% static 'assets/about/ransford-quaye-X47o1phzMTU-unsplash.jpg' %}") center/cover no-repeat;opacity:.72;z-index:0;transform:scale(1.05);}
+.about-hero .nav-wrapper{position:absolute;top:0;left:0;width:100%;z-index:3;}
+.about-hero .hero-content{position:relative;z-index:2;display:grid;gap:clamp(18px,3vw,26px);padding-block:clamp(120px,16vw,180px);} 
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;} 
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:.85rem 1.4rem;border-radius:999px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border:2px solid transparent;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease;} 
+.btn.primary-solid{background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));color:#0b172a;box-shadow:0 16px 34px rgba(0,178,255,.28);} 
+.btn.secondary-outline{border-color:rgba(255,255,255,.55);color:#fff;background:transparent;} 
+.btn.secondary-ink{background:#0A0B10;color:#fff;border-color:#0A0B10;} 
+.btn:hover{transform:translateY(-3px);}
 
-	    <div class="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
-	       <div class="flex items-center justify-center mb-4">
-	          <i class="fas fa-bullseye text-4xl md:text-5xl text-gray-900 mr-4"></i>
-	          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">Our Purpose</h2>
-	       </div>
-	       <p class="text-lg md:text-xl text-gray-700 leading-relaxed max-w-xl">
-	          Unwind Africa Limited aims to make relaxation and socialization experiences accessible to all, promoting a culture of wellness and balance in our communities.
-	       </p>
-	    </div>
-	 </div>
-	 <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center md:items-center justify-between gap-8 mt-8">
-	    <div class="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
-	       <div class="flex items-center justify-center mb-4">
-	          <i class="fas fa-bullseye text-4xl md:text-5xl text-gray-900 mr-4"></i>
-	          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">Our Missions</h2>
-	       </div>
-	       <p class="text-lg md:text-xl text-gray-700 leading-relaxed max-w-xl">
-	          Unwind Africa Limited aims to make relaxation and socialization experiences accessible to all, promoting a culture of wellness and balance in our communities.
-	       </p>
-	    </div>
-	    <div class="w-full md:w-1/2 rounded-lg overflow-hidden shadow-lg">
-	       <img
-	          src="{% static './assets/about/dylan-sauerwein-YFItC9nQK7o-unsplash.jpg' %}"
-	          alt="Family standing by the water, looking out at the sea, representing connection and peace."
-	          class="w-full h-auto object-cover rounded-lg"
-	       />
-	    </div>
-	 </div>
+.about-pillars{display:grid;gap:clamp(20px,3vw,28px);grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
+.pillar-card{background:#fff;border-radius:var(--radius);padding:clamp(22px,3vw,28px);box-shadow:var(--shadow);display:grid;gap:12px;position:relative;overflow:hidden;}
+.pillar-card::after{content:"";position:absolute;inset:auto -40% -40% auto;width:160px;height:160px;border-radius:50%;background:color-mix(in oklab,var(--ua-sky) 18%,transparent);opacity:.4;}
+.pillar-card h3{margin:0;font-family:"Playfair Display", serif;font-size:1.4rem;}
+.pillar-card p{margin:0;color:color-mix(in oklab,var(--ua-ink) 68%,#5f6c80);} 
 
-	 <div class="max-w-7xl max-auto bg-white text-white pt-9 pb-4">
-	    <h3 class="font-saira text-black text-center font-normal text-[20px] md:text-[40px] leading-[1] py-4">WHY CHOOSE UNWIND AFRICA</h3>
-	    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-8 item-center">
-	       <div class="bg-[rgba(80,72,66,1)] py-8 px-6">
-	          <h3 class="font-saira font-bold text-[20px] md:text-[32px] leading-[1] pb-3">Personalised Plannning</h3>
-	          <p class="font-saira font-light leading-[1] text-[10px] md:text-[20px]">
-	             Every journey with us is curated to match your rhythm, your interests, and your lifestyle. From private retreats to custom itineraries, we craft experiences as unique as you are.
-	          </p>
-	       </div>
-	       <div class="bg-[rgba(80,72,66,1)] py-8 px-6">
-	          <h3 class="font-saira font-bold text-[20px] md:text-[32px] leading-[1] pb-3">Wellness-Centred</h3>
-	          <p class="font-saira font-light leading-[1] text-[10px] md:text-[20px]">
-	             Our approach goes beyond relaxation — it's about restoration. We prioritize your physical, emotional, and mental well-being with immersive wellness practices rooted in African
-	             traditions and tranquility.
-	          </p>
-	       </div>
-	       <div class="bg-[rgba(174,75,0,1)] py-8 px-6">
-	          <h3 class="font-saira font-bold text-[20px] md:text-[32px] leading-[1] pb-3">Lasting Impact</h3>
-	          <p class="font-saira font-light leading-[1] text-[10px] md:text-[20px]">
-	             Your journey supports local communities and sustainable travel practices. Travel with meaning — leave a footprint of respect, not disruption.
-	          </p>
-	       </div>
-	    </div>
-	 </div>
+.split{display:grid;gap:clamp(24px,5vw,48px);grid-template-columns:repeat(auto-fit,minmax(260px,1fr));align-items:center;}
+.split .copy{display:grid;gap:clamp(16px,3vw,24px);} 
+.split .badge-stack{display:flex;flex-wrap:wrap;gap:10px;}
+.badge{display:inline-flex;align-items:center;justify-content:center;padding:.4rem .9rem;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(255,255,255,.28);} 
 
-<!-- AOS (Animate On Scroll) CSS -->
+.story-section{background:linear-gradient(135deg,color-mix(in oklab,var(--ua-sun) 26%,#fff) 0%,color-mix(in oklab,var(--ua-sky) 24%,#fff) 100%);color:var(--ua-ink);} 
+.story-section .container{color:var(--ua-ink);} 
+.story-section .copy p{color:color-mix(in oklab,var(--ua-ink) 78%,#4d5b70);} 
+.story-section img{border-radius:24px;box-shadow:0 24px 48px rgba(10,11,16,.18);} 
 
-	<div class="max-w-7xl mx-auto px-4 md:px-8 py-12 inter-font">
-	  <h2 class="text-center font-bold text-3xl md:text-6xl mb-12 tracking-widest text-gray-800">
-	    MEET OUR TEAM
-	  </h2>
+.timeline{display:grid;gap:clamp(20px,3vw,32px);grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
+.timeline-card{background:#fff;border-radius:var(--radius);padding:clamp(22px,3vw,28px);box-shadow:var(--shadow);display:grid;gap:10px;position:relative;}
+.timeline-card span{font-weight:900;letter-spacing:.14em;color:var(--ua-sky);font-size:.72rem;text-transform:uppercase;}
+.timeline-card h3{margin:0;font-family:"Playfair Display", serif;font-size:1.35rem;}
+.timeline-card p{margin:0;color:color-mix(in oklab,var(--ua-ink) 70%,#5d6a7d);} 
 
-	  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-	    
-	    <!-- TEAM MEMBER -->
-	    <div data-aos="fade-up" class="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center transform transition-transform hover:-translate-y-2 hover:shadow-2xl duration-300">
-	      <img src="{% static './assets/about/DSC_0024.jpg' %}" alt="Olajumoke Ogudipe"
-	           class="w-32 h-32 object-cover rounded-full shadow-md mb-4" />
-	      <h3 class="text-xl font-semibold text-gray-800">Olajumoke Ogudipe</h3>
-	      <p class="text-gray-600 text-sm mt-1">Executive Director</p>
-	    </div>
+.team{
+  position:relative;
+  background:linear-gradient(180deg,#f5f7fb 0%,#eef2f8 100%);
+}
+.team .container{
+  position:relative;
+  z-index:1;
+}
+.team-grid{
+  display:grid;
+  gap:clamp(24px,3vw,32px);
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+}
+.team-card{
+  position:relative;
+  display:grid;
+  gap:clamp(16px,2vw,20px);
+  padding:clamp(28px,3vw,34px);
+  border-radius:calc(var(--radius) + 4px);
+  background:#fff;
+  border:1px solid rgba(9,22,44,.08);
+  box-shadow:0 22px 44px rgba(9,22,44,.08);
+  justify-items:start;
+  text-align:left;
+  transition:transform .3s ease,box-shadow .3s ease,border-color .3s ease;
+}
+.team-card:hover{
+  transform:translateY(-10px);
+  box-shadow:0 32px 56px rgba(9,22,44,.14);
+  border-color:rgba(9,22,44,.16);
+}
+.team-card>*{
+  position:relative;
+  z-index:1;
+}
+.team-card img{
+  width:100%;
+  aspect-ratio:1;
+  border-radius:calc(var(--radius) + 2px);
+  object-fit:cover;
+  border:1px solid rgba(9,22,44,.08);
+  box-shadow:0 12px 24px rgba(9,22,44,.08);
+  transition:transform .3s ease,box-shadow .3s ease;
+}
+.team-card:hover img{
+  transform:translateY(-6px);
+  box-shadow:0 20px 40px rgba(9,22,44,.18);
+}
+.role-tag{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  align-self:start;
+  padding:.55rem 1.2rem;
+  border-radius:999px;
+  font-size:.72rem;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  background:#0c1f3f;
+  color:#f5f8ff;
+}
+.team-card h3{
+  margin:0;
+  font-family:"Playfair Display", serif;
+  font-size:clamp(1.34rem,2.2vw,1.62rem);
+  letter-spacing:-.01em;
+  line-height:1.24;
+  color:#0a1b33;
+}
+.team-card .bio{
+  margin:0;
+  font-size:.96rem;
+  line-height:1.68;
+  color:color-mix(in oklab,var(--ua-ink) 62%,#5b6574);
+  max-width:34ch;
+}
+.faq{background:#0A0B10;color:#f6f9ff;} 
+.faq .container{display:grid;gap:clamp(24px,4vw,36px);} 
+.faq-item{background:rgba(246,249,255,.08);border-radius:var(--radius);padding:clamp(18px,3vw,26px);border:1px solid rgba(255,255,255,.12);transition:transform .2s ease,background .2s ease;} 
+.faq-item:hover{transform:translateY(-4px);background:rgba(246,249,255,.14);} 
+.faq-item h3{margin:0;font-family:"Playfair Display", serif;font-size:1.3rem;color:#fff;} 
+.faq-item p{margin:10px 0 0;color:rgba(246,249,255,.82);font-size:1rem;} 
 
-	    <!-- TEAM MEMBER -->
-	    <div data-aos="fade-up" data-aos-delay="100" class="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center transform transition-transform hover:-translate-y-2 hover:shadow-2xl duration-300">
-	      <img src="{% static './assets/about/IMG-20250517-WA0019 (1).jpg' %}" alt="Grace Henshaw"
-	           class="w-32 h-32 object-cover rounded-full shadow-md mb-4" />
-	      <h3 class="text-xl font-semibold text-gray-800">Grace Henshaw</h3>
-	      <p class="text-gray-600 text-sm mt-1">
-	        Life Coaching, Family Life Therapy, Trauma-Informed Management
-	      </p>
-	    </div>
+.cta-band{background:linear-gradient(135deg,color-mix(in oklab,var(--ua-sun) 50%,#0b1224) 0%,color-mix(in oklab,var(--ua-sky) 52%,#0b1224) 100%);color:#091020;} 
+.cta-card{background:#fff;border-radius:var(--radius);padding:clamp(28px,5vw,44px);box-shadow:var(--shadow);display:grid;gap:clamp(16px,3vw,24px);text-align:center;} 
+.cta-card p{margin:0;color:color-mix(in oklab,var(--ua-ink) 70%,#526176);} 
+.cta-actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;} 
 
-	    <!-- TEAM MEMBER -->
-	    <div data-aos="fade-up" data-aos-delay="200" class="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center transform transition-transform hover:-translate-y-2 hover:shadow-2xl duration-300">
-	      <img src="{% static './assets/about/DSC_0745 1.jpg' %}" alt="Yomi Sodunke"
-	           class="w-32 h-32 object-cover rounded-full shadow-md mb-4" />
-	      <h3 class="text-xl font-semibold text-gray-800">Yomi Sodunke</h3>
-	      <p class="text-gray-600 text-sm mt-1">Media Director</p>
-	    </div>
-
-	    <!-- TEAM MEMBER -->
-	    <div data-aos="fade-up" data-aos-delay="300" class="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center transform transition-transform hover:-translate-y-2 hover:shadow-2xl duration-300">
-	      <img src="{% static './assets/about/passport Feyikemi (1).jpg' %}" alt="Feyikemi Adeniran"
-	           class="w-32 h-32 object-cover rounded-full shadow-md mb-4" />
-	      <h3 class="text-xl font-semibold text-gray-800">Feyikemi Adeniran</h3>
-	      <p class="text-gray-600 text-sm mt-1">Event Coordinator</p>
-	    </div>
-
-	    <!-- TEAM MEMBER -->
-	    <div data-aos="fade-up" data-aos-delay="400" class="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center transform transition-transform hover:-translate-y-2 hover:shadow-2xl duration-300">
-	      <img src="{% static './assets/about/be10a6a1f4e9342511bbfedd8949bbfd_0 (2).jpg' %}" alt="Tope Olujobi"
-	           class="w-32 h-32 object-cover rounded-full shadow-md mb-4" />
-	      <h3 class="text-xl font-semibold text-gray-800">Tope Olujobi</h3>
-	      <p class="text-gray-600 text-sm mt-1">Relaxation Specialist</p>
-	    </div>
-
-	  </div>
-	</div>
-
-</div>
-
-
-<!-- AOS (Animate On Scroll) CSS -->
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
-<div id="faq" class="max-w-7xl px-4 md:px-8 mx-auto py-16 bg-white font-saira">
-  <h2 class="text-3xl sm:text-4xl md:text-6xl font-semibold text-center text-gray-900 mb-16 leading-snug tracking-tight">
-    Frequently Asked Questions<br />(FAQ)
-  </h2>
-
-  <div class="space-y-12 text-gray-800">
-    
-    <!-- FAQ ITEM -->
-    <div data-aos="fade-up" class="transition-transform duration-300 hover:scale-[1.01]">
-      <p class="text-xl md:text-2xl font-semibold mb-3 text-gray-900">
-        What types of experiences does Unwind Africa offer?
-      </p>
-      <p class="text-base sm:text-lg leading-relaxed text-gray-700">
-        Unwind Africa curates personalized wellness, travel, and celebration experiences — from solo escapes and romantic retreats to milestone events and family getaways.
-        Each package is designed to blend luxury with serenity and soulful living.
-      </p>
-    </div>
-
-    <!-- FAQ ITEM -->
-    <div data-aos="fade-up" data-aos-delay="100" class="transition-transform duration-300 hover:scale-[1.01]">
-      <p class="text-xl md:text-2xl font-semibold mb-3 text-gray-900">
-        Can I customize my getaway or wellness experience?
-      </p>
-      <p class="text-base sm:text-lg leading-relaxed text-gray-700">
-        Absolutely. We specialize in bespoke services. Whether it's a curated spa package, a scenic destination, or an intimate celebration, our team works closely with you
-        to personalize every detail for a meaningful and memorable experience.
-      </p>
-    </div>
-
-    <!-- FAQ ITEM -->
-    <div data-aos="fade-up" data-aos-delay="200" class="transition-transform duration-300 hover:scale-[1.01]">
-      <p class="text-xl md:text-2xl font-semibold mb-3 text-gray-900">
-        How do I book an experience or get in touch with your team?
-      </p>
-      <p class="text-base sm:text-lg leading-relaxed text-gray-700">
-        You can explore packages and request a consultation directly through our website. For personalized bookings, brand partnerships, or inquiries, simply use our contact form or reach
-        out via email or phone — our team will be glad to assist you.
-      </p>
-    </div>
-
-  </div>
-</div>
-</div>
-
-
+@media (max-width:640px){
+  .hero-actions .btn{width:100%;justify-content:center;}
+  .team-card{padding:24px;}
+}
+</style>
 {% endblock %}
-<!-- AOS Script -->
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script>
-  AOS.init({
-    duration: 800,
-    once: true,
-    easing: 'ease-out'
-  });
-</script>
+
+{% block content %}
+<div class="about-page">
+  <header class="about-hero">
+    <div class="nav-wrapper">
+      {% include './partials/header/navbar.html' %}
+      {% include './partials/header/hamburger-menu.html' with faq_link='#faq' %}
+    </div>
+    <div class="hero-content container">
+      <p class="ed-kicker">About us</p>
+      <h1 class="ed-title">We choreograph calm, connection, and unforgettable stories.</h1>
+      <div class="rule" aria-hidden="true"></div>
+      <p class="ed-sub">Unwind Africa designs luxury experiences and wellness-led escapes that feel like an exhale. From me-time rituals to multi-city productions, we ensure every moment lands with intention.</p>
+      <div class="hero-actions">
+        <a class="btn primary-solid" href="{% url 'packages' %}">Explore packages</a>
+        <a class="btn secondary-outline" href="{% url 'contact' %}">Talk to concierge</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="section story-section" aria-labelledby="story-title">
+    <div class="container split">
+      <div class="copy">
+        <p class="ed-kicker">Our story</p>
+        <h2 id="story-title" class="ed-title">Born from a love for restorative gatherings.</h2>
+        <p class="ed-sub">We started by curating intimate retreats for friends who were craving calm. Today, our collective of planners, stylists, wellness guides, and storytellers bring intentional luxury to destinations across Africa.</p>
+        <div class="rule" aria-hidden="true"></div>
+        <p>Every Unwind Africa experience blends sensory design, concierge-level logistics, and cultural fluency. Whether it's a three-day solo bloom, a kinship reunion, or a corporate offsite, our team layers in rituals that help guests arrive settled and leave inspired.</p>
+        <div class="badge-stack">
+          <span class="badge">Concierge-led</span>
+          <span class="badge">Wellness-first</span>
+          <span class="badge">Style-forward</span>
+          <span class="badge">Africa-wide</span>
+        </div>
+      </div>
+      <div class="media">
+        <img src="{% static 'assets/about/olivia-bauso-8qnHYPEKtU0-unsplash 1.jpg' %}" alt="Guests enjoying a calm coastal moment" />
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="vision-title">
+    <div class="container">
+      <div class="split" style="align-items:start;">
+        <div class="copy">
+          <p class="ed-kicker">Vision &amp; purpose</p>
+          <h2 id="vision-title" class="ed-title">Luxury that feels personal, wellness that feels accessible.</h2>
+          <p class="ed-sub">We empower individuals, couples, families, and organisations to prioritise rest, self-care, and meaningful connection. Every escape is a bespoke pathway back to balance.</p>
+        </div>
+        <div class="timeline">
+          <article class="timeline-card">
+            <span>Vision</span>
+            <h3>Embed rest into everyday culture.</h3>
+            <p>We imagine communities where intentional downtime is non-negotiable and celebrated.</p>
+          </article>
+          <article class="timeline-card">
+            <span>Purpose</span>
+            <h3>Curate transformative escapes.</h3>
+            <p>Our concierge pod handles details end-to-end so guests can focus on feeling present.</p>
+          </article>
+          <article class="timeline-card">
+            <span>Promise</span>
+            <h3>Design with heart and precision.</h3>
+            <p>Every production is measured against sensory impact, cultural respect, and flawless delivery.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="pillars-title">
+    <div class="container">
+      <p class="ed-kicker">What guides us</p>
+      <h2 id="pillars-title" class="ed-title">Our pillars for unforgettable calm.</h2>
+      <div class="rule" aria-hidden="true"></div>
+      <div class="about-pillars">
+        <article class="pillar-card">
+          <h3>Intentional Design</h3>
+          <p>Space planning, lighting, scent, and sound curated to help your guests settle in minutes.</p>
+        </article>
+        <article class="pillar-card">
+          <h3>Wellness Integration</h3>
+          <p>Therapists, coaches, and mindfulness guides woven into itineraries with care.</p>
+        </article>
+        <article class="pillar-card">
+          <h3>Concierge Logistics</h3>
+          <p>Flights, ground control, dining, gifts, and live updates managed by our on-site hosts.</p>
+        </article>
+        <article class="pillar-card">
+          <h3>Storytelling &amp; Legacy</h3>
+          <p>Photography, film, and editorial recaps that let you relive the glow long after the event.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section team" aria-labelledby="team-title">
+    <div class="container">
+      <p class="ed-kicker">Meet the collective</p>
+      <h2 id="team-title" class="ed-title">The humans behind the calm.</h2>
+      <div class="rule" aria-hidden="true"></div>
+      <p class="ed-sub">Our multidisciplinary team spans experience designers, relaxation specialists, therapists, hospitality leads, and media creatives.</p>
+      <div class="team-grid" role="list">
+        <article class="team-card" role="listitem">
+          <span class="role-tag">EXECUTIVE DIRECTOR</span>
+          <img src="{% static 'assets/about/IMG-20240625-WA0034 1.png' %}" alt="Olajumoke Ogudipe" />
+          <h3>Olajumoke Ogudipe</h3>
+          <p class="bio">Leads the vision, partnerships, and concierge experience.</p>
+        </article>
+        <article class="team-card" role="listitem">
+          <span class="role-tag">LIFE COACHING &AMP; TRAUMA-INFORMED SPECIALIST</span>
+          <img src="{% static 'assets/about/IMG-20250517-WA0019 (1).jpg' %}" alt="Grace Henshaw" />
+          <h3>Grace Henshaw</h3>
+          <p class="bio">Designs wellness frameworks and gentle integration rituals.</p>
+        </article>
+        <article class="team-card" role="listitem">
+          <span class="role-tag">MEDIA DIRECTOR</span>
+          <img src="{% static 'assets/about/DSC_0745 1.jpg' %}" alt="Yomi Sodunke" />
+          <h3>Yomi Sodunke</h3>
+          <p class="bio">Captures stories and crafts cinematic recaps for every gathering.</p>
+        </article>
+        <article class="team-card" role="listitem">
+          <span class="role-tag">EVENT COORDINATOR</span>
+          <img src="{% static 'assets/about/passport Feyikemi (1).jpg' %}" alt="Feyikemi Adeniran" />
+          <h3>Feyikemi Adeniran</h3>
+          <p class="bio">Runs onsite flow and guest logistics with calm precision.</p>
+        </article>
+        <article class="team-card" role="listitem">
+          <span class="role-tag">RELAXATION SPECIALIST</span>
+          <img src="{% static 'assets/about/be10a6a1f4e9342511bbfedd8949bbfd_0 (2).jpg' %}" alt="Tope Olujobi" />
+          <h3>Tope Olujobi</h3>
+          <p class="bio">Curates spa therapies and sensory layers that ground each guest.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="section faq" aria-labelledby="faq-title">
+    <div class="container">
+      <div>
+        <p class="ed-kicker">FAQ</p>
+        <h2 id="faq-title" class="ed-title">Answers for the curious.</h2>
+        <div class="rule" aria-hidden="true"></div>
+      </div>
+      <div class="faq-item">
+        <h3>What types of experiences does Unwind Africa offer?</h3>
+        <p>From solo Me Time rituals to destination celebrations and corporate retreats, we craft bespoke itineraries that blend wellness, culture, and elevated hospitality.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Can I customise my getaway or wellness experience?</h3>
+        <p>Absolutely. We co-design every touchpoint with you&mdash;venues, menus, rituals, gifting, storytelling&mdash;so the experience mirrors your desired mood and budget.</p>
+      </div>
+      <div class="faq-item">
+        <h3>How do I get started with planning?</h3>
+        <p>Share your vision via our contact form or call the concierge desk. Within 48 hours we deliver moodboards, tiered budgets, and timelines to kick-start production.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section cta-band" aria-labelledby="cta-title">
+    <div class="container">
+      <div class="cta-card">
+        <p class="ed-kicker">Ready for your next escape?</p>
+        <h2 id="cta-title" class="ed-title">Let's script the experience everyone keeps talking about.</h2>
+        <p>Tell us who you're hosting, the energy you crave, and your dream destination&mdash;we'll orchestrate the rest.</p>
+        <div class="cta-actions">
+          <a class="btn primary-solid" href="{% url 'contact' %}">Start your brief</a>
+          <a class="btn secondary-ink" href="tel:+2348062067832">Call concierge</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
