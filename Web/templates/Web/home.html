@@ -453,9 +453,13 @@ a{ color:inherit; text-decoration:none }
 .why-grid .tile .body{ min-height: 140px }
 
 /* Nominate banner */
+#nominate.section{
+  padding-block: clamp(40px, 6vw, 72px);
+}
+
 .nominate-band{
   position:relative;
-  padding:clamp(32px, 6vw, 64px);
+  padding:clamp(28px, 5vw, 48px);
   border-radius:calc(var(--radius) * 1.6);
   background:
     radial-gradient(140% 120% at 20% 15%, rgba(0,194,255,.18), transparent 68%),
@@ -489,7 +493,7 @@ a{ color:inherit; text-decoration:none }
   position:relative;
   z-index:1;
   display:grid;
-  gap:clamp(28px, 4vw, 52px);
+  gap:clamp(20px, 3vw, 40px);
 }
 @media(min-width:980px){
   .nominate-grid{
@@ -498,7 +502,7 @@ a{ color:inherit; text-decoration:none }
 }
 .nominate-copy{
   display:grid;
-  gap:clamp(16px, 2vw, 24px);
+  gap:clamp(14px, 2vw, 22px);
 }
 .nominate-tag{
   display:inline-flex;
@@ -527,7 +531,7 @@ a{ color:inherit; text-decoration:none }
 }
 .nominate-benefit-group{
   display:grid;
-  gap:clamp(16px, 2vw, 24px);
+  gap:clamp(14px, 2vw, 22px);
 }
 @media(min-width:760px){
   .nominate-benefit-group{
@@ -538,9 +542,9 @@ a{ color:inherit; text-decoration:none }
   background:rgba(5,6,10,.45);
   border:1px solid rgba(245,247,255,.18);
   border-radius:20px;
-  padding:clamp(18px, 2.4vw, 28px);
+  padding:clamp(16px, 2vw, 24px);
   display:grid;
-  gap:14px;
+  gap:12px;
 }
 .nominate-eyebrow{
   margin:0;
@@ -560,7 +564,7 @@ a{ color:inherit; text-decoration:none }
 .nominate-benefits li{
   display:flex;
   align-items:flex-start;
-  gap:12px;
+  gap:10px;
   font-weight:600;
   line-height:1.4;
 }
@@ -569,7 +573,7 @@ a{ color:inherit; text-decoration:none }
 }
 .nominate-bonus{
   display:flex;
-  gap:14px;
+  gap:12px;
   align-items:flex-start;
 }
 .nominate-bonus span:first-child{
@@ -584,8 +588,8 @@ a{ color:inherit; text-decoration:none }
   display:flex;
   flex-wrap:wrap;
   align-items:center;
-  gap:14px;
-  padding:16px 18px;
+  gap:12px;
+  padding:14px 16px;
   border-radius:18px;
   background:rgba(245,247,255,.12);
   border:1px solid rgba(245,247,255,.14);
@@ -610,11 +614,11 @@ a{ color:inherit; text-decoration:none }
 }
 .nominate-timeline{
   display:grid;
-  gap:14px;
+  gap:12px;
   grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
 }
 .nominate-timeline div{
-  padding:14px 16px;
+  padding:12px 14px;
   border-radius:16px;
   background:rgba(5,6,10,.45);
   border:1px solid rgba(245,247,255,.14);
@@ -637,15 +641,15 @@ a{ color:inherit; text-decoration:none }
 }
 .nominate-story{
   display:grid;
-  gap:20px;
+  gap:16px;
 }
 .nominate-story-body{
   background:rgba(5,6,10,.55);
   border-radius:20px;
   border:1px solid rgba(245,247,255,.15);
-  padding:clamp(20px, 2.8vw, 32px);
+  padding:clamp(18px, 2.2vw, 26px);
   display:grid;
-  gap:14px;
+  gap:12px;
 }
 .nominate-story-body h3{
   margin:0;
@@ -655,6 +659,7 @@ a{ color:inherit; text-decoration:none }
 .nominate-story-body p{
   margin:0;
   color:rgba(245,247,255,.82);
+  font-size: 25px;
 }
 .nominate-story .muted{
   color:rgba(245,247,255,.6);
@@ -666,7 +671,7 @@ a{ color:inherit; text-decoration:none }
   background:rgba(245,247,255,.12);
   border-radius:18px;
   border:1px solid rgba(245,247,255,.16);
-  padding:18px 20px;
+  padding:16px 18px;
 }
 .nominate-freebie-badge{
   font-weight:800;
@@ -677,7 +682,7 @@ a{ color:inherit; text-decoration:none }
 }
 .nominate-freebie-text{
   font-weight:700;
-  font-size:.95rem;
+  font-size:2.5rem;
   color:#f5f7ff;
 }
 
