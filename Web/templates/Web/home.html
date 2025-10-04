@@ -452,6 +452,236 @@ a{ color:inherit; text-decoration:none }
 .surface{ background:#F7F9FC; border-block:1px solid #ecf1f6 }
 .why-grid .tile .body{ min-height: 140px }
 
+/* Nominate banner */
+.nominate-band{
+  position:relative;
+  padding:clamp(32px, 6vw, 64px);
+  border-radius:calc(var(--radius) * 1.6);
+  background:
+    radial-gradient(140% 120% at 20% 15%, rgba(0,194,255,.18), transparent 68%),
+    radial-gradient(120% 120% at 80% 0%, rgba(255,182,72,.2), transparent 72%),
+    linear-gradient(135deg, rgba(10,11,16,.95), rgba(10,11,16,.86));
+  color:#f5f7ff;
+  box-shadow:0 24px 60px rgba(10,11,16,.28);
+  overflow:hidden;
+}
+.nominate-band::after{
+  content:"";
+  position:absolute;
+  inset:-40% -20% auto auto;
+  width:320px;
+  height:320px;
+  background:radial-gradient(50% 50% at 50% 50%, rgba(0,178,255,.35), transparent 72%);
+  opacity:.5;
+  pointer-events:none;
+}
+.nominate-band::before{
+  content:"";
+  position:absolute;
+  inset:auto auto -45% -25%;
+  width:420px;
+  height:420px;
+  background:radial-gradient(50% 50% at 50% 50%, rgba(255,182,72,.28), transparent 70%);
+  opacity:.5;
+  pointer-events:none;
+}
+.nominate-grid{
+  position:relative;
+  z-index:1;
+  display:grid;
+  gap:clamp(28px, 4vw, 52px);
+}
+@media(min-width:980px){
+  .nominate-grid{
+    grid-template-columns:minmax(0,1.4fr) minmax(0,.9fr);
+  }
+}
+.nominate-copy{
+  display:grid;
+  gap:clamp(16px, 2vw, 24px);
+}
+.nominate-tag{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:.4rem .9rem;
+  border-radius:999px;
+  background:rgba(245,247,255,.12);
+  border:1px solid rgba(245,247,255,.22);
+  font-weight:800;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  font-size:.7rem;
+}
+.nominate-copy .ed-title{
+  color:#f5f7ff;
+  margin-bottom:0;
+}
+.nominate-sub{
+  font-size:clamp(1rem, 1.6vw, 1.2rem);
+  max-width:60ch;
+  color:rgba(245,247,255,.85);
+}
+.nominate-band .muted{
+  color:rgba(245,247,255,.62);
+}
+.nominate-benefit-group{
+  display:grid;
+  gap:clamp(16px, 2vw, 24px);
+}
+@media(min-width:760px){
+  .nominate-benefit-group{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  }
+}
+.nominate-benefit-card{
+  background:rgba(5,6,10,.45);
+  border:1px solid rgba(245,247,255,.18);
+  border-radius:20px;
+  padding:clamp(18px, 2.4vw, 28px);
+  display:grid;
+  gap:14px;
+}
+.nominate-eyebrow{
+  margin:0;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  font-size:.72rem;
+  color:rgba(245,247,255,.72);
+}
+.nominate-benefits{
+  margin:0;
+  padding:0;
+  list-style:none;
+  display:grid;
+  gap:12px;
+}
+.nominate-benefits li{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  font-weight:600;
+  line-height:1.4;
+}
+.nominate-benefits span:first-child{
+  font-size:1.15rem;
+}
+.nominate-bonus{
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+}
+.nominate-bonus span:first-child{
+  font-size:1.3rem;
+}
+.nominate-bonus strong{
+  display:block;
+  font-size:1.05rem;
+  margin-bottom:4px;
+}
+.nominate-cta{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:14px;
+  padding:16px 18px;
+  border-radius:18px;
+  background:rgba(245,247,255,.12);
+  border:1px solid rgba(245,247,255,.14);
+}
+.nominate-cta-title{
+  margin:0;
+  font-weight:800;
+  text-transform:uppercase;
+  font-size:.75rem;
+  letter-spacing:.18em;
+  color:rgba(245,247,255,.7);
+}
+.nominate-cta-copy{
+  margin:4px 0 0;
+  font-weight:700;
+}
+.nominate-cta .btn{
+  flex:none;
+}
+.nominate-cta .btn:hover{
+  filter:brightness(1.05);
+}
+.nominate-timeline{
+  display:grid;
+  gap:14px;
+  grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
+}
+.nominate-timeline div{
+  padding:14px 16px;
+  border-radius:16px;
+  background:rgba(5,6,10,.45);
+  border:1px solid rgba(245,247,255,.14);
+}
+.nominate-timeline strong{
+  display:block;
+  font-size:1.2rem;
+}
+.nominate-timeline-label{
+  display:block;
+  font-size:.75rem;
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  color:rgba(245,247,255,.65);
+}
+.nominate-footnote{
+  margin:0;
+  font-weight:600;
+  color:rgba(245,247,255,.78);
+}
+.nominate-story{
+  display:grid;
+  gap:20px;
+}
+.nominate-story-body{
+  background:rgba(5,6,10,.55);
+  border-radius:20px;
+  border:1px solid rgba(245,247,255,.15);
+  padding:clamp(20px, 2.8vw, 32px);
+  display:grid;
+  gap:14px;
+}
+.nominate-story-body h3{
+  margin:0;
+  font-size:1.4rem;
+  font-weight:800;
+}
+.nominate-story-body p{
+  margin:0;
+  color:rgba(245,247,255,.82);
+}
+.nominate-story .muted{
+  color:rgba(245,247,255,.6);
+}
+.nominate-freebie{
+  display:grid;
+  gap:6px;
+  align-content:start;
+  background:rgba(245,247,255,.12);
+  border-radius:18px;
+  border:1px solid rgba(245,247,255,.16);
+  padding:18px 20px;
+}
+.nominate-freebie-badge{
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  font-size:.72rem;
+  color:rgba(245,247,255,.68);
+}
+.nominate-freebie-text{
+  font-weight:700;
+  font-size:.95rem;
+  color:#f5f7ff;
+}
+
+
 /* Masonry gallery (CSS grid variant) */
 .masonry{
   display:grid; gap:10px;
@@ -723,6 +953,78 @@ a:focus, button:focus, input:focus{ outline:3px solid var(--ua-sky); outline-off
     <a href="#blog">Journal</a>
     <a href="#faq">FAQ</a>
   </nav> -->
+
+  <!-- =========================
+       NOMINATE TO UNWIND
+  ========================== -->
+  <section id="nominate" class="section">
+    <div class="container">
+      <div class="nominate-band" aria-labelledby="nominate-title">
+        <div class="nominate-grid">
+          <div class="nominate-copy">
+            <span class="nominate-tag">&#127807; Nominate to Unwind</span>
+            <h2 class="ed-title" id="nominate-title">October Edition is open</h2>
+            <p class="ed-sub nominate-sub">September reminded us how Nigerians hold space for one another. The October edition is here &#127881; &ndash; celebrate someone who gives without pausing for themselves.</p>
+            <div class="nominate-benefit-group">
+              <div class="nominate-benefit-card">
+                <p class="nominate-eyebrow">Winner receives</p>
+                <ul class="nominate-benefits">
+                  <li><span>&#127965;</span><span>One night in an ocean-view apartment</span></li>
+                  <li><span>&#128134;</span><span>Signature massage therapy session</span></li>
+                  <li><span>&#127869;</span><span>Chef-crafted meals with coastal flair</span></li>
+                  <li><span>&#127916;</span><span>Private cinema interlude</span></li>
+                  <li><span>&#127958;</span><span>Beach access and sunrise rituals</span></li>
+                </ul>
+              </div>
+              <div class="nominate-benefit-card">
+                <p class="nominate-eyebrow">Nominator receives</p>
+                <div class="nominate-bonus">
+                  <span>&#128092;</span>
+                  <div>
+                    <strong>The Unwind Love Bag</strong>
+                    <span class="muted">Because champions of rest deserve delight too.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="nominate-cta">
+              <div>
+                <p class="nominate-cta-title">Send Name + Why</p>
+                <p class="nominate-cta-copy">WhatsApp &bull; 0806 206 7832</p>
+              </div>
+              <a class="btn primary-solid" href="https://wa.me/2348062067832?text=Hi%20Unwind%20Africa%2C%20I%20would%20love%20to%20nominate%20someone%20for%20Nominate%20to%20Unwind%20October%20Edition.%20Their%20name%20is%3A%20" target="_blank" rel="noopener">Nominate now</a>
+            </div>
+            <div class="nominate-timeline">
+              <div>
+                <span class="nominate-timeline-label">Nominations close</span>
+                <strong>Oct 15</strong>
+              </div>
+              <div>
+                <span class="nominate-timeline-label">Voting</span>
+                <strong>Oct 18</strong>
+              </div>
+              <div>
+                <span class="nominate-timeline-label">Winner announced</span>
+                <strong>Oct 20</strong>
+              </div>
+            </div>
+            <p class="nominate-footnote">&#9989; Free &bull; Simple &bull; Rewarding</p>
+          </div>
+          <div class="nominate-story">
+            <div class="nominate-story-body">
+              <h3>Why it matters</h3>
+              <p>September entries showed how deeply communities care. Keep the circle going by nominating someone who has held others up while carrying their own load.</p>
+              <p class="muted">Share a short note about their resilience, generosity, or the quiet ways they stand strong. Our team curates the rest.</p>
+            </div>
+            <div class="nominate-freebie">
+              <span class="nominate-freebie-badge">Zero cost</span>
+              <span class="nominate-freebie-text">We plan the escape. You gift the permission to rest.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- =========================
        PACKAGES
