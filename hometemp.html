@@ -1,0 +1,1405 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}Unwind Africa — Luxury • Wellness • Experiences{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet" />
+
+<style>
+    /* =========================================
+   UNWIND AFRICA — Editorial Poster Theme
+   Inspired look: bold type, mono images,
+   luxe gradients from brand logo.
+   Mobile-first, accessible, fast.
+========================================= */
+
+/* ----- Brand palette (from your logo) ----- */
+:root{
+  --ua-sky: #00B2FF;   /* sky blue */
+  --ua-sea: #00C2FF;   /* light aqua */
+  --ua-sun: #FFB648;   /* sun gold */
+  --ua-ink: #0A0B10;   /* deep ink */
+  --ua-paper: #FFFFFF; /* clean paper */
+  --border: #e9eef4;
+
+  --radius: 16px;
+  --shadow: 0 10px 24px rgba(0,0,0,.06);
+
+  --container: min(1180px, 92vw);
+}
+
+/* ----- Base ----- */
+*{ box-sizing:border-box }
+html{ min-height:100% }
+body{
+  margin:0;
+  background:var(--ua-paper);
+  color:var(--ua-ink);
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;\n  overflow-x:hidden;
+}
+h1,h2,h3,h4,h5,h6{ font-family:"Playfair Display", ui-serif, Georgia, serif; margin:.2em 0 }
+img{ max-width:100%; height:auto; display:block }
+a{ color:inherit; text-decoration:none }
+
+/* Utilities */
+.container{ width:var(--container); margin-inline:auto }
+.section{ padding-block: clamp(56px, 8vw, 120px) }
+.muted{ color: color-mix(in oklab, var(--ua-ink) 60%, #666) }
+.rule{
+  height:4px; width:64px; border-radius:3px;
+  background: linear-gradient(90deg,var(--ua-sun),var(--ua-sky));
+  margin:10px 0 6px;
+}
+
+/* Poster typography */
+.ed-kicker{
+  font-size:.72rem; letter-spacing:.22em; text-transform:uppercase;
+  font-weight:900; color: var(--ua-sky);
+}
+.ed-title{
+  font-weight: 900; text-transform: uppercase;
+  line-height:.92; letter-spacing:-.02em;
+  font-size: clamp(2.2rem, 9vw, 6.2rem);
+  margin:0 0 clamp(8px, 1.2vw, 12px);
+}
+.ed-sub{ max-width: 72ch; font-size: clamp(1rem, 1.6vw, 1.125rem); }
+
+/* Ghost headline backdrop */
+.ed-ghost{ position: relative; }
+.ed-ghost::after{
+  content: attr(data-ghost);
+  position:absolute; inset:auto 0 100% 0; transform: translateY(65%);
+  font-weight: 1000; letter-spacing:.02em;
+  color: #000; opacity:.06; pointer-events:none;
+  font-size: clamp(3rem, 16vw, 14rem);
+  line-height:.8; text-align:center;
+}
+
+/* Buttons */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:.9rem 1.2rem; border-radius:999px; font-weight:900;
+  border:1px solid transparent; transition: transform .2s ease, filter .2s ease;
+  cursor:pointer; text-align:center; white-space:nowrap;
+}
+.btn:hover{ transform: translateY(-2px) }
+.primary-solid{
+  background: linear-gradient(90deg, var(--ua-sun), var(--ua-sky)); color:#0b172a;
+  border-color: color-mix(in oklab, var(--ua-sun) 40%, transparent);
+}
+.primary-outline{
+  background:transparent; color:var(--ua-ink); border:2px solid var(--ua-ink);
+}
+.secondary-ink{
+  background:#0A0B10; color:#fff; border:1px solid #10131a;
+}
+.link-cta{ padding:.4rem 0; border:0; font-weight:900; }
+
+/* Nav */
+.nav{
+  width:var(--container); margin-inline:auto;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px; padding:14px 0; position:relative; z-index:3;
+}
+.logo{ font-weight:1000; text-transform:uppercase; letter-spacing:.08em }
+.nav-links{ display:flex; gap:18px; list-style:none; margin:0; padding:0 }
+.nav-links a{ font-weight:700 }
+.nav-cta{ display:none }
+@media(min-width:860px){ .nav-cta{ display:inline-flex } }
+
+/* Hero */
+.hero{ position:relative; color:#fff; overflow:clip }
+.hero-media{ position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden }
+
+.hero-media::after{
+
+  content:"";
+
+  position:absolute;
+
+  inset:0;
+
+  background:
+
+    linear-gradient(180deg, rgba(5,6,10,.2) 0%, rgba(5,6,10,.78) 82%),
+
+    linear-gradient(120deg, rgba(0,178,255,.32) 0%, rgba(255,182,72,.18) 55%);
+
+  z-index:1;
+
+  mix-blend-mode:multiply;
+
+  pointer-events:none;
+
+}
+
+.hero-media video,
+
+.hero-media img{
+
+  width:100%;
+
+  height:100%;
+
+  object-fit:cover;
+
+}
+
+.hero-media video{
+
+  filter:saturate(1.08) contrast(1.05);
+
+  transform:scale(1.02);
+
+}
+
+.hero-media img{
+
+  filter: brightness(.65) contrast(1.05);
+
+}
+
+.hero-gradient{
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.10) 0%, rgba(0,0,0,.55) 75%),
+    radial-gradient(120% 80% at 50% 0%, rgba(0,0,0,.35), transparent 60%);
+}
+.hero-inner{
+  position:relative; z-index:2; width:var(--container); margin-inline:auto;
+  padding: clamp(72px, 12vw, 160px) 0 clamp(48px, 10vw, 120px);
+  text-align:center;
+}
+.hero-actions{ display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; margin:.8rem 0 1.1rem }
+.hero-chips{
+  display:flex; gap:.5rem; justify-content:center; flex-wrap:wrap;
+  list-style:none; padding:0; margin:0;
+}
+.hero-chips li{
+  border:1px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.12);
+  padding:.45rem .8rem; border-radius:999px; font-size:.78rem;
+  text-transform:uppercase; font-weight:900; letter-spacing:.04em;
+}
+
+/* Trust strip */
+.strip{ background:#0A0B10; color:#fff; border-block:1px solid rgba(255,255,255,.08) }
+.strip-inner{
+  width:var(--container); margin-inline:auto; padding:10px 0;
+  display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+}
+.badges{ display:flex; gap:8px; flex-wrap:wrap }
+.badge{
+  display:inline-flex; align-items:center; padding:.45rem .7rem; border-radius:999px;
+  font-weight:900; text-transform:uppercase; font-size:.72rem;
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.25);
+}
+
+/* Quicknav */
+.ua-quicknav{
+  position:sticky; top:0; z-index:6;
+  display:flex; gap:.5rem; justify-content:center; padding:.5rem .75rem; margin:0 auto;
+  background:#fff; border:1px solid var(--border); border-width:0 0 1px 0;
+  overflow:auto; white-space:nowrap;
+}
+.ua-quicknav a{ padding:.45rem .8rem; border-radius:999px; border:1px solid #eef3f8; font-weight:700 }
+.ua-quicknav a:hover{ background:var(--ua-ink); color:#fff }
+
+/* Sections shared head */
+.section-head{
+  display:flex; align-items:flex-end; justify-content:space-between;
+  gap:18px; flex-wrap:wrap; margin-bottom: clamp(16px, 3vw, 28px);
+}
+
+/* Tile grid */
+.tiles{
+  --min: 280px;
+  display:grid; grid-template-columns: repeat(auto-fit, minmax(var(--min), 1fr));
+  gap: clamp(14px, 2vw, 24px);
+}
+.tile{ background:#fff; border:1px solid var(--border); border-radius: var(--radius); overflow:hidden; box-shadow: var(--shadow) }
+.tile .media{ position:relative; aspect-ratio: 16 / 10; overflow:hidden }
+.tile .media img{ width:100%; height:100%; object-fit:cover }
+.tile .body{ padding: clamp(12px, 1.8vw, 18px) }
+.tile h3{
+  margin:0; font-family: "Playfair Display", ui-serif, Georgia, serif;
+  text-transform:uppercase; font-weight:900; letter-spacing:.01em;
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
+}
+.tile .meta{ display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; font-size:.9rem; color: color-mix(in oklab, var(--ua-ink) 70%, #000) }
+.tile .chip{
+  position:absolute; left:10px; top:10px; z-index:2;
+  background:#0A0B10; color:#fff; border:1px solid rgba(255,255,255,.25);
+  border-radius:999px; padding:.38rem .6rem; font-weight:900; font-size:.72rem;
+}
+
+/* Monochrome hover treatment */
+.img-mono img{
+  filter: grayscale(100%) contrast(1.05);
+  transition: filter .35s ease, transform .4s ease;
+}
+.img-mono:hover img{ filter: grayscale(0%) contrast(1.02) saturate(1.05); transform: scale(1.02) }
+
+/* Events section accents */
+.events{ background: color-mix(in oklab, #fff 96%, var(--ua-sky) 4% / 7%); border-block:1px solid #ecf1f6 }
+
+/* Movement / quote band */
+.quote-feature{
+  position:relative; color:#fff;
+  background:
+    radial-gradient(1200px 800px at 10% -10%, color-mix(in oklab, var(--ua-sun) 60%, #000) 0%, transparent 60%),
+    radial-gradient(1200px 800px at 110% 110%, color-mix(in oklab, var(--ua-sky) 65%, #000) 0%, transparent 60%),
+    linear-gradient(135deg, color-mix(in oklab, var(--ua-sun) 60%, #000) 0%, color-mix(in oklab, var(--ua-sky) 60%, #000) 100%);
+  overflow:clip;
+}
+.quote-bg{ position:absolute; inset:-10% -10% -10% -10%; z-index:0 }
+.orb{ position:absolute; width:42vmin; aspect-ratio:1; border-radius:50%; filter:blur(8px); opacity:.32; animation:float 16s ease-in-out infinite }
+.orb-a{ top:5%; left:8%; background: #ffd6a8 }
+.orb-b{ bottom:0%; right:6%; width:48vmin; background:#b8cfff; animation-delay:-4s }
+.orb-c{ top:40%; left:50%; width:36vmin; background:#e3b8ff; animation-delay:-8s }
+@keyframes float{ 0%,100%{ transform:translate3d(0,0,0) } 50%{ transform:translate3d(-2%, -4%, 0) } }
+.quote-wrap{ position:relative; z-index:2; text-align:center; width:var(--container); margin-inline:auto; padding-block: clamp(56px, 9vw, 120px) }
+.quote-title{ text-transform:uppercase; font-weight:1000; letter-spacing:-.01em }
+.quote-sub{ font-size: clamp(1.1rem, 2vw, 1.4rem); color:#fff; opacity:.92 }
+.quote-cta .btn{ background:#fff; color:#0A0B10; border:2px solid #0A0B10 }
+
+/* Why Us */
+.surface{ background:#F7F9FC; border-block:1px solid #ecf1f6 }
+.why-grid .tile .body{ min-height: 140px }
+
+/* Nominate banner */
+.nominate-band{
+  position:relative;
+  padding:clamp(32px, 6vw, 64px);
+  border-radius:calc(var(--radius) * 1.6);
+  background:
+    radial-gradient(140% 120% at 20% 15%, rgba(0,194,255,.18), transparent 68%),
+    radial-gradient(120% 120% at 80% 0%, rgba(255,182,72,.2), transparent 72%),
+    linear-gradient(135deg, rgba(10,11,16,.95), rgba(10,11,16,.86));
+  color:#f5f7ff;
+  box-shadow:0 24px 60px rgba(10,11,16,.28);
+  overflow:hidden;
+}
+.nominate-band::after{
+  content:"";
+  position:absolute;
+  inset:-40% -20% auto auto;
+  width:320px;
+  height:320px;
+  background:radial-gradient(50% 50% at 50% 50%, rgba(0,178,255,.35), transparent 72%);
+  opacity:.5;
+  pointer-events:none;
+}
+.nominate-band::before{
+  content:"";
+  position:absolute;
+  inset:auto auto -45% -25%;
+  width:420px;
+  height:420px;
+  background:radial-gradient(50% 50% at 50% 50%, rgba(255,182,72,.28), transparent 70%);
+  opacity:.5;
+  pointer-events:none;
+}
+.nominate-grid{
+  position:relative;
+  z-index:1;
+  display:grid;
+  gap:clamp(28px, 4vw, 52px);
+}
+@media(min-width:980px){
+  .nominate-grid{
+    grid-template-columns:minmax(0,1.4fr) minmax(0,.9fr);
+  }
+}
+.nominate-copy{
+  display:grid;
+  gap:clamp(16px, 2vw, 24px);
+}
+.nominate-tag{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:.4rem .9rem;
+  border-radius:999px;
+  background:rgba(245,247,255,.12);
+  border:1px solid rgba(245,247,255,.22);
+  font-weight:800;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  font-size:.7rem;
+}
+.nominate-copy .ed-title{
+  color:#f5f7ff;
+  margin-bottom:0;
+}
+.nominate-sub{
+  font-size:clamp(1rem, 1.6vw, 1.2rem);
+  max-width:60ch;
+  color:rgba(245,247,255,.85);
+}
+.nominate-band .muted{
+  color:rgba(245,247,255,.62);
+}
+.nominate-benefit-group{
+  display:grid;
+  gap:clamp(16px, 2vw, 24px);
+}
+@media(min-width:760px){
+  .nominate-benefit-group{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  }
+}
+.nominate-benefit-card{
+  background:rgba(5,6,10,.45);
+  border:1px solid rgba(245,247,255,.18);
+  border-radius:20px;
+  padding:clamp(18px, 2.4vw, 28px);
+  display:grid;
+  gap:14px;
+}
+.nominate-eyebrow{
+  margin:0;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  font-size:.72rem;
+  color:rgba(245,247,255,.72);
+}
+.nominate-benefits{
+  margin:0;
+  padding:0;
+  list-style:none;
+  display:grid;
+  gap:12px;
+}
+.nominate-benefits li{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  font-weight:600;
+  line-height:1.4;
+}
+.nominate-benefits span:first-child{
+  font-size:1.15rem;
+}
+.nominate-bonus{
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+}
+.nominate-bonus span:first-child{
+  font-size:1.3rem;
+}
+.nominate-bonus strong{
+  display:block;
+  font-size:1.05rem;
+  margin-bottom:4px;
+}
+.nominate-cta{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:14px;
+  padding:16px 18px;
+  border-radius:18px;
+  background:rgba(245,247,255,.12);
+  border:1px solid rgba(245,247,255,.14);
+}
+.nominate-cta-title{
+  margin:0;
+  font-weight:800;
+  text-transform:uppercase;
+  font-size:.75rem;
+  letter-spacing:.18em;
+  color:rgba(245,247,255,.7);
+}
+.nominate-cta-copy{
+  margin:4px 0 0;
+  font-weight:700;
+}
+.nominate-cta .btn{
+  flex:none;
+}
+.nominate-cta .btn:hover{
+  filter:brightness(1.05);
+}
+.nominate-timeline{
+  display:grid;
+  gap:14px;
+  grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
+}
+.nominate-timeline div{
+  padding:14px 16px;
+  border-radius:16px;
+  background:rgba(5,6,10,.45);
+  border:1px solid rgba(245,247,255,.14);
+}
+.nominate-timeline strong{
+  display:block;
+  font-size:1.2rem;
+}
+.nominate-timeline-label{
+  display:block;
+  font-size:.75rem;
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  color:rgba(245,247,255,.65);
+}
+.nominate-footnote{
+  margin:0;
+  font-weight:600;
+  color:rgba(245,247,255,.78);
+}
+.nominate-story{
+  display:grid;
+  gap:20px;
+}
+.nominate-story-body{
+  background:rgba(5,6,10,.55);
+  border-radius:20px;
+  border:1px solid rgba(245,247,255,.15);
+  padding:clamp(20px, 2.8vw, 32px);
+  display:grid;
+  gap:14px;
+}
+.nominate-story-body h3{
+  margin:0;
+  font-size:1.4rem;
+  font-weight:800;
+}
+.nominate-story-body p{
+  margin:0;
+  color:rgba(245,247,255,.82);
+}
+.nominate-story .muted{
+  color:rgba(245,247,255,.6);
+}
+.nominate-freebie{
+  display:grid;
+  gap:6px;
+  align-content:start;
+  background:rgba(245,247,255,.12);
+  border-radius:18px;
+  border:1px solid rgba(245,247,255,.16);
+  padding:18px 20px;
+}
+.nominate-freebie-badge{
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  font-size:.72rem;
+  color:rgba(245,247,255,.68);
+}
+.nominate-freebie-text{
+  font-weight:700;
+  font-size:.95rem;
+  color:#f5f7ff;
+}
+
+
+/* Masonry gallery (CSS grid variant) */
+.masonry{
+  display:grid; gap:10px;
+  grid-template-columns: repeat(auto-fill, minmax(220px,1fr));
+}
+.masonry img{ width:100%; height:220px; object-fit:cover; border-radius:12px }
+
+/* Store teaser */
+.store-teaser .is-soon .soon{ background:#f8fafc }
+.store-teaser .soon-overlay{
+  display:inline-block; margin-top:.4rem; font-weight:1000; text-transform:uppercase;
+  letter-spacing:.06em; font-size:.72rem; background:#0A0B10; color:#fff; border:1px solid rgba(255,255,255,.25);
+  padding:.35rem .55rem; border-radius:999px;
+}
+
+/* Blog */
+.blog .tile h3{ font-size: clamp(.95rem, 1.6vw, 1.1rem) }
+
+/* FAQ (details/summary = no JS) */
+.faq{ display:grid; gap:10px }
+.faq-item{
+  background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow: var(--shadow);
+  padding: .2rem .9rem .9rem;
+}
+.faq-item > summary{
+  cursor:pointer; font-weight:900; text-transform:none; list-style:none; padding:.8rem 0;
+}
+.faq-item > summary::-webkit-details-marker{ display:none }
+.faq-item[open] > summary{ color:var(--ua-sky) }
+
+/* Footer */
+.ua-footer{
+  position:relative;
+  background:#05060a;
+  color:#f5f7ff;
+  padding-block: clamp(64px, 10vw, 120px) clamp(36px, 8vw, 72px);
+  overflow:hidden;
+}
+.ua-footer::before{
+  content:"";
+  position:absolute;
+  inset:-25% -35% auto -25%;
+  width:520px; height:520px;
+  background:radial-gradient(120% 120% at 20% 40%, rgba(0,178,255,.25), transparent 68%);
+  opacity:.75;
+  pointer-events:none;
+}
+.ua-footer::after{
+  content:"";
+  position:absolute;
+  inset:auto -20% -35% 55%;
+  width:420px; height:420px;
+  background:radial-gradient(120% 120% at 50% 50%, rgba(255,182,72,.22), transparent 72%);
+  pointer-events:none;
+}
+.ua-footer-inner{
+  position:relative;
+  z-index:1;
+  width:var(--container);
+  margin-inline:auto;
+  display:grid;
+  gap: clamp(40px, 6vw, 72px);
+}
+.ua-footer-banner{
+  display:grid;
+  gap: clamp(12px, 1.8vw, 20px);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.ua-footer-banner .ua-tag{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:.45rem .9rem;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.08);
+  font-weight:800;
+  font-size:.76rem;
+}
+.ua-footer-banner h2{
+  margin:0;
+  font-size: clamp(2.4rem, 6vw, 3.9rem);
+  font-weight:900;
+  letter-spacing:-.02em;
+}
+.ua-footer-banner p{
+  margin:0;
+  max-width:56ch;
+  font-size: clamp(1rem, 1.4vw, 1.2rem);
+  color:rgba(245,247,255,.78);
+  text-transform:none;
+  letter-spacing:0;
+}
+.ua-footer-cta{
+  display:inline-flex;
+  align-items:center;
+  gap:.55rem;
+  padding:.9rem 1.5rem;
+  border-radius:999px;
+  font-weight:900;
+  background:linear-gradient(90deg, var(--ua-sun), var(--ua-sky));
+  color:#0A0B10;
+  box-shadow:0 12px 30px rgba(0,178,255,.25);
+}
+.ua-footer-cta span{
+  font-size:1.3rem;
+}
+.ua-footer-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: clamp(20px, 4vw, 36px);
+}
+.ua-footer-col h4{
+  margin:0 0 .65rem;
+  font-weight:900;
+  letter-spacing:.06em;
+}
+.ua-footer-col ul{
+  list-style:none;
+  padding:0;
+  margin:0;
+  display:grid;
+  gap:.4rem;
+}
+.ua-footer-col a{
+  color:rgba(245,247,255,.75);
+}
+.ua-footer-col a:hover{
+  color:#fff;
+}
+.ua-footer-contact{
+  display:grid;
+  gap:.35rem;
+  font-size:.95rem;
+}
+.ua-footer-contact a{
+  color:#fff;
+  font-weight:700;
+}
+.ua-footer-bottom{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  border-top:1px solid rgba(255,255,255,.12);
+  padding-top:18px;
+  font-size:.85rem;
+  color:rgba(245,247,255,.6);
+}
+.ua-footer-brand{
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  font-weight:1000;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.ua-footer-social{
+  display:flex;
+  gap:14px;
+  font-size:1.1rem;
+}
+.ua-footer-social a{
+  color:inherit;
+}
+.ua-footer-social a:hover{
+  color:#fff;
+}
+@media (max-width: 720px){
+  .ua-footer-banner{justify-items:flex-start;}
+  .ua-footer-cta{width:100%; justify-content:center;}
+  .ua-footer-bottom{flex-direction:column; align-items:flex-start;}
+}
+/* Progress bar */
+#uaProgress{ position:fixed; top:0; left:0; height:3px; width:0; background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky)); z-index:9999; transition:width .1s }
+
+/* Responsive tweaks */
+@media (max-width:720px){
+  .ed-title{ letter-spacing:-.01em }
+  .hero-inner .btn{ width:100% }
+  .footer-grid{ grid-template-columns: 1fr 1fr }
+}
+@media (max-width:520px){
+  .footer-grid{ grid-template-columns: 1fr }
+}
+
+/* Focus states */
+a:focus, button:focus, input:focus{ outline:3px solid var(--ua-sky); outline-offset:2px }
+
+/* Reduce motion support */
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+  <!-- Progress bar -->
+  <div id="uaProgress" aria-hidden="true"></div>
+
+  <!-- =========================
+       HERO (poster-style)
+  ========================== -->
+  <header class="hero hero-gradient" role="banner" aria-label="Unwind Africa hero">
+    <div class="hero-media" aria-hidden="true">
+
+      <video id="uaHeroVideo" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1519822471110-9f6b79f4a2f2?q=80&w=2000&auto=format&fit=crop">
+
+        <source src="{% static 'assets/videos/bg1.mp4' %}" type="video/mp4" />
+
+        Your browser does not support the video tag.
+
+      </video>
+
+    </div>
+      {% include './partials/header/navbar.html'%}
+  {% include './partials/header/hamburger-menu.html' with faq_link="/about#faq"%}
+    <!-- <nav class="nav">
+      <a class="logo" href="#">Unwind Africa</a>
+      <ul class="nav-links">
+        <li><a href="#packages">Packages</a></li>
+        <li><a href="#events">Events</a></li>
+        <li><a href="#why-us">Why Us</a></li>
+        <li><a href="#store">Store</a></li>
+        <li><a href="#blog">Journal</a></li>
+      </ul>
+      <a class="btn primary-outline nav-cta" href="#contact">Plan with us</a>
+    </nav> -->
+
+    <div class="hero-inner">
+      <p class="ed-kicker">Luxury • Wellness • Africa</p>
+      <h1 class="ed-title">Experiences that move people</h1>
+      <p class="ed-sub">Premium planning &amp; concierge-level coordination for <b>retreats, celebrations, and cultural experiences</b> across Africa — arrive calm, leave glowing.</p>
+
+      <div class="hero-actions">
+        <a class="btn primary-solid" href="#packages">Explore packages</a>
+        <a class="btn secondary-ink" href="#contact">Get a tailored quote</a>
+      </div>
+
+      <!-- quick proof chips
+      <ul class="hero-chips" aria-label="Highlights">
+        <li>For couples, families, teams</li>
+        <li>Vetted local partners</li>
+        <li>4.9★ average rating</li>
+      </ul> -->
+    </div>
+  </header>
+
+  <!-- Thin trust strip -->
+  <section class="strip" aria-label="Trust points">
+    <div class="strip-inner">
+      <div class="badges">
+        <span class="badge">24/7 Concierge</span>
+        <span class="badge">Transparent pricing</span>
+        <span class="badge">Handpicked venues</span>
+      </div>
+      <small>As effortless as a sea breeze — your only task is to exhale.</small>
+    </div>
+  </section>
+
+  <!-- Floating quick nav -->
+  <!-- <nav class="ua-quicknav" aria-label="Section quick nav">
+    <a href="#packages">Packages</a>
+    <a href="#events">Events</a>
+    <a href="#why-us">Why Us</a>
+    <a href="#showcase">Showcase</a>
+    <a href="#store">Store</a>
+    <a href="#blog">Journal</a>
+    <a href="#faq">FAQ</a>
+  </nav> -->
+
+  <!-- =========================
+       NOMINATE TO UNWIND
+  ========================== -->
+  <section id="nominate" class="section">
+    <div class="container">
+      <div class="nominate-band" aria-labelledby="nominate-title">
+        <div class="nominate-grid">
+          <div class="nominate-copy">
+            <span class="nominate-tag">&#127807; Nominate to Unwind</span>
+            <h2 class="ed-title" id="nominate-title">October Edition is open</h2>
+            <p class="ed-sub nominate-sub">September reminded us how Nigerians hold space for one another. The October edition is here &#127881; &ndash; celebrate someone who gives without pausing for themselves.</p>
+            <div class="nominate-benefit-group">
+              <div class="nominate-benefit-card">
+                <p class="nominate-eyebrow">Winner receives</p>
+                <ul class="nominate-benefits">
+                  <li><span>&#127965;</span><span>One night in an ocean-view apartment</span></li>
+                  <li><span>&#128134;</span><span>Signature massage therapy session</span></li>
+                  <li><span>&#127869;</span><span>Chef-crafted meals with coastal flair</span></li>
+                  <li><span>&#127916;</span><span>Private cinema interlude</span></li>
+                  <li><span>&#127958;</span><span>Beach access and sunrise rituals</span></li>
+                </ul>
+              </div>
+              <div class="nominate-benefit-card">
+                <p class="nominate-eyebrow">Nominator receives</p>
+                <div class="nominate-bonus">
+                  <span>&#128092;</span>
+                  <div>
+                    <strong>The Unwind Love Bag</strong>
+                    <span class="muted">Because champions of rest deserve delight too.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="nominate-cta">
+              <div>
+                <p class="nominate-cta-title">Send Name + Why</p>
+                <p class="nominate-cta-copy">WhatsApp &bull; 0806 206 7832</p>
+              </div>
+              <a class="btn primary-solid" href="https://wa.me/2348062067832?text=Hi%20Unwind%20Africa%2C%20I%20would%20love%20to%20nominate%20someone%20for%20Nominate%20to%20Unwind%20October%20Edition.%20Their%20name%20is%3A%20" target="_blank" rel="noopener">Nominate now</a>
+            </div>
+            <div class="nominate-timeline">
+              <div>
+                <span class="nominate-timeline-label">Nominations close</span>
+                <strong>Oct 15</strong>
+              </div>
+              <div>
+                <span class="nominate-timeline-label">Voting</span>
+                <strong>Oct 18</strong>
+              </div>
+              <div>
+                <span class="nominate-timeline-label">Winner announced</span>
+                <strong>Oct 20</strong>
+              </div>
+            </div>
+            <p class="nominate-footnote">&#9989; Free &bull; Simple &bull; Rewarding</p>
+          </div>
+          <div class="nominate-story">
+            <div class="nominate-story-body">
+              <h3>Why it matters</h3>
+              <p>September entries showed how deeply communities care. Keep the circle going by nominating someone who has held others up while carrying their own load.</p>
+              <p class="muted">Share a short note about their resilience, generosity, or the quiet ways they stand strong. Our team curates the rest.</p>
+            </div>
+            <div class="nominate-freebie">
+              <span class="nominate-freebie-badge">Zero cost</span>
+              <span class="nominate-freebie-text">We plan the escape. You gift the permission to rest.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       PACKAGES
+  ========================== -->
+  <section id="packages" class="section">
+    <div class="container">
+      <div class="section-head ed-ghost" data-ghost="UNWIND">
+        <div>
+          <p class="ed-kicker">Packages</p>
+          <h2 class="ed-title">Pick your style of unwind</h2>
+          <div class="rule" aria-hidden="true"></div>
+          <p class="ed-sub">From intimate getaways to city-scale productions — transparent tiers, concierge care.</p>
+        </div>
+        <a class="btn primary-outline" href="#contact">Talk to a planner</a>
+      </div>
+
+      <div class="tiles img-mono">
+        <!-- Intimate Retreats -->
+        <article class="tile">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1519822471110-9f6b79f4a2f2?q=80&w=1800&auto=format&fit=crop" alt="Intimate retreats by the coast" />
+            <span class="chip">Retreats</span>
+          </div>
+          <div class="body">
+            <h3>Intimate Retreats</h3>
+            <p class="muted">Wellness-forward weekends for couples, families, and small teams.</p>
+            <div class="meta"><span>Calm • Care • Connection</span></div>
+            <a class="btn link-cta" href="#contact">Explore →</a>
+          </div>
+        </article>
+
+        <!-- Signature Parties -->
+        <article class="tile">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1541534401786-2077eed87a72?q=80&w=1800&auto=format&fit=crop" alt="Design-led signature party" />
+            <span class="chip">Parties</span>
+          </div>
+          <div class="body">
+            <h3>Signature Parties</h3>
+            <p class="muted">Design-led celebrations with real-time coordination.</p>
+            <div class="meta"><span>Rhythm • Style • Joy</span></div>
+            <a class="btn link-cta" href="#contact">Explore →</a>
+          </div>
+        </article>
+
+        <!-- Cultural Experiences -->
+        <article class="tile">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1800&auto=format&fit=crop" alt="Cultural experiences and hidden gems" />
+            <span class="chip">Culture</span>
+          </div>
+          <div class="body">
+            <h3>Cultural Experiences</h3>
+            <p class="muted">Local insight, hidden-gem venues, authentic hospitality.</p>
+            <div class="meta"><span>Discovery • Flavor • Belonging</span></div>
+            <a class="btn link-cta" href="#contact">Explore →</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       UPCOMING EVENTS
+  ========================== -->
+  <section id="events" class="section events">
+    <div class="container">
+      <div class="section-head ed-ghost" data-ghost="EVENTS">
+        <div>
+          <p class="ed-kicker">Upcoming</p>
+          <h2 class="ed-title">Don’t miss these experiences</h2>
+          <div class="rule" aria-hidden="true"></div>
+          <p class="ed-sub">From exclusive retreats to coastal parties and cultural celebrations — reserve your spot early.</p>
+        </div>
+        <a class="btn primary-outline" href="#contact">See all events</a>
+      </div>
+
+      <div class="tiles img-mono">
+        <article class="tile">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1800&auto=format&fit=crop" alt="Sunset coastal party" />
+            <span class="chip">Featured</span>
+          </div>
+          <div class="body">
+            <h3>Coastal Golden Hour</h3>
+            <p class="muted">Lagoon boardwalk • DJs • open-air dining • wellness minis</p>
+            <div class="meta"><span>📍 Lagos</span><span>🗓 Nov 16</span></div>
+            <a class="btn link-cta" href="#contact">Reserve →</a>
+          </div>
+        </article>
+
+        <article class="tile">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1800&auto=format&fit=crop" alt="Forest retreat" />
+            <span class="chip">Retreat</span>
+          </div>
+          <div class="body">
+            <h3>Forest Breathwork</h3>
+            <p class="muted">Guided breathwork • lake sauna • slow breakfast clubs</p>
+            <div class="meta"><span>📍 Abeokuta</span><span>🗓 Dec 8</span></div>
+            <a class="btn link-cta" href="#contact">Reserve →</a>
+          </div>
+        </article>
+
+        <article class="tile">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1508908324153-eba7b449119e?q=80&w=1800&auto=format&fit=crop" alt="Cultural night market" />
+            <span class="chip">Culture</span>
+          </div>
+          <div class="body">
+            <h3>Night Market Session</h3>
+            <p class="muted">Chefs • artisans • live highlife • candlelit tasting lanes</p>
+            <div class="meta"><span>📍 Accra</span><span>🗓 Jan 12</span></div>
+            <a class="btn link-cta" href="#contact">Reserve →</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       UNWIND &amp; THRIVE (statement band)
+  ========================== -->
+  <section class="quote-feature" aria-labelledby="quote-title">
+    <div class="quote-bg" aria-hidden="true">
+      <span class="orb orb-a"></span>
+      <span class="orb orb-b"></span>
+      <span class="orb orb-c"></span>
+    </div>
+
+    <div class="container">
+      <div class="quote-wrap">
+        <div class="quote-mark" aria-hidden="true">
+          <svg width="72" height="72" viewBox="0 0 72 72" fill="none" role="img">
+            <path d="M28 18c-8 0-14 6-14 14 0 6 4 10 9 11-2 9-8 15-16 17 14-1 24-12 24-26 0-8-1-16-3-16zM58 18c-8 0-14 6-14 14 0 6 4 10 9 11-2 9-8 15-16 17 14-1 24-12 24-26 0-8-1-16-3-16z" fill="currentColor"/>
+          </svg>
+        </div>
+
+        <h2 id="quote-title" class="ed-title quote-title">
+          Unwind &amp; Thrive is <span class="accent">not an event</span> — it’s a <span class="accent">movement</span>.
+        </h2>
+
+        <p class="quote-sub">
+          Choose <span class="underline">rest today</span> — so you can <span class="underline">thrive tomorrow</span>.
+        </p>
+
+        <div class="quote-cta">
+          <a href="#contact" class="btn primary-outline">Bring it to my community</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       WHY CHOOSE US
+  ========================== -->
+  <section id="why-us" class="section surface">
+    <div class="container">
+      <div class="section-head ed-ghost" data-ghost="WHY US">
+        <div>
+          <p class="ed-kicker">Reasons</p>
+          <h2 class="ed-title">Accessible luxury, zero guesswork</h2>
+          <div class="rule" aria-hidden="true"></div>
+          <p class="ed-sub">Concierge-level care with transparent pricing and a vetted partner network — relax while we deliver experiences people remember.</p>
+        </div>
+        <a class="btn primary-outline" href="#contact">See approach</a>
+      </div>
+
+      <div class="tiles why-grid">
+        <article class="tile"><div class="body"><h3>Luxury without the markup</h3><p class="muted">Tiered packages + clear line items. No surprises — ever.</p></div></article>
+        <article class="tile"><div class="body"><h3>Handpicked partners</h3><p class="muted">Photographers, venues, chefs &amp; logistics teams we trust.</p></div></article>
+        <article class="tile"><div class="body"><h3>Local insight, real access</h3><p class="muted">Insider rates and hidden-gem locations across Africa.</p></div></article>
+        <article class="tile"><div class="body"><h3>On-site coordination</h3><p class="muted">Live updates and a dedicated concierge you can text.</p></div></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       SHOWCASE (gallery)
+  ========================== -->
+  <section id="showcase" class="section">
+    <div class="container">
+      <div class="section-head ed-ghost" data-ghost="SHOWCASE">
+        <div>
+          <p class="ed-kicker">Showcase</p>
+          <h2 class="ed-title">Photography &amp; videography highlights</h2>
+          <div class="rule" aria-hidden="true"></div>
+        </div>
+        <a class="btn primary-outline" href="#contact">Meet the creative team</a>
+      </div>
+
+      <div class="masonry img-mono">
+        <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1600&auto=format&fit=crop" alt="Warm celebration" />
+        <img src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=1600&auto=format&fit=crop" alt="Dance floor" />
+        <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1600&auto=format&fit=crop" alt="Forest retreat" />
+        <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1600&auto=format&fit=crop" alt="Tablescape" />
+        <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600&auto=format&fit=crop" alt="Sunset crowd" />
+        <img src="https://images.unsplash.com/photo-1508908324153-eba7b449119e?q=80&w=1600&auto=format&fit=crop" alt="Market night" />
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       STORE TEASER
+  ========================== -->
+  <section id="store" class="section store-teaser">
+    <div class="container">
+      <div class="section-head ed-ghost" data-ghost="STORE">
+        <div>
+          <p class="ed-kicker">From the Store</p>
+          <h2 class="ed-title">Tools that carry the message</h2>
+          <div class="rule" aria-hidden="true"></div>
+          <p class="ed-sub">Books, tees, daily reminder frames, and more. First up — our children’s gratitude book. More products are being animated &amp; added.</p>
+        </div>
+        <a class="btn primary-outline" href="#contact">Explore more</a>
+      </div>
+
+      <div class="tiles">
+        <!-- Tiara's book (available) -->
+        <article class="tile">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1800&auto=format&fit=crop" alt="Tiara’s Grateful Heart book" />
+            <span class="chip">Available</span>
+          </div>
+          <div class="body">
+            <h3>Tiara’s Grateful Heart</h3>
+            <p class="muted">30-day gratitude adventure with rhymes, prompts, and calm exercises.</p>
+            <a class="btn link-cta" href="#contact">Explore more →</a>
+          </div>
+        </article>
+
+        <!-- Coming soon items -->
+        <article class="tile is-soon">
+          <div class="media soon">
+            <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1800&auto=format&fit=crop" alt="Wellness tee mock" />
+            <span class="chip">Coming soon</span>
+          </div>
+          <div class="body">
+            <h3>Wellness Tee</h3>
+            <p class="muted">Soft cotton tee with subtle Unwind statements.</p>
+            <span class="soon-overlay">Launching shortly</span>
+          </div>
+        </article>
+
+        <article class="tile is-soon">
+          <div class="media soon">
+            <img src="https://images.unsplash.com/photo-1520975922329-7f2e2b1d3c49?q=80&w=1800&auto=format&fit=crop" alt="Daily reminder frame mock" />
+            <span class="chip">Coming soon</span>
+          </div>
+          <div class="body">
+            <h3>Daily Reminder Frames</h3>
+            <p class="muted">Minimal frames with affirmations for calm &amp; clarity.</p>
+            <span class="soon-overlay">In production</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       BLOG
+  ========================== -->
+  <section id="blog" class="section blog">
+    <div class="container">
+      <div class="section-head ed-ghost" data-ghost="JOURNAL">
+        <div>
+          <p class="ed-kicker">From the journal</p>
+          <h2 class="ed-title">Ideas, venues &amp; behind-the-scenes</h2>
+          <div class="rule" aria-hidden="true"></div>
+          <p class="ed-sub">Trends we’re loving, planning tips, and stories from unforgettable events.</p>
+        </div>
+        <a class="btn primary-outline" href="#contact">Explore all posts</a>
+      </div>
+
+      <div class="tiles img-mono">
+        <article class="tile">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1521335629791-ce4aec67dd53?q=80&w=1800&auto=format&fit=crop" alt="Beach venue" />
+            <span class="chip">Venues</span>
+          </div>
+          <div class="body">
+            <h3>Coastal venues we love</h3>
+            <div class="meta"><span>⏱ 4 min</span><span>•</span><span>Aug 2025</span></div>
+          </div>
+        </article>
+
+        <article class="tile">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1800&auto=format&fit=crop" alt="Tablescape" />
+            <span class="chip">Planning</span>
+          </div>
+          <div class="body">
+            <h3>No-stress guest flow</h3>
+            <div class="meta"><span>⏱ 5 min</span><span>•</span><span>Aug 2025</span></div>
+          </div>
+        </article>
+
+        <article class="tile">
+          <div class="media">
+            <img src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=1800&auto=format&fit=crop" alt="Dance floor" />
+            <span class="chip">BTS</span>
+          </div>
+          <div class="body">
+            <h3>Our favorite dance floors</h3>
+            <div class="meta"><span>⏱ 3 min</span><span>•</span><span>Sep 2025</span></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       FAQ (accordion via details/summary)
+  ========================== -->
+  <section id="faq" class="section">
+    <div class="container">
+      <div class="section-head ed-ghost" data-ghost="FAQ">
+        <div>
+          <p class="ed-kicker">FAQ</p>
+          <h2 class="ed-title">Frequently Asked</h2>
+          <div class="rule" aria-hidden="true"></div>
+          <p class="ed-sub">Quick answers to common questions.</p>
+        </div>
+      </div>
+
+      <div class="faq">
+        <details class="faq-item">
+          <summary>Can you customize any package?</summary>
+          <p>Yes. Every itinerary is customizable — add private chefs, therapy sessions, yacht cruises, proposals, or extra nights.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How do payments work?</summary>
+          <p>50% to secure your date, balance due 2 weeks prior. Flexible rescheduling terms available.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What’s included?</summary>
+          <p>Creative direction, vetted partners, logistics, on-site ops, and transparent line items. Optional add-ons by request.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Large families &amp; corporate groups?</summary>
+          <p>Absolutely. We scale production, guest services, and on-site support to your headcount and goals.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+{% endblock %}
+
+<!-- {% block site_footer %}
+
+ <footer class="ua-footer" aria-label="Unwind Africa footer">
+
+  <div class="ua-footer-inner">
+
+    <div class="ua-footer-banner">
+
+      <span class="ua-tag">Thank you, goodnight</span>
+
+      <h2>Your next unforgettable experience starts here</h2>
+
+      <p>We design the kind of celebrations, retreats, and cultural immersions that linger long after the lights come up.</p>
+
+      <a class="ua-footer-cta" href="#contact" aria-label="Plan your next Unwind Africa experience"><span>&#8677;</span>Plan my experience</a>
+
+    </div>
+
+
+
+    <div class="ua-footer-grid">
+
+      <div class="ua-footer-col">
+
+        <h4>Studio</h4>
+
+        <div class="ua-footer-contact">
+
+          <span>No 8, Providence Street</span>
+
+          <span>Lekki Phase 1, Lagos</span>
+
+          <a href="tel:+2348062067832">+234 806 206 7832</a>
+
+          <a href="mailto:info@unwindafrica.com">info@unwindafrica.com</a>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="ua-footer-col">
+
+        <h4>Experiences</h4>
+
+        <ul>
+
+          <li><a href="#packages">Retreats &amp; wellness</a></li>
+
+          <li><a href="#events">Signature parties</a></li>
+
+          <li><a href="#showcase">Creative showcase</a></li>
+
+        </ul>
+
+      </div>
+
+
+
+      <div class="ua-footer-col">
+
+        <h4>Company</h4>
+
+        <ul>
+
+          <li><a href="/about">About Unwind Africa</a></li>
+
+          <li><a href="/blog">Journal</a></li>
+
+          <li><a href="#faq">FAQ</a></li>
+
+        </ul>
+
+      </div>
+
+
+
+      <div class="ua-footer-col">
+
+        <h4>Stay in the loop</h4>
+
+        <p style="margin:0 0 .8rem; color:rgba(245,247,255,.7);">Receive curated itineraries and insider venue drops.</p>
+
+        <form onsubmit="event.preventDefault();alert('Subscribed!');">
+
+          <input type="email" name="newsletter-email" placeholder="Email address" required
+
+                 style="width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(5,6,10,.65);color:#fff;" />
+
+          <button class="btn secondary-ink" style="width:100%;margin-top:10px;">Keep me inspired</button>
+
+        </form>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="ua-footer-bottom">
+
+      <div class="ua-footer-brand">Unwind Africa</div>
+
+      <div>&copy; <span id="year"></span> Crafted for unforgettable nights and luminous mornings.</div>
+
+      <div class="ua-footer-social">
+
+        <a href="https://www.instagram.com" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+
+        <a href="https://www.facebook.com" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+
+        <a href="https://www.twitter.com" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</footer> 
+
+{% endblock %} -->
+
+{% block extra_js %}
+<script>
+  // Progress bar
+
+  (function(){
+
+    const bar = document.getElementById('uaProgress');
+
+    if (!bar) return;
+
+    const onScroll = () => {
+
+      const h = document.documentElement;
+
+      const sc = (h.scrollTop)/(h.scrollHeight - h.clientHeight);
+
+      bar.style.width = (sc*100)+'%';
+
+    };
+
+    document.addEventListener('scroll', onScroll, {passive:true});
+
+    onScroll();
+
+  })();
+
+
+
+  // Footer year stamp
+
+  const yearTarget = document.getElementById('year');
+
+  if (yearTarget) {
+
+    yearTarget.textContent = new Date().getFullYear();
+
+  }
+
+
+
+  // Respect reduced motion for hero video
+
+  const heroVideo = document.getElementById('uaHeroVideo');
+
+  if (heroVideo && 'matchMedia' in window) {
+
+    const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const applyMotionPreference = () => {
+
+      if (reduceMotionQuery.matches) {
+
+        heroVideo.pause();
+
+        heroVideo.removeAttribute('autoplay');
+
+      } else if (heroVideo.paused) {
+
+        heroVideo.play().catch(() => {});
+
+      }
+
+    };
+
+    applyMotionPreference();
+
+    if ('addEventListener' in reduceMotionQuery) {
+
+      reduceMotionQuery.addEventListener('change', applyMotionPreference);
+
+    } else if ('addListener' in reduceMotionQuery) {
+
+      reduceMotionQuery.addListener(applyMotionPreference);
+
+    }
+
+  }
+
+
+</script>
+{% endblock %}
+
+
+
+
+
+

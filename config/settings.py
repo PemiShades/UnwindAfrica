@@ -22,14 +22,19 @@ ALLOWED_HOSTS = [
     "localhost",
     "159.198.76.102",           # server IP
     "server1.unwindafrica.com", # VPS hostname
-    "www.unwindafrica.com",     # optional apex site
+    "unwindafrica.com",         # <-- add this
+    "www.unwindafrica.com",
 ]
 
 # Required for HTTPS + CSRF protection
 CSRF_TRUSTED_ORIGINS = [
+    "https://unwindafrica.com",     # <-- add this
     "https://server1.unwindafrica.com",
     "https://www.unwindafrica.com",
 ]
+
+
+
 
 # If you're behind Nginx/Certbot, tell Django to trust X-Forwarded-Proto=https
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
