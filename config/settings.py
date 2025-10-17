@@ -129,13 +129,13 @@ USE_TZ = True
 # --- Static & Media ---
 # Match Nginx (we'll serve /static and /media from /srv/unwindafrica/*)
 STATIC_URL = '/static/'
-STATIC_ROOT = Path("/srv/unwindafrica/static")  # Nginx location /static/ -> /srv/unwindafrica/static
+STATIC_ROOT = os.getenv('STATIC_ROOT')  # Nginx location /static/ -> /srv/unwindafrica/static
 
 local_static = BASE_DIR / "static"
 STATICFILES_DIRS = [local_static] if local_static.exists() else []
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = Path("/srv/unwindafrica/media")    # Nginx location /media/ -> /srv/unwindafrica/media
+MEDIA_ROOT = os.getenv('MEDIA_ROOT')    # Nginx location /media/ -> /srv/unwindafrica/media
 
 # WhiteNoise (kept as fallback; safe with Nginx in front)
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
