@@ -1,0 +1,485 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}UNWIND AFRICA — Curated Experiences • Retreats • Cultural Immersions{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --primary-bg: #F5F7FA;
+        --secondary-bg: #0A0B10;
+        --accent-gold: #FFB648;
+        --accent-blue: #00B2FF;
+        --text-main: #0A0B10;
+        --text-light: #F5F7FA;
+        --border-subtle: rgba(10, 11, 16, 0.1);
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--primary-bg);
+        color: var(--text-main);
+        overflow-x: hidden;
+        cursor: none;
+    }
+
+    h1, h2, h3, h4, .display-font {
+        font-family: 'Space Grotesk', sans-serif;
+    }
+
+    /* Custom Cursor */
+    #cursor {
+        width: 20px;
+        height: 20px;
+        border: 1px solid var(--text-main);
+        border-radius: 50%;
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        transition: transform 0.2s ease, background-color 0.2s ease;
+        mix-blend-mode: difference;
+    }
+
+    #cursor.hovered {
+        transform: scale(2.5);
+        background-color: #fff;
+        border-color: transparent;
+    }
+
+    /* Smooth Scroll */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: var(--primary-bg);
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #d1d1d1;
+        border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #a1a1a1;
+    }
+
+    /* Text Reveal Animation */
+    .reveal-text {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal-text.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Delay classes */
+    .delay-100 {
+        transition-delay: 0.1s;
+    }
+    .delay-200 {
+        transition-delay: 0.2s;
+    }
+    .delay-300 {
+        transition-delay: 0.3s;
+    }
+
+    /* Parallax */
+    .parallax-wrapper {
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .parallax-img {
+        will-change: transform;
+    }
+
+    /* Marquee Animation */
+    .marquee-container {
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    .marquee-content {
+        display: inline-block;
+        animation: marquee 30s linear infinite;
+    }
+    @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+
+    .marquee-container:hover .marquee-content {
+        animation-play-state: paused;
+    }
+
+    /* Button Styles */
+    .btn-primary {
+        position: relative;
+        overflow: hidden;
+        transition: color 0.3s;
+        background: transparent;
+        border: 1px solid currentColor;
+        z-index: 1;
+    }
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: var(--secondary-bg);
+        transition: left 0.3s ease;
+        z-index: -1;
+    }
+    .btn-primary:hover::before {
+        left: 0;
+    }
+    .btn-primary:hover {
+        color: var(--text-light);
+        border-color: var(--secondary-bg);
+    }
+
+    /* Experience Cards */
+    .experience-card {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .experience-card:hover img {
+        transform: scale(1.05);
+    }
+    
+    .experience-card img {
+        transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .experience-info {
+        transform: translateY(20px);
+        transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .experience-card:hover .experience-info {
+        transform: translateY(0);
+    }
+    
+    .experience-tag {
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+    }
+    
+    .experience-card:hover .experience-tag {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Section Line */
+    .section-line {
+        border-top: 1px solid var(--text-main);
+        width: 0;
+        transition: width 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+    }
+    
+    .reveal-text.visible .section-line {
+        width: 100%;
+    }
+
+    /* Hero Line Reveal */
+    .hero-line-reveal {
+        display: inline-block;
+        overflow: hidden;
+    }
+    .hero-line-reveal > span {
+        display: inline-block;
+        transform: translateY(110%);
+        transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal-text.visible .hero-line-reveal > span {
+        transform: translateY(0);
+    }
+
+    /* Hide cursor on mobile */
+    @media (max-width: 768px) {
+        #cursor {
+            display: none;
+        }
+        body {
+            cursor: auto;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Include Navigation -->
+{% include "Web/partials/header/navigation.html" %}
+
+<!-- Custom Cursor -->
+<div id="cursor" class="hidden md:block"></div>
+
+<!-- Hero Section -->
+<header class="relative h-screen w-full overflow-hidden flex items-center justify-center">
+    <div class="absolute inset-0 z-0">
+        <img src="{% static 'assets/home/premium_photo-1698505302541-bce261e4feba.avif' %}" 
+             alt="Unwind Africa Experience" 
+             class="w-full h-full object-cover opacity-90 parallax-img"
+             data-speed="0.2">
+        <div class="absolute inset-0 bg-black/20"></div>
+    </div>
+    
+    <div class="relative z-10 text-center text-white px-4">
+        <p class="text-sm md:text-base uppercase tracking-[0.3em] mb-4 reveal-text">Lagos • Accra • Nairobi</p>
+        <h1 class="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter mb-8 display-font leading-none">
+            <span class="reveal-text delay-100 hero-line-reveal"><span>CURATED</span></span><br>
+            <span class="reveal-text delay-200 hero-line-reveal"><span>EXPERIENCES</span></span>
+        </h1>
+        <div class="reveal-text delay-300">
+            <a href="#experiences" class="btn-primary inline-block px-8 py-3 text-sm uppercase tracking-widest hover-trigger">
+                Explore Our World
+            </a>
+        </div>
+    </div>
+
+    <div class="absolute bottom-8 left-0 right-0 flex justify-between px-12 text-white text-xs uppercase tracking-widest mix-blend-difference">
+        <span class="hidden md:block">Est. 2020</span>
+        <span class="animate-bounce">Scroll to Explore</span>
+        <span class="hidden md:block">Luxury • Wellness • Culture</span>
+    </div>
+</header>
+
+<!-- Intro Text -->
+<section class="py-24 px-6 md:px-12 lg:px-24 max-w-7xl mx-auto">
+    <div class="grid md:grid-cols-12 gap-12 items-start">
+        <div class="md:col-span-4 reveal-text">
+            <h2 class="text-sm uppercase tracking-widest pt-4 section-line">Our Philosophy</h2>
+        </div>
+        <div class="md:col-span-8 reveal-text delay-100">
+            <p class="text-3xl md:text-5xl font-light leading-tight display-font">
+                Unwind Africa is a space for <span class="italic">connection</span> between cultures, experiences, and unforgettable moments. We curate journeys that celebrate the vibrant spirit of African luxury and wellness.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Current Experiences -->
+<section id="experiences" class="py-12 border-t border-gray-200 bg-white">
+    <div class="px-6 md:px-12 mb-12 flex justify-between items-end">
+        <h2 class="text-4xl md:text-6xl font-bold tracking-tighter display-font reveal-text">Current<br>Experiences</h2>
+        <a href="/packages" class="hidden md:block text-sm uppercase tracking-widest border-b border-black pb-1 hover:opacity-50 transition-opacity hover-trigger">View All Packages</a>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-px bg-gray-200 border-b border-gray-200">
+        <!-- Experience 1 -->
+        <div class="experience-card bg-white relative aspect-[4/5] overflow-hidden hover-trigger">
+            <img src="{% static 'assets/packages/wellness.jpg' %}" 
+                 onerror="this.src='https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=2070&auto=format&fit=crop'" 
+                 class="w-full h-full object-cover" 
+                 alt="Wellness Retreat">
+            <div class="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors duration-300"></div>
+            <div class="absolute bottom-0 left-0 w-full p-6 experience-info">
+                <span class="text-white text-xs uppercase tracking-widest bg-black px-2 py-1 mb-2 inline-block experience-tag">Premium</span>
+                <h3 class="text-2xl text-white font-bold display-font">Wellness Retreats</h3>
+                <p class="text-white/80 text-sm mt-1">Mind • Body • Spirit</p>
+            </div>
+        </div>
+
+        <!-- Experience 2 -->
+        <div class="experience-card bg-white relative aspect-[4/5] overflow-hidden hover-trigger">
+            <img src="{% static 'assets/packages/party.jpg' %}" 
+                 onerror="this.src='https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?q=80&w=2070&auto=format&fit=crop'" 
+                 class="w-full h-full object-cover" 
+                 alt="Signature Events">
+            <div class="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors duration-300"></div>
+            <div class="absolute bottom-0 left-0 w-full p-6 experience-info">
+                <span class="text-white text-xs uppercase tracking-widest bg-black px-2 py-1 mb-2 inline-block experience-tag">Exclusive</span>
+                <h3 class="text-2xl text-white font-bold display-font">Signature Events</h3>
+                <p class="text-white/80 text-sm mt-1">Celebrations & Gatherings</p>
+            </div>
+        </div>
+
+        <!-- Experience 3 -->
+        <div class="experience-card bg-white relative aspect-[4/5] overflow-hidden hover-trigger">
+            <img src="{% static 'assets/packages/cultural.jpg' %}" 
+                 onerror="this.src='https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?q=80&w=2083&auto=format&fit=crop'" 
+                 class="w-full h-full object-cover" 
+                 alt="Cultural Immersion">
+            <div class="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors duration-300"></div>
+            <div class="absolute bottom-0 left-0 w-full p-6 experience-info">
+                <span class="text-white text-xs uppercase tracking-widest bg-black px-2 py-1 mb-2 inline-block experience-tag">Cultural</span>
+                <h3 class="text-2xl text-white font-bold display-font">Cultural Tours</h3>
+                <p class="text-white/80 text-sm mt-1">Authentic Experiences</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Marquee Section -->
+<div class="py-8 bg-[#0A0B10] text-white border-y border-white/10">
+    <div class="marquee-container hover-trigger">
+        <div class="marquee-content text-6xl md:text-8xl font-bold uppercase tracking-tighter display-font">
+            Lagos • Accra • Nairobi • Zanzibar • Cape Town • Marrakech • Lagos • Accra • Nairobi • Zanzibar • Cape Town • Marrakech •
+        </div>
+    </div>
+</div>
+
+<!-- About Section -->
+<section class="bg-[#F5F7FA] text-[#0A0B10]">
+    <div class="grid md:grid-cols-2">
+        <div class="p-12 md:p-24 border-b md:border-b-0 md:border-r border-black/10 flex flex-col justify-center">
+            <h2 class="text-4xl mb-8 display-font font-bold">Why Unwind Africa</h2>
+            
+            <div class="space-y-8">
+                <div class="reveal-text">
+                    <h4 class="text-sm uppercase tracking-widest mb-2 text-gray-500">Our Approach</h4>
+                    <p class="text-xl">Curated experiences that blend luxury, wellness, and authentic African culture</p>
+                </div>
+
+                <div class="reveal-text delay-100">
+                    <h4 class="text-sm uppercase tracking-widest mb-2 text-gray-500">Our Promise</h4>
+                    <p class="text-xl">Unforgettable moments designed with intention and care</p>
+                </div>
+
+                <div class="pt-8 reveal-text delay-200">
+                    <a href="/about" class="btn-primary bg-transparent text-[#0A0B10] px-8 py-4 uppercase tracking-widest text-sm hover-trigger inline-block">
+                        Learn Our Story
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative h-[50vh] md:h-auto overflow-hidden parallax-wrapper">
+            <img src="{% static 'assets/about/team.jpg' %}" 
+                 onerror="this.src='https://images.unsplash.com/photo-1566054757965-8c4085344c96?q=80&w=2049&auto=format&fit=crop'"
+                 class="absolute inset-0 w-full h-[120%] object-cover parallax-img" 
+                 alt="Unwind Africa Team"
+                 data-speed="0.5">
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-24 px-6 md:px-12 lg:px-24 max-w-7xl mx-auto bg-white">
+    <div class="text-center mb-16 reveal-text">
+        <p class="text-sm uppercase tracking-widest mb-4 text-gray-500">What Our Guests Say</p>
+        <h2 class="text-4xl md:text-6xl font-bold tracking-tighter display-font">Unforgettable<br>Moments</h2>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8">
+        <div class="reveal-text p-8 border border-gray-200 hover:border-gray-400 transition-colors duration-300">
+            <div class="mb-6">
+                <svg class="w-8 h-8 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+                </svg>
+            </div>
+            <p class="text-lg mb-6 leading-relaxed">"An absolutely transformative experience. The attention to detail and cultural authenticity was remarkable."</p>
+            <div>
+                <p class="font-bold">Sarah M.</p>
+                <p class="text-sm text-gray-500">Wellness Retreat, Lagos</p>
+            </div>
+        </div>
+
+        <div class="reveal-text delay-100 p-8 border border-gray-200 hover:border-gray-400 transition-colors duration-300">
+            <div class="mb-6">
+                <svg class="w-8 h-8 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+                </svg>
+            </div>
+            <p class="text-lg mb-6 leading-relaxed">"From start to finish, everything was seamless. This is luxury travel redefined."</p>
+            <div>
+                <p class="font-bold">James O.</p>
+                <p class="text-sm text-gray-500">Cultural Tour, Accra</p>
+            </div>
+        </div>
+
+        <div class="reveal-text delay-200 p-8 border border-gray-200 hover:border-gray-400 transition-colors duration-300">
+            <div class="mb-6">
+                <svg class="w-8 h-8 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+                </svg>
+            </div>
+            <p class="text-lg mb-6 leading-relaxed">"A celebration like no other. Unwind Africa brought our vision to life in ways we never imagined."</p>
+            <div>
+                <p class="font-bold">Amara K.</p>
+                <p class="text-sm text-gray-500">Private Event, Nairobi</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section id="contact" class="py-24 px-6 md:px-12 bg-[#0A0B10] text-white">
+    <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-5xl md:text-7xl font-bold display-font tracking-tighter mb-8 reveal-text">Let's Create<br>Something Unforgettable</h2>
+        <p class="text-lg md:text-xl mb-12 text-gray-400 reveal-text delay-100">Whether you're planning a wellness retreat, cultural immersion, or signature celebration, we're here to bring your vision to life.</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center reveal-text delay-200">
+            <a href="#" class="btn-primary bg-white text-[#0A0B10] px-8 py-4 uppercase tracking-widest text-sm hover-trigger inline-block">
+                Start Planning
+            </a>
+            <a href="/packages" class="btn-primary text-white px-8 py-4 uppercase tracking-widest text-sm hover-trigger inline-block">
+                View Packages
+            </a>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Custom Cursor Logic
+    const cursor = document.getElementById('cursor');
+    const hoverTriggers = document.querySelectorAll('.hover-trigger');
+
+    document.addEventListener('mousemove', (e) => {
+        if (window.innerWidth > 768) {
+            cursor.style.left = e.clientX - 10 + 'px';
+            cursor.style.top = e.clientY - 10 + 'px';
+        }
+    });
+
+    hoverTriggers.forEach(trigger => {
+        trigger.addEventListener('mouseenter', () => {
+            cursor.classList.add('hovered');
+        });
+        trigger.addEventListener('mouseleave', () => {
+            cursor.classList.remove('hovered');
+        });
+    });
+
+    // Reveal Text on Scroll
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.reveal-text').forEach(el => {
+        observer.observe(el);
+    });
+
+    // Simple Parallax Effect
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        document.querySelectorAll('.parallax-img').forEach(img => {
+            const speed = img.getAttribute('data-speed');
+            const yPos = -(scrolled * speed * 0.2);
+            img.style.transform = `translateY(${yPos}px)`;
+        });
+    });
+</script>
+{% endblock %}

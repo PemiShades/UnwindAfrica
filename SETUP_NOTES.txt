@@ -1,0 +1,141 @@
+================================================================================
+                    UNWIND AFRICA - PROJECT SETUP NOTES
+================================================================================
+
+📋 INITIAL SETUP INSTRUCTIONS
+--------------------------------------------------------------------------------
+
+1. CLONE THE REPOSITORY
+   git clone https://github.com/PemiShades/UnwindAfrica.git
+   cd UnwindAfrica
+
+2. CREATE VIRTUAL ENVIRONMENT
+   python -m venv venv
+   
+   # Activate it:
+   # On Windows:
+   venv\Scripts\activate
+   
+   # On Mac/Linux:
+   source venv/bin/activate
+
+3. INSTALL DEPENDENCIES
+   pip install -r requirements.txt
+
+4. ENVIRONMENT VARIABLES (.env FILE)
+   - Copy .env.example to .env:
+     cp .env.example .env  (Mac/Linux)
+     copy .env.example .env  (Windows)
+   
+   - Edit .env and add your actual values:
+   
+   a) SECRET_KEY:
+      Generate a new Django secret key:
+      python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
+      
+      Then paste it in .env:
+      SECRET_KEY=your-generated-secret-key-here
+   
+   b) DEBUG:
+      Set to 'true' for local development:
+      DEBUG=true
+   
+   c) PAYSTACK API KEYS (IMPORTANT!):
+      - Sign up at https://paystack.com
+      - Get your API keys from: https://dashboard.paystack.com/#/settings/developer
+      - For development/testing, use TEST keys:
+        PAYSTACK_PUBLIC_KEY=pk_test_xxxxxxxxxxxxx
+        PAYSTACK_SECRET_KEY=sk_test_xxxxxxxxxxxxx
+      
+      - For production, use LIVE keys (keep these secret!):
+        PAYSTACK_PUBLIC_KEY=pk_live_xxxxxxxxxxxxx
+        PAYSTACK_SECRET_KEY=sk_live_xxxxxxxxxxxxx
+      
+      ⚠️  WARNING: NEVER commit your actual .env file to GitHub!
+      ⚠️  The .gitignore file is configured to exclude .env automatically.
+
+5. DATABASE SETUP
+   
+   LOCAL DEVELOPMENT (SQLite - Default):
+   - No additional setup needed
+   - The project uses SQLite (db.sqlite3) by default
+   - Run migrations:
+     python manage.py migrate
+   
+   PRODUCTION (PostgreSQL):
+   - Uncomment the PostgreSQL configuration in config/settings.py
+   - Add database credentials to .env:
+     DB_NAME=unwind_prod
+     DB_USER=unwind_user
+     DB_PASS=your-password
+     DB_HOST=127.0.0.1
+     DB_PORT=5432
+   - Or use DATABASE_URL:
+     DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+
+6. CREATE SUPERUSER (Admin Account)
+   python manage.py createsuperuser
+   
+   Follow the prompts to set username, email, and password.
+
+7. COLLECT STATIC FILES (for production)
+   python manage.py collectstatic
+
+8. RUN THE DEVELOPMENT SERVER
+   python manage.py runserver
+   
+   Visit: http://127.0.0.1:8000/
+
+9. ACCESS THE ADMIN PANEL
+   http://127.0.0.1:8000/admin/
+   Login with the superuser credentials you created.
+
+
+📁 PROJECT STRUCTURE
+--------------------------------------------------------------------------------
+- Web/           - Main app (blog, events, voting system)
+- dashboard/     - Admin dashboard
+- config/        - Django settings and URLs
+- static/        - CSS, JavaScript, images
+- templates/     - HTML templates
+- media/         - User-uploaded files (not in git)
+
+
+🔑 IMPORTANT SECURITY NOTES
+--------------------------------------------------------------------------------
+1. NEVER commit .env to version control
+2. Use TEST Paystack keys for development
+3. Use LIVE Paystack keys only in production
+4. Keep SECRET_KEY secret and unique per environment
+5. Set DEBUG=false in production
+6. Review ALLOWED_HOSTS in settings.py for your domain
+
+
+🧪 TESTING THE VOTING SYSTEM
+--------------------------------------------------------------------------------
+1. Run the test suite:
+   python test_voting_system.py
+
+2. Create a voting campaign in the admin panel:
+   - Go to http://127.0.0.1:8000/admin/
+   - Add a VotingCampaign
+   - Add Nominees to the campaign
+   - Set vote price and rest points per vote
+
+3. Test voting:
+   - Visit the campaign page
+   - Use Paystack TEST keys for test transactions
+   - Test card: 4084 0840 8408 4081 (success)
+   - Any CVV and future expiry date
+
+
+📞 SUPPORT
+--------------------------------------------------------------------------------
+For questions or issues:
+- Email: contact@unwindafrica.com
+- GitHub: https://github.com/PemiShades/UnwindAfrica
+
+
+================================================================================
+                        Last Updated: November 15, 2025
+================================================================================

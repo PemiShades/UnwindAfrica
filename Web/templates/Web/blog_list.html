@@ -1,5 +1,8 @@
 {% extends 'Web/main.html' %}
 {% load static %}
+
+{% block navbar %}{% endblock %}
+
 <style>
   @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(30px); }
@@ -28,6 +31,8 @@
   }
 </style>
 
+
+{% block navbar %}{% endblock %}
 
 {% block content %}
    {% include './partials/header/navbar.html' with theme='dark'%}

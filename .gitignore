@@ -2,17 +2,35 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+*.pyo
+*.pyd
+.Python
 
 # Django Stuff
 db.sqlite3
 db.sqlite3-journal
 local_settings.py
+*.log
+*.pot
+*.pyc
 
-# Media Files (if you ever add media uploads)
+# Django migrations (optional - uncomment if you want to ignore them)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# Media Files (uploaded by users)
 media/
+events/fliers/
+events/thumbnails/
+posts/thumbnails/
+blog_images/
+campaigns/banners/
+nominees/photos/
 
 # Collected Static Files (output of collectstatic)
 staticfiles/
+static_root/
 
 # Allow source static files
 !static/
@@ -34,11 +52,17 @@ venv.bak/
 
 # Environment variables / dotenv
 .env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+*.env
 
 # Requirements lock files (optional)
 Pipfile.lock
 poetry.lock
 pdm.lock
+uv.lock
 
 # Test & Coverage
 .coverage
@@ -81,3 +105,29 @@ Thumbs.db
 
 # WhiteNoise cache (if using CompressedManifestStaticFilesStorage)
 staticfiles.json
+
+# IDEs
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Node modules (if using any frontend tools)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Render specific
+.render/
+
+# Secret keys and sensitive data
+*.pem
+*.key
+*.cert
+secrets.json

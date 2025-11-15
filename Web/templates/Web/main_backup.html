@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   {% load static %}
@@ -12,25 +12,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- Vendor CSS (deduped) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
-
-  <!-- Tailwind (CDN for dev only) -->
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            'ua-sky': '#00B2FF',
-            'ua-sea': '#00C2FF',
-            'ua-sun': '#FFB648',
+            'ua-cream': '#F4F1EA',
+            'ua-charcoal': '#1A1A1A',
             'ua-ink': '#0A0B10',
-            'ua-paper': '#FFFFFF',
-            'ua-cream': '#F5F7FA',
+            'ua-sand': '#E8E4DA',
+            'ua-slate': '#64748B',
           },
           fontFamily: {
             'display': ['Space Grotesk', 'sans-serif'],
@@ -41,23 +34,10 @@
     }
   </script>
 
-  <!-- Your CSS -->
-  <link rel="stylesheet" href="{% static 'css/index.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/packages_section.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/home.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/main.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/notifications.css' %}" />
-
   {% block extra_css %}{% endblock %}
   <title>{% block title %}Unwind Africa{% endblock %}</title>
 </head>
 <body>
-  <!-- Navigation - can be overridden in child templates -->
-  {% block navbar %}
-  {% include './partials/header/navbar.html' %}
-  {% include './partials/header/hamburger-menu.html' with faq_link="/about#faq" %}
-  {% endblock %}
-  
   {% block content %}{% endblock %}
 
   <!-- Footer -->
@@ -168,9 +148,6 @@
       });
     })();
   </script>
-
-  <!-- Notification System -->
-  <script src="{% static 'javascript/notifications.js' %}"></script>
 
   {% block extra_js %}{% endblock %}
 </body>

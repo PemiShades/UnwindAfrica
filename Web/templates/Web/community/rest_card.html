@@ -1,0 +1,246 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}Rest Card - Unwind Africa{% endblock %}
+
+{% block extra_css %}
+<style>
+body {
+    padding-top: 80px;
+}
+
+header.absolute {
+    position: fixed !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+header.absolute a,
+header.absolute button,
+header.absolute span {
+    color: #0A0B10 !important;
+}
+
+header.absolute svg {
+    stroke: #0A0B10 !important;
+    fill: #0A0B10 !important;
+}
+
+.rest-card-page {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    padding: 3rem 1rem;
+}
+
+.card-mockup {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 2rem;
+    color: white;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    max-width: 400px;
+    margin: 0 auto 3rem;
+}
+
+.benefit-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.benefit-card:hover {
+    transform: translateY(-5px);
+}
+
+.waitlist-form {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    max-width: 500px;
+    margin: 0 auto;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rest-card-page">
+    <div style="max-width: 1200px; margin: 0 auto;">
+        
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 4rem;">
+            <h1 style="font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 900; color: #0A0B10; margin-bottom: 1rem;">The Rest Card</h1>
+            <p style="font-size: clamp(1.1rem, 2.5vw, 1.4rem); color: #555; max-width: 700px; margin: 0 auto;">
+                Your passport to exclusive wellness experiences, rewards, and rest points across Africa.
+            </p>
+        </div>
+
+        <!-- Card Mockup -->
+        <div class="card-mockup">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+                <div>
+                    <p style="font-size: 0.9rem; opacity: 0.9; margin: 0;">Unwind Africa</p>
+                    <h2 style="font-size: 1.8rem; margin: 0.5rem 0;">REST CARD</h2>
+                </div>
+                <div style="font-size: 2rem;">💳</div>
+            </div>
+            <div style="margin-bottom: 2rem;">
+                <p style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 0.3rem;">Card Number</p>
+                <p style="font-size: 1.3rem; letter-spacing: 0.1em; font-weight: 600;">•••• •••• •••• 1234</p>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <div>
+                    <p style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 0.3rem;">Member</p>
+                    <p style="font-weight: 600;">YOUR NAME</p>
+                </div>
+                <div>
+                    <p style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 0.3rem;">Rest Points</p>
+                    <p style="font-weight: 600; font-size: 1.2rem;">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Benefits -->
+        <div style="margin-bottom: 4rem;">
+            <h2 style="text-align: center; font-size: clamp(1.8rem, 4vw, 2.5rem); margin-bottom: 2rem; color: #0A0B10;">Card Benefits</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                <div class="benefit-card">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🎁</div>
+                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Exclusive Rewards</h3>
+                    <p style="color: #666;">Earn rest points on every vote and transaction, redeem for discounts and experiences.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">⚡</div>
+                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Early Access</h3>
+                    <p style="color: #666;">Get first dibs on new packages, events, and limited wellness experiences.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🎯</div>
+                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Monthly Draws</h3>
+                    <p style="color: #666;">Automatic entry into Unwind & Win draws for luxury prizes and getaways.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">👥</div>
+                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Community Access</h3>
+                    <p style="color: #666;">Join exclusive community events, wellness workshops, and networking sessions.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">💰</div>
+                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Special Discounts</h3>
+                    <p style="color: #666;">Enjoy member-only pricing on packages, treatments, and partner services.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🌍</div>
+                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Partner Perks</h3>
+                    <p style="color: #666;">Access discounts at partner spas, restaurants, and wellness centers across Africa.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Waitlist Counter -->
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="background: rgba(0,0,0,0.05); display: inline-block; padding: 1rem 2rem; border-radius: 50px;">
+                <p style="font-size: 0.9rem; color: #666; margin: 0 0 0.3rem;">Current Waitlist</p>
+                <p style="font-size: 2rem; font-weight: 900; color: #764ba2; margin: 0;">{{ waitlist_count|default:"0" }}/1000</p>
+                <p style="font-size: 0.85rem; color: #27ae60; margin: 0.3rem 0 0; font-weight: 600;">{{ spots_remaining|default:"1000" }} spots remaining!</p>
+            </div>
+        </div>
+
+        <!-- Waitlist Form -->
+        {% if not is_waitlist_full %}
+        <div class="waitlist-form">
+            <h2 style="text-align: center; margin-bottom: 0.5rem; color: #0A0B10;">Join the Waitlist</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 2rem;">Be among the first 1,000 members to get a Rest Card</p>
+            
+            <form id="waitlistForm" onsubmit="return submitWaitlist(event)">
+                {% csrf_token %}
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0A0B10;">Full Name</label>
+                    <input type="text" name="name" required 
+                           style="width: 100%; padding: 0.875rem; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 1rem;">
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0A0B10;">Email Address</label>
+                    <input type="email" name="email" required 
+                           style="width: 100%; padding: 0.875rem; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 1rem;">
+                </div>
+                
+                <div style="margin-bottom: 2rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0A0B10;">Phone Number</label>
+                    <input type="tel" name="phone" required 
+                           style="width: 100%; padding: 0.875rem; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 1rem;">
+                </div>
+                
+                <button type="submit" 
+                        style="width: 100%; background: linear-gradient(90deg, #FFB648, #00B2FF); color: #0A0B10; border: none; padding: 1rem; border-radius: 8px; font-weight: 900; font-size: 1.1rem; cursor: pointer; transition: transform 0.3s ease;">
+                    Join Waitlist →
+                </button>
+            </form>
+            
+            <div id="waitlistMessage" style="margin-top: 1rem; padding: 1rem; border-radius: 8px; display: none;"></div>
+        </div>
+        {% else %}
+        <div class="waitlist-form" style="text-align: center;">
+            <h2 style="color: #e74c3c; margin-bottom: 1rem;">Waitlist Full</h2>
+            <p style="color: #666;">The first 1,000 spots have been filled. Check back soon for the next enrollment period!</p>
+        </div>
+        {% endif %}
+
+        <!-- Check Status Link -->
+        <div style="text-align: center; margin-top: 3rem;">
+            <p style="color: #666;">Already on the waitlist?</p>
+            <a href="{% url 'rest_card_status' %}" style="color: #764ba2; font-weight: 600; text-decoration: underline;">Check Your Status →</a>
+        </div>
+    </div>
+</div>
+
+<script>
+function submitWaitlist(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    const messageDiv = document.getElementById('waitlistMessage');
+    
+    fetch('{% url "rest_card_waitlist_join" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.ok) {
+            messageDiv.style.display = 'block';
+            messageDiv.style.background = '#d4edda';
+            messageDiv.style.color = '#155724';
+            messageDiv.textContent = data.message;
+            form.reset();
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            messageDiv.style.display = 'block';
+            messageDiv.style.background = '#f8d7da';
+            messageDiv.style.color = '#721c24';
+            messageDiv.textContent = data.error;
+        }
+    })
+    .catch(error => {
+        messageDiv.style.display = 'block';
+        messageDiv.style.background = '#f8d7da';
+        messageDiv.style.color = '#721c24';
+        messageDiv.textContent = 'An error occurred. Please try again.';
+    });
+    
+    return false;
+}
+</script>
+{% endblock %}

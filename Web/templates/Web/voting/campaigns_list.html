@@ -1,0 +1,157 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}Nominate to Unwind - Voting Campaigns{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Ensure navbar is visible on voting pages */
+body {
+    padding-top: 80px; /* Space for fixed navbar */
+}
+
+header.absolute {
+    position: fixed !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+header.absolute a,
+header.absolute button,
+header.absolute span {
+    color: #0A0B10 !important;
+}
+
+header.absolute svg {
+    stroke: #0A0B10 !important;
+    fill: #0A0B10 !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="voting-campaigns-page" style="padding: 2rem 1rem; max-width: 1200px; margin: 0 auto;">
+    <div class="header" style="text-align: center; margin-bottom: 2rem;">
+        <h1 class="page-title" style="font-size: clamp(1.8rem, 5vw, 3rem); margin-bottom: 1rem; color: #2c3e50;">Nominate to Unwind</h1>
+        <p class="page-description" style="font-size: clamp(1rem, 2vw, 1.2rem); color: #7f8c8d; max-width: 700px; margin: 0 auto; padding: 0 1rem;">
+            Vote for deserving individuals to win a luxury wellness getaway. Every vote counts!
+        </p>
+    </div>
+
+    {% if ongoing_campaigns %}
+    <section class="ongoing-campaigns" style="margin-bottom: 3rem;">
+        <h2 style="font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: 1.5rem; color: #34495e; padding: 0 0.5rem;">Active Campaigns</h2>
+        <div class="campaigns-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 1.5rem;">
+            {% for campaign in ongoing_campaigns %}
+            <div class="campaign-card" style="border: 1px solid #e1e8ed; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.3s;">
+                {% if campaign.banner_image %}
+                <img src="{{ campaign.banner_image.url }}" alt="{{ campaign.name }}" style="width: 100%; height: 200px; object-fit: cover;">
+                {% else %}
+                <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                {% endif %}
+                
+                <div style="padding: 1.5rem;">
+                    <h3 style="font-size: clamp(1.2rem, 3vw, 1.5rem); margin-bottom: 0.5rem; color: #2c3e50; word-wrap: break-word;">{{ campaign.name }}</h3>
+                    <p style="color: #7f8c8d; margin-bottom: 1rem; line-height: 1.6; font-size: 0.95rem;">{{ campaign.description|truncatewords:20 }}</p>
+                    
+                    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 1rem; font-size: clamp(0.8rem, 2vw, 0.9rem); color: #95a5a6; gap: 0.5rem;">
+                        <span style="white-space: nowrap;">📅 {{ campaign.start_date|date:"M d" }} - {{ campaign.end_date|date:"M d, Y" }}</span>
+                        <span style="white-space: nowrap;">🎯 {{ campaign.total_votes }} votes</span>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: clamp(0.85rem, 2vw, 0.95rem);">
+                            <span style="color: #7f8c8d;">Vote Price:</span>
+                            <strong style="color: #27ae60;">₦{{ campaign.vote_price|floatformat:0 }}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: clamp(0.85rem, 2vw, 0.95rem);">
+                            <span style="color: #7f8c8d;">Rest Points per Vote:</span>
+                            <strong style="color: #e74c3c;">₦{{ campaign.rest_points_per_vote|floatformat:0 }}</strong>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'voting_campaign' campaign.slug %}" 
+                       style="display: block; text-align: center; background: #3498db; color: white; padding: 0.875rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: background 0.3s; font-size: clamp(0.9rem, 2vw, 1rem);">
+                        Vote Now →
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if campaigns %}
+    <section class="all-campaigns">
+        <h2 style="font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: 1.5rem; color: #34495e; padding: 0 0.5rem;">All Campaigns</h2>
+        <div class="campaigns-list" style="display: flex; flex-direction: column; gap: 1rem;">
+            {% for campaign in campaigns %}
+            {% if not campaign.is_ongoing %}
+            <div class="campaign-item" style="border: 1px solid #e1e8ed; border-radius: 8px; padding: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                <div>
+                    <h3 style="font-size: clamp(1.1rem, 3vw, 1.3rem); margin-bottom: 0.5rem; word-wrap: break-word;">{{ campaign.name }}</h3>
+                    <p style="color: #7f8c8d; font-size: clamp(0.85rem, 2vw, 0.9rem); display: flex; flex-wrap: wrap; gap: 0.5rem 1rem;">
+                        <span>{{ campaign.start_date|date:"M d, Y" }} - {{ campaign.end_date|date:"M d, Y" }}</span>
+                        <span>{{ campaign.total_votes }} total votes</span>
+                    </p>
+                </div>
+                <a href="{% url 'voting_campaign' campaign.slug %}" 
+                   style="background: #95a5a6; color: white; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none; text-align: center; white-space: nowrap; align-self: flex-start; font-size: clamp(0.9rem, 2vw, 1rem);">
+                    View Results
+                </a>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+    {% else %}
+    <div style="text-align: center; padding: 3rem 1rem;">
+        <p style="font-size: clamp(1.1rem, 3vw, 1.3rem); color: #7f8c8d;">No campaigns available at the moment. Check back soon!</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.campaign-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.campaign-card a:hover {
+    background: #2980b9;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .voting-campaigns-page {
+        padding: 1.5rem 0.75rem !important;
+    }
+    
+    .campaigns-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.25rem !important;
+    }
+    
+    .campaign-item {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    
+    .campaign-item a {
+        width: 100% !important;
+        align-self: stretch !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .voting-campaigns-page {
+        padding: 1rem 0.5rem !important;
+    }
+    
+    .campaign-card {
+        margin: 0 0.25rem;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,589 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}{{ campaign.name }} - Vote Now{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+<style>
+/* Ensure navbar is visible on voting pages */
+body {
+    padding-top: 80px; /* Space for fixed navbar */
+}
+
+header.absolute {
+    position: fixed !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+header.absolute a,
+header.absolute button,
+header.absolute span {
+    color: #0A0B10 !important;
+}
+
+header.absolute svg {
+    stroke: #0A0B10 !important;
+    fill: #0A0B10 !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="voting-campaign-page" style="padding: 1.5rem 1rem; max-width: 1400px; margin: 0 auto;">
+    
+    <!-- Campaign Header -->
+    <div class="campaign-header" style="text-align: center; margin-bottom: 2rem;">
+        {% if campaign.banner_image %}
+        <img src="{{ campaign.banner_image.url }}" alt="{{ campaign.name }}" 
+             style="width: 100%; max-height: 250px; object-fit: cover; border-radius: 12px; margin-bottom: 1.5rem;">
+        {% endif %}
+        
+        <h1 style="font-size: clamp(1.5rem, 5vw, 2.5rem); margin-bottom: 1rem; color: #2c3e50; padding: 0 0.5rem; word-wrap: break-word;">{{ campaign.name }}</h1>
+        <p style="font-size: clamp(0.95rem, 2.5vw, 1.1rem); color: #7f8c8d; max-width: 800px; margin: 0 auto 1rem; padding: 0 1rem; line-height: 1.6;">
+            {{ campaign.description }}
+        </p>
+        
+        <div class="campaign-stats" style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+            <div style="background: #ecf0f1; padding: 0.875rem 1.25rem; border-radius: 8px; min-width: 140px;">
+                <div style="font-size: clamp(0.8rem, 2vw, 0.9rem); color: #7f8c8d;">Campaign Period</div>
+                <div style="font-weight: 600; color: #2c3e50; font-size: clamp(0.85rem, 2vw, 0.95rem);">
+                    {{ campaign.start_date|date:"M d" }} - {{ campaign.end_date|date:"M d, Y" }}
+                </div>
+            </div>
+            <div style="background: #ecf0f1; padding: 0.875rem 1.25rem; border-radius: 8px; min-width: 100px;">
+                <div style="font-size: clamp(0.8rem, 2vw, 0.9rem); color: #7f8c8d;">Total Votes</div>
+                <div style="font-weight: 600; color: #2c3e50; font-size: clamp(1.2rem, 3vw, 1.5rem);">{{ campaign.total_votes }}</div>
+            </div>
+            <div style="background: #ecf0f1; padding: 0.875rem 1.25rem; border-radius: 8px; min-width: 100px;">
+                <div style="font-size: clamp(0.8rem, 2vw, 0.9rem); color: #7f8c8d;">Vote Price</div>
+                <div style="font-weight: 600; color: #27ae60; font-size: clamp(1.2rem, 3vw, 1.5rem);">₦{{ vote_price|floatformat:0 }}</div>
+            </div>
+        </div>
+        
+        {% if campaign.is_ongoing %}
+        <div style="background: #27ae60; color: white; padding: 0.5rem 1rem; border-radius: 20px; display: inline-block; font-size: clamp(0.85rem, 2vw, 0.95rem);">
+            ✓ Campaign Active - Voting Open
+        </div>
+        {% else %}
+        <div style="background: #e74c3c; color: white; padding: 0.5rem 1rem; border-radius: 20px; display: inline-block; font-size: clamp(0.85rem, 2vw, 0.95rem);">
+            Campaign Ended
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Leaderboard -->
+    {% if leaderboard %}
+    <div class="leaderboard" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem 1rem; border-radius: 12px; margin-bottom: 2rem; color: white;">
+        <h2 style="text-align: center; margin-bottom: 1.25rem; font-size: clamp(1.3rem, 4vw, 2rem);">🏆 Top Nominees</h2>
+        <div style="display: flex; justify-content: center; gap: clamp(1rem, 3vw, 2rem); flex-wrap: wrap;">
+            {% for nominee in leaderboard %}
+            <div style="text-align: center; {% if forloop.first %}transform: scale(1.05);{% endif %} max-width: 120px;">
+                <div style="position: relative; width: clamp(80px, 15vw, 100px); height: clamp(80px, 15vw, 100px); margin: 0 auto 0.5rem;">
+                    {% if nominee.photo %}
+                    <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" 
+                         style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid white;">
+                    {% endif %}
+                    <div style="position: absolute; bottom: -10px; right: -10px; background: #f39c12; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid white; font-size: clamp(0.8rem, 2vw, 0.95rem);">
+                        {{ forloop.counter }}
+                    </div>
+                </div>
+                <div style="font-weight: 600; font-size: clamp(0.9rem, 2vw, 1.1rem); word-wrap: break-word;">{{ nominee.name }}</div>
+                <div style="opacity: 0.9; font-size: clamp(1rem, 2.5vw, 1.3rem); font-weight: bold;">{{ nominee.vote_count }} votes</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Voting Ballot Sticky Summary -->
+    <div id="ballotSummary" class="ballot-summary" style="position: fixed; bottom: 20px; right: 20px; background: white; border: 2px solid #3498db; border-radius: 12px; padding: 1.25rem; box-shadow: 0 4px 16px rgba(0,0,0,0.2); min-width: 280px; max-width: 90vw; display: none; z-index: 1000;">
+        <h3 style="margin-bottom: 1rem; color: #2c3e50; display: flex; justify-content: space-between; align-items: center; font-size: clamp(1rem, 3vw, 1.2rem);">
+            <span>Your Ballot</span>
+            <button onclick="clearBallot()" style="background: #e74c3c; color: white; border: none; padding: 0.3rem 0.7rem; border-radius: 4px; cursor: pointer; font-size: clamp(0.75rem, 2vw, 0.8rem);">Clear</button>
+        </h3>
+        <div id="ballotItems" style="margin-bottom: 1rem; max-height: 180px; overflow-y: auto;"></div>
+        <div style="border-top: 2px solid #ecf0f1; padding-top: 1rem; margin-top: 1rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: clamp(0.85rem, 2vw, 0.95rem);">
+                <strong>Total Votes:</strong>
+                <span id="totalVotes">0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: clamp(1rem, 2.5vw, 1.2rem); color: #27ae60;">
+                <strong>Amount:</strong>
+                <strong id="totalAmount">₦0</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: clamp(0.8rem, 2vw, 0.9rem); color: #e74c3c;">
+                <span>Rest Points Earned:</span>
+                <strong id="totalRestPoints">0 points</strong>
+            </div>
+            <div style="font-size: 0.7rem; color: #7f8c8d; margin-bottom: 1rem; line-height: 1.3;">
+                You earn 100 Rest Points per vote.
+            </div>
+            <button onclick="proceedToCheckout()" style="width: 100%; background: #27ae60; color: white; border: none; padding: 0.875rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(0.9rem, 2vw, 1rem);">
+                ✔ Proceed to Payment →
+            </button>
+        </div>
+    </div>
+
+    <!-- Nominees Grid -->
+    <div class="nominees-section">
+        {% if campaign.is_ongoing %}
+        <div id="countdown" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 1rem; border-radius: 12px; text-align: center; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+            <div style="font-size: 0.9rem; opacity: 0.95; margin-bottom: 0.3rem;">⏳ Voting closes in:</div>
+            <div id="countdownTimer" style="font-size: clamp(1.5rem, 5vw, 2rem); font-weight: bold;">
+                Loading...
+            </div>
+        </div>
+        {% endif %}
+        
+        <h2 style="font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: 1.5rem; color: #34495e; text-align: center; padding: 0 0.5rem;">Vote for Your Favorite Nominees</h2>
+        
+        {% if not campaign.is_ongoing %}
+        <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center; font-size: clamp(0.9rem, 2vw, 1rem);">
+            ⚠️ This campaign has ended. Voting is closed.
+        </div>
+        {% endif %}
+
+        <div class="nominees-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 1.5rem;">
+            {% for nominee in nominees %}
+            <div class="nominee-card" data-nominee-id="{{ nominee.id }}" 
+                 style="border: 2px solid #e1e8ed; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3;">
+                
+                {% if nominee.photo %}
+                <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" 
+                     style="width: 100%; height: 220px; object-fit: cover;">
+                {% endif %}
+                
+                <div style="padding: 1.25rem;">
+                    <h3 style="font-size: clamp(1.2rem, 3vw, 1.4rem); margin-bottom: 0.5rem; color: #2c3e50; word-wrap: break-word;">{{ nominee.name }}</h3>
+                    
+                    {% if nominee.instagram_handle %}
+                    <a href="{{ nominee.instagram_url }}" target="_blank" 
+                       style="color: #e1306c; text-decoration: none; font-size: clamp(0.85rem, 2vw, 0.9rem); display: inline-block; margin-bottom: 0.875rem;">
+                        📷 @{{ nominee.instagram_handle }}
+                    </a>
+                    {% endif %}
+                    
+                    <p style="color: #7f8c8d; line-height: 1.6; margin-bottom: 1rem; font-size: clamp(0.9rem, 2vw, 0.95rem);">
+                        {{ nominee.story|truncatewords:30 }}
+                    </p>
+                    
+                    <div style="background: #f8f9fa; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; text-align: center;">
+                        <div style="color: #7f8c8d; font-size: clamp(0.8rem, 2vw, 0.85rem);">Current Votes</div>
+                        <div style="font-size: clamp(1.8rem, 5vw, 2rem); font-weight: bold; color: #3498db;">{{ nominee.vote_count }}</div>
+                    </div>
+                    
+                    {% if campaign.is_ongoing %}
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                        <button onclick="decrementVote({{ nominee.id }})" 
+                                style="background: #e74c3c; color: white; border: none; padding: 0.75rem; border-radius: 6px; cursor: pointer; font-size: clamp(1rem, 3vw, 1.2rem); width: 40px; flex-shrink: 0;">−</button>
+                        <input type="number" id="votes-{{ nominee.id }}" value="0" min="0" 
+                               onchange="updateBallot()"
+                               style="flex: 1; text-align: center; font-size: clamp(1rem, 3vw, 1.2rem); border: 2px solid #ecf0f1; border-radius: 6px; padding: 0.75rem; min-width: 0;">
+                        <button onclick="incrementVote({{ nominee.id }})" 
+                                style="background: #27ae60; color: white; border: none; padding: 0.75rem; border-radius: 6px; cursor: pointer; font-size: clamp(1rem, 3vw, 1.2rem); width: 40px; flex-shrink: 0;">+</button>
+                    </div>
+                    
+                    <button onclick="addVotes({{ nominee.id }}, '{{ nominee.name }}')" 
+                            style="width: 100%; background: #3498db; color: white; border: none; padding: 0.875rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.3s; font-size: clamp(0.9rem, 2vw, 1rem);">
+                        Add to Ballot
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Checkout Modal -->
+<div id="checkoutModal" class="checkout-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;">
+    <div style="background: white; border-radius: 12px; padding: clamp(1.25rem, 4vw, 2rem); max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; margin: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h2 style="font-size: clamp(1.3rem, 4vw, 1.8rem); color: #2c3e50; margin: 0;">Complete Your Vote</h2>
+            <button onclick="closeCheckout()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0.25rem;">×</button>
+        </div>
+        
+        <form id="checkoutForm">
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: clamp(0.9rem, 2vw, 1rem);">Full Name *</label>
+                <input type="text" id="voterName" required 
+                       style="width: 100%; padding: 0.75rem; border: 2px solid #ecf0f1; border-radius: 6px; font-size: clamp(0.95rem, 2vw, 1rem); box-sizing: border-box;">
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: clamp(0.9rem, 2vw, 1rem);">Email Address *</label>
+                <input type="email" id="voterEmail" required 
+                       style="width: 100%; padding: 0.75rem; border: 2px solid #ecf0f1; border-radius: 6px; font-size: clamp(0.95rem, 2vw, 1rem); box-sizing: border-box;">
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: clamp(0.9rem, 2vw, 1rem);">Phone Number *</label>
+                <input type="tel" id="voterPhone" required placeholder="+234..." 
+                       style="width: 100%; padding: 0.75rem; border: 2px solid #ecf0f1; border-radius: 6px; font-size: clamp(0.95rem, 2vw, 1rem); box-sizing: border-box;">
+            </div>
+            
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: clamp(0.9rem, 2vw, 1rem);">Who told you about Unwind Africa? *</label>
+                <input type="text" id="referralSource" required placeholder="e.g., Friend, Instagram, Google, etc."
+                       style="width: 100%; padding: 0.75rem; border: 2px solid #ecf0f1; border-radius: 6px; font-size: clamp(0.95rem, 2vw, 1rem); box-sizing: border-box;">
+                <div style="font-size: 0.75rem; color: #7f8c8d; margin-top: 0.3rem;">
+                    Help us reward those who support us!
+                </div>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: clamp(0.9rem, 2vw, 1rem);">
+                    <span>Total Votes:</span>
+                    <strong id="checkoutTotalVotes">0</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: clamp(1.1rem, 3vw, 1.2rem); color: #27ae60;">
+                    <strong>Amount:</strong>
+                    <strong id="checkoutTotalAmount">₦0</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: #e74c3c; font-size: clamp(0.85rem, 2vw, 0.95rem);">
+                    <span>Rest Points Earned:</span>
+                    <strong id="checkoutRestPoints">0 points</strong>
+                </div>
+                <div style="font-size: 0.75rem; color: #7f8c8d; margin-top: 0.5rem; line-height: 1.4;">
+                    💡 You earn 100 Rest Points per vote. Redeemable for rest experiences (spa, cinema, group events, etc.)
+                </div>
+            </div>
+            
+            <button type="submit" id="payButton"
+                    style="width: 100%; background: #27ae60; color: white; border: none; padding: 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(1rem, 2.5vw, 1.1rem);">
+                Pay with Paystack →
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+const VOTE_PRICE = {{ vote_price }};
+const REST_POINTS_PER_VOTE = {{ rest_points_per_vote }};
+let ballot = {};
+
+function incrementVote(nomineeId) {
+    const input = document.getElementById(`votes-${nomineeId}`);
+    input.value = parseInt(input.value) + 1;
+    updateBallot();
+}
+
+function decrementVote(nomineeId) {
+    const input = document.getElementById(`votes-${nomineeId}`);
+    if (parseInt(input.value) > 0) {
+        input.value = parseInt(input.value) - 1;
+        updateBallot();
+    }
+}
+
+function addVotes(nomineeId, nomineeName) {
+    const input = document.getElementById(`votes-${nomineeId}`);
+    const votes = parseInt(input.value);
+    
+    if (votes > 0) {
+        ballot[nomineeId] = { name: nomineeName, votes: votes };
+        updateBallot();
+        input.value = 0;
+        
+        // Show success notification
+        showSuccess(`Added ${votes} vote(s) for ${nomineeName} to your ballot!`);
+    } else {
+        showWarning('Please select at least 1 vote');
+    }
+}
+
+function updateBallot() {
+    const ballotDiv = document.getElementById('ballotItems');
+    const summaryDiv = document.getElementById('ballotSummary');
+    
+    let totalVotes = 0;
+    let totalAmount = 0;
+    let html = '';
+    
+    for (const [nomineeId, data] of Object.entries(ballot)) {
+        if (data.votes > 0) {
+            totalVotes += data.votes;
+            totalAmount += data.votes * VOTE_PRICE;
+            html += `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding: 0.5rem; background: #f8f9fa; border-radius: 4px;">
+                    <span style="font-size: 0.9rem;">${data.name}</span>
+                    <span style="font-weight: 600;">${data.votes} × ₦${VOTE_PRICE}</span>
+                </div>
+            `;
+        }
+    }
+    
+    if (totalVotes > 0) {
+        summaryDiv.style.display = 'block';
+        ballotDiv.innerHTML = html;
+        document.getElementById('totalVotes').textContent = totalVotes;
+        document.getElementById('totalAmount').textContent = `₦${totalAmount.toLocaleString()}`;
+        document.getElementById('totalRestPoints').textContent = `${(totalVotes * REST_POINTS_PER_VOTE).toLocaleString()} points`;
+    } else {
+        summaryDiv.style.display = 'none';
+    }
+}
+
+function clearBallot() {
+    if (Object.keys(ballot).length === 0) {
+        showInfo('Your ballot is already empty');
+        return;
+    }
+    
+    showConfirm({
+        title: 'Clear Ballot?',
+        message: 'Are you sure you want to remove all votes from your ballot?',
+        confirmText: 'Yes, Clear',
+        cancelText: 'Cancel',
+        confirmClass: 'danger'
+    }).then(confirmed => {
+        if (confirmed) {
+            ballot = {};
+            updateBallot();
+            showSuccess('Ballot cleared');
+        }
+    });
+}
+
+function proceedToCheckout() {
+    const totalVotes = Object.values(ballot).reduce((sum, data) => sum + data.votes, 0);
+    
+    if (totalVotes === 0) {
+        showWarning('Please add at least one vote to your ballot before proceeding');
+        return;
+    }
+    
+    const totalAmount = totalVotes * VOTE_PRICE;
+    const totalRestPoints = totalVotes * REST_POINTS_PER_VOTE;
+    
+    document.getElementById('checkoutTotalVotes').textContent = totalVotes;
+    document.getElementById('checkoutTotalAmount').textContent = `₦${totalAmount.toLocaleString()}`;
+    document.getElementById('checkoutRestPoints').textContent = `${totalRestPoints.toLocaleString()} points`;
+    
+    document.getElementById('checkoutModal').style.display = 'flex';
+}
+
+function closeCheckout() {
+    document.getElementById('checkoutModal').style.display = 'none';
+}
+
+document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const payButton = document.getElementById('payButton');
+    const originalText = payButton.textContent;
+    payButton.disabled = true;
+    payButton.textContent = 'Processing...';
+    
+    const ballotArray = Object.entries(ballot).map(([nomineeId, data]) => ({
+        nominee_id: nomineeId,
+        votes: data.votes
+    }));
+    
+    // Show loading notification
+    const loading = showLoading('Initializing payment...');
+    
+    try {
+        const response = await fetch('{% url "initialize_payment" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                ballot: ballotArray,
+                voter_name: document.getElementById('voterName').value,
+                voter_email: document.getElementById('voterEmail').value,
+                voter_phone: document.getElementById('voterPhone').value,
+                referral_source: document.getElementById('referralSource').value
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            loading.success('Redirecting to payment gateway...');
+            setTimeout(() => {
+                window.location.href = data.authorization_url;
+            }, 1000);
+        } else {
+            loading.close();
+            showError(data.message || 'Payment initialization failed. Please try again.');
+            payButton.disabled = false;
+            payButton.textContent = originalText;
+        }
+    } catch (error) {
+        loading.close();
+        showError('Network error. Please check your connection and try again.');
+        console.error('Payment error:', error);
+        payButton.disabled = false;
+        payButton.textContent = originalText;
+    }
+});
+
+// Close modal on outside click
+document.getElementById('checkoutModal').addEventListener('click', (e) => {
+    if (e.target.id === 'checkoutModal') {
+        closeCheckout();
+    }
+});
+
+// Countdown Timer
+{% if campaign.is_ongoing %}
+const endDate = new Date('{{ campaign.end_date|date:"Y-m-d" }}T23:59:59').getTime();
+
+function updateCountdown() {
+    const now = new Date().getTime();
+    const distance = endDate - now;
+    
+    if (distance < 0) {
+        document.getElementById('countdownTimer').textContent = 'Voting has ended';
+        return;
+    }
+    
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+    let countdownText = '';
+    if (days > 0) {
+        countdownText = `${days} days ${hours} hours`;
+    } else if (hours > 0) {
+        countdownText = `${hours} hours ${minutes} minutes`;
+    } else {
+        countdownText = `${minutes} minutes ${seconds} seconds`;
+    }
+    
+    document.getElementById('countdownTimer').textContent = countdownText;
+}
+
+// Update countdown immediately and then every second
+updateCountdown();
+setInterval(updateCountdown, 1000);
+{% endif %}
+</script>
+
+<style>
+.nominee-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    border-color: #3498db;
+}
+
+.nominee-card button:hover {
+    opacity: 0.9;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    opacity: 1;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .voting-campaign-page {
+        padding: 1rem 0.75rem !important;
+    }
+    
+    .campaign-header {
+        margin-bottom: 1.5rem !important;
+    }
+    
+    .campaign-stats {
+        gap: 0.75rem !important;
+    }
+    
+    .campaign-stats > div {
+        padding: 0.75rem 1rem !important;
+        min-width: 110px !important;
+    }
+    
+    .leaderboard {
+        padding: 1.25rem 0.75rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+    
+    .nominees-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.25rem !important;
+    }
+    
+    .ballot-summary {
+        bottom: 10px !important;
+        right: 10px !important;
+        left: 10px !important;
+        min-width: auto !important;
+        max-width: none !important;
+        padding: 1rem !important;
+    }
+    
+    .checkout-modal {
+        padding: 0.5rem !important;
+    }
+    
+    .checkout-modal > div {
+        padding: 1.25rem !important;
+        width: calc(100% - 1rem) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .voting-campaign-page {
+        padding: 0.75rem 0.5rem !important;
+    }
+    
+    .campaign-stats {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    
+    .campaign-stats > div {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .leaderboard > div {
+        gap: 1rem !important;
+    }
+    
+    .nominee-card img {
+        height: 180px !important;
+    }
+    
+    .ballot-summary {
+        position: fixed !important;
+        bottom: 0 !important;
+        right: 0 !important;
+        left: 0 !important;
+        border-radius: 12px 12px 0 0 !important;
+        max-height: 60vh !important;
+        overflow-y: auto !important;
+    }
+    
+    #ballotItems {
+        max-height: 150px !important;
+    }
+}
+
+/* Smooth scrolling for modal */
+.checkout-modal {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Better touch targets on mobile */
+@media (hover: none) and (pointer: coarse) {
+    button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    input, select, textarea {
+        font-size: 16px !important; /* Prevents zoom on iOS */
+    }
+}
+</style>
+{% endblock %}

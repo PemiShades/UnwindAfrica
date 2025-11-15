@@ -152,3 +152,151 @@ def quote_request(request):
         pass
 
     return JsonResponse({"ok": True})
+
+
+# ===================== COMMUNITY & REST CARD VIEWS =====================
+
+def community_stats(request):
+    """Display community statistics from Google Form data"""
+    from .models import CommunityMember
+    from django.db.models import Count
+    
+    total_members = CommunityMember.objects.count()
+    
+    # Gender breakdown
+    gender_stats = CommunityMember.objects.values('gender').annotate(count=Count('gender'))
+    
+    # Location breakdown (top 10)
+    location_stats = CommunityMember.objects.values('location').annotate(
+        count=Count('location')).order_by('-count')[:10]
+    
+    context = {
+        'total_members': total_members,
+        'gender_stats': gender_stats,
+        'location_stats': location_stats,
+    }
+    
+    # Return JSON for AJAX requests
+    if request.GET.get('json') == '1':
+        gender_data = {item['gender']: item['count'] for item in gender_stats if item['gender']}
+        location_data = {item['location']: item['count'] for item in location_stats if item['location']}
+        return JsonResponse({
+            'total_members': total_members,
+            'gender': gender_data,
+            'locations': location_data
+        })
+    
+    return render(request, 'Web/community/stats.html', context)
+
+
+def rest_card_info(request):
+    """Rest Card information and benefits page"""
+    from .models import RestCard
+    
+    # Count waitlist members
+    waitlist_count = RestCard.objects.filter(status='waitlist').count()
+    active_count = RestCard.objects.filter(status='active').count()
+    spots_remaining = max(0, 1000 - waitlist_count)
+    
+    context = {
+        'waitlist_count': waitlist_count,
+        'active_count': active_count,
+        'spots_remaining': spots_remaining,
+        'is_waitlist_full': waitlist_count >= 1000,
+    }
+    
+    return render(request, 'Web/community/rest_card.html', context)
+
+
+@require_POST
+@csrf_protect
+def rest_card_waitlist_join(request):
+    """Join the Rest Card waitlist"""
+    from .models import RestCard
+    
+    name = request.POST.get('name', '').strip()
+    email = request.POST.get('email', '').strip()
+    phone = request.POST.get('phone', '').strip()
+    
+    if not name or not email or not phone:
+        return JsonResponse({
+            'ok': False,
+            'error': 'Name, email, and phone are required.'
+        }, status=400)
+    
+    # Check if waitlist is full
+    waitlist_count = RestCard.objects.filter(status='waitlist').count()
+    if waitlist_count >= 1000:
+        return JsonResponse({
+            'ok': False,
+            'error': 'Waitlist is currently full. Check back soon!'
+        }, status=400)
+    
+    # Check if already exists
+    if RestCard.objects.filter(member_email=email).exists():
+        return JsonResponse({
+            'ok': False,
+            'error': 'This email is already on the waitlist.'
+        }, status=400)
+    
+    # Create waitlist entry
+    card = RestCard.objects.create(
+        member_name=name,
+        member_email=email,
+        member_phone=phone,
+        status='waitlist'
+    )
+    
+    return JsonResponse({
+        'ok': True,
+        'position': card.waitlist_position,
+        'message': f'Success! You are #{card.waitlist_position} on the waitlist.'
+    })
+
+
+def rest_card_status(request):
+    """Check Rest Card status"""
+    email = request.GET.get('email', '').strip()
+    
+    if not email:
+        return render(request, 'Web/community/card_status.html', {'card': None})
+    
+    from .models import RestCard
+    
+    try:
+        card = RestCard.objects.get(member_email=email)
+        return render(request, 'Web/community/card_status.html', {'card': card})
+    except RestCard.DoesNotExist:
+        return render(request, 'Web/community/card_status.html', {
+            'card': None,
+            'error': 'No Rest Card found for this email.'
+        })
+
+
+def token_wallet_view(request):
+    """View token wallet (requires email lookup for now)"""
+    email = request.GET.get('email', '').strip()
+    
+    if not email:
+        return render(request, 'Web/community/token_wallet.html', {'wallet': None})
+    
+    from .models import TokenWallet
+    
+    try:
+        wallet = TokenWallet.objects.prefetch_related('transactions').get(member_email=email)
+        recent_transactions = wallet.transactions.all()[:10]
+        return render(request, 'Web/community/token_wallet.html', {
+            'wallet': wallet,
+            'recent_transactions': recent_transactions
+        })
+    except TokenWallet.DoesNotExist:
+        return render(request, 'Web/community/token_wallet.html', {
+            'wallet': None,
+            'error': 'No wallet found for this email.'
+        })
+
+
+def unwind_and_win(request):
+    """Unwind & Win rewards page"""
+    return render(request, 'Web/community/unwind_and_win.html', {})
+

@@ -15,6 +15,8 @@
   .animate-fade-in { animation: fadeIn 0.5s ease-out; }
 </style>
 
+{% block navbar %}{% endblock %}
+
 {% block content %}
    {% include './partials/header/navbar.html' with theme='dark'%}
    {% include './partials/header/hamburger-menu.html' with faq_link="/about#faq"%}

@@ -1,0 +1,144 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}Check Rest Card Status - Unwind Africa{% endblock %}
+
+{% block extra_css %}
+<style>
+body {
+    padding-top: 80px;
+}
+
+header.absolute {
+    position: fixed !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+header.absolute a,
+header.absolute button,
+header.absolute span {
+    color: #0A0B10 !important;
+}
+
+header.absolute svg {
+    stroke: #0A0B10 !important;
+    fill: #0A0B10 !important;
+}
+
+.status-page {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    padding: 3rem 1rem;
+}
+
+.status-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="status-page">
+    <div class="status-container">
+        <h1 style="text-align: center; font-size: clamp(2rem, 5vw, 2.5rem); margin-bottom: 1rem; color: #0A0B10;">Check Card Status</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 2rem;">Enter your email to view your Rest Card status</p>
+        
+        <!-- Search Form -->
+        <form method="GET" action="{% url 'rest_card_status' %}" style="margin-bottom: 2rem;">
+            <div style="display: flex; gap: 0.5rem;">
+                <input type="email" name="email" placeholder="your@email.com" required
+                       value="{{ request.GET.email }}"
+                       style="flex: 1; padding: 0.875rem; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 1rem;">
+                <button type="submit" 
+                        style="background: linear-gradient(90deg, #FFB648, #00B2FF); color: #0A0B10; border: none; padding: 0.875rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer;">
+                    Check
+                </button>
+            </div>
+        </form>
+        
+        <!-- Results -->
+        {% if error %}
+        <div style="background: #f8d7da; color: #721c24; padding: 1.5rem; border-radius: 8px; text-align: center;">
+            <p style="margin: 0; font-weight: 600;">{{ error }}</p>
+            <p style="margin: 0.5rem 0 0; font-size: 0.9rem;">Haven't joined yet? <a href="{% url 'rest_card_info' %}" style="color: #721c24; text-decoration: underline;">Join the waitlist</a></p>
+        </div>
+        {% elif card %}
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 15px; color: white; margin-bottom: 2rem;">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                {% if card.status == 'waitlist' %}
+                <span class="status-badge" style="background: rgba(255, 255, 255, 0.2);">Waitlist</span>
+                {% elif card.status == 'pending' %}
+                <span class="status-badge" style="background: rgba(255, 182, 72, 0.3);">Pending Activation</span>
+                {% elif card.status == 'active' %}
+                <span class="status-badge" style="background: rgba(39, 174, 110, 0.3);">Active</span>
+                {% elif card.status == 'suspended' %}
+                <span class="status-badge" style="background: rgba(231, 76, 60, 0.3);">Suspended</span>
+                {% elif card.status == 'expired' %}
+                <span class="status-badge" style="background: rgba(149, 165, 166, 0.3);">Expired</span>
+                {% endif %}
+            </div>
+            
+            <h2 style="text-align: center; font-size: 1.8rem; margin-bottom: 0.5rem;">{{ card.member_name }}</h2>
+            <p style="text-align: center; opacity: 0.9; margin-bottom: 2rem;">{{ card.member_email }}</p>
+            
+            {% if card.status == 'waitlist' %}
+            <div style="text-align: center; padding: 1.5rem; background: rgba(255, 255, 255, 0.1); border-radius: 10px;">
+                <p style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;">Your Position</p>
+                <p style="font-size: 3rem; font-weight: 900; margin: 0; line-height: 1;">#{{ card.waitlist_position }}</p>
+                <p style="font-size: 0.85rem; opacity: 0.8; margin-top: 0.5rem;">Joined {{ card.waitlist_joined_at|date:"M d, Y" }}</p>
+            </div>
+            {% elif card.card_number %}
+            <div style="text-align: center; padding: 1.5rem; background: rgba(255, 255, 255, 0.1); border-radius: 10px; margin-bottom: 1.5rem;">
+                <p style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;">Card Number</p>
+                <p style="font-size: 1.5rem; font-weight: 700; letter-spacing: 0.1em; margin: 0;">
+                    {% for i in card.card_number %}
+                        {{ i }}{% if forloop.counter|divisibleby:4 and not forloop.last %} {% endif %}
+                    {% endfor %}
+                </p>
+            </div>
+            
+            <div style="display: flex; justify-content: space-around; text-align: center;">
+                <div>
+                    <p style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 0.3rem;">Rest Points</p>
+                    <p style="font-size: 1.8rem; font-weight: 700; margin: 0;">{{ card.total_rest_points|floatformat:0 }}</p>
+                </div>
+                <div>
+                    <p style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 0.3rem;">Activated</p>
+                    <p style="font-size: 1rem; font-weight: 600; margin: 0;">{{ card.activated_at|date:"M d, Y" }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        {% if card.status == 'waitlist' %}
+        <div style="background: #fff3cd; color: #856404; padding: 1.5rem; border-radius: 8px;">
+            <p style="margin: 0; font-weight: 600;">🎉 You're on the list!</p>
+            <p style="margin: 0.5rem 0 0; font-size: 0.9rem;">We'll notify you via email when it's time to activate your card.</p>
+        </div>
+        {% elif card.status == 'active' %}
+        <div style="background: #d4edda; color: #155724; padding: 1.5rem; border-radius: 8px;">
+            <p style="margin: 0; font-weight: 600;">✅ Your card is active!</p>
+            <p style="margin: 0.5rem 0 0; font-size: 0.9rem;">Check your <a href="{% url 'token_wallet' %}?email={{ card.member_email }}" style="color: #155724; text-decoration: underline;">token wallet</a> to see your rewards.</p>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

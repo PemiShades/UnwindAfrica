@@ -1,0 +1,120 @@
+{% load static %}
+
+<!-- Navigation -->
+<nav id="main-nav" class="fixed w-full z-50 px-6 py-4 md:px-12 md:py-6 flex justify-between items-center transition-all duration-500 mix-blend-difference text-white border-b border-transparent">
+    <a href="/" class="text-2xl md:text-3xl font-bold tracking-tighter hover-trigger font-display nav-title-color transition-colors duration-300">
+        UNWIND AFRICA
+    </a>
+    
+    <div class="hidden md:flex space-x-8 lg:space-x-12 items-center">
+        <a href="/#experiences" class="nav-link text-sm uppercase tracking-widest hover-trigger">Experiences</a>
+        <a href="/packages" class="nav-link text-sm uppercase tracking-widest hover-trigger">Packages</a>
+        <a href="/blog" class="nav-link text-sm uppercase tracking-widest hover-trigger">Journal</a>
+        <a href="/about" class="nav-link text-sm uppercase tracking-widest hover-trigger">About</a>
+        <a href="/#contact" class="nav-link text-sm uppercase tracking-widest hover-trigger">Connect</a>
+    </div>
+
+    <button class="md:hidden text-white hover-trigger nav-icon-color transition-colors duration-300" id="mobile-menu-btn">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+    </button>
+</nav>
+
+<!-- Mobile Menu -->
+<div id="mobile-menu" class="fixed inset-0 bg-ua-charcoal z-40 transform translate-x-full transition-transform duration-500 flex flex-col justify-center items-center space-y-8 text-white">
+    <button id="close-menu" class="absolute top-6 right-6 hover-trigger">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
+    <a href="/#experiences" class="text-3xl font-display hover-trigger mobile-link">Experiences</a>
+    <a href="/packages" class="text-3xl font-display hover-trigger mobile-link">Packages</a>
+    <a href="/blog" class="text-3xl font-display hover-trigger mobile-link">Journal</a>
+    <a href="/about" class="text-3xl font-display hover-trigger mobile-link">About</a>
+    <a href="/#contact" class="text-3xl font-display hover-trigger mobile-link">Connect</a>
+</div>
+
+<style>
+    .nav-link {
+        position: relative;
+        opacity: 0.9;
+        transition: opacity 0.3s ease;
+    }
+    
+    .nav-link::after {
+        content: '';
+        display: block;
+        width: 0;
+        height: 1px;
+        background: currentColor;
+        transition: width 0.3s ease;
+    }
+    
+    .nav-link:hover::after {
+        width: 100%;
+    }
+    
+    .nav-link:hover {
+        opacity: 1;
+    }
+    
+    #main-nav.scrolled {
+        background-color: rgba(244, 241, 234, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: #1A1A1A;
+        mix-blend-mode: normal;
+        border-bottom: 1px solid rgba(26, 26, 26, 0.1);
+    }
+    
+    #main-nav.scrolled .nav-link::after {
+        background: #1A1A1A;
+    }
+    
+    #main-nav.scrolled .nav-title-color,
+    #main-nav.scrolled .nav-icon-color {
+        color: #1A1A1A;
+    }
+    
+    .mobile-link {
+        opacity: 0.9;
+        transition: all 0.3s ease;
+    }
+    
+    .mobile-link:hover {
+        opacity: 1;
+        transform: translateX(10px);
+    }
+</style>
+
+<script>
+    (function() {
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const closeMenuBtn = document.getElementById('close-menu');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+        const nav = document.getElementById('main-nav');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('translate-x-full');
+            document.body.classList.toggle('overflow-hidden');
+        }
+
+        if (menuBtn) menuBtn.addEventListener('click', toggleMenu);
+        if (closeMenuBtn) closeMenuBtn.addEventListener('click', toggleMenu);
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', toggleMenu);
+        });
+
+        // Nav scroll behavior
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+    })();
+</script>

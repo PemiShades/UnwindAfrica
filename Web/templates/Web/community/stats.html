@@ -1,0 +1,157 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}Community - Unwind Africa{% endblock %}
+
+{% block extra_css %}
+<style>
+body {
+    padding-top: 80px;
+}
+
+header.absolute {
+    position: fixed !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+header.absolute a,
+header.absolute button,
+header.absolute span {
+    color: #0A0B10 !important;
+}
+
+header.absolute svg {
+    stroke: #0A0B10 !important;
+    fill: #0A0B10 !important;
+}
+
+.community-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.stats-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 1rem;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-number {
+    font-size: clamp(3rem, 8vw, 5rem);
+    font-weight: 900;
+    line-height: 1;
+    background: linear-gradient(135deg, #FFB648 0%, #00B2FF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.join-button {
+    background: linear-gradient(90deg, #FFB648, #00B2FF);
+    color: #0A0B10;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-weight: 900;
+    font-size: 1.2rem;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.join-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(255, 182, 72, 0.4);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="community-page">
+    <div class="stats-container">
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 4rem;">
+            <p style="font-size: clamp(0.9rem, 2vw, 1.1rem); text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 1rem; opacity: 0.9;">Join Our Community</p>
+            <h1 style="font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 900; margin-bottom: 1.5rem; line-height: 1.1;">Unwind Africa Family</h1>
+            <p style="font-size: clamp(1.1rem, 2.5vw, 1.3rem); max-width: 700px; margin: 0 auto 2rem; line-height: 1.6;">
+                We're building a community of wellness enthusiasts, adventure seekers, and culture lovers across Africa.
+            </p>
+            <a href="https://forms.gle/SXMLAgHu66ey631z5" target="_blank" class="join-button">
+                Join the Community →
+            </a>
+        </div>
+
+        <!-- Main Stats -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+            <div class="stat-card" style="text-align: center;">
+                <div class="stat-number">{{ total_members|default:"903" }}+</div>
+                <p style="font-size: 1.2rem; font-weight: 600; margin-top: 1rem;">Community Members</p>
+                <p style="opacity: 0.8; margin-top: 0.5rem;">and counting...</p>
+            </div>
+        </div>
+
+        <!-- Gender & Location Breakdown -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+            <!-- Gender Stats -->
+            <div class="stat-card">
+                <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem; font-weight: 700;">Gender Distribution</h3>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    {% for stat in gender_stats %}
+                    {% if stat.gender %}
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="text-transform: capitalize;">{{ stat.gender|default:"Unknown" }}</span>
+                            <strong>{{ stat.count }}</strong>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.2); border-radius: 10px; height: 8px; overflow: hidden;">
+                            <div style="background: linear-gradient(90deg, #FFB648, #00B2FF); height: 100%; width: {{ stat.count|default:0 }}%; transition: width 0.5s ease;"></div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% empty %}
+                    <p style="opacity: 0.7;">Data loading...</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Location Stats -->
+            <div class="stat-card">
+                <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem; font-weight: 700;">Top Locations</h3>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    {% for stat in location_stats %}
+                    {% if stat.location %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: rgba(255, 255, 255, 0.05); border-radius: 10px;">
+                        <span style="font-weight: 500;">📍 {{ stat.location }}</span>
+                        <strong style="font-size: 1.2rem;">{{ stat.count }}</strong>
+                    </div>
+                    {% endif %}
+                    {% empty %}
+                    <p style="opacity: 0.7;">Data loading...</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="stat-card" style="text-align: center; background: rgba(255, 255, 255, 0.15);">
+            <h2 style="font-size: clamp(1.8rem, 4vw, 2.5rem); margin-bottom: 1rem;">Be Part of Something Special</h2>
+            <p style="font-size: clamp(1rem, 2vw, 1.2rem); max-width: 600px; margin: 0 auto 2rem; opacity: 0.9;">
+                Get exclusive access to wellness retreats, early-bird packages, community events, and special rewards.
+            </p>
+            <a href="https://forms.gle/SXMLAgHu66ey631z5" target="_blank" class="join-button">
+                Sign Up Now →
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

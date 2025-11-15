@@ -1,0 +1,290 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}About Us — UNWIND AFRICA{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --primary-bg: #F5F7FA;
+        --secondary-bg: #0A0B10;
+        --accent-gold: #FFB648;
+        --accent-blue: #00B2FF;
+        --text-main: #0A0B10;
+        --text-light: #F5F7FA;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--primary-bg);
+        color: var(--text-main);
+        overflow-x: hidden;
+        cursor: none;
+    }
+
+    h1, h2, h3, h4, .display-font {
+        font-family: 'Space Grotesk', sans-serif;
+    }
+
+    #cursor {
+        width: 20px;
+        height: 20px;
+        border: 1px solid var(--text-main);
+        border-radius: 50%;
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        transition: transform 0.2s ease, background-color 0.2s ease;
+        mix-blend-mode: difference;
+    }
+
+    #cursor.hovered {
+        transform: scale(2.5);
+        background-color: #fff;
+        border-color: transparent;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    .reveal-text {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal-text.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .delay-100 { transition-delay: 0.1s; }
+    .delay-200 { transition-delay: 0.2s; }
+    .delay-300 { transition-delay: 0.3s; }
+
+    .section-line {
+        border-top: 1px solid var(--text-main);
+        width: 0;
+        transition: width 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+    }
+    
+    .reveal-text.visible .section-line {
+        width: 100%;
+    }
+
+    @media (max-width: 768px) {
+        #cursor { display: none; }
+        body { cursor: auto; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Include Navigation -->
+{% include "Web/partials/header/navigation.html" %}
+
+<!-- Custom Cursor -->
+<div id="cursor" class="hidden md:block"></div>
+
+<!-- Hero Section -->
+<header class="relative h-[60vh] md:h-[70vh] w-full overflow-hidden flex items-center justify-center bg-[#0A0B10]">
+    <div class="absolute inset-0 z-0">
+        <img src="{% static 'assets/about/hero.jpg' %}" 
+             onerror="this.src='https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?q=80&w=2083&auto=format&fit=crop'"
+             alt="About Unwind Africa" 
+             class="w-full h-full object-cover opacity-70">
+        <div class="absolute inset-0 bg-black/30"></div>
+    </div>
+    
+    <div class="relative z-10 text-center text-white px-4">
+        <p class="text-sm md:text-base uppercase tracking-[0.3em] mb-4 reveal-text">Est. 2020</p>
+        <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-6 display-font leading-none reveal-text delay-100">
+            UNWIND AFRICA
+        </h1>
+        <p class="text-lg md:text-xl max-w-2xl mx-auto reveal-text delay-200">
+            Crafting unforgettable experiences across the African continent
+        </p>
+    </div>
+</header>
+
+<!-- Story Section -->
+<section class="py-24 px-6 md:px-12 lg:px-24 max-w-7xl mx-auto">
+    <div class="grid md:grid-cols-12 gap-12 items-start">
+        <div class="md:col-span-4 reveal-text">
+            <h2 class="text-sm uppercase tracking-widest pt-4 section-line">Our Story</h2>
+        </div>
+        <div class="md:col-span-8 reveal-text delay-100">
+            <p class="text-3xl md:text-5xl font-light leading-tight display-font mb-8">
+                We believe in the power of <span class="italic">experience</span> to transform, connect, and inspire.
+            </p>
+            <div class="space-y-6 text-lg md:text-xl leading-relaxed">
+                <p>
+                    Founded in 2020, Unwind Africa emerged from a simple vision: to showcase the vibrant culture, stunning landscapes, and warm hospitality of Africa through carefully curated experiences.
+                </p>
+                <p>
+                    From wellness retreats in serene locations to signature celebrations that pulse with energy, from cultural immersions that deepen understanding to intimate gatherings that forge lasting connections — we design moments that matter.
+                </p>
+                <p>
+                    Our team of experience curators, cultural guides, and hospitality experts work tirelessly to ensure every detail reflects our commitment to excellence, authenticity, and the unique spirit of each location we serve.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Values Section -->
+<section class="py-12 bg-white border-t border-gray-200">
+    <div class="px-6 md:px-12 lg:px-24 max-w-7xl mx-auto">
+        <h2 class="text-4xl md:text-6xl font-bold tracking-tighter display-font mb-16 reveal-text text-center">
+            What Drives Us
+        </h2>
+
+        <div class="grid md:grid-cols-3 gap-8 md:gap-12">
+            <div class="reveal-text text-center md:text-left">
+                <div class="mb-6">
+                    <div class="w-16 h-16 mx-auto md:mx-0 border-2 border-black flex items-center justify-center">
+                        <span class="text-2xl font-bold display-font">01</span>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-bold display-font mb-4">Authenticity</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Every experience we curate is rooted in genuine cultural connection and respect for local traditions.
+                </p>
+            </div>
+
+            <div class="reveal-text delay-100 text-center md:text-left">
+                <div class="mb-6">
+                    <div class="w-16 h-16 mx-auto md:mx-0 border-2 border-black flex items-center justify-center">
+                        <span class="text-2xl font-bold display-font">02</span>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-bold display-font mb-4">Excellence</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    From planning to execution, we maintain the highest standards in every aspect of our service.
+                </p>
+            </div>
+
+            <div class="reveal-text delay-200 text-center md:text-left">
+                <div class="mb-6">
+                    <div class="w-16 h-16 mx-auto md:mx-0 border-2 border-black flex items-center justify-center">
+                        <span class="text-2xl font-bold display-font">03</span>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-bold display-font mb-4">Innovation</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    We blend timeless hospitality with contemporary approaches to create fresh, memorable experiences.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section (optional) -->
+<section class="py-24 px-6 md:px-12 lg:px-24 max-w-7xl mx-auto">
+    <div class="text-center mb-16 reveal-text">
+        <p class="text-sm uppercase tracking-widest mb-4 text-gray-500">Meet the Team</p>
+        <h2 class="text-4xl md:text-6xl font-bold tracking-tighter display-font">The People Behind<br>the Experiences</h2>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8">
+        <!-- Team Member 1 -->
+        <div class="reveal-text text-center">
+            <div class="aspect-square bg-gray-200 mb-4 overflow-hidden">
+                <img src="{% static 'assets/about/team-1.jpg' %}" 
+                     onerror="this.src='https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1976&auto=format&fit=crop'"
+                     alt="Team Member" 
+                     class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500">
+            </div>
+            <h3 class="text-xl font-bold display-font mb-1">Sarah Okonkwo</h3>
+            <p class="text-sm uppercase tracking-widest text-gray-500 mb-2">Founder & Creative Director</p>
+            <p class="text-gray-600">Visionary behind Unwind Africa's unique approach to experiential luxury.</p>
+        </div>
+
+        <!-- Team Member 2 -->
+        <div class="reveal-text delay-100 text-center">
+            <div class="aspect-square bg-gray-200 mb-4 overflow-hidden">
+                <img src="{% static 'assets/about/team-2.jpg' %}" 
+                     onerror="this.src='https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1974&auto=format&fit=crop'"
+                     alt="Team Member" 
+                     class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500">
+            </div>
+            <h3 class="text-xl font-bold display-font mb-1">James Adesina</h3>
+            <p class="text-sm uppercase tracking-widest text-gray-500 mb-2">Experience Curator</p>
+            <p class="text-gray-600">Master of details, ensuring every moment exceeds expectations.</p>
+        </div>
+
+        <!-- Team Member 3 -->
+        <div class="reveal-text delay-200 text-center">
+            <div class="aspect-square bg-gray-200 mb-4 overflow-hidden">
+                <img src="{% static 'assets/about/team-3.jpg' %}" 
+                     onerror="this.src='https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1974&auto=format&fit=crop'"
+                     alt="Team Member" 
+                     class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500">
+            </div>
+            <h3 class="text-xl font-bold display-font mb-1">Amara Nwosu</h3>
+            <p class="text-sm uppercase tracking-widest text-gray-500 mb-2">Cultural Liaison</p>
+            <p class="text-gray-600">Bridging cultures and creating authentic connections.</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-24 px-6 md:px-12 bg-[#0A0B10] text-white">
+    <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-5xl md:text-7xl font-bold display-font tracking-tighter mb-8 reveal-text">
+            Ready to Begin<br>Your Journey?
+        </h2>
+        <p class="text-lg md:text-xl mb-12 text-gray-400 reveal-text delay-100">
+            Let's create an experience that reflects your vision and exceeds your expectations.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center reveal-text delay-200">
+            <a href="/packages" class="btn-primary bg-white text-[#0A0B10] px-8 py-4 uppercase tracking-widest text-sm hover-trigger inline-block border border-white">
+                View Experiences
+            </a>
+            <a href="/contact" class="btn-primary text-white px-8 py-4 uppercase tracking-widest text-sm hover-trigger inline-block border border-white">
+                Get in Touch
+            </a>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Custom Cursor Logic
+    const cursor = document.getElementById('cursor');
+    const hoverTriggers = document.querySelectorAll('.hover-trigger');
+
+    document.addEventListener('mousemove', (e) => {
+        if (window.innerWidth > 768) {
+            cursor.style.left = e.clientX - 10 + 'px';
+            cursor.style.top = e.clientY - 10 + 'px';
+        }
+    });
+
+    hoverTriggers.forEach(trigger => {
+        trigger.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+        trigger.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+    });
+
+    // Reveal Text on Scroll
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.reveal-text').forEach(el => observer.observe(el));
+</script>
+{% endblock %}
