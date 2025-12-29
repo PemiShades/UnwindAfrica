@@ -1,130 +1,471 @@
+{# templates/dashboard/partials/scripts.html #}
+{% load static %}
+
+<!-- Alpine.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
 <script>
-  // ===== Charts tab hydration (unchanged expectation for context arrays) =====
-  document.addEventListener('alpine:init', () => {
-    const hydrateCharts = () => {
-      const cat = document.getElementById('categoryChart');
-      const mon = document.getElementById('monthlyChart');
-      if (!cat && !mon) return;
+document.addEventListener('alpine:init', () => {
 
-      const categoryLabels = {{ category_chart_labels|default:"[]"|safe }};
-      const categoryData   = {{ category_chart_counts|default:"[]"|safe }};
-      const monthlyLabels  = {{ monthly_chart_labels|default:"[]"|safe }};
-      const monthlyData    = {{ monthly_chart_counts|default:"[]"|safe }};
+  // ===== ALPINE ROOT FUNCTION =====
+  window.app = function () {
+    return {
+      // ===== GLOBAL STATE =====
+      theme: localStorage.getItem('theme') || 'dark',
+      tab: 'overview',
+      sidebarOpen: false,
 
-      if (cat && !cat._chart) {
-        cat._chart = new Chart(cat, {
-          type: 'pie',
-          data: { labels: categoryLabels, datasets: [{ data: categoryData,
-            backgroundColor: ['#60A5FA','#FBBF24','#34D399','#F472B6','#A78BFA','#F87171','#22D3EE','#F59E0B'],
-            borderColor:'#fff', borderWidth:2 }] },
-          options: { plugins: { legend: { position: 'bottom' } } }
+      // ===== EVENT MODAL STATE =====
+      showEventModal: false,
+      editingEvent: false,
+      eventFormAction: "",
+      eventForm: { id:'', name:'', description:'', location:'', date:'', thumbnail:'', flier:'' },
+
+      // ===== CHART STORAGE =====
+      charts: {},
+
+      // ===== INIT =====
+      init() {
+        this.$nextTick(() => {
+          this.hydrateCharts();
+          this.setupFormResetListener();
         });
-      }
+      },
 
-      if (mon && !mon._chart) {
-        mon._chart = new Chart(mon, {
-          type: 'line',
-          data: { labels: monthlyLabels, datasets: [{ label:'Posts', data: monthlyData,
-            borderColor:'#3B82F6', pointBackgroundColor:'#3B82F6', tension:.35, fill:false }] },
-          options: { plugins: { legend: { display:false } },
-            scales: { y: { beginAtZero:true, ticks:{ stepSize:1 } } } }
+      // ===== SETUP FORM RESET LISTENER =====
+      setupFormResetListener() {
+        const form = document.getElementById("blogForm");
+        if (form) {
+          form.addEventListener('reset', () => {
+            // Clear thumbnail preview on reset
+            const wrap = document.getElementById('thumbPreviewWrap');
+            if (wrap) wrap.classList.add('hidden');
+            
+            // Reset form action to create URL
+            const createUrl = "{% url 'blog_create' %}";
+            form.action = createUrl;
+          });
+        }
+      },
+
+      // ===== CHART HYDRATION =====
+      hydrateCharts(refresh=false) {
+        const cat = document.getElementById('categoryChart');
+        const mon = document.getElementById('monthlyChart');
+        if (!cat && !mon) return;
+
+        const categoryLabels = {{ category_chart_labels|default:"[]"|safe }};
+        const categoryData   = {{ category_chart_counts|default:"[]"|safe }};
+        const monthlyLabels  = {{ monthly_chart_labels|default:"[]"|safe }};
+        const monthlyData    = {{ monthly_chart_counts|default:"[]"|safe }};
+
+        if (cat && (!this.charts.category || refresh)) {
+          if (this.charts.category && refresh) this.charts.category.destroy();
+          this.charts.category = new Chart(cat, {
+            type: 'pie',
+            data: { 
+              labels: categoryLabels, 
+              datasets: [{ 
+                data: categoryData,
+                backgroundColor: [
+                  'rgba(255, 99, 132, 0.8)',
+                  'rgba(54, 162, 235, 0.8)',
+                  'rgba(255, 206, 86, 0.8)',
+                  'rgba(75, 192, 192, 0.8)',
+                  'rgba(153, 102, 255, 0.8)',
+                  'rgba(255, 159, 64, 0.8)'
+                ],
+                borderWidth: 2,
+                borderColor: this.theme === 'dark' ? '#1f2937' : '#fff'
+              }] 
+            },
+            options: { 
+              maintainAspectRatio: false, 
+              plugins: { 
+                legend: { 
+                  position: 'bottom',
+                  labels: {
+                    color: this.theme === 'dark' ? '#e5e7eb' : '#374151',
+                    font: { size: 12 }
+                  }
+                } 
+              } 
+            }
+          });
+        }
+
+        if (mon && (!this.charts.monthly || refresh)) {
+          if (this.charts.monthly && refresh) this.charts.monthly.destroy();
+          this.charts.monthly = new Chart(mon, {
+            type: 'line',
+            data: { 
+              labels: monthlyLabels, 
+              datasets: [{ 
+                label: 'Posts', 
+                data: monthlyData, 
+                tension: 0.35, 
+                fill: false,
+                borderColor: 'rgba(99, 102, 241, 1)',
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                borderWidth: 2,
+                pointRadius: 4,
+                pointBackgroundColor: 'rgba(99, 102, 241, 1)'
+              }] 
+            },
+            options: { 
+              maintainAspectRatio: false, 
+              plugins: { 
+                legend: { display: false } 
+              }, 
+              scales: { 
+                y: { 
+                  beginAtZero: true, 
+                  ticks: { 
+                    stepSize: 1,
+                    color: this.theme === 'dark' ? '#9ca3af' : '#6b7280'
+                  },
+                  grid: {
+                    color: this.theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+                  }
+                },
+                x: {
+                  ticks: {
+                    color: this.theme === 'dark' ? '#9ca3af' : '#6b7280'
+                  },
+                  grid: {
+                    color: this.theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+                  }
+                }
+              } 
+            }
+          });
+        }
+      },
+
+      // ===== GET CSRF TOKEN =====
+      getCsrfToken() {
+        // Try to get from form first
+        const form = document.getElementById("blogForm");
+        if (form) {
+          const token = form.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+          if (token) return token;
+        }
+        
+        // Fallback to cookie
+        const name = 'csrftoken';
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+          const [key, value] = cookie.trim().split('=');
+          if (key === name) return value;
+        }
+        return null;
+      },
+
+      // ===== BLOG SUBMIT (publish OR draft) =====
+      submitBlog(publish=false) {
+        const form = document.getElementById("blogForm");
+        if (!form) return this.toast("Blog form not found", "error");
+
+        // Get CSRF token
+        const csrf = this.getCsrfToken();
+        if (!csrf) return this.toast("CSRF token missing", "error");
+
+        const data = new FormData(form);
+        data.set("action", publish ? "publish" : "draft");
+
+        // Get the form action URL properly
+        const actionUrl = form.getAttribute('action');
+        if (!actionUrl) return this.toast("Form action URL missing", "error");
+        
+        this.toast(publish ? "Publishing..." : "Saving draft...", "info");
+
+        fetch(actionUrl, {
+          method: "POST",
+          body: data,
+          headers: { 
+            "X-CSRFToken": csrf
+          }
+        })
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          }
+          return res.json();
+        })
+        .then(json => {
+          if (json.ok) {
+            this.toast(
+              publish ? "Blog published successfully!" : "Draft saved!", 
+              "success"
+            );
+            
+            // Reset form and switch to overview
+            form.reset();
+            this.tab = 'overview';
+            
+            // Refresh charts and reload page to show updated data
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          } else {
+            this.toast(json.error || "Save failed", "error");
+          }
+        })
+        .catch(err => {
+          console.error('Submit error:', err);
+          this.toast("Network error: " + err.message, "error");
         });
+      },
+
+      // ===== LOAD POST INTO EDITOR =====
+      loadPostIntoEditor(slug, title, content, category, isPub, isFeat) {
+        this.tab = 'create_blog';
+        
+        this.$nextTick(() => {
+          const form = document.getElementById("blogForm");
+          if (!form) return this.toast("Editor form missing", "error");
+
+          // Set form action to edit URL
+          form.action = `/dashboard/blog/${slug}/edit/`;
+
+          // Helper to set form values
+          const set = (name, v) => {
+            const el = form.querySelector(`[name="${name}"]`);
+            if (!el) return;
+            
+            if (el.type === 'checkbox') {
+              el.checked = v === 'True' || v === true;
+            } else {
+              el.value = v ?? '';
+            }
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+          };
+
+          // Set form values
+          set('title', title);
+          set('category', category);
+          set('content', content);
+          set('is_published', isPub);
+          set('is_featured', isFeat);
+
+          this.toast("Post loaded into editor", "info");
+        });
+      },
+
+      // ===== EVENT MODAL HELPERS =====
+      openEventModal() {
+        this.showEventModal = true;
+      },
+
+      closeEventModal() {
+        this.showEventModal = false;
+        this.editingEvent = false;
+        this.eventForm = { id:'', name:'', description:'', location:'', date:'', thumbnail:'', flier:'' };
+      },
+
+      // ===== UI TAB HELPERS =====
+      setTab(t) { 
+        this.tab = t; 
+        this.sidebarOpen = false;
+        
+        // Reset blog form when switching to create tab
+        if (t === 'create_blog') {
+          this.$nextTick(() => {
+            const form = document.getElementById("blogForm");
+            if (form) {
+              form.action = "{% url 'blog_create' %}";
+              form.reset();
+            }
+          });
+        }
+      },
+
+      toggleTheme() {
+        this.theme = this.theme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', this.theme);
+        this.$nextTick(() => this.hydrateCharts(true));
+      },
+
+      // ===== TOAST SYSTEM =====
+      toasts: [],
+      toast(msg, type='info') {
+        const id = Date.now() + Math.random();
+        this.toasts.push({ id, msg, type });
+        setTimeout(() => {
+          this.toasts = this.toasts.filter(t => t.id !== id);
+        }, 3000);
       }
     };
-    setTimeout(hydrateCharts, 0);
-    window.addEventListener('resize', () => setTimeout(hydrateCharts, 0));
-  });
-
-  // ===== Edit Post (ONLY user-editable fields) =====
-  window.__editPost = async function(slug, title, content, category, isPub, isFeat) {
-    const html = document.documentElement;
-    const app  = html.__x && html.__x.$data ? html.__x.$data : null;
-    if (app && (app.setTab || typeof app.tab !== 'undefined')) {
-      (app.setTab ? app.setTab('create_blog') : (app.tab = 'create_blog'));
-    } else {
-      location.href = `/dashboard/blogs/${slug}/edit/`; return;
-    }
-
-    const waitFor = (sel, ms=3000) => new Promise((res, rej) => {
-      let t=0; const id=setInterval(()=>{ const el=document.querySelector(sel); if(el){clearInterval(id);res(el);} t+=100; if(t>=ms){clearInterval(id);rej();}},100);
-    });
-
-    try {
-      await waitFor('#blogForm');
-      const set = (name, v) => { const el = document.querySelector(`[name="${name}"]`); if (!el) return;
-        if (el.type === 'checkbox') el.checked = (v === true || v === 'true'); else el.value = v ?? '';
-        el.dispatchEvent(new Event('input')); };
-
-      set('title', title);
-      set('category', category);
-      set('content', content);
-      set('is_published', isPub);
-      set('is_featured', isFeat);
-
-      // point to an edit endpoint if you have one
-      const form = document.getElementById('blogForm');
-      if (form) form.action = `/dashboard/blogs/${slug}/edit/`;
-
-      document.getElementById('togglePreview')?.click(); // show preview in "edit mode"
-      app.toast && app.toast('Loaded post into editor');
-    } catch(e) {
-      location.href = `/dashboard/blogs/${slug}/edit/`;
-    }
   };
 
-  // ===== Editor niceties (title count, preview, dropzone) =====
-  (function(){
-    const $ = (s) => document.querySelector(s);
+});
+</script>
 
-    const title = $('input[name="title"]');
-    const titleCount = document.getElementById('titleCount');
-    if (title && titleCount) title.addEventListener('input', () => { titleCount.textContent = title.value.length; });
+<script>
+// ===== THUMBNAIL DROPZONE =====
+document.addEventListener('DOMContentLoaded', function() {
+  const drop = document.getElementById('thumbDrop');
+  const input = document.getElementById('thumbInput');
+  const wrap = document.getElementById('thumbPreviewWrap');
+  const img = document.getElementById('thumbPreview');
+  const nm = document.getElementById('thumbName');
+  const sz = document.getElementById('thumbSize');
+  const clr = document.getElementById('thumbClear');
 
-    const content = $('textarea[name="content"]');
-    const wc = document.getElementById('wordCount'), rt = document.getElementById('readTime');
-    function updateStats(){
-      if(!content) return;
-      const words = (content.value.match(/\b\w+\b/g) || []).length;
-      const mins = Math.max(1, Math.round(words/220));
-      wc && (wc.textContent = `${words} words`);
-      rt && (rt.textContent = `${mins} min read`);
+  function kb(n) { 
+    return (n/1024).toFixed(1) + ' KB'; 
+  }
+
+  function show(file) {
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
     }
-    content && content.addEventListener('input', updateStats); updateStats();
+    
+    const url = URL.createObjectURL(file);
+    if (img) img.src = url;
+    if (nm) nm.textContent = file.name;
+    if (sz) sz.textContent = kb(file.size);
+    if (wrap) wrap.classList.remove('hidden');
+  }
 
-    const previewBtn = document.getElementById('togglePreview');
-    const preview = document.getElementById('previewPane');
-    function mdLite(txt){ return txt
-      .replace(/^### (.*$)/gim,'<h3 class="font-bold text-lg my-2">$1</h3>')
-      .replace(/^## (.*$)/gim,'<h2 class="font-bold text-xl my-2">$1</h2>')
-      .replace(/^# (.*$)/gim,'<h1 class="font-bold text-2xl my-2">$1</h1>')
-      .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g,'<em>$1</em>')
-      .replace(/\n/g,'<br/>'); }
-    previewBtn && previewBtn.addEventListener('click', () => {
-      if (!preview) return;
-      preview.classList.toggle('hidden');
-      if (!preview.classList.contains('hidden') && content) {
-        preview.innerHTML = mdLite(content.value || '');
-      }
+  if (input) {
+    input.addEventListener('change', e => {
+      const f = e.target.files?.[0];
+      if (f) show(f);
+    });
+  }
+
+  if (drop) {
+    drop.addEventListener('dragover', e => {
+      e.preventDefault();
+      drop.classList.add('border-[var(--brand)]', 'bg-opacity-10');
     });
 
-    // Thumbnail dropzone
-    const drop = document.getElementById('thumbDrop'), input = document.getElementById('thumbInput');
-    const wrap = document.getElementById('thumbPreviewWrap'), img = document.getElementById('thumbPreview');
-    const nm = document.getElementById('thumbName'), sz = document.getElementById('thumbSize'), clr = document.getElementById('thumbClear');
-    function kb(n){ return (n/1024).toFixed(1)+' KB'; }
-    function show(file){
-      const url = URL.createObjectURL(file);
-      img.src = url; nm.textContent = file.name; sz.textContent = kb(file.size);
-      wrap.classList.remove('hidden');
-    }
-    if (input) input.addEventListener('change', e => { const f = e.target.files?.[0]; if (f) show(f); });
-    if (drop) {
-      drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('border-[var(--brand)]'); });
-      drop.addEventListener('dragleave', () => drop.classList.remove('border-[var(--brand)]'));
-      drop.addEventListener('drop', e => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (!f) return;
-        input.files = e.dataTransfer.files; show(f); drop.classList.remove('border-[var(--brand)]'); });
-    }
-    clr && clr.addEventListener('click', () => { if(input){ input.value=''; } wrap.classList.add('hidden'); img.src=''; nm.textContent=''; sz.textContent='—'; });
-  })();
+    drop.addEventListener('dragleave', () => {
+      drop.classList.remove('border-[var(--brand)]', 'bg-opacity-10');
+    });
+
+    drop.addEventListener('drop', e => {
+      e.preventDefault();
+      const f = e.dataTransfer.files?.[0];
+      if (!f) return;
+      
+      // Create a new FileList-like object
+      const dt = new DataTransfer();
+      dt.items.add(f);
+      input.files = dt.files;
+      
+      show(f);
+      drop.classList.remove('border-[var(--brand)]', 'bg-opacity-10');
+    });
+  }
+
+  if (clr) {
+    clr.addEventListener('click', () => {
+      if (input) input.value = '';
+      if (wrap) wrap.classList.add('hidden');
+      if (img) img.src = '';
+      if (nm) nm.textContent = '';
+      if (sz) sz.textContent = '—';
+    });
+  }
+});
 </script>
+
+<script>
+// ===== DELETE CONFIRMATION =====
+function confirmDelete(type, slug, name) {
+  const message = `Are you sure you want to delete this ${type}?\n\n"${name}"\n\nThis action cannot be undone.`;
+  if (confirm(message)) {
+    // Create and submit form
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/dashboard/${type}/${slug}/delete/`;
+    
+    // Add CSRF token
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || '';
+    
+    form.appendChild(csrfInput);
+    document.body.appendChild(form);
+    form.submit();
+  }
+}
+
+// ===== TOGGLE FEATURE =====
+function toggleFeature(slug) {
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = `/dashboard/blog/${slug}/toggle-feature/`;
+  
+  const csrfInput = document.createElement('input');
+  csrfInput.type = 'hidden';
+  csrfInput.name = 'csrfmiddlewaretoken';
+  csrfInput.value = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || '';
+  
+  form.appendChild(csrfInput);
+  document.body.appendChild(form);
+  form.submit();
+}
+</script>
+
+<!-- Toast Container Styles -->
+<style>
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: all;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  animation: slideIn 0.3s ease-out;
+  min-width: 250px;
+  max-width: 400px;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast.success {
+  background-color: #10b981;
+  color: white;
+}
+
+.toast.error {
+  background-color: #ef4444;
+  color: white;
+}
+
+.toast.info {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.toast.warning {
+  background-color: #f59e0b;
+  color: white;
+}
+</style>

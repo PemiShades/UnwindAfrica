@@ -1,0 +1,63 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}Privacy Policy - Unwind Africa{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{ --ua-sky:#00B2FF; --ua-sea:#00C2FF; --ua-sun:#FFB648; --ua-ink:#0A0B10; --ua-paper:#FFFFFF; }
+  .privacy{max-width:780px;margin:0 auto;padding:clamp(60px,10vw,120px) 20px;color:var(--ua-ink);}
+  .privacy h1{font-family:"Playfair Display",serif;font-size:clamp(2.4rem,6vw,3.6rem);margin:0 0 1rem;}
+  .privacy h2{margin:2.4rem 0 1rem;font-size:1.6rem;}
+  .privacy p,.privacy li{line-height:1.74;margin-bottom:1rem;}
+  .privacy ul{margin:1rem 0;padding-left:1.4rem;}
+  .privacy a{color:var(--ua-sky);text-decoration:underline;}
+  .rule{height:4px;width:70px;background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));margin:1.6rem 0;}
+</style>
+{% endblock %}
+
+{% block content %}
+{% include './partials/header/navbar.html' with theme='dark'%}
+<div class="privacy">
+  <h1>Privacy Policy</h1>
+  <p class="ed-sub">Last updated: December 2025</p>
+  <div class="rule"></div>
+
+  <p>Unwind Africa ("we", "our", or "us") respects your privacy and is committed to protecting your personal data in compliance with the Nigeria Data Protection Regulation (NDPR) and international best practices.</p>
+
+  <h2>1. Information We Collect</h2>
+  <ul>
+    <li>Name, email address, phone number, and message when you use our contact form</li>
+    <li>Billing and booking details when you purchase experiences</li>
+    <li>Technical data: IP address, browser type, and device information</li>
+    <li>Correspondence and preferences</li>
+  </ul>
+
+  <h2>2. How We Use Your Data</h2>
+  <p>We use your information to:</p>
+  <ul>
+    <li>Respond to inquiries and fulfill bookings</li>
+    <li>Send curated updates (only if you opt in)</li>
+    <li>Process secure payments via <strong>Paystack</strong> — we never store your card details</li>
+    <li>Improve our services and prevent fraud</li>
+  </ul>
+
+  <h2>3. Data Sharing</h2>
+  <p>We share data only with trusted partners:</p>
+  <ul>
+    <li>Paystack (PCI-DSS compliant payment processor)</li>
+    <li>Concierge and venue partners (only as needed to deliver your experience)</li>
+    <li>Legal authorities if required by Nigerian law</li>
+  </ul>
+
+  <h2>4. Data Security</h2>
+  <p>We use HTTPS encryption, regular security audits, and limit access to your data. Paystack handles all payment data securely — we never see or store full card numbers.</p>
+
+  <h2>5. Your Rights</h2>
+  <p>You have the right to access, correct, or delete your data. Email <a href="mailto:info@unwindafrica.com">info@unwindafrica.com</a> to exercise these rights.</p>
+
+  <h2>6. Contact</h2>
+  <p>Unwind Africa<br>No 8, Providence Street, Lekki Phase 1, Lagos, Nigeria<br>
+  Email: <a href="mailto:info@unwindafrica.com">info@unwindafrica.com</a></p>
+</div>
+{% endblock %}

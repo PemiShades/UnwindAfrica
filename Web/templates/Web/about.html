@@ -1,170 +1,172 @@
 {% extends 'Web/main.html' %}
 {% load static %}
 
-{% block title %}About - Unwind Africa{% endblock %}
+{% block title %}About Unwind Africa — Restorative Luxury Experiences{% endblock %}
+
 {% block extra_css %}
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet" />
 <style>
 :root{
-  --ua-sky:#00B2FF;
-  --ua-sea:#00C2FF;
-  --ua-sun:#FFB648;
-  --ua-ink:#0A0B10;
-  --ua-paper:#FFFFFF;
-  --ua-fog:#F6F8FC;
-  --radius:18px;
-  --shadow:0 22px 48px rgba(10,11,16,.12);
-  --container:min(1120px, 92vw);
+  --ua-sky:#00B2FF;--ua-sea:#00C2FF;--ua-sun:#FFB648;--ua-ink:#0A0B10;--ua-paper:#FFFFFF;
+  --radius:20px;--shadow:0 26px 58px rgba(10,11,16,.12);--container:min(1180px, 92vw);
 }
 
-.about-page{
-  background:var(--ua-paper);
-  color:var(--ua-ink);
-  font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing:antialiased;
-  text-rendering:optimizeLegibility;
-  overflow:hidden;
-}
-img{max-width:100%;display:block;height:auto;border-radius:var(--radius);}
-a{text-decoration:none;color:inherit;}
-.section{padding-block:clamp(72px,10vw,132px);} 
-.container{width:var(--container);margin-inline:auto;padding-inline:clamp(18px,3.5vw,42px);} 
+.about-page{font-family:Inter,system-ui,sans-serif;color:var(--ua-ink);background:var(--ua-paper);line-height:1.7;overflow-x:hidden;}
+.section{padding:clamp(90px,12vw,160px) 0;}
+.container{width:var(--container);margin-inline:auto;padding-inline:clamp(20px,4vw,48px);}
 
-.ed-kicker{text-transform:uppercase;font-weight:900;letter-spacing:.18em;font-size:.72rem;color:var(--ua-sky);} 
-.ed-title{font-family:"Playfair Display", ui-serif, Georgia, serif;font-weight:900;letter-spacing:-.015em;font-size:clamp(2.4rem,6vw,4.8rem);margin:0 0 clamp(12px,2vw,18px);} 
-.ed-sub{max-width:68ch;font-size:clamp(1rem,1.8vw,1.2rem);margin:0;color: 
- color-mix(in oklab, #ffffff 70%, #ffffff);} 
-.rule{width:70px;height:4px;border-radius:3px;background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));margin-block:12px 20px;}
+.ed-kicker{font-size:.78rem;letter-spacing:.26em;text-transform:uppercase;font-weight:900;color:var(--ua-sky);}
+.ed-title{font-family:"Playfair Display",serif;font-weight:900;letter-spacing:-.03em;line-height:1.02;
+          font-size:clamp(3rem,8.5vw,6.2rem);margin:0 0 .35em;}
+.ed-sub{max-width:74ch;font-size:clamp(1.12rem,2.3vw,1.34rem);line-height:1.74;color:#2d3748;}
+.rule{height:4px;width:70px;background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));border-radius:4px;margin:1.2rem 0;}
 
-.about-hero{position:relative;min-height:78vh;display:flex;align-items:center;color:#fff;overflow:hidden;background:#04070e;}
-.about-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(4,7,14,.8) 0%,rgba(4,7,14,.3) 65%,rgba(4,7,14,.72) 100%);z-index:1;}
-.about-hero::after{content:"";position:absolute;inset:0;background:url("{% static 'assets/about/ransford-quaye-X47o1phzMTU-unsplash.jpg' %}") center/cover no-repeat;opacity:.72;z-index:0;transform:scale(1.05);}
-.about-hero .nav-wrapper{position:absolute;top:0;left:0;width:100%;z-index:3;}
-.about-hero .hero-content{position:relative;z-index:2;display:grid;gap:clamp(18px,3vw,26px);padding-block:clamp(120px,16vw,180px);} 
-.hero-actions{display:flex;flex-wrap:wrap;gap:12px;} 
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:.85rem 1.4rem;border-radius:999px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border:2px solid transparent;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease;} 
-.btn.primary-solid{background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));color:#0b172a;box-shadow:0 16px 34px rgba(0,178,255,.28);} 
-.btn.secondary-outline{border-color:rgba(255,255,255,.55);color:#fff;background:transparent;} 
-.btn.secondary-ink{background:#0A0B10;color:#fff;border-color:#0A0B10;} 
-.btn:hover{transform:translateY(-3px);}
-
-.about-pillars{display:grid;gap:clamp(20px,3vw,28px);grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
-.pillar-card{background:#fff;border-radius:var(--radius);padding:clamp(22px,3vw,28px);box-shadow:var(--shadow);display:grid;gap:12px;position:relative;overflow:hidden;}
-.pillar-card::after{content:"";position:absolute;inset:auto -40% -40% auto;width:160px;height:160px;border-radius:50%;background:color-mix(in oklab,var(--ua-sky) 18%,transparent);opacity:.4;}
-.pillar-card h3{margin:0;font-family:"Playfair Display", serif;font-size:1.4rem;}
-.pillar-card p{margin:0;color:color-mix(in oklab,var(--ua-ink) 68%,#5f6c80);} 
-
-.split{display:grid;gap:clamp(24px,5vw,48px);grid-template-columns:repeat(auto-fit,minmax(260px,1fr));align-items:center;}
-.split .copy{display:grid;gap:clamp(16px,3vw,24px);} 
-.split .badge-stack{display:flex;flex-wrap:wrap;gap:10px;}
-.badge{display:inline-flex;align-items:center;justify-content:center;padding:.4rem .9rem;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(255,255,255,.28);} 
-
-.story-section{background:linear-gradient(135deg,color-mix(in oklab,var(--ua-sun) 26%,#fff) 0%,color-mix(in oklab,var(--ua-sky) 24%,#fff) 100%);color:var(--ua-ink);} 
-.story-section .container{color:var(--ua-ink);} 
-.story-section .copy p{color:color-mix(in oklab,var(--ua-ink) 78%,#4d5b70);} 
-.story-section img{border-radius:24px;box-shadow:0 24px 48px rgba(10,11,16,.18);} 
-
-.timeline{display:grid;gap:clamp(20px,3vw,32px);grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
-.timeline-card{background:#fff;border-radius:var(--radius);padding:clamp(22px,3vw,28px);box-shadow:var(--shadow);display:grid;gap:10px;position:relative;}
-.timeline-card span{font-weight:900;letter-spacing:.14em;color:var(--ua-sky);font-size:.72rem;text-transform:uppercase;}
-.timeline-card h3{margin:0;font-family:"Playfair Display", serif;font-size:1.35rem;}
-.timeline-card p{margin:0;color:color-mix(in oklab,var(--ua-ink) 70%,#5d6a7d);} 
-
-.team{
+/* HERO — PROPERLY FIXED */
+.about-hero{
   position:relative;
-  background:linear-gradient(180deg,#f5f7fb 0%,#eef2f8 100%);
-}
-.team .container{
-  position:relative;
-  z-index:1;
-}
-.team-grid{
-  display:grid;
-  gap:clamp(24px,3vw,32px);
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-}
-.team-card{
-  position:relative;
-  display:grid;
-  gap:clamp(16px,2vw,20px);
-  padding:clamp(28px,3vw,34px);
-  border-radius:calc(var(--radius) + 4px);
-  background:#fff;
-  border:1px solid rgba(9,22,44,.08);
-  box-shadow:0 22px 44px rgba(9,22,44,.08);
-  justify-items:start;
-  text-align:left;
-  transition:transform .3s ease,box-shadow .3s ease,border-color .3s ease;
-}
-.team-card:hover{
-  transform:translateY(-10px);
-  box-shadow:0 32px 56px rgba(9,22,44,.14);
-  border-color:rgba(9,22,44,.16);
-}
-.team-card>*{
-  position:relative;
-  z-index:1;
-}
-.team-card img{
-  width:100%;
-  aspect-ratio:1;
-  border-radius:calc(var(--radius) + 2px);
-  object-fit:cover;
-  border:1px solid rgba(9,22,44,.08);
-  box-shadow:0 12px 24px rgba(9,22,44,.08);
-  transition:transform .3s ease,box-shadow .3s ease;
-}
-.team-card:hover img{
-  transform:translateY(-6px);
-  box-shadow:0 20px 40px rgba(9,22,44,.18);
-}
-.role-tag{
-  display:inline-flex;
+  min-height:100vh;
+  display:flex;
   align-items:center;
-  justify-content:center;
-  align-self:start;
-  padding:.55rem 1.2rem;
-  border-radius:999px;
-  font-size:.72rem;
-  font-weight:900;
-  text-transform:uppercase;
-  letter-spacing:.14em;
-  background:#0c1f3f;
-  color:#f5f8ff;
+  color:#fff;
+  overflow:hidden;
+  padding-top:120px;
 }
-.team-card h3{
-  margin:0;
-  font-family:"Playfair Display", serif;
-  font-size:clamp(1.34rem,2.2vw,1.62rem);
-  letter-spacing:-.01em;
-  line-height:1.24;
-  color:#0a1b33;
+.about-hero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg,rgba(4,8,16,.96) 0%,rgba(8,18,38,.88) 66%);
+  z-index:1;
 }
-.team-card .bio{
-  margin:0;
-  font-size:.96rem;
-  line-height:1.68;
-  color:color-mix(in oklab,var(--ua-ink) 62%,#5b6574);
-  max-width:34ch;
+.about-hero::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:url("{% static 'assets/about/ransford-quaye-X47o1phzMTU-unsplash.jpg' %}") center/cover no-repeat;
+  filter:brightness(.62) contrast(1.12);
+  transform:scale(1.05);
 }
-.faq{background:#0A0B10;color:#f6f9ff;} 
-.faq .container{display:grid;gap:clamp(24px,4vw,36px);} 
-.faq-item{background:rgba(246,249,255,.08);border-radius:var(--radius);padding:clamp(18px,3vw,26px);border:1px solid rgba(255,255,255,.12);transition:transform .2s ease,background .2s ease;} 
-.faq-item:hover{transform:translateY(-4px);background:rgba(246,249,255,.14);} 
-.faq-item h3{margin:0;font-family:"Playfair Display", serif;font-size:1.3rem;color:#fff;} 
-.faq-item p{margin:10px 0 0;color:rgba(246,249,255,.82);font-size:1rem;} 
+.about-hero .hero-content{
+  position:relative;
+  z-index:2;
+  max-width:680px;
+  padding:2rem 0;
+  display:grid;
+  gap:1.4rem;
+  text-align:left;
+}
+.about-hero .ed-kicker{
+  color:#FFB648;
+  font-size:.7rem;
+  letter-spacing:.2em;
+}
+.about-hero .ed-title{
+  color:#FFFFFF;
+  text-shadow:0 4px 24px rgba(0,0,0,.4);
+  font-size:clamp(2.4rem,6vw,4.2rem);
+  line-height:1.1;
+}
+.about-hero .ed-sub{
+  color:#E2E8F0;
+  text-shadow:0 2px 12px rgba(0,0,0,.3);
+  font-size:clamp(1rem,2vw,1.18rem);
+  max-width:580px;
+}
 
-.cta-band{background:linear-gradient(135deg,color-mix(in oklab,var(--ua-sun) 50%,#0b1224) 0%,color-mix(in oklab,var(--ua-sky) 52%,#0b1224) 100%);color:#091020;} 
-.cta-card{background:#fff;border-radius:var(--radius);padding:clamp(28px,5vw,44px);box-shadow:var(--shadow);display:grid;gap:clamp(16px,3vw,24px);text-align:center;} 
-.cta-card p{margin:0;color:color-mix(in oklab,var(--ua-ink) 70%,#526176);} 
-.cta-actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;} 
-
-@media (max-width:640px){
-  .hero-actions .btn{width:100%;justify-content:center;}
-  .team-card{padding:24px;}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:.95rem 2rem;border-radius:999px;font-weight:900;
+  letter-spacing:.1em;text-transform:uppercase;transition:transform .28s,box-shadow .28s;
 }
+.btn.primary-solid{
+  background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));
+  color:#0b172a;box-shadow:0 22px 44px rgba(0,178,255,.34);
+}
+.btn:hover{transform:translateY(-5px);}
+
+/* PHILOSOPHY SECTION — REPLACES STATS */
+.philosophy{
+  background:linear-gradient(135deg,#f8f9fb 0%,#ffffff 100%);
+  padding:clamp(80px,10vw,120px) 0;
+}
+.philosophy-grid{
+  display:grid;gap:3.2rem;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  margin-top:3.2rem;
+}
+.philosophy-card{
+  background:#ffffff;
+  border:1px solid rgba(10,11,16,.08);
+  border-radius:var(--radius);
+  padding:2.8rem 2.2rem;
+  box-shadow:0 12px 32px rgba(10,11,16,.06);
+  transition:transform .3s,box-shadow .3s;
+}
+.philosophy-card:hover{
+  transform:translateY(-8px);
+  box-shadow:0 24px 48px rgba(10,11,16,.12);
+}
+.philosophy-icon{
+  font-size:3.2rem;
+  line-height:1;
+  margin-bottom:1.2rem;
+}
+.philosophy-card h3{
+  font-family:"Playfair Display",serif;
+  font-size:1.5rem;
+  margin:0 0 .8rem;
+  color:var(--ua-ink);
+}
+.philosophy-card p{
+  color:#4a5568;
+  line-height:1.7;
+}
+
+/* STORY SPLIT */
+.split{display:grid;gap:5rem;align-items:center;}
+@media(min-width:840px){.split{grid-template-columns:1fr 1.1fr;gap:6rem;}}
+.split img{border-radius:32px;box-shadow:0 36px 72px rgba(10,11,16,.2);}
+
+/* PILLARS */
+.pillars-grid{display:grid;gap:2.4rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}
+.pillar{background:#fff;border-radius:var(--radius);padding:2.6rem;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+.pillar::before{content:"";position:absolute;top:-40%;right:-40%;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,var(--ua-sky) 14%,transparent 72%);opacity:.24;}
+.pillar h3{font-family:"Playfair Display",serif;font-size:1.74rem;margin:0 0 .8rem;color:var(--ua-ink);}
+.pillar p{color:#4a5568;}
+
+/* GUARANTEE */
+.guarantee{background:linear-gradient(135deg,#0b132a,#0f1c38);color:#f8faff;padding:4rem;border-radius:var(--radius);text-align:center;box-shadow:0 32px 68px rgba(0,12,40,.36);}
+.guarantee .ed-title{color:#fff;margin-bottom:.4rem;}
+.guarantee p{color:#e2e8f0;}
+
+/* TEAM */
+.team-grid{display:grid;gap:2.8rem;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));}
+.team-card{background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);transition:transform .32s;}
+.team-card:hover{transform:translateY(-14px);}
+.team-card img{width:100%;aspect-ratio:1;object-fit:cover;}
+.team-info{padding:2.2rem 1.8rem;text-align:center;}
+.team-info h3{color:var(--ua-ink);}
+.team-info p{color:#4a5568;}
+.role-tag{display:inline-block;background:#0b172a;color:#fff;padding:.55rem 1.2rem;border-radius:999px;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;font-weight:900;margin-bottom:1rem;}
+
+/* FAQ */
+.faq-section{background:#0b172a;color:#f8faff;}
+.faq-grid{display:grid;gap:2rem;max-width:920px;margin:0 auto;}
+.faq-item{background:rgba(255,255,255,.08);border-radius:var(--radius);padding:2.2rem;transition:all .28s;border:1px solid rgba(255,255,255,.12);}
+.faq-item:hover{background:rgba(255,255,255,.12);transform:translateY(-5px);}
+.faq-item h3{color:#ffffff;margin:0 0 .8rem;}
+.faq-item p{color:#cbd5e0;}
+
+/* CTA */
+.cta-band{background:linear-gradient(135deg,color-mix(in oklab,var(--ua-sun) 48%,#0b1224),color-mix(in oklab,var(--ua-sky) 52%,#0b1224));padding:7rem 0;}
+.cta-card{background:#fff;border-radius:var(--radius);padding:4rem 2.8rem;text-align:center;box-shadow:var(--shadow);}
+.cta-card .ed-title{color:var(--ua-ink);}
+.cta-card p{color:#4a5568;}
+
+/* LEGAL FOOTER */
+.legal-footer{background:#0A0B10;color:#94a3b8;padding:4rem 0;font-size:.9rem;text-align:center;}
+.legal-footer a{color:#00b2ff;text-decoration:none;}
+
+.text-center{text-align:center;}
 </style>
 {% endblock %}
 
@@ -172,174 +174,192 @@ a{text-decoration:none;color:inherit;}
 
 {% block content %}
 <div class="about-page">
+
+  <!-- HERO -->
   <header class="about-hero">
     <div class="nav-wrapper">
       {% include './partials/header/navbar.html' %}
       {% include './partials/header/hamburger-menu.html' with faq_link='#faq' %}
     </div>
-    <div class="hero-content container">
-      <p class="ed-kicker">About us</p>
-      <h1 class="ed-title">We choreograph calm, connection, and unforgettable stories.</h1>
-      <div class="rule" aria-hidden="true"></div>
-      <p class="ed-sub">Unwind Africa designs luxury experiences and wellness-led escapes that feel like an exhale. From me-time rituals to multi-city productions, we ensure every moment lands with intention.</p>
-      <div class="hero-actions">
-        <a class="btn primary-solid" href="{% url 'packages' %}">Explore packages</a>
-        <a class="btn secondary-outline" href="{% url 'contact' %}">Talk to concierge</a>
+    <div class="container">
+      <div class="hero-content">
+        <p class="ed-kicker">We are Unwind Africa</p>
+        <h1 class="ed-title">Calm is a craft.<br>We are the artisans.</h1>
+        <div class="rule"></div>
+        <p class="ed-sub">We design restorative luxury experiences across Africa — solo resets, kinship gatherings, and milestone celebrations that feel like coming home to yourself.</p>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.8rem;">
+          <a href="{% url 'packages' %}" class="btn primary-solid">Explore escapes</a>
+          <a href="{% url 'contact' %}" class="btn" style="background:transparent;color:#fff;border:2px solid rgba(255,255,255,.72);">Speak to concierge</a>
+        </div>
       </div>
     </div>
   </header>
 
-  <section class="section story-section" aria-labelledby="story-title">
+  <!-- PHILOSOPHY — REPLACES STATS -->
+  <section class="philosophy">
+    <div class="container">
+      <p class="ed-kicker">Our philosophy</p>
+      <h2 class="ed-title">What we believe about rest</h2>
+      <div class="philosophy-grid">
+        <div class="philosophy-card">
+          <div class="philosophy-icon">🌅</div>
+          <h3>Rest is not optional</h3>
+          <p>In a world that glorifies burnout, we believe rest is your birthright — not something you earn after breaking yourself.</p>
+        </div>
+        <div class="philosophy-card">
+          <div class="philosophy-icon">✨</div>
+          <h3>Luxury means care</h3>
+          <p>True luxury isn't price tags. It's being held, seen, and supported so completely that your nervous system finally exhales.</p>
+        </div>
+        <div class="philosophy-card">
+          <div class="philosophy-icon">🌍</div>
+          <h3>Africa is home</h3>
+          <p>Our continent holds ancient wisdom about community, rhythm, and restoration. We're reclaiming that narrative with pride.</p>
+        </div>
+        <div class="philosophy-card">
+          <div class="philosophy-icon">💎</div>
+          <h3>Details create magic</h3>
+          <p>From the scent in your room to the playlist during dinner — every sensory layer is intentionally designed to shift your energy.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OUR STORY -->
+  <section class="section">
     <div class="container split">
-      <div class="copy">
-        <p class="ed-kicker">Our story</p>
-        <h2 id="story-title" class="ed-title">Born from a love for restorative gatherings.</h2>
-        <p class="ed-sub">We started by curating intimate retreats for friends who were craving calm. Today, our collective of planners, stylists, wellness guides, and storytellers bring intentional luxury to destinations across Africa.</p>
-        <div class="rule" aria-hidden="true"></div>
-        <p>Every Unwind Africa experience blends sensory design, concierge-level logistics, and cultural fluency. Whether it's a three-day solo bloom, a kinship reunion, or a corporate offsite, our team layers in rituals that help guests arrive settled and leave inspired.</p>
-        <div class="badge-stack">
-          <span class="badge">Concierge-led</span>
-          <span class="badge">Wellness-first</span>
-          <span class="badge">Style-forward</span>
-          <span class="badge">Africa-wide</span>
-        </div>
-      </div>
-      <div class="media">
-        <img src="{% static 'assets/about/olivia-bauso-8qnHYPEKtU0-unsplash 1.jpg' %}" alt="Guests enjoying a calm coastal moment" />
-      </div>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="vision-title">
-    <div class="container">
-      <div class="split" style="align-items:start;">
-        <div class="copy">
-          <p class="ed-kicker">Vision &amp; purpose</p>
-          <h2 id="vision-title" class="ed-title">Luxury that feels personal, wellness that feels accessible.</h2>
-          <p class="ed-sub">We empower individuals, couples, families, and organisations to prioritise rest, self-care, and meaningful connection. Every escape is a bespoke pathway back to balance.</p>
-        </div>
-        <div class="timeline">
-          <article class="timeline-card">
-            <span>Vision</span>
-            <h3>Embed rest into everyday culture.</h3>
-            <p>We imagine communities where intentional downtime is non-negotiable and celebrated.</p>
-          </article>
-          <article class="timeline-card">
-            <span>Purpose</span>
-            <h3>Curate transformative escapes.</h3>
-            <p>Our concierge pod handles details end-to-end so guests can focus on feeling present.</p>
-          </article>
-          <article class="timeline-card">
-            <span>Promise</span>
-            <h3>Design with heart and precision.</h3>
-            <p>Every production is measured against sensory impact, cultural respect, and flawless delivery.</p>
-          </article>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="pillars-title">
-    <div class="container">
-      <p class="ed-kicker">What guides us</p>
-      <h2 id="pillars-title" class="ed-title">Our pillars for unforgettable calm.</h2>
-      <div class="rule" aria-hidden="true"></div>
-      <div class="about-pillars">
-        <article class="pillar-card">
-          <h3>Intentional Design</h3>
-          <p>Space planning, lighting, scent, and sound curated to help your guests settle in minutes.</p>
-        </article>
-        <article class="pillar-card">
-          <h3>Wellness Integration</h3>
-          <p>Therapists, coaches, and mindfulness guides woven into itineraries with care.</p>
-        </article>
-        <article class="pillar-card">
-          <h3>Concierge Logistics</h3>
-          <p>Flights, ground control, dining, gifts, and live updates managed by our on-site hosts.</p>
-        </article>
-        <article class="pillar-card">
-          <h3>Storytelling &amp; Legacy</h3>
-          <p>Photography, film, and editorial recaps that let you relive the glow long after the event.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="section team" aria-labelledby="team-title">
-    <div class="container">
-      <p class="ed-kicker">Meet the collective</p>
-      <h2 id="team-title" class="ed-title">The humans behind the calm.</h2>
-      <div class="rule" aria-hidden="true"></div>
-      <p class="ed-sub">Our multidisciplinary team spans experience designers, relaxation specialists, therapists, hospitality leads, and media creatives.</p>
-      <div class="team-grid" role="list">
-        <article class="team-card" role="listitem">
-          <span class="role-tag">EXECUTIVE DIRECTOR</span>
-          <img src="{% static 'assets/about/DSC_0024.jpg' %}" alt="Olajumoke Ogudipe" />
-          <h3>Olajumoke Ogudipe</h3>
-          <p class="bio">Leads the vision, partnerships, and concierge experience.</p>
-        </article>
-        <article class="team-card" role="listitem">
-          <span class="role-tag">LIFE COACHING &AMP; TRAUMA-INFORMED SPECIALIST</span>
-          <img src="{% static 'assets/about/IMG-20250517-WA0019 (1).jpg' %}" alt="Grace Henshaw" />
-          <h3>Grace Henshaw</h3>
-          <p class="bio">Designs wellness frameworks and gentle integration rituals.</p>
-        </article>
-        <article class="team-card" role="listitem">
-          <span class="role-tag">MEDIA DIRECTOR</span>
-          <img src="{% static 'assets/about/DSC_0745 1.jpg' %}" alt="Yomi Sodunke" />
-          <h3>Yomi Sodunke</h3>
-          <p class="bio">Captures stories and crafts cinematic recaps for every gathering.</p>
-        </article>
-        <article class="team-card" role="listitem">
-          <span class="role-tag">EVENT COORDINATOR</span>
-          <img src="{% static 'assets/about/passport Feyikemi (1).jpg' %}" alt="Feyikemi Adeniran" />
-          <h3>Feyikemi Adeniran</h3>
-          <p class="bio">Runs onsite flow and guest logistics with calm precision.</p>
-        </article>
-        <article class="team-card" role="listitem">
-          <span class="role-tag">RELAXATION SPECIALIST</span>
-          <img src="{% static 'assets/about/be10a6a1f4e9342511bbfedd8949bbfd_0 (2).jpg' %}" alt="Tope Olujobi" />
-          <h3>Tope Olujobi</h3>
-          <p class="bio">Curates spa therapies and sensory layers that ground each guest.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section id="faq" class="section faq" aria-labelledby="faq-title">
-    <div class="container">
       <div>
-        <p class="ed-kicker">FAQ</p>
-        <h2 id="faq-title" class="ed-title">Answers for the curious.</h2>
-        <div class="rule" aria-hidden="true"></div>
+        <p class="ed-kicker">The beginning</p>
+        <h2 class="ed-title">From private retreats to a movement of rest.</h2>
+        <div class="rule"></div>
+        <p class="ed-sub">We began in 2023 curating intimate escapes for friends who were exhausted from giving without receiving. What started as weekend rituals in Lagos and Accra has grown into a collective of Africa's finest planners, therapists, and storytellers — all united by one belief: <strong>rest is sacred, and it should feel luxurious.</strong></p>
+        <p>Today we serve founders, families, couples, and forward-thinking companies who understand that true productivity begins with deep restoration.</p>
       </div>
-      <div class="faq-item">
-        <h3>What types of experiences does Unwind Africa offer?</h3>
-        <p>From solo Me Time rituals to destination celebrations and corporate retreats, we craft bespoke itineraries that blend wellness, culture, and elevated hospitality.</p>
-      </div>
-      <div class="faq-item">
-        <h3>Can I customise my getaway or wellness experience?</h3>
-        <p>Absolutely. We co-design every touchpoint with you&mdash;venues, menus, rituals, gifting, storytelling&mdash;so the experience mirrors your desired mood and budget.</p>
-      </div>
-      <div class="faq-item">
-        <h3>How do I get started with planning?</h3>
-        <p>Share your vision via our contact form or call the concierge desk. Within 48 hours we deliver moodboards, tiered budgets, and timelines to kick-start production.</p>
+      <img src="{% static 'assets/about/olivia-bauso-8qnHYPEKtU0-unsplash 1.jpg' %}" alt="Guests arriving calm">
+    </div>
+  </section>
+
+  <!-- OUR PROMISE -->
+  <section class="section" style="background:#f9fbfd;">
+    <div class="container guarantee">
+      <p class="ed-kicker" style="color:#ffb648;">Our promise to you</p>
+      <h2 class="ed-title">You will leave lighter than you arrived — guaranteed.</h2>
+      <p>If any moment of your Unwind Africa experience doesn't feel like the exhale you came for, we'll make it right. No questions asked.</p>
+    </div>
+  </section>
+
+  <!-- FOUR PILLARS -->
+  <section class="section">
+    <div class="container">
+      <p class="ed-kicker text-center">What guides every experience</p>
+      <h2 class="ed-title text-center">Four pillars of unforgettable calm</h2>
+      <div class="rule" style="margin:2rem auto;"></div>
+      <div class="pillars-grid">
+        <div class="pillar"><h3>01. Intentional Design</h3><p>Sensory details — scent, light, sound, texture — curated to shift energy the moment you arrive.</p></div>
+        <div class="pillar"><h3>02. Wellness Integration</h3><p>Trauma-informed therapists and breathwork guides woven gently into every itinerary.</p></div>
+        <div class="pillar"><h3>03. Concierge Precision</h3><p>A dedicated human managing every detail from boarding pass to bedtime ritual.</p></div>
+        <div class="pillar"><h3>04. Legacy Storytelling</h3><p>Cinematic photography + film so you can relive the glow for years.</p></div>
       </div>
     </div>
   </section>
 
-  <section class="section cta-band" aria-labelledby="cta-title">
+  <!-- TEAM -->
+  <section class="section">
+    <div class="container">
+      <p class="ed-kicker">The collective</p>
+      <h2 class="ed-title">Real humans, real calm.</h2>
+      <div class="rule"></div>
+      <div class="team-grid">
+        <div class="team-card">
+          <img src="{% static 'assets/about/DSC_0024.jpg' %}" alt="Olajumoke Ogudipe">
+          <div class="team-info">
+            <span class="role-tag">Executive Director</span>
+            <h3>Olajumoke Ogudipe</h3>
+            <p>Vision keeper. Turns "I need rest" into fully produced reality.</p>
+          </div>
+        </div>
+        <div class="team-card">
+          <img src="{% static 'assets/about/IMG-20250517-WA0019 (1).jpg' %}" alt="Grace Henshaw">
+          <div class="team-info">
+            <span class="role-tag">Trauma-Informed Wellness</span>
+            <h3>Grace Henshaw</h3>
+            <p>Creates safe spaces where nervous systems finally relax.</p>
+          </div>
+        </div>
+        <div class="team-card">
+          <img src="{% static 'assets/about/DSC_0745 1.jpg' %}" alt="Yomi Sodunke">
+          <div class="team-info">
+            <span class="role-tag">Media Director</span>
+            <h3>Yomi Sodunke</h3>
+            <p>Captures emotion so beautifully guests cry watching their own film.</p>
+          </div>
+        </div>
+        <div class="team-card">
+          <img src="{% static 'assets/about/passport Feyikemi (1).jpg' %}" alt="Feyikemi Adeniran">
+          <div class="team-info">
+            <span class="role-tag">Event Captain</span>
+            <h3>Feyikemi Adeniran</h3>
+            <p>Runs onsite like calm clockwork. Nothing ever falls through.</p>
+          </div>
+        </div>
+        <div class="team-card">
+          <img src="{% static 'assets/about/be10a6a1f4e9342511bbfedd8949bbfd_0 (2).jpg' %}" alt="Tope Olujobi">
+          <div class="team-info">
+            <span class="role-tag">Relaxation Specialist</span>
+            <h3>Tope Olujobi</h3>
+            <p>Curates spa therapies and sensory layers that ground each guest.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="section faq-section">
+    <div class="container">
+      <p class="ed-kicker">Common questions</p>
+      <h2 class="ed-title">Everything you need to know</h2>
+      <div class="rule" style="background:#00b2ff;"></div>
+      <div class="faq-grid">
+        <div class="faq-item">
+          <h3>Where do you operate?</h3>
+          <p>Nigeria • Ghana • Kenya • South Africa • Cape Verde • and growing. Remote production available worldwide.</p>
+        </div>
+        <div class="faq-item">
+          <h3>How far in advance should I book?</h3>
+          <p>Popular dates book 4–8 months ahead. Last-minute magic is possible with our concierge desk.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Are payments secure?</h3>
+          <p>100%. All transactions are processed via Paystack (PCI-DSS compliant). We never see or store your card details.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="cta-band">
     <div class="container">
       <div class="cta-card">
-        <p class="ed-kicker">Ready for your next escape?</p>
-        <h2 id="cta-title" class="ed-title">Let's script the experience everyone keeps talking about.</h2>
-        <p>Tell us who you're hosting, the energy you crave, and your dream destination&mdash;we'll orchestrate the rest.</p>
-        <div class="cta-actions">
-          <a class="btn primary-solid" href="{% url 'contact' %}">Start your brief</a>
-          <a class="btn secondary-ink" href="tel:+2348062067832">Call concierge</a>
+        <p class="ed-kicker">Your exhale awaits</p>
+        <h2 class="ed-title">Let's co-create the calm you've been craving.</h2>
+        <p>Share your vision — solo reset, family reunion, milestone celebration, or team rebirth — and watch us bring it to life with heart and precision.</p>
+        <div style="display:flex;gap:1.4rem;justify-content:center;flex-wrap:wrap;margin-top:2.4rem;">
+          <a href="{% url 'contact' %}" class="btn primary-solid">Start your brief</a>
+          <a href="tel:+2348062067832" class="btn" style="background:#0A0B10;color:#fff;">Call +234 806 206 7832</a>
         </div>
       </div>
     </div>
   </section>
+
+  <!-- LEGAL FOOTER -->
+  <footer class="legal-footer">
+    <div class="container">
+      Unwind Africa is a registered trademark of Unwind Africa Ltd <br>
+      <a href="{% url 'privacy_policy' %}">Privacy Policy</a> • 
+      <a href="{% url 'terms' %}">Terms of Service</a> • 
+      No 8, Providence Street, Lekki Phase 1, Lagos, Nigeria
+    </div>
+  </footer>
 </div>
 {% endblock %}

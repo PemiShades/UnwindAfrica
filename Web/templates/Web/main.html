@@ -60,79 +60,88 @@
   
   {% block content %}{% endblock %}
 
-  <!-- Footer -->
-  <footer class="bg-[#0A0B10] text-white pt-24 pb-12 px-6 md:px-12">
-    <div class="max-w-7xl mx-auto">
-      <div class="grid md:grid-cols-2 gap-12 mb-24">
-        <div>
-          <h2 class="text-5xl md:text-7xl font-bold font-display tracking-tighter mb-8">Stay<br>Inspired</h2>
-        </div>
-        <div class="flex flex-col justify-end">
-          <p class="mb-6 text-gray-400 max-w-md">Subscribe to our journal for exclusive previews, cultural insights, and curated experiences.</p>
-          <form class="flex border-b border-white/20 pb-2" onsubmit="event.preventDefault(); alert('Thank you for subscribing!');">
-            <input type="email" placeholder="Email Address" class="bg-transparent border-none outline-none w-full text-white placeholder-gray-600 focus:ring-0" required>
-            <button type="submit" class="text-xs uppercase tracking-widest hover:opacity-70 transition-opacity">Subscribe</button>
-          </form>
+<!-- Footer - FINAL VERSION (Paystack-ready) -->
+<footer class="bg-[#0A0B10] text-white pt-24 pb-12 px-6 md:px-12">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid md:grid-cols-2 gap-12 mb-24">
+      <div>
+        <h2 class="text-5xl md:text-7xl font-bold font-display tracking-tighter mb-8">Stay<br>Inspired</h2>
+      </div>
+      <div class="flex flex-col justify-end">
+        <p class="mb-6 text-gray-400 max-w-md">Subscribe for exclusive previews, cultural insights, and curated experiences.</p>
+        
+        <!-- Real newsletter form (Formspree) -->
+        <form action="https://formspree.io/f/xdknwwla" method="POST" class="flex border-b border-white/20 pb-2">
+          <input type="email" name="email" placeholder="Email Address" required
+                 class="bg-transparent border-none outline-none w-full text-white placeholder-gray-600 focus:ring-0">
+          <button type="submit" class="text-xs uppercase tracking-widest hover:opacity-70 transition-opacity">Subscribe</button>
+        </form>
+        <p class="text-xs text-gray-500 mt-3">We respect your inbox. Unsubscribe anytime.</p>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-8 mb-16 border-t border-white/10 pt-16">
+      <div>
+        <h4 class="text-sm uppercase tracking-widest mb-4 font-bold">Studio</h4>
+        <div class="space-y-2 text-gray-400">
+          <p>No 8, Providence Street</p>
+          <p>Lekki Phase 1, Lagos</p>
+          <a href="tel:+2348062067832" class="block hover:text-white transition-colors">+234 806 206 7832</a>
+          <a href="mailto:info@unwindafrica.com" class="block hover:text-white transition-colors">info@unwindafrica.com</a>
         </div>
       </div>
 
-      <div class="grid md:grid-cols-4 gap-8 mb-16 border-t border-white/10 pt-16">
-        <div>
-          <h4 class="text-sm uppercase tracking-widest mb-4 font-bold">Studio</h4>
-          <div class="space-y-2 text-gray-400">
-            <p>No 8, Providence Street</p>
-            <p>Lekki Phase 1, Lagos</p>
-            <a href="tel:+2348062067832" class="block hover:text-white transition-colors">+234 806 206 7832</a>
-            <a href="mailto:info@unwindafrica.com" class="block hover:text-white transition-colors">info@unwindafrica.com</a>
-          </div>
-        </div>
-
-        <div>
-          <h4 class="text-sm uppercase tracking-widest mb-4 font-bold">Experiences</h4>
-          <ul class="space-y-2 text-gray-400">
-            <li><a href="/packages" class="hover:text-white transition-colors">Retreats & Wellness</a></li>
-            <li><a href="/packages" class="hover:text-white transition-colors">Signature Parties</a></li>
-            <li><a href="/packages" class="hover:text-white transition-colors">Cultural Showcase</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 class="text-sm uppercase tracking-widest mb-4 font-bold">Company</h4>
-          <ul class="space-y-2 text-gray-400">
-            <li><a href="/about" class="hover:text-white transition-colors">About Unwind Africa</a></li>
-            <li><a href="/blog" class="hover:text-white transition-colors">Journal</a></li>
-            <li><a href="#faq" class="hover:text-white transition-colors">FAQ</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 class="text-sm uppercase tracking-widest mb-4 font-bold">Connect</h4>
-          <div class="flex space-x-4">
-            <a href="https://www.instagram.com/unwindafrica?igsh=MWVqdzhuM3JkbHh4dA" aria-label="Instagram" class="hover:text-white transition-colors text-gray-400">
-              <i class="fab fa-instagram text-xl"></i>
-            </a>
-            <a href="https://www.facebook.com" aria-label="Facebook" class="hover:text-white transition-colors text-gray-400">
-              <i class="fab fa-facebook-f text-xl"></i>
-            </a>
-            <a href="https://www.twitter.com" aria-label="Twitter" class="hover:text-white transition-colors text-gray-400">
-              <i class="fab fa-twitter text-xl"></i>
-            </a>
-          </div>
-        </div>
+      <div>
+        <h4 class="text-sm uppercase tracking-widest mb-4 font-bold">Experiences</h4>
+        <ul class="space-y-2 text-gray-400">
+          <li><a href="/packages" class="hover:text-white transition-colors">Retreats & Wellness</a></li>
+          <li><a href="/packages" class="hover:text-white transition-colors">Signature Parties</a></li>
+          <li><a href="/packages" class="hover:text-white transition-colors">Cultural Showcase</a></li>
+        </ul>
       </div>
 
-      <div class="flex flex-col md:flex-row justify-between items-center border-t border-white/10 pt-12 text-xs uppercase tracking-widest text-gray-500">
-        <div class="mb-6 md:mb-0">
-          <span class="font-display text-2xl text-white">UNWIND AFRICA</span>
-        </div>
-        <div class="flex flex-col md:flex-row md:space-x-8 text-center md:text-left">
-          <span class="mb-2 md:mb-0">&copy; <span id="year"></span> Unwind Africa</span>
-          <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+      <div>
+        <h4 class="text-sm uppercase tracking-widest mb-4 font-bold">Company</h4>
+        <ul class="space-y-2 text-gray-400">
+          <li><a href="/about" class="hover:text-white transition-colors">About Unwind Africa</a></li>
+          <li><a href="/blog" class="hover:text-white transition-colors">Journal</a></li>
+          <li><a href="/#faq" class="hover:text-white transition-colors">FAQ</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="text-sm uppercase tracking-widest mb-4 font-bold">Connect</h4>
+        <div class="flex space-x-4">
+          <a href="https://instagram.com/unwindafrica" aria-label="Instagram" class="hover:text-white transition-colors text-gray-400">
+            <i class="fab fa-instagram text-xl"></i>
+          </a>
+          <a href="https://facebook.com/unwindafrica" aria-label="Facebook" class="hover:text-white transition-colors text-gray-400">
+            <i class="fab fa-facebook-f text-xl"></i>
+          </a>
+          <a href="https://x.com/unwindafrica" aria-label="X" class="hover:text-white transition-colors text-gray-400">
+            <i class="fab fa-twitter text-xl"></i>
+          </a>
         </div>
       </div>
     </div>
-  </footer>
 
+    <div class="flex flex-col md:flex-row justify-between items-center border-t border-white/10 pt-12 text-xs uppercase tracking-widest text-gray-500">
+      <div class="mb-6 md:mb-0">
+        <span class="font-display text-2xl text-white">UNWIND AFRICA</span>
+      </div>
+      <div class="flex flex-col md:flex-row md:space-x-8 text-center md:text-left">
+        <span>&copy; <span id="year"></span> Unwind Africa</span>
+        <a href="{% url 'privacy_policy' %}" class="hover:text-white transition-colors">Privacy Policy</a>
+        <a href="{% url 'terms' %}" class="hover:text-white transition-colors">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- <script>
+// Auto-update year
+document.getElementById('year').textContent = new Date().getFullYear();
+</script> -->
 
   <!-- Vendor JS (place BEFORE closing body) -->
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>

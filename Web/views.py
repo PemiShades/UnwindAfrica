@@ -35,6 +35,14 @@ def custom_404(request, exception):
     return render(request, '404.html', status=404)
 
 
+# ==================== LEGAL PAGES (Paystack requires these) ====================
+def privacy_policy(request):
+    return render(request, 'Web/privacy_policy.html')
+
+
+def terms(request):
+    return render(request, 'Web/terms.html')
+
 # -----------------------------
 # BLOG
 # -----------------------------

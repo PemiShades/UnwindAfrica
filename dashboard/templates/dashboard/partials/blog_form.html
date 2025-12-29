@@ -8,7 +8,7 @@
   {% url 'blog_create' as action_url %}
 {% endif %}
 
-<form method="post" action="{{ action_url }}" enctype="multipart/form-data" class="grid gap-4">
+<form id="blogForm" method="post" action="{{ action_url }}" enctype="multipart/form-data" class="grid gap-4">
   {% csrf_token %}
 
   <div class="grid gap-1">
@@ -42,14 +42,15 @@
     </div>
   </div>
 
-  <div class="flex items-center justify-end gap-2 pt-2">
-    <input type="hidden" name="action" value="draft" />
-    <button type="submit" class="btn-ghost">
-      {% if editing %}Save Draft{% else %}Save as Draft{% endif %}
-    </button>
-    <button type="submit" class="btn-primary"
-            onclick="this.closest('form').querySelector('[name=action]').value='publish'">
-      {% if editing %}Update & Publish{% else %}Publish{% endif %}
-    </button>
-  </div>
+  {# Remove the hidden action input - it conflicts with form.action #}
+  {# The action is set dynamically in JavaScript via data.set("action", ...) #}
+
+  <button type="button" class="btn-ghost" @click="submitBlog(false)">
+    Save Draft
+  </button>
+
+  <button type="button" class="btn-primary" @click="submitBlog(true)">
+    Publish
+  </button>
+
 </form>

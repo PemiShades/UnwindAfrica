@@ -11,6 +11,9 @@ urlpatterns = [
     path('blog/<slug:slug>/', views.blog_detail, name='blog_detail'),
     path('unwind-thrive/', views.unwind_thrive, name='services'),
 
+    path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
+    path('terms/', views.terms, name='terms'),
+
     path("quotes/request/", views.quote_request, name="quote_request"),
 
     path('blog/', views.blog_list, name='blog'),

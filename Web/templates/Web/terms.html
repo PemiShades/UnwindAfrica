@@ -1,0 +1,48 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}Terms of Service - Unwind Africa{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{ --ua-sky:#00B2FF; --ua-sun:#FFB648; --ua-ink:#0A0B10; }
+  .terms{max-width:780px;margin:0 auto;padding:clamp(60px,10vw,120px) 20px;color:var(--ua-ink);}
+  .terms h1{font-family:"Playfair Display",serif;font-size:clamp(2.4rem,6vw,3.6rem);margin:0 0 1rem;}
+  .terms h2{margin:2.6rem 0 1rem;font-size:1.6rem;}
+  .terms p,.terms li{line-height:1.74;margin-bottom:1rem;}
+  .rule{height:4px;width:70px;background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));margin:1.6rem 0;}
+</style>
+{% endblock %}
+
+{% block content %}
+{% include './partials/header/navbar.html' with theme='dark'%}
+<div class="terms">
+  <h1>Terms of Service</h1>
+  <p class="ed-sub">Last updated: December 2025</p>
+  <div class="rule"></div>
+
+  <h2>1. Booking & Payment</h2>
+  <p>A 50% deposit secures your date. Full payment is due 14 days before the experience. We accept payments securely via Paystack.</p>
+
+  <h2>2. Cancellation & Refunds</h2>
+  <ul>
+    <li>More than 30 days: Full refund minus 5% processing fee</li>
+    <li>15–30 days: 50% refund</li>
+    <li>Less than 15 days: No refund (but transferable to another date within 6 months)</li>
+    <li>Force majeure (illness, travel ban): Full credit or refund</li>
+  </ul>
+
+  <h2>3. Changes</h2>
+  <p>We reserve the right to substitute venues or activities of equal or greater value due to availability or safety concerns.</p>
+
+  <h2>4. Liability</h2>
+  <p>Participants engage in activities at their own risk. We carry public liability insurance and vet all partners rigorously.</p>
+
+  <h2>5. Photography</h2>
+  <p>We may capture photos/video for marketing. Opt out by notifying us in writing before your experience.</p>
+
+  <h2>6. Contact</h2>
+  <p>Unwind Africa<br>No 8, Providence Street, Lekki Phase 1, Lagos<br>
+  <a href="mailto:info@unwindafrica.com">info@unwindafrica.com</a></p>
+</div>
+{% endblock %}

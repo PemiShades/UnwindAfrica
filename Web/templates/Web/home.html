@@ -1342,39 +1342,38 @@ a:focus, button:focus, input:focus{ outline:3px solid var(--ua-sky); outline-off
         <a class="btn primary-outline" href="#contact">Explore all posts</a>
       </div>
 
-      <div class="tiles img-mono">
-        <article class="tile">
-          <div class="media">
-            <img src="https://images.unsplash.com/photo-1521335629791-ce4aec67dd53?q=80&w=1800&auto=format&fit=crop" alt="Beach venue" />
-            <span class="chip">Venues</span>
-          </div>
-          <div class="body">
-            <h3>Coastal venues we love</h3>
-            <div class="meta"><span>⏱ 4 min</span><span>•</span><span>Aug 2025</span></div>
-          </div>
-        </article>
+      <!-- <h2 class="ed-title">Journals</h2>
+<div class="rule"></div> -->
 
-        <article class="tile">
-          <div class="media">
-            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1800&auto=format&fit=crop" alt="Tablescape" />
-            <span class="chip">Planning</span>
-          </div>
-          <div class="body">
-            <h3>No-stress guest flow</h3>
-            <div class="meta"><span>⏱ 5 min</span><span>•</span><span>Aug 2025</span></div>
-          </div>
-        </article>
+<div class="tiles img-mono">
+  {% for post in posts %}
+  <article class="tile">
+    <div class="media">
+      <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}">
+      {% if post.is_featured %}
+        <span class="chip">Featured</span>
+      {% endif %}
+      {% if post.badge %}
+        <span class="chip" style="top:40px">{{ post.badge }}</span>
+      {% endif %}
+    </div>
+    <div class="body">
+      <h3>{{ post.title }}</h3>
+      <p class="muted">{{ post.excerpt|truncatechars:90 }}</p>
+      <div class="meta">
+        <span>⏱ {{ post.read_minutes }} min read</span>
+        <span>•</span>
+        <span>{{ post.created_at|date:"M d, Y" }}</span>
+      </div>
+      <a class="btn primary-outline" href="{% url 'blog_detail' post.slug %}">Read Journal →</a>
+    </div>
+  </article>
+  {% empty %}
+    <p class="muted">No journals published yet.</p>
+  {% endfor %}
+</div>
 
-        <article class="tile">
-          <div class="media">
-            <img src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=1800&auto=format&fit=crop" alt="Dance floor" />
-            <span class="chip">BTS</span>
-          </div>
-          <div class="body">
-            <h3>Our favorite dance floors</h3>
-            <div class="meta"><span>⏱ 3 min</span><span>•</span><span>Sep 2025</span></div>
-          </div>
-        </article>
+        
       </div>
     </div>
   </section>
