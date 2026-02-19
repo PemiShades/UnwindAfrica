@@ -1,0 +1,76 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}FAQ - Unwind Africa{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{ --ua-sky:#00B2FF; --ua-sun:#FFB648; --ua-ink:#0A0B10; }
+  .faq{max-width:780px;margin:0 auto;padding:clamp(60px,10vw,120px) 20px;color:var(--ua-ink);}
+  .faq h1{font-family:"Playfair Display",serif;font-size:clamp(2.4rem,6vw,3.6rem);margin:0 0 1rem;}
+  .faq h2{margin:2.6rem 0 1rem;font-size:1.6rem;}
+  .faq p,.faq li{line-height:1.74;margin-bottom:1rem;}
+  .rule{height:4px;width:70px;background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));margin:1.6rem 0;}
+  .faq-item{margin-bottom:2rem;border-bottom:1px solid #eee;padding-bottom:1.5rem;}
+  .faq-question{font-weight:700;font-size:1.1rem;margin-bottom:0.5rem;}
+  .faq-answer{color:#666;}
+</style>
+{% endblock %}
+
+{% block content %}
+{% include './partials/header/navbar.html' with theme='dark'%}
+<div class="faq">
+  <h1>FAQ</h1>
+  <p class="ed-sub">Frequently Asked Questions</p>
+  <div class="rule"></div>
+
+  <div class="faq-item">
+    <div class="faq-question">What is Nominate to Unwind?</div>
+    <div class="faq-answer">Nominate to Unwind is a special Valentine's edition campaign where couples are nominated and voted for by the community. The winners receive exclusive experiences from Unwind Africa.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question">How does voting work?</div>
+    <div class="faq-answer">Voting is done through a paid community voting system. Each vote costs ₦500. You can select different vote packages, and bonus votes are awarded for larger packages.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question">What are the voting packages available?</div>
+    <div class="faq-answer">
+      <ul>
+        <li>1 vote = ₦500</li>
+        <li>2 votes = ₦1,000</li>
+        <li>5 votes = ₦2,500</li>
+        <li>10 votes + 2 bonus = ₦5,000</li>
+        <li>20 votes + 5 bonus = ₦10,000</li>
+        <li>60 votes + 10 bonus = ₦30,000 (Full Qualification Support)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question">Is my payment secure?</div>
+    <div class="faq-answer">Yes, we use Paystack, a PCI-DSS compliant payment processor, to ensure your payment information is secure. We never store your card details on our servers.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question">Can I get a refund for my votes?</div>
+    <div class="faq-answer">All votes are non-refundable. Once a vote is cast, it cannot be refunded or transferred to another nominee.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question">How are the winners selected?</div>
+    <div class="faq-answer">Winners are selected based on the total number of votes received. The nominees with the highest number of votes will win the exclusive experiences.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question">How do I contact Unwind Africa?</div>
+    <div class="faq-answer">
+      Unwind Africa<br>
+      No 8, Providence Street, Lekki Phase 1, Lagos<br>
+      <a href="mailto:info@unwindafrica.com">info@unwindafrica.com</a><br>
+      <a href="tel:+2348062067832">+234 806 206 7832</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

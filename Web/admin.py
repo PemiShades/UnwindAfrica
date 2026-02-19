@@ -314,11 +314,11 @@ class RestCardAdmin(admin.ModelAdmin):
     
     def activate_cards(self, request, queryset):
         """Activate selected waitlist cards"""
-        from django.utils import timezone
+        from django.utils.timezone import now
         count = 0
         for card in queryset.filter(status='waitlist'):
             card.status = 'pending'
-            card.activated_at = timezone.now()
+            card.activated_at = now()
             card.save()
             count += 1
         self.message_user(request, f'{count} cards moved to pending activation')

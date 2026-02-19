@@ -109,38 +109,38 @@ header.absolute svg {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
                 <div class="benefit-card">
                     <div style="font-size: 2.5rem; margin-bottom: 1rem;">🎁</div>
-                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Exclusive Rewards</h3>
-                    <p style="color: #666;">Earn rest points on every vote and transaction, redeem for discounts and experiences.</p>
-                </div>
-                
-                <div class="benefit-card">
-                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">⚡</div>
-                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Early Access</h3>
-                    <p style="color: #666;">Get first dibs on new packages, events, and limited wellness experiences.</p>
+                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Discounted Experiences</h3>
+                    <p style="color: #666;">Get discounts on relaxation experiences when available.</p>
                 </div>
                 
                 <div class="benefit-card">
                     <div style="font-size: 2.5rem; margin-bottom: 1rem;">🎯</div>
-                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Monthly Draws</h3>
-                    <p style="color: #666;">Automatic entry into Unwind & Win draws for luxury prizes and getaways.</p>
+                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Monthly & Annual Draws</h3>
+                    <p style="color: #666;">Eligibility for monthly and annual prize draws.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">⚡</div>
+                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Priority Access</h3>
+                    <p style="color: #666;">Get priority access to community programs and events.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">💳</div>
+                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Installment Plans</h3>
+                    <p style="color: #666;">Access to installment plans for relaxation packages.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🎉</div>
+                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Free Treats</h3>
+                    <p style="color: #666;">Occasionally receive free or sponsored treats when available.</p>
                 </div>
                 
                 <div class="benefit-card">
                     <div style="font-size: 2.5rem; margin-bottom: 1rem;">👥</div>
-                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Community Access</h3>
-                    <p style="color: #666;">Join exclusive community events, wellness workshops, and networking sessions.</p>
-                </div>
-                
-                <div class="benefit-card">
-                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">💰</div>
-                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Special Discounts</h3>
-                    <p style="color: #666;">Enjoy member-only pricing on packages, treatments, and partner services.</p>
-                </div>
-                
-                <div class="benefit-card">
-                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🌍</div>
-                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Partner Perks</h3>
-                    <p style="color: #666;">Access discounts at partner spas, restaurants, and wellness centers across Africa.</p>
+                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Community ID</h3>
+                    <p style="color: #666;">Identification as part of the Unwind Africa community.</p>
                 </div>
             </div>
         </div>
@@ -154,46 +154,45 @@ header.absolute svg {
             </div>
         </div>
 
-        <!-- Waitlist Form -->
-        {% if not is_waitlist_full %}
+         <!-- Get Rest Card Form -->
         <div class="waitlist-form">
-            <h2 style="text-align: center; margin-bottom: 0.5rem; color: #0A0B10;">Join the Waitlist</h2>
-            <p style="text-align: center; color: #666; margin-bottom: 2rem;">Be among the first 1,000 members to get a Rest Card</p>
+            <h2 style="text-align: center; margin-bottom: 0.5rem; color: #0A0B10;">Get Your Rest Card</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 2rem;">Join the Unwind Africa community and enjoy exclusive benefits</p>
             
-            <form id="waitlistForm" onsubmit="return submitWaitlist(event)">
+            <form id="waitlistForm" onsubmit="submitWaitlist(event)" style="text-align: left;">
                 {% csrf_token %}
                 <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0A0B10;">Full Name</label>
-                    <input type="text" name="name" required 
-                           style="width: 100%; padding: 0.875rem; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 1rem;">
+                    <label for="name" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0A0B10;">Full Name</label>
+                    <input type="text" id="name" name="name" required
+                           style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;">
                 </div>
                 
                 <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0A0B10;">Email Address</label>
-                    <input type="email" name="email" required 
-                           style="width: 100%; padding: 0.875rem; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 1rem;">
+                    <label for="email" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0A0B10;">Email Address</label>
+                    <input type="email" id="email" name="email" required
+                           style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;">
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="phone" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0A0B10;">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" required
+                           style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;">
                 </div>
                 
                 <div style="margin-bottom: 2rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0A0B10;">Phone Number</label>
-                    <input type="tel" name="phone" required 
-                           style="width: 100%; padding: 0.875rem; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 1rem;">
+                    <label for="message" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0A0B10;">Message (Optional)</label>
+                    <textarea id="message" name="message" rows="3"
+                              style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;"></textarea>
                 </div>
                 
                 <button type="submit" 
-                        style="width: 100%; background: linear-gradient(90deg, #FFB648, #00B2FF); color: #0A0B10; border: none; padding: 1rem; border-radius: 8px; font-weight: 900; font-size: 1.1rem; cursor: pointer; transition: transform 0.3s ease;">
-                    Join Waitlist →
+                        style="display: inline-block; width: 100%; background: linear-gradient(90deg, #FFB648, #00B2FF); color: #0A0B10; border: none; padding: 1rem; border-radius: 8px; font-weight: 900; font-size: 1.1rem; cursor: pointer; transition: transform 0.3s ease; text-decoration: none; text-align: center;">
+                    Get Your Rest Card →
                 </button>
             </form>
             
-            <div id="waitlistMessage" style="margin-top: 1rem; padding: 1rem; border-radius: 8px; display: none;"></div>
+            <div id="waitlistMessage" style="display: none; margin-top: 1.5rem; padding: 1rem; border-radius: 8px; text-align: center; font-weight: 600;"></div>
         </div>
-        {% else %}
-        <div class="waitlist-form" style="text-align: center;">
-            <h2 style="color: #e74c3c; margin-bottom: 1rem;">Waitlist Full</h2>
-            <p style="color: #666;">The first 1,000 spots have been filled. Check back soon for the next enrollment period!</p>
-        </div>
-        {% endif %}
 
         <!-- Check Status Link -->
         <div style="text-align: center; margin-top: 3rem;">

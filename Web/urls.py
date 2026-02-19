@@ -13,16 +13,22 @@ urlpatterns = [
 
     path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
     path('terms/', views.terms, name='terms'),
+    path('refund-policy/', views.refund_policy, name='refund_policy'),
+    path('faq/', views.faq, name='faq'),
 
     path("quotes/request/", views.quote_request, name="quote_request"),
+    path("card-request/", views.card_request, name="card_request"),
 
     path('blog/', views.blog_list, name='blog'),
     path('blog/', views.blog_list, name='blog_list'),
+    path('events/', views.event_list, name='event_list'),
+    path('events/<slug:slug>/', views.event_detail, name='event_detail'),
     path('contact/', views.contact, name='contact'),
 
     # Voting System URLs
     path('voting/', voting_views.voting_campaigns_list, name='voting_campaigns_list'),
     path('voting/<slug:slug>/', voting_views.voting_campaign_detail, name='voting_campaign'),
+    path('voting/nominate/', voting_views.voting_campaign_detail, name='nominate'),
     path('voting/payment/initialize/', voting_views.initialize_payment, name='initialize_payment'),
     path('voting/payment/verify/<str:reference>/', voting_views.verify_payment, name='verify_payment'),
     path('voting/payment/thank-you/', voting_views.voting_thank_you, name='voting_thank_you'),
@@ -35,6 +41,14 @@ urlpatterns = [
     path('rest-card/status/', views.rest_card_status, name='rest_card_status'),
     path('token-wallet/', views.token_wallet_view, name='token_wallet'),
     path('unwind-and-win/', views.unwind_and_win, name='unwind_and_win'),
+    path('raising-readers/', views.raising_readers, name='raising_readers'),
+    path('vote/', views.vote, name='vote'),
+    path('payment/<int:vote_id>/', views.payment, name='payment'),
+    path('vote-confirmation/<int:vote_id>/', views.vote_confirmation, name='vote_confirmation'),
+    path('nominate/', views.nominate, name='nominate'),
+    path('nomination-confirmation/<int:nominee_id>/', views.nomination_confirmation, name='nomination_confirmation'),
+    path('my-rest-card/', views.my_rest_card, name='my_rest_card'),
+    path('generate-rest-card/<int:card_id>/', views.generate_rest_card, name='generate_rest_card'),
 ]
 
 

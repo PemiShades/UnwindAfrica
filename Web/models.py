@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
-from django.utils import timezone
+from django.utils.timezone import now
 from django.urls import reverse
 import re
 
@@ -110,7 +110,7 @@ class Event(models.Model):
 
     @property
     def is_expired(self):
-        return self.date < timezone.now().date()
+        return self.date < now().date()
 
     def get_absolute_url(self):
         return reverse("event_detail", kwargs={"slug": self.slug})
@@ -127,6 +127,63 @@ class Event(models.Model):
         super().save(*args, **kwargs)
 
 
+# ===================== ANALYTICS SYSTEM =====================
+
+class PageView(models.Model):
+    """Track individual page views"""
+    url = models.CharField(max_length=500)
+    user_agent = models.TextField(blank=True)
+    ip_address = models.GenericIPAddressField()
+    referrer = models.CharField(max_length=500, blank=True)
+    session_key = models.CharField(max_length=40)
+    user = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['timestamp']),
+            models.Index(fields=['session_key']),
+            models.Index(fields=['url']),
+        ]
+
+    def __str__(self):
+        return f"{self.url} - {self.timestamp}"
+
+
+class Session(models.Model):
+    """Track user sessions"""
+    session_key = models.CharField(max_length=40, unique=True)
+    ip_address = models.GenericIPAddressField()
+    user_agent = models.TextField(blank=True)
+    user = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL)
+    start_time = models.DateTimeField(auto_now_add=True)
+    last_activity = models.DateTimeField(auto_now=True)
+    page_views = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-start_time']
+        indexes = [
+            models.Index(fields=['session_key']),
+            models.Index(fields=['start_time']),
+            models.Index(fields=['is_active']),
+        ]
+
+    def __str__(self):
+        return f"Session {self.session_key} - {self.page_views} views"
+
+    @property
+    def duration(self):
+        """Session duration in seconds"""
+        return (self.last_activity - self.start_time).total_seconds()
+
+    @property
+    def is_bounce(self):
+        """Bounce session = only 1 page view"""
+        return self.page_views <= 1
+
+
 # ===================== NOMINATE TO UNWIND - VOTING SYSTEM =====================
 
 class VotingCampaign(models.Model):
@@ -134,6 +191,7 @@ class VotingCampaign(models.Model):
     name = models.CharField(max_length=255, help_text="e.g., Nominate to Unwind – November 2025")
     slug = models.SlugField(unique=True, blank=True)
     description = models.TextField(blank=True, help_text="Campaign details shown on voting page")
+    tagline = models.CharField(max_length=255, blank=True, help_text="Short tagline for the campaign")
     
     # Campaign period
     start_date = models.DateTimeField()
@@ -144,6 +202,15 @@ class VotingCampaign(models.Model):
                                      help_text="Price per vote in Naira")
     rest_points_per_vote = models.DecimalField(max_digits=10, decimal_places=2, default=100.00,
                                                help_text="Rest points earned per vote")
+    
+    # Prizes
+    grand_prize = models.CharField(max_length=255, blank=True, help_text="Grand prize description")
+    grand_prize_description = models.TextField(blank=True, help_text="Detailed description of grand prize")
+    second_prize = models.CharField(max_length=255, blank=True, help_text="Second prize description")
+    second_prize_description = models.TextField(blank=True, help_text="Detailed description of second prize")
+    third_prize = models.CharField(max_length=255, blank=True, help_text="Third prize description")
+    third_prize_description = models.TextField(blank=True, help_text="Detailed description of third prize")
+    prize_description = models.TextField(blank=True, help_text="Overall prizes description")
     
     # Visuals
     banner_image = models.ImageField(upload_to='campaigns/banners/', blank=True, null=True)
@@ -161,8 +228,8 @@ class VotingCampaign(models.Model):
     
     @property
     def is_ongoing(self):
-        now = timezone.now()
-        return self.is_active and self.start_date <= now <= self.end_date
+        current_now = now()
+        return self.is_active and self.start_date <= current_now <= self.end_date
     
     @property
     def total_votes(self):
@@ -195,6 +262,7 @@ class Nominee(models.Model):
     campaign = models.ForeignKey(VotingCampaign, on_delete=models.CASCADE, related_name='nominees')
     
     # Nominee details
+    number = models.CharField(max_length=50, blank=True, help_text="Nominee number on voting card")
     name = models.CharField(max_length=255)
     photo = models.ImageField(upload_to='nominees/photos/')
     story = models.TextField(help_text="Short story about why they deserve to unwind")
@@ -240,6 +308,17 @@ class Vote(models.Model):
     voter_phone = models.CharField(max_length=20)
     referral_source = models.CharField(max_length=255, blank=True, 
                                        help_text="Who told you about Unwind Africa?")
+    
+    # Payment information
+    payment_status = models.CharField(
+        max_length=20, 
+        choices=[
+            ('pending', 'Pending'),
+            ('paid', 'Paid'),
+            ('failed', 'Failed')
+        ],
+        default='pending'
+    )
     
     # Vote details
     vote_quantity = models.PositiveIntegerField(default=1, help_text="Number of votes purchased")
@@ -383,6 +462,13 @@ class RestCard(models.Model):
                     self.card_number = card_num
                     break
         
+        # Check if status is being changed to active
+        send_approval_email = False
+        if self.pk:
+            old_card = RestCard.objects.get(pk=self.pk)
+            if old_card.status != 'active' and self.status == 'active':
+                send_approval_email = True
+        
         # Set waitlist position for new entries
         if not self.pk and self.status == 'waitlist' and not self.waitlist_position:
             max_position = RestCard.objects.filter(status='waitlist').aggregate(
@@ -390,6 +476,28 @@ class RestCard(models.Model):
             self.waitlist_position = (max_position or 0) + 1
         
         super().save(*args, **kwargs)
+        
+        # Send approval email if status was changed to active
+        if send_approval_email:
+            from django.core.mail import send_mail
+            subject = "Your Rest Card has been approved!"
+            body = (
+                f"Dear {self.member_name},\n\n"
+                f"Great news! Your Rest Card has been approved and activated.\n\n"
+                f"Your card details:\n"
+                f"Card Number: {self.card_number}\n"
+                f"Status: Active\n\n"
+                f"You can now access exclusive benefits, rewards, and experiences through your Rest Card.\n\n"
+                f"Log in to your account to view your card and start exploring.\n\n"
+                f"Best regards,\n"
+                f"The Unwind Africa Team\n"
+                f"Phone: +234 123 456 7890\n"
+                f"Email: hello@unwindafrica.com"
+            )
+            try:
+                send_mail(subject, body, "no-reply@unwindafrica.com", [self.member_email], fail_silently=True)
+            except Exception as e:
+                print(f"Error sending approval email to {self.member_email}: {e}")
 
 
 class TokenWallet(models.Model):
@@ -402,7 +510,7 @@ class TokenWallet(models.Model):
     tokens_earned = models.DecimalField(max_digits=10, decimal_places=2, default=0,
                                        help_text="Total tokens earned from all activities")
     tokens_used = models.DecimalField(max_digits=10, decimal_places=2, default=0,
-                                     help_text="Total tokens spent/redeemed")
+                                      help_text="Total tokens spent/redeemed")
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
@@ -418,6 +526,83 @@ class TokenWallet(models.Model):
     def available_tokens(self):
         """Calculate available tokens"""
         return self.tokens_earned - self.tokens_used
+
+
+class Book(models.Model):
+    """Book model for Raising Readers initiative"""
+    STATUS_CHOICES = [
+        ('available', 'Available'),
+        ('on_loan', 'On Loan'),
+        ('high_demand', 'High Demand'),
+        ('unavailable', 'Unavailable'),
+    ]
+    
+    AGE_CATEGORY_CHOICES = [
+        ('0-3', '0-3 years'),
+        ('4-6', '4-6 years'),
+        ('7-10', '7-10 years'),
+        ('11-14', '11-14 years'),
+        ('15+', '15+ years'),
+        ('adult', 'Adult'),
+    ]
+    
+    GENRE_CHOICES = [
+        ('fiction', 'Fiction'),
+        ('non-fiction', 'Non-Fiction'),
+        ('mystery', 'Mystery'),
+        ('adventure', 'Adventure'),
+        ('fantasy', 'Fantasy'),
+        ('science-fiction', 'Science Fiction'),
+        ('biography', 'Biography'),
+        ('history', 'History'),
+        ('science', 'Science'),
+        ('art', 'Art'),
+        ('poetry', 'Poetry'),
+        ('other', 'Other'),
+    ]
+    
+    # Book details
+    title = models.CharField(max_length=255)
+    author = models.CharField(max_length=255)
+    cover_image = models.ImageField(upload_to='books/covers/', blank=True, null=True)
+    description = models.TextField(blank=True)
+    age_category = models.CharField(max_length=20, choices=AGE_CATEGORY_CHOICES)
+    genre = models.CharField(max_length=50, choices=GENRE_CHOICES)
+    
+    # Availability
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+    isbn = models.CharField(max_length=20, blank=True, help_text="ISBN number (optional)")
+    
+    # Tracking
+    times_borrowed = models.PositiveIntegerField(default=0)
+    current_borrower = models.ForeignKey(RestCard, on_delete=models.SET_NULL, null=True, blank=True, related_name='borrowed_books')
+    borrow_date = models.DateField(null=True, blank=True)
+    due_date = models.DateField(null=True, blank=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['title']
+    
+    def __str__(self):
+        return f"{self.title} by {self.author}"
+    
+    @property
+    def is_available(self):
+        """Check if book is available for borrowing"""
+        return self.status == 'available'
+    
+    @property
+    def is_on_loan(self):
+        """Check if book is currently on loan"""
+        return self.status == 'on_loan'
+    
+    @property
+    def is_high_demand(self):
+        """Check if book is in high demand"""
+        return self.status == 'high_demand'
 
 
 class TokenTransaction(models.Model):

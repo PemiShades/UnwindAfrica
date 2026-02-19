@@ -1,0 +1,42 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}Refund Policy - Unwind Africa{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{ --ua-sky:#00B2FF; --ua-sun:#FFB648; --ua-ink:#0A0B10; }
+  .refund-policy{max-width:780px;margin:0 auto;padding:clamp(60px,10vw,120px) 20px;color:var(--ua-ink);}
+  .refund-policy h1{font-family:"Playfair Display",serif;font-size:clamp(2.4rem,6vw,3.6rem);margin:0 0 1rem;}
+  .refund-policy h2{margin:2.6rem 0 1rem;font-size:1.6rem;}
+  .refund-policy p,.refund-policy li{line-height:1.74;margin-bottom:1rem;}
+  .rule{height:4px;width:70px;background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));margin:1.6rem 0;}
+</style>
+{% endblock %}
+
+{% block content %}
+{% include './partials/header/navbar.html' with theme='dark'%}
+<div class="refund-policy">
+  <h1>Refund Policy</h1>
+  <p class="ed-sub">Last updated: December 2025</p>
+  <div class="rule"></div>
+
+  <h2>1. Booking & Payment</h2>
+  <p>A 50% deposit secures your date. Full payment is due 14 days before the experience. We accept payments securely via Paystack.</p>
+
+  <h2>2. Cancellation & Refunds</h2>
+  <ul>
+    <li>More than 30 days: Full refund minus 5% processing fee</li>
+    <li>15–30 days: 50% refund</li>
+    <li>Less than 15 days: No refund (but transferable to another date within 6 months)</li>
+    <li>Force majeure (illness, travel ban): Full credit or refund</li>
+  </ul>
+
+  <h2>3. Voting Refunds</h2>
+  <p>All votes are non-refundable. Once a vote is cast, it cannot be refunded or transferred to another nominee.</p>
+
+  <h2>4. Contact</h2>
+  <p>Unwind Africa<br>No 8, Providence Street, Lekki Phase 1, Lagos<br>
+  <a href="mailto:info@unwindafrica.com">info@unwindafrica.com</a></p>
+</div>
+{% endblock %}

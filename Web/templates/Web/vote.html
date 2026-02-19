@@ -1,0 +1,602 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}Vote - Nominate to Unwind{% endblock %}
+
+{% block extra_css %}
+    <!-- Paystack Payment SDK -->
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <style>
+        .vote-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            margin-top: 4rem;
+            margin-bottom: 4rem;
+        }
+        
+        .campaign-banner {
+            background: linear-gradient(135deg, #ff6b9d, #ff8a65);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .campaign-banner h1 {
+            margin: 0 0 1rem 0;
+            font-size: 2.5rem;
+        }
+        
+        .campaign-banner .dates {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .search-filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .search-filter-bar input,
+        .search-filter-bar select {
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .search-filter-bar input:focus,
+        .search-filter-bar select:focus {
+            outline: none;
+            border-color: #ff6b9d;
+            box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+        }
+        
+        .nominees-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .nominee-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .nominee-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .nominee-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .nominee-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #ff6b9d;
+        }
+        
+        .nominee-info {
+            flex: 1;
+        }
+        
+        .nominee-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0A0B10;
+            margin-bottom: 0.25rem;
+        }
+        
+        .nominee-number {
+            font-size: 0.875rem;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .nominee-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        
+        .vote-count {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ff6b9d;
+        }
+        
+        .vote-count i {
+            font-size: 1.25rem;
+        }
+        
+        .vote-button {
+            background: linear-gradient(90deg, #ff6b9d, #ff8a65);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 999px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+        }
+        
+        .vote-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+        }
+        
+        .payment-details {
+            background: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        
+        .payment-details h3 {
+            margin: 0 0 1rem 0;
+            color: #333;
+        }
+        
+        .payment-details p {
+            margin: 0.5rem 0;
+            color: #666;
+        }
+        
+        .bonus-votes {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            color: #000;
+        }
+        
+        .bonus-votes h3 {
+            margin: 0 0 1rem 0;
+        }
+        
+        .bonus-votes ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .bonus-votes li {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 5px;
+        }
+        
+        /* Payment Modal */
+        #paymentModal {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .payment-option {
+            transition: all 0.2s ease;
+        }
+        
+        .payment-option.selected {
+            border-color: #6366f1;
+            background-color: #f0f4ff;
+            transform: scale(1.02);
+        }
+        
+        .payment-option.selected .fa-circle-check {
+            display: inline-block !important;
+        }
+        
+        .payment-option:hover {
+            border-color: #8b5cf6;
+            background-color: #faf5ff;
+        }
+        
+        @media (max-width: 768px) {
+            .vote-container {
+                padding: 1rem;
+                margin: 2rem 1rem;
+            }
+            
+            .campaign-banner h1 {
+                font-size: 2rem;
+            }
+            
+            .search-filter-bar {
+                flex-direction: column;
+            }
+            
+            .search-filter-bar input,
+            .search-filter-bar select {
+                width: 100%;
+            }
+            
+            .nominees-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="vote-container">
+        {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+        {% elif campaign %}
+            <div class="campaign-banner">
+                <h1>{{ campaign.name }}</h1>
+                <p class="dates">{{ campaign.start_date|date:"d M Y" }} - {{ campaign.end_date|date:"d M Y" }}</p>
+            </div>
+            
+            <!-- Payment Details -->
+            <div class="payment-details">
+                <h3>🔔 IMPORTANT NOTICE – PLEASE READ CAREFULLY</h3>
+                <p>Voting for Nominate to Unwind – Valentine Edition is done through paid community voting.</p>
+                <p>Each vote represents community support for a nominated couple.</p>
+                <p>Each vote costs ₦500.</p>
+            </div>
+            
+            <!-- Bonus Votes -->
+            <div class="bonus-votes">
+                <h3>🎁 Bonus Votes for Supporters</h3>
+                <p>We appreciate every supporter. Bonus votes are awarded as follows:</p>
+                <ul>
+                    <li>₦5,000 → 10 votes + 2 bonus votes</li>
+                    <li>₦10,000 → 20 votes + 5 bonus votes</li>
+                    <li>₦30,000 → 60 votes + 10 bonus votes</li>
+                </ul>
+                <p>Bonus votes are automatically added during verification.</p>
+            </div>
+            
+            <!-- Payment Information -->
+            <!-- <div class="payment-details">
+                <h3>🏦 PAYMENT DETAILS</h3>
+                <p><strong>Account Name:</strong> Unwind Africa Limited</p>
+                <p><strong>Bank Name:</strong> Providus Bank</p>
+                <p><strong>Account Number:</strong> 1307744563</p>
+                <p><strong>Domiciliary Account (USD):</strong> 1308699471</p>
+                <p>Please ensure payment is made before filling this form.</p>
+            </div> -->
+            
+            <!-- Search and Filter -->
+            <div class="search-filter-bar">
+                <input type="text" id="searchInput" placeholder="Search for a couple..." onkeyup="filterNominees()">
+                <select id="filterSelect" onchange="filterNominees()">
+                    <option value="">All Nominees</option>
+                    <option value="most-votes">Most Votes</option>
+                    <option value="least-votes">Least Votes</option>
+                </select>
+            </div>
+            
+            <!-- Test Button -->
+            <button onclick="testFunction()">Test JavaScript</button>
+            
+            <script>
+                function testFunction() {
+                    console.log('Test function called');
+                    const voteButtons = document.querySelectorAll('.vote-button');
+                    console.log('Number of vote buttons:', voteButtons.length);
+                    
+                    voteButtons.forEach(button => {
+                        console.log('Button data-nominee-id:', button.dataset.nomineeId);
+                        console.log('Button data-nominee-name:', button.dataset.nomineeName);
+                        console.log('Button data-nominee-number:', button.dataset.nomineeNumber);
+                    });
+                }
+            </script>
+            
+            <!-- Nominees Grid -->
+            <div class="nominees-grid" id="nomineesGrid">
+                {% for nominee in nominees %}
+                <div class="nominee-card" data-name="{{ nominee.name|lower }}">
+                    <div class="nominee-header">
+                        {% if nominee.photo %}
+                        <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" class="nominee-photo">
+                        {% else %}
+                        <div class="nominee-photo bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center font-bold text-white">
+                            {{ nominee.name|first|upper }}
+                        </div>
+                        {% endif %}
+                        <div class="nominee-info">
+                            <div class="nominee-name">{{ nominee.name }}</div>
+                            <div class="nominee-number">Nominee #{{ nominee.number|stringformat:"03d" }}</div>
+                        </div>
+                    </div>
+                    <div class="nominee-stats">
+                        <div class="vote-count">
+                            <i class="fa-solid fa-heart"></i>
+                            {{ nominee.vote_count }} votes
+                        </div>
+                        <button class="vote-button" onclick="voteForNominee('{{ nominee.id }}', '{{ nominee.name|escapejs }}', '{{ nominee.number }}')">
+                            Vote
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="error-message">
+                Currently, there is no active voting campaign. Please check back soon!
+            </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        function filterNominees() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filterBy = document.getElementById('filterSelect').value;
+            const cards = document.querySelectorAll('.nominee-card');
+            
+            cards.forEach(card => {
+                const name = card.dataset.name;
+                const shouldShow = name.includes(searchTerm);
+                card.style.display = shouldShow ? 'block' : 'none';
+            });
+            
+            // Apply sorting if selected
+            if (filterBy === 'most-votes') {
+                sortNomineesByVotes(true);
+            } else if (filterBy === 'least-votes') {
+                sortNomineesByVotes(false);
+            }
+        }
+        
+        function sortNomineesByVotes(descending) {
+            const container = document.getElementById('nomineesGrid');
+            const cards = Array.from(container.querySelectorAll('.nominee-card'));
+            
+            cards.sort((a, b) => {
+                const votesA = parseInt(a.querySelector('.vote-count').textContent);
+                const votesB = parseInt(b.querySelector('.vote-count').textContent);
+                return descending ? votesB - votesA : votesA - votesB;
+            });
+            
+            cards.forEach(card => container.appendChild(card));
+        }
+        
+        // Payment options
+        const paymentOptions = [
+            { votes: 1, price: 500, bonus: 0, label: '1 vote = ₦500' },
+            { votes: 2, price: 1000, bonus: 0, label: '2 votes = ₦1,000' },
+            { votes: 5, price: 2500, bonus: 0, label: '5 votes = ₦2,500' },
+            { votes: 10, price: 5000, bonus: 2, label: '10 votes + 2 bonus = ₦5,000' },
+            { votes: 20, price: 10000, bonus: 5, label: '20 votes + 5 bonus = ₦10,000' },
+            { votes: 60, price: 30000, bonus: 10, label: '60 votes + 10 bonus = ₦30,000 (Full Qualification Support)' }
+        ];
+
+        // Dynamically generate payment options
+        function generatePaymentOptions() {
+            const container = document.getElementById('paymentOptionsContainer');
+            container.innerHTML = '';
+            
+            paymentOptions.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'payment-option border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors';
+                div.onclick = () => selectPaymentOption(index);
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-gray-900">${option.label}</span>
+                        <i class="fa-solid fa-circle-check text-green-500" style="display: none;"></i>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Initialize payment options when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            generatePaymentOptions();
+            
+            // Add click event listeners to all vote buttons
+            const voteButtons = document.querySelectorAll('.vote-button');
+            voteButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    console.log('Vote button clicked!');
+                    const nomineeId = button.dataset.nomineeId;
+                    const nomineeName = button.dataset.nomineeName;
+                    const nomineeNumber = button.dataset.nomineeNumber;
+                    console.log('Nominee ID:', nomineeId);
+                    console.log('Nominee Name:', nomineeName);
+                    console.log('Nominee Number:', nomineeNumber);
+                    voteForNominee(nomineeId, nomineeName, nomineeNumber);
+                });
+            });
+        });
+
+        let selectedNominee = null;
+        let selectedPaymentOption = null;
+
+        function voteForNominee(nomineeId, nomineeName, nomineeNumber) {
+            alert('voteForNominee called with: ' + nomineeId + ', ' + nomineeName + ', ' + nomineeNumber);
+            // Decode HTML entities in nomineeName
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = nomineeName;
+            const decodedName = tempDiv.textContent || tempDiv.innerText || '';
+            
+            selectedNominee = { id: nomineeId, name: decodedName, number: nomineeNumber };
+            selectedPaymentOption = null;
+            document.getElementById('selectedNomineeName').textContent = decodedName;
+            document.getElementById('paymentModal').style.display = 'flex';
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+            selectedNominee = null;
+            selectedPaymentOption = null;
+            
+            // Reset selected state
+            const options = document.querySelectorAll('.payment-option');
+            options.forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            document.getElementById('confirmPaymentBtn').disabled = true;
+        }
+
+        function selectPaymentOption(optionIndex) {
+            selectedPaymentOption = paymentOptions[optionIndex];
+            
+            // Highlight selected option
+            const options = document.querySelectorAll('.payment-option');
+            options.forEach((option, index) => {
+                if (index === optionIndex) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+
+            // Update confirm button state
+            document.getElementById('confirmPaymentBtn').disabled = false;
+        }
+
+        function confirmPayment() {
+            if (!selectedNominee || !selectedPaymentOption) {
+                alert('Please select a payment option');
+                return;
+            }
+
+            // Show loading state
+            const confirmBtn = document.getElementById('confirmPaymentBtn');
+            const originalText = confirmBtn.textContent;
+            confirmBtn.textContent = 'Processing...';
+            confirmBtn.disabled = true;
+
+            // Initialize Paystack payment
+            const paystackHandler = PaystackPop.setup({
+                key: 'pk_test_12345678901234567890123456789012', // Replace with your actual test public key
+                email: prompt('Please enter your email address for payment receipt:'), // Get user email
+                amount: selectedPaymentOption.price * 100, // Convert to kobo
+                currency: 'NGN',
+                ref: 'UNWIND_' + Math.floor(Math.random() * 1000000000), // Generate random reference
+                metadata: {
+                    nominee_id: selectedNominee.id,
+                    nominee_name: selectedNominee.name,
+                    nominee_number: selectedNominee.number,
+                    votes: selectedPaymentOption.votes,
+                    bonus: selectedPaymentOption.bonus
+                },
+                callback: function(response) {
+                    // Payment successful
+                    console.log('Paystack payment successful:', response);
+                    simulatePayment();
+                },
+                onClose: function() {
+                    // Payment canceled
+                    confirmBtn.textContent = originalText;
+                    confirmBtn.disabled = false;
+                    alert('Payment canceled. Please try again.');
+                }
+            });
+
+            paystackHandler.openIframe();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('JavaScript loaded');
+
+            // Add click event listeners to all vote buttons
+            const voteButtons = document.querySelectorAll('.vote-button');
+            voteButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    alert('Vote button clicked!');
+                    const nomineeId = this.getAttribute('data-nominee-id');
+                    const nomineeName = this.getAttribute('data-nominee-name');
+                    const nomineeNumber = this.getAttribute('data-nominee-number');
+                    voteForNominee(nomineeId, nomineeName, nomineeNumber);
+                });
+            });
+        });
+
+        function simulatePayment() {
+            // Simulate successful payment and vote update
+            const totalVotes = selectedPaymentOption.votes + selectedPaymentOption.bonus;
+            
+            // Update vote count on frontend
+            const nomineeCards = document.querySelectorAll('.nominee-card');
+            nomineeCards.forEach(card => {
+                if (card.querySelector('.nominee-info').textContent.includes(selectedNominee.name)) {
+                    const voteCountElement = card.querySelector('.vote-count');
+                    const currentVotes = parseInt(voteCountElement.textContent);
+                    const newVotes = currentVotes + totalVotes;
+                    voteCountElement.textContent = newVotes + ' votes';
+                }
+            });
+
+            // Show success message
+            alert(`Thank you! Your payment was successful.
+You have successfully voted ${totalVotes} times for ${selectedNominee.name} (Nominee #${selectedNominee.number})`);
+
+            // Close modal
+            closePaymentModal();
+        }
+    </script>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" style="display: none;">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-900">Select Payment Option</h3>
+                <button onclick="closePaymentModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2">Voting for:</p>
+                    <p class="font-bold text-gray-900" id="selectedNomineeName">Nominee Name</p>
+                </div>
+                
+                <div class="mb-6">
+                    <p class="text-sm text-gray-600 mb-3">Choose number of votes:</p>
+                    <div class="space-y-3" id="paymentOptionsContainer">
+                        <!-- Payment options will be dynamically generated here -->
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button onclick="closePaymentModal()" class="flex-1 btn-ghost border border-gray-300 hover:border-gray-400">
+                        Cancel
+                    </button>
+                    <button id="confirmPaymentBtn" onclick="confirmPayment()" disabled class="flex-1 btn-primary">
+                        Confirm Payment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+

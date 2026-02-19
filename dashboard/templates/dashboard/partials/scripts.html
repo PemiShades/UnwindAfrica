@@ -164,6 +164,52 @@ document.addEventListener('alpine:init', () => {
         return null;
       },
 
+      // ===== EVENT SUBMIT =====
+      submitEvent() {
+        const form = document.querySelector('#eventModal form');
+        if (!form) return this.toast("Event form not found", "error");
+
+        const csrf = this.getCsrfToken();
+        if (!csrf) return this.toast("CSRF token missing", "error");
+
+        const data = new FormData(form);
+        const actionUrl = this.eventFormAction;
+
+        if (!actionUrl) return this.toast("Form action URL missing", "error");
+
+        this.toast("Saving event...", "info");
+
+        fetch(actionUrl, {
+          method: "POST",
+          body: data,
+          headers: {
+            "X-CSRFToken": csrf
+          }
+        })
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          }
+          return res.json();
+        })
+        .then(json => {
+          if (json.ok) {
+            this.toast("Event saved successfully!", "success");
+            this.closeEventModal();
+            // Refresh page to show updated data
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          } else {
+            this.toast(json.error || "Save failed", "error");
+          }
+        })
+        .catch(err => {
+          console.error('Submit error:', err);
+          this.toast("Network error: " + err.message, "error");
+        });
+      },
+
       // ===== BLOG SUBMIT (publish OR draft) =====
       submitBlog(publish=false) {
         const form = document.getElementById("blogForm");
@@ -378,23 +424,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 // ===== DELETE CONFIRMATION =====
-function confirmDelete(type, slug, name) {
+function confirmDelete(type, identifier, name) {
   const message = `Are you sure you want to delete this ${type}?\n\n"${name}"\n\nThis action cannot be undone.`;
   if (confirm(message)) {
-    // Create and submit form
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = `/dashboard/${type}/${slug}/delete/`;
-    
-    // Add CSRF token
-    const csrfInput = document.createElement('input');
-    csrfInput.type = 'hidden';
-    csrfInput.name = 'csrfmiddlewaretoken';
-    csrfInput.value = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || '';
-    
-    form.appendChild(csrfInput);
-    document.body.appendChild(form);
-    form.submit();
+    const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || '';
+    if (!csrf) return alert('CSRF token missing');
+
+    fetch(`/dashboard/${type}/${identifier}/delete/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrf
+      }
+    })
+    .then(res => res.json())
+    .then(json => {
+      if (json.ok) {
+        alert('Deleted successfully!');
+        window.location.reload();
+      } else {
+        alert('Delete failed: ' + (json.error || 'Unknown error'));
+      }
+    })
+    .catch(err => {
+      console.error('Delete error:', err);
+      alert('Network error: ' + err.message);
+    });
   }
 }
 

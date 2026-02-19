@@ -1,554 +1,1143 @@
-{% extends 'Web/main.html' %}
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nominate to Unwind — Valentine Edition | Unwind Africa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Brand palette */
+    :root {
+      --ua-sky: #00B2FF;
+      --ua-sea: #00C2FF;
+      --ua-sun: #FFB648;
+      --ua-coral: #FF8B7B;
+      --ua-rose: #FF6B9D;
+      --ua-lavender: #B8A0FF;
+      --ua-ink: #0A0B10;
+      --ua-paper: #FFFFFF;
+      --ua-cream: #FFF9F0;
+      --border: #e9eef4;
+      --radius: 16px;
+      --shadow: 0 10px 24px rgba(0,0,0,.06);
+      --container: min(1180px, 92vw);
+    }
 
-{% block title %} Unwind Africa {% endblock %}
+    * { box-sizing: border-box; }
+    html { min-height: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--ua-paper);
+      color: var(--ua-ink);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      font-family: "Playfair Display", ui-serif, Georgia, serif;
+      margin: .2em 0;
+    }
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: inherit; text-decoration: none; }
 
-{% block content %}
+    /* Utilities */
+    .container { width: var(--container); margin-inline: auto; }
+    .section { padding-block: clamp(56px, 8vw, 120px); }
+    .muted { color: color-mix(in oklab, var(--ua-ink) 60%, #666); }
+    .rule {
+      height: 4px;
+      width: 64px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--ua-rose), var(--ua-sky));
+      margin: 10px 0 6px;
+    }
 
-  <!-- HERO (from redesign, right image removed, with video background) -->
-  <section class="hero">
-    {% include './partials/header/navbar.html' %}
-  {% include './partials/header/hamburger-menu.html' with faq_link=faq_link %}
-    <!-- background video -->
-    <div class="video-bg" aria-hidden="true">
-      <video autoplay muted loop playsinline>
-        <source src="{% static 'assets/videos/bg1.mp4' %}" type="video/mp4">
+    /* Poster typography */
+    .ed-kicker {
+      font-size: .72rem;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      font-weight: 900;
+      color: var(--ua-sky);
+    }
+    .ed-title {
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: .92;
+      letter-spacing: -.02em;
+      font-size: clamp(2.2rem, 9vw, 6.2rem);
+      margin: 0 0 clamp(8px, 1.2vw, 12px);
+    }
+    .ed-sub {
+      max-width: 72ch;
+      font-size: clamp(1rem, 1.6vw, 1.125rem);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: .9rem 1.2rem;
+      border-radius: 999px;
+      font-weight: 900;
+      border: 1px solid transparent;
+      transition: transform .2s ease, filter .2s ease;
+      cursor: pointer;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .primary-solid {
+      background: linear-gradient(90deg, var(--ua-rose), var(--ua-sky));
+      color: #fff;
+      border-color: color-mix(in oklab, var(--ua-rose) 40%, transparent);
+      box-shadow: 0 8px 24px rgba(255, 107, 157, 0.3);
+    }
+    .primary-outline {
+      background: transparent;
+      color: var(--ua-ink);
+      border: 2px solid var(--ua-ink);
+    }
+    .secondary-ink {
+      background: #0A0B10;
+      color: #fff;
+      border: 1px solid #10131a;
+    }
+
+    /* Nav */
+    .nav {
+      width: var(--container);
+      margin-inline: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 0;
+      position: relative;
+      z-index: 3;
+    }
+    .logo {
+      font-weight: 1000;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .nav-links {
+      display: flex;
+      gap: 18px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .nav-links a { font-weight: 700; }
+    .nav-cta { display: none; }
+    @media(min-width: 860px) { .nav-cta { display: inline-flex; } }
+
+    /* Hero with Video Background */
+    .hero {
+      position: relative;
+      color: #fff;
+      overflow: clip;
+      min-height: 75vh;
+      display: flex;
+      align-items: center;
+    }
+    .hero-media {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .hero-media::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(5,6,10,.3) 0%, rgba(5,6,10,.85) 90%),
+                  linear-gradient(135deg, rgba(255,107,157,.28) 0%, rgba(0,178,255,.18) 65%);
+      z-index: 1;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+    }
+    .hero-media video,
+    .hero-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .hero-media video {
+      filter: saturate(1.08) contrast(1.05);
+      transform: scale(1.02);
+    }
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      width: var(--container);
+      margin-inline: auto;
+      padding: clamp(72px, 12vw, 140px) 0 clamp(48px, 10vw, 100px);
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.6rem 1.2rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      font-weight: 900;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 24px rgba(255, 107, 157, 0.3);
+    }
+    .hero-emoji { font-size: 1.3rem; }
+    .hero-title {
+      font-size: clamp(3rem, 10vw, 7rem);
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      margin-bottom: clamp(20px, 3vw, 32px);
+      text-transform: uppercase;
+    }
+    .hero-subtitle {
+      font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+      max-width: 42ch;
+      margin: 0 auto clamp(32px, 5vw, 48px);
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    .hero-actions {
+      display: flex;
+      gap: .6rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: .8rem 0 1.6rem;
+    }
+    .hero-stats {
+      display: flex;
+      gap: clamp(20px, 4vw, 40px);
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 40px;
+    }
+    .stat {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 1rem 1.5rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .stat-number {
+      display: block;
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 900;
+      font-family: "Playfair Display", serif;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.85;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    /* Trust strip */
+    .strip {
+      background: #0A0B10;
+      color: #fff;
+      border-block: 1px solid rgba(255,255,255,.08);
+    }
+    .strip-inner {
+      width: var(--container);
+      margin-inline: auto;
+      padding: 10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .badges { display: flex; gap: 8px; flex-wrap: wrap; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: .45rem .7rem;
+      border-radius: 999px;
+      font-weight: 900;
+      text-transform: uppercase;
+      font-size: .72rem;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.25);
+    }
+
+    /* Nominate Banner - Featured */
+    .nominate-feature {
+      position: relative;
+      background: linear-gradient(135deg, 
+        rgba(255, 107, 157, 0.08) 0%, 
+        rgba(0, 178, 255, 0.06) 50%,
+        rgba(184, 160, 255, 0.08) 100%);
+      overflow: hidden;
+    }
+    .nominate-feature::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(255, 107, 157, 0.15), transparent 70%);
+      animation: float 20s ease-in-out infinite;
+    }
+    .nominate-feature::after {
+      content: "";
+      position: absolute;
+      bottom: -30%;
+      left: -15%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(0, 178, 255, 0.12), transparent 70%);
+      animation: float 25s ease-in-out infinite reverse;
+    }
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-30px, -40px) scale(1.05); }
+    }
+    .nominate-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      gap: clamp(32px, 5vw, 56px);
+    }
+    @media(min-width: 980px) {
+      .nominate-grid {
+        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      }
+    }
+
+    /* Nominate Card Styles */
+    .nominate-card {
+      background: white;
+      border-radius: 24px;
+      padding: clamp(32px, 5vw, 48px);
+      box-shadow: 0 20px 60px rgba(255, 107, 157, 0.15);
+      border: 2px solid rgba(255, 107, 157, 0.1);
+    }
+    .nominate-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: .5rem 1rem;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--ua-rose), var(--ua-sky));
+      color: white;
+      font-weight: 900;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      font-size: .72rem;
+      margin-bottom: 20px;
+    }
+    .nominate-card .ed-title {
+      margin-bottom: 16px;
+    }
+    .valentine-highlight {
+      background: linear-gradient(135deg, 
+        rgba(255, 107, 157, 0.1) 0%, 
+        rgba(184, 160, 255, 0.08) 100%);
+      border: 2px solid rgba(255, 107, 157, 0.2);
+      border-radius: 20px;
+      padding: clamp(24px, 4vw, 36px);
+      margin: 24px 0;
+    }
+    .valentine-highlight h3 {
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+      color: var(--ua-rose);
+    }
+    .price-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 2.2rem;
+      font-weight: 900;
+      font-family: "Playfair Display", serif;
+      color: var(--ua-ink);
+      margin: 16px 0;
+    }
+    .price-label {
+      font-size: 0.9rem;
+      font-family: Inter, sans-serif;
+      font-weight: 700;
+      opacity: 0.7;
+    }
+
+    /* How It Works */
+    .how-section {
+      background: white;
+    }
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: clamp(16px, 3vw, 28px);
+    }
+    .steps-grid {
+      display: grid;
+      gap: clamp(24px, 4vw, 40px);
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .step-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), var(--ua-cream));
+      border: 2px solid var(--border);
+      border-radius: 24px;
+      padding: clamp(28px, 4vw, 40px);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .step-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border-color: var(--ua-sky);
+    }
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--ua-rose), var(--ua-sky));
+      color: white;
+      font-size: 1.8rem;
+      font-weight: 900;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 20px rgba(255, 107, 157, 0.3);
+    }
+    .step-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .step-description {
+      color: rgba(10, 11, 16, 0.7);
+      line-height: 1.6;
+    }
+
+    /* Prizes Section */
+    .prizes {
+      background: linear-gradient(135deg, 
+        rgba(10, 11, 16, 0.96) 0%, 
+        rgba(10, 11, 16, 0.94) 100%);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .prizes::before,
+    .prizes::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.3;
+    }
+    .prizes::before {
+      top: -20%;
+      left: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(255, 107, 157, 0.4), transparent 70%);
+    }
+    .prizes::after {
+      bottom: -25%;
+      right: -15%;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(0, 178, 255, 0.35), transparent 70%);
+    }
+    .prizes-inner {
+      position: relative;
+      z-index: 2;
+    }
+    .prizes-grid {
+      display: grid;
+      gap: clamp(24px, 4vw, 32px);
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    .prize-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: clamp(32px, 5vw, 48px);
+      position: relative;
+    }
+    .prize-card.featured {
+      background: linear-gradient(135deg, 
+        rgba(255, 107, 157, 0.15) 0%, 
+        rgba(0, 178, 255, 0.12) 100%);
+      border: 2px solid rgba(255, 107, 157, 0.4);
+      box-shadow: 0 20px 60px rgba(255, 107, 157, 0.25);
+    }
+    .prize-badge {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 900;
+      margin-bottom: 20px;
+    }
+    .prize-card.featured .prize-badge {
+      background: linear-gradient(90deg, var(--ua-rose), var(--ua-sky));
+      color: white;
+      border: none;
+    }
+    .prize-title {
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      font-weight: 900;
+      margin-bottom: 24px;
+    }
+    .prize-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 16px;
+    }
+    .prize-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+    }
+    .prize-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+    .prize-text {
+      line-height: 1.5;
+    }
+
+    /* Voting Section */
+    .voting-section {
+      background: var(--ua-cream);
+    }
+    .voting-card {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 24px;
+      padding: clamp(32px, 5vw, 48px);
+      max-width: 800px;
+      margin: 0 auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+    }
+    .voting-tiers {
+      display: grid;
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .tier {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      background: linear-gradient(135deg, rgba(255, 107, 157, 0.05), rgba(0, 178, 255, 0.05));
+      border: 2px solid rgba(255, 107, 157, 0.15);
+      border-radius: 12px;
+      font-weight: 700;
+    }
+    .tier-votes {
+      font-size: 1.1rem;
+      color: var(--ua-ink);
+    }
+    .tier-price {
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--ua-rose);
+    }
+
+    /* Timeline */
+    .timeline-section {
+      background: white;
+    }
+    .timeline-grid {
+      display: grid;
+      gap: clamp(20px, 3vw, 32px);
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+    .timeline-card {
+      background: linear-gradient(135deg, rgba(255, 107, 157, 0.08), rgba(0, 178, 255, 0.06));
+      border: 2px solid rgba(255, 107, 157, 0.2);
+      border-radius: 20px;
+      padding: clamp(24px, 4vw, 36px);
+      text-align: center;
+    }
+    .timeline-date {
+      font-size: 2.5rem;
+      font-weight: 900;
+      font-family: "Playfair Display", serif;
+      color: var(--ua-rose);
+      margin-bottom: 8px;
+    }
+    .timeline-label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 900;
+      color: rgba(10, 11, 16, 0.6);
+      margin-bottom: 12px;
+    }
+    .timeline-desc {
+      color: rgba(10, 11, 16, 0.7);
+      font-size: 0.95rem;
+    }
+
+    /* Why Valentine Edition */
+    .why-valentine {
+      background: linear-gradient(135deg, 
+        rgba(255, 107, 157, 0.12) 0%, 
+        rgba(184, 160, 255, 0.1) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .love-grid {
+      display: grid;
+      gap: clamp(24px, 4vw, 40px);
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .love-card {
+      background: white;
+      border: 2px solid rgba(255, 107, 157, 0.2);
+      border-radius: 20px;
+      padding: clamp(24px, 4vw, 36px);
+      box-shadow: 0 12px 32px rgba(255, 107, 157, 0.1);
+    }
+    .love-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+    }
+    .love-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    /* Final CTA */
+    .final-cta {
+      background: var(--ua-ink);
+      color: white;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .final-cta::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(255, 107, 157, 0.2), transparent 70%);
+      animation: pulse 8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; }
+      50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.6; }
+    }
+    .cta-content {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .cta-title {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 900;
+      margin-bottom: 24px;
+      line-height: 1.1;
+    }
+    .cta-subtitle {
+      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+      margin-bottom: 40px;
+      opacity: 0.9;
+    }
+
+    /* Footer */
+    .ua-footer {
+      position: relative;
+      background: #05060a;
+      color: #f5f7ff;
+      padding-block: clamp(64px, 10vw, 120px) clamp(36px, 8vw, 72px);
+      overflow: hidden;
+    }
+    .ua-footer::before {
+      content: "";
+      position: absolute;
+      inset: -25% -35% auto -25%;
+      width: 520px;
+      height: 520px;
+      background: radial-gradient(120% 120% at 20% 40%, rgba(255, 107, 157, 0.2), transparent 68%);
+      opacity: 0.75;
+      pointer-events: none;
+    }
+    .ua-footer-inner {
+      position: relative;
+      z-index: 1;
+      width: var(--container);
+      margin-inline: auto;
+      text-align: center;
+    }
+    .ua-footer-brand {
+      font-size: clamp(2.2rem, 6vw, 3.4rem);
+      font-weight: 1000;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .footer-text {
+      opacity: 0.8;
+      margin-bottom: 12px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+      .btn {
+        width: 100%;
+      }
+      .nominate-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero with Video Background -->
+  <header class="hero" role="banner">
+    <div class="hero-media">
+      <video autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1519822471110-9f6b79f4a2f2?q=80&w=2000&auto=format&fit=crop">
+        <source src="/static/assets/videos/bg1.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
       </video>
     </div>
 
-    <!-- overlay + content -->
-    <div class="hero-overlay">
-      <div class="container hero-content">
-        <div>
-          <span class="eyebrow">Luxury • Wellness • Africa</span>
-          <h1 class="title">
-            Experiences that
-            <span style="background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent;">move people</span>.
-          </h1>
-          <p class="subtitle">
-            From intimate soirees to city-scale festivals, Unwind Africa blends design, logistics, and soul to deliver events that feel effortless and unforgettable.
-          </p>
-          <div class="hero-actions">
-            <a class="btn" href="#packages">Explore packages</a>
-            <a class="btn secondary" href="\contact\">Plan with us</a>
+    <div class="hero-inner">
+      <nav class="nav">
+        <a class="logo" href="/">Unwind Africa</a>
+        <ul class="nav-links">
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#prizes">Prizes</a></li>
+          <li><a href="#timeline">Timeline</a></li>
+        </ul>
+        <a class="btn primary-solid nav-cta" href="#nominate">Nominate Now</a>
+      </nav>
+
+      <div style="margin-top: 60px;">
+        <div class="hero-badge">
+          <span class="hero-emoji">💕</span>
+          <span>Valentine Edition Now Open</span>
+        </div>
+        
+        <h1 class="hero-title">Nominate to Unwind</h1>
+        
+        <p class="hero-subtitle">
+          Celebrate a couple who deserves rest. Gift them an ocean escape — massage, meals, cinema, and pure bliss.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#nominate" class="btn primary-solid">
+            <span>💌</span> Nominate a Couple
+          </a>
+          <a href="#how-it-works" class="btn secondary-ink">
+            Learn How It Works
+          </a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="stat-number">₦500</span>
+            <span class="stat-label">Per Vote</span>
           </div>
-          <!-- marquee pills -->
-          <div class="marquee" aria-hidden="true">
-            <div class="marquee-track">
-              <span class="pill">No stress planning</span>
-              <span class="pill">Trusted vendors</span>
-              <span class="pill">Real-time coordination</span>
-              <span class="pill">Creative direction</span>
-              <span class="pill">Venue matching</span>
-              <span class="pill">On-site ops team</span>
-              <span class="pill">Transparent pricing</span>
-              <span class="pill">Guest joy first</span>
-              <span class="pill">No stress planning</span>
-              <span class="pill">Trusted vendors</span>
-              <span class="pill">Real-time coordination</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Trust Strip -->
+  <section class="strip">
+    <div class="strip-inner">
+      <div class="badges">
+        <span class="badge">💕 Valentine Special</span>
+        <span class="badge">🌊 Ocean Views</span>
+        <span class="badge">✨ Full Experience</span>
+      </div>
+      <small>Celebrate love. Gift rest. Create memories.</small>
+    </div>
+  </section>
+
+  <!-- Main Nominate Feature -->
+  <section id="nominate" class="section nominate-feature">
+    <div class="container">
+      <div class="nominate-grid">
+        <div class="nominate-card">
+          <span class="nominate-tag">
+            <span>💌</span> Valentine Edition
+          </span>
+          <h2 class="ed-title">How to Nominate</h2>
+          <div class="rule"></div>
+          <p class="ed-sub">Know a couple who pours into everyone else but rarely pauses for themselves? This Valentine's, give them permission to truly unwind.</p>
+
+          <div class="valentine-highlight">
+            <h3>💕 What Makes This Special</h3>
+            <p>Unlike typical gifts, this is a complete escape — from planning to execution. They simply show up and let go.</p>
+          </div>
+
+          <div style="margin: 28px 0;">
+            <h4 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 16px;">📝 Nomination Details</h4>
+            <ul style="list-style: none; padding: 0; display: grid; gap: 12px;">
+              <li style="display: flex; gap: 12px; align-items: start;">
+                <span style="font-size: 1.3rem;">✓</span>
+                <span><strong>Couple's Names</strong> — First names and why they deserve this</span>
+              </li>
+              <li style="display: flex; gap: 12px; align-items: start;">
+                <span style="font-size: 1.3rem;">✓</span>
+                <span><strong>Your Story</strong> — Share what makes them special (50-150 words)</span>
+              </li>
+              <li style="display: flex; gap: 12px; align-items: start;">
+                <span style="font-size: 1.3rem;">✓</span>
+                <span><strong>Contact Info</strong> — Your name and phone number</span>
+              </li>
+            </ul>
+          </div>
+
+          <div style="background: linear-gradient(135deg, rgba(255,107,157,0.08), rgba(0,178,255,0.06)); border-radius: 16px; padding: 24px; margin: 24px 0;">
+            <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 200px;">
+                <div class="price-tag">
+                  ₦2,000
+                  <span class="price-label">per nomination</span>
+                </div>
+                <p style="margin: 8px 0 0; color: rgba(10,11,16,0.7); font-size: 0.9rem;">Payment secures your nomination entry</p>
+              </div>
+              <a href="#payment-details" class="btn primary-solid" style="flex: none;">
+                Submit Nomination →
+              </a>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- keep the rest of your page exactly as-is -->
-  <div class="strip">
-    <div class="strip-inner">
-      <div class="badges" aria-label="Trust points">
-        <span class="badge">24/7 Concierge</span>
-        <span class="badge">Flexible Rescheduling</span>
-        <span class="badge">Handpicked Venues</span>
-      </div>
-      <small>As effortless as a sea breeze — your only task is to exhale.</small>
-    </div>
-  </div>
+        <div>
+          <div class="nominate-card" style="background: linear-gradient(135deg, rgba(255,107,157,0.06), rgba(184,160,255,0.05)); border-color: rgba(255,107,157,0.2);">
+            <h3 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 16px;">🗳️ Voting Opens Soon</h3>
+            <p style="margin-bottom: 20px;">After nominations close, community voting begins. Support your favorite couple!</p>
+            
+            <div class="voting-tiers">
+              <div class="tier">
+                <span class="tier-votes">1 Vote</span>
+                <span class="tier-price">₦500</span>
+              </div>
+              <div class="tier">
+                <span class="tier-votes">2 Votes</span>
+                <span class="tier-price">₦1,000</span>
+              </div>
+              <div class="tier">
+                <span class="tier-votes">5 Votes</span>
+                <span class="tier-price">₦2,500</span>
+              </div>
+              <div class="tier">
+                <span class="tier-votes">10 Votes</span>
+                <span class="tier-price">₦5,000</span>
+              </div>
+            </div>
 
+            <p style="margin-top: 20px; font-size: 0.9rem; color: rgba(10,11,16,0.6);">
+              <strong>Note:</strong> Each nominee gets a unique Nominee Number. Voters will use this number to cast votes.
+            </p>
+          </div>
 
-  <!-- Why It Matters / Intro -->
-<section class="unwind-thrive-why">
-  <div class="container grid">
-    <div class="col-6">
-      <h2>🌿 Introducing Unwind & Thrive</h2>
-      <p>
-        Thriving without rest is an illusion. Many push their bodies to the edge 
-        in the name of success — only to spend their wealth restoring lost health. 
-        <strong>We believe rest is not a luxury, it’s a lifeline.</strong>
-      </p>
-      <p>
-        Unwind & Thrive is more than an event — it’s a movement helping families, 
-        couples, and groups rediscover balance, joy, and the strength that comes 
-        from true rest.
-      </p>
-      <a href="/unwind-thrive" class="btn-primary">Learn More About Unwind & Thrive</a>
-    </div>
-    <div class="col-6">
-      <img src="{% static 'assets/unwind-thrive/why.jpg' %}" 
-           alt="Rest vs hustle" 
-           class="unwind-thrive-img">
-    </div>
-  </div>
-</section>
-
-
-
-
-
-
-  <section class="explore">
-    <!-- <h2>Explore Our Packages</h2>
-    <p>Choose from a variety of luxury experiences — from solo escapes to family bonding adventures, unforgettable group getaways, and timeless photography packages.</p>
-    <div class="explore-grid">
-      <div class="explore-card"><img src="{% static 'assets/home/solo.jpeg' %}" alt="Solo"><div class="explore-overlay">Solo</div></div>
-      <div class="explore-card"><img src="{% static 'assets/home/family.jpg' %}" alt="Family"><div class="explore-overlay">Family</div></div>
-      <div class="explore-card"><img src="{% static 'assets/home/group.jpeg' %}" alt="Group"><div class="explore-overlay">Group</div></div>
-      <div class="explore-card"><img src="{% static 'assets/home/packages/photography.jpg' %}" alt="Photography"><div class="explore-overlay">Photography</div></div>
-    </div> -->
-        <div class="why-visual">
-      <figure class="why-hero">
-        <!-- replace with your own static assets if you prefer -->
-        <img src="{% static 'assets/home/hero.png' %}" alt="Guests enjoying a curated coastal event" loading="lazy">
-        <figcaption class="muted">Design, logistics & hospitality—handled.</figcaption>
-      </figure>
-
-      <div class="why-aside">
-        <div class="mini-kicker">How we compare</div>
-        <ul class="mini-compare" role="list">
-          <li><span>Transparent pricing</span><span>✔</span></li>
-          <li><span>Vetted local network</span><span>✔</span></li>
-          <li><span>On-site operations team</span><span>✔</span></li>
-          <li><span>Wellness touchpoints</span><span>✔</span></li>
-          <li><span>Generic vendor list</span><span>✖</span></li>
-        </ul>
-
-        <div class="why-cta">
-          <a class="btn" href="#packages">Browse packages</a>
-          <a class="btn secondary" href="/contact">Get a tailored quote</a>
-        </div>
-
-        <!-- tiny trust badges -->
-        <div class="micro-badges" aria-label="Assurances">
-          <span class="badge">No hidden fees</span>
-          <span class="badge">Flexible rescheduling</span>
-          <span class="badge">Contract protection</span>
+          <div class="nominate-card" style="margin-top: 24px;">
+            <h4 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 12px;">🎁 Nominator Gift</h4>
+            <p>The person who nominates the winning couple receives <strong>The Unwind Love Bag</strong> — curated goodies celebrating champions of rest.</p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-<section id="upcoming-events">
-  <div class="container">
-    <div class="section-head">
-      <div>
-        <div class="kicker">Upcoming Events</div>
-        <h2>Don’t Miss Out on These Experiences</h2>
-        <p class="muted">Stay updated on our latest gatherings — from exclusive retreats to thrilling adventures and cultural celebrations.</p>
-      </div>
-      <a class="btn btn-ghost" href="/events">See all events →</a>
-    </div>
-
-    <div class="grid">
-      <!-- Event 1 -->
-      <article class="card col-4">
-        <div class="card-media">
-          <img src="{% static 'assets/events/summer-retreat.jpg' %}" alt="Summer Retreat Flier" loading="lazy">
-        </div>
-        <div class="card-body">
-          <span class="chip">Upcoming</span>
-          <h3 style="margin:0 0 6px;font-size:18px">Summer Wellness Retreat</h3>
-          <p class="muted" style="margin:0 0 10px">📍 Lagos, Nigeria • 🗓 Sept 12, 2025</p>
-          <p class="muted">Relaxation, mindfulness, and community connection.</p>
-          <a class="btn-link" href="/events/retreat">View details →</a>
-        </div>
-      </article>
-
-      <!-- Event 2 -->
-      <article class="card col-4">
-        <div class="card-media">
-          <img src="{% static 'assets/events/beach-party.jpg' %}" alt="Beach Party Thumbnail" loading="lazy">
-        </div>
-        <div class="card-body">
-          <span class="chip">Featured</span>
-          <h3 style="margin:0 0 6px;font-size:18px">Sunset Beach Party</h3>
-          <p class="muted" style="margin:0 0 10px">📍 Victoria Island • 🗓 Oct 3, 2025</p>
-          <p class="muted">Live DJ, bonfire vibes, cocktails & coastal fun.</p>
-          <a class="btn-link" href="/events/beachparty">View details →</a>
-        </div>
-      </article>
-
-      <!-- Event 3 -->
-      <article class="card col-4">
-        <div class="card-media">
-          <img src="{% static 'assets/events/cultural-festival.jpg' %}" alt="Cultural Festival Flier" loading="lazy">
-        </div>
-        <div class="card-body">
-          <span class="chip">Limited Seats</span>
-          <h3 style="margin:0 0 6px;font-size:18px">African Cultural Festival</h3>
-          <p class="muted" style="margin:0 0 10px">📍 Abuja • 🗓 Nov 21, 2025</p>
-          <p class="muted">Traditional dances, food, art & heritage celebration.</p>
-          <a class="btn-link" href="/events/festival">View details →</a>
-        </div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- WHY CHOOSE US -->
-<section class="surface" id="why-us" aria-labelledby="why-us-title">
-  <div class="container">
-    <div class="section-head">
-      <div>
-        <div class="kicker">Why choose us</div>
-        <h2 id="why-us-title">Accessible luxury, zero guesswork</h2>
-        <p class="muted" style="max-width:60ch">
-          We blend concierge-level care with transparent pricing and a vetted partner network—
-          so you can relax while we deliver experiences people remember.
-        </p>
-      </div>
-      <a class="btn btn-ghost" href="/about#approach">See our approach →</a>
-    </div>
-
-    <!-- Value grid -->
-    <div class="why-grid">
-      <article class="why-card">
-        <div class="why-icon" aria-hidden="true">💎</div>
-        <h3>Luxury without the markup</h3>
-        <p class="muted">Tiered packages + clear line items. No surprises—ever.</p>
-      </article>
-
-      <article class="why-card">
-        <div class="why-icon" aria-hidden="true">🤝</div>
-        <h3>Handpicked partners</h3>
-        <p class="muted">Photographers, venues, chefs & logistics teams we trust.</p>
-      </article>
-
-      <article class="why-card">
-        <div class="why-icon" aria-hidden="true">📍</div>
-        <h3>Local insight, real access</h3>
-        <p class="muted">Insider rates and hidden-gem locations across Africa.</p>
-      </article>
-
-      <article class="why-card">
-        <div class="why-icon" aria-hidden="true">🧭</div>
-        <h3>From idea to on-site ops</h3>
-        <p class="muted">Creative direction, guest flow, minute-by-minute run-of-show.</p>
-      </article>
-
-      <article class="why-card">
-        <div class="why-icon" aria-hidden="true">📶</div>
-        <h3>Real-time coordination</h3>
-        <p class="muted">Live updates and a dedicated concierge you can text.</p>
-      </article>
-
-      <article class="why-card">
-        <div class="why-icon" aria-hidden="true">🌿</div>
-        <h3>Wellness-forward details</h3>
-        <p class="muted">Calm touchpoints that help guests feel amazing.</p>
-      </article>
-    </div>
-
-    <!-- Proof strip -->
-    <div class="why-proof">
-      <div class="stat"><b>500+</b><span class="muted">Happy guests</span></div>
-      <div class="stat"><b>120</b><span class="muted">Curated partners</span></div>
-      <div class="stat"><b>4.9★</b><span class="muted">Average rating</span></div>
-      <div class="stat"><b>24/7</b><span class="muted">Concierge support</span></div>
-    </div>
-
-    <!-- Visual row -->
-
-  </div>
-</section>
-
-  <!-- <section class="surface">
+  <!-- How It Works -->
+  <section id="how-it-works" class="section how-section">
     <div class="container">
       <div class="section-head">
         <div>
-          <div class="kicker">Why choose us</div>
-          <h2>Accessible luxury with concierge-level care</h2>
+          <p class="ed-kicker">Simple Process</p>
+          <h2 class="ed-title">How It Works</h2>
+          <div class="rule"></div>
+          <p class="ed-sub">From nomination to ocean escape — here's the journey</p>
         </div>
       </div>
 
-      <div class="grid">
-        <div class="highlight col-4">
-          <img src="https://picsum.photos/id/1035/900/1200" alt="Resort" loading="lazy" />
-          <div class="shade"></div>
-          <div class="label">Affordability Meets Luxury</div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3 class="step-title">Nominate</h3>
+          <p class="step-description">
+            Submit couple's names, your story about them, and pay ₦2,000 nomination fee. Each nomination is reviewed and assigned a Nominee Number.
+          </p>
         </div>
-        <div class="highlight col-4">
-          <img src="https://picsum.photos/id/1018/900/1200" alt="Exclusive" loading="lazy" />
-          <div class="shade"></div>
-          <div class="label">Exclusive Experiences</div>
-        </div>
-        <div class="highlight col-4">
-          <img src="https://picsum.photos/id/1041/900/1200" alt="Memories" loading="lazy" />
-          <div class="shade"></div>
-          <div class="label">Unforgettable Memories</div>
-        </div>
-      </div>
 
-      <div class="stats" style="margin-top:18px">
-        <div class="stat"><b>500+</b><span class="muted">Happy guests</span></div>
-        <div class="stat"><b>120</b><span class="muted">Curated partners</span></div>
-        <div class="stat"><b>4.9★</b><span class="muted">Average rating</span></div>
-        <div class="stat"><b>24/7</b><span class="muted">Concierge support</span></div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3 class="step-title">Vote</h3>
+          <p class="step-description">
+            Voting opens with all nominees displayed. Rally support! Friends and family can vote for their favorite couple using Nominee Numbers (₦500 per vote).
+          </p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3 class="step-title">Winner Unwinds</h3>
+          <p class="step-description">
+            The couple with the most votes wins the complete ocean escape. Nominator receives the Unwind Love Bag. Everyone celebrates love!
+          </p>
+        </div>
       </div>
     </div>
-  </section> -->
+  </section>
 
-  <section>
+  <!-- Prizes Section -->
+  <section id="prizes" class="section prizes">
+    <div class="container prizes-inner">
+      <div class="section-head" style="border: none;">
+        <div>
+          <p class="ed-kicker" style="color: rgba(255,255,255,0.7);">The Prize</p>
+          <h2 class="ed-title" style="color: white;">The Ultimate Rest Experience</h2>
+          <div class="rule"></div>
+          <p class="ed-sub" style="color: rgba(255,255,255,0.85);">
+            A curated ocean escape designed for complete renewal
+          </p>
+        </div>
+      </div>
+
+      <div class="prizes-grid">
+        <div class="prize-card featured">
+          <span class="prize-badge">Winning Couple Receives</span>
+          <h3 class="prize-title">Ocean Escape Package</h3>
+          <ul class="prize-list">
+            <li class="prize-item">
+              <span class="prize-icon">🏖️</span>
+              <span class="prize-text">One night in a luxury ocean-view apartment</span>
+            </li>
+            <li class="prize-item">
+              <span class="prize-icon">💆</span>
+              <span class="prize-text">Signature couple's massage therapy session</span>
+            </li>
+            <li class="prize-item">
+              <span class="prize-icon">🍽️</span>
+              <span class="prize-text">Chef-crafted meals with coastal flair</span>
+            </li>
+            <li class="prize-item">
+              <span class="prize-icon">🎬</span>
+              <span class="prize-text">Private cinema experience</span>
+            </li>
+            <li class="prize-item">
+              <span class="prize-icon">🌅</span>
+              <span class="prize-text">Beach access and sunrise rituals</span>
+            </li>
+            <li class="prize-item">
+              <span class="prize-icon">📸</span>
+              <span class="prize-text">Complimentary photography session</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="prize-card">
+          <span class="prize-badge">Nominator Receives</span>
+          <h3 class="prize-title">The Unwind Love Bag</h3>
+          <div style="padding: 24px; background: rgba(255,255,255,0.08); border-radius: 16px; margin-top: 24px;">
+            <p style="font-size: 2rem; margin-bottom: 16px;">🎁</p>
+            <p style="line-height: 1.6; margin: 0;">
+              A curated collection of wellness treats and Unwind Africa goodies — because champions of rest deserve to be celebrated too.
+            </p>
+          </div>
+          <p style="margin-top: 24px; font-size: 0.95rem; opacity: 0.85; font-style: italic;">
+            "You advocated for someone else's rest. That energy comes back to you."
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Timeline -->
+  <section id="timeline" class="section timeline-section">
     <div class="container">
       <div class="section-head">
         <div>
-          <div class="kicker">Showcase</div>
-          <h2>Photography & videography highlights</h2>
+          <p class="ed-kicker">Important Dates</p>
+          <h2 class="ed-title">Timeline</h2>
+          <div class="rule"></div>
+          <p class="ed-sub">Mark your calendar for each phase</p>
         </div>
-        <a class="btn btn-ghost" href="/about">About our creative team →</a>
       </div>
-      <div class="masonry">
-        <img loading="lazy" src="{% static 'assets/home/photography/show_1.jpeg'%}" alt="Romance" />
-        <img loading="lazy" src="{% static 'assets/home/photography/show_2.jpg'%}" alt="Event" />
-        <img loading="lazy" src="{% static 'assets/home/photography/show_7.jpg'%}" alt="Proposal" />
-        <img loading="lazy" src="{% static 'assets/home/photography/show_3.jpeg'%}" alt="Family" />
-        <img loading="lazy" src="{% static 'assets/home/photography/show_5.jpg'%}" alt="Dinner" />
-        <img loading="lazy" src="{% static 'assets/home/photography/show_6.jpg'%}" alt="Beach" />
+
+      <div class="timeline-grid">
+        <div class="timeline-card">
+          <div class="timeline-date">Feb 1-10</div>
+          <div class="timeline-label">Nominations Open</div>
+          <p class="timeline-desc">Submit your couple and share why they deserve this escape</p>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-date">Feb 11</div>
+          <div class="timeline-label">Voting Begins</div>
+          <p class="timeline-desc">All nominees revealed. Rally your community to vote!</p>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-date">Feb 13</div>
+          <div class="timeline-label">Voting Closes</div>
+          <p class="timeline-desc">Final votes tallied. Anticipation builds!</p>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-date">Feb 14</div>
+          <div class="timeline-label">Winner Announced</div>
+          <p class="timeline-desc">Valentine's Day reveal! Winning couple and nominator celebrated</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="gold-band" aria-label="Callout">
-    <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap">
-      <div>
-        <div class="kicker" style="color:#6b5b00">Limited-time offer</div>
-        <h2 style="margin:.2em 0 0">Book your 2025 coastal escape and save 10%</h2>
-        <p class="muted" style="margin:8px 0 0">Flexible dates. Zero hidden fees. Concierge from day one.</p>
-      </div>
-      <a class="btn btn-primary" href="#contact">Claim offer</a>
-    </div>
-  </section>
-  <section id="book" class="book-teaser">
-  <div class="book-teaser-wrap">
-    <div class="book-mock">
-      <img src="{% static 'assets/U&T/front.jpeg' %}" alt="Tiara’s Grateful Heart cover" />
-      <img class="back" src="{% static 'assets/U&T/back.jpeg' %}" alt="Back cover" />
-    </div>
-    <div class="book-copy">
-      <h2>Tiara’s Grateful Heart</h2>
-      <p>A 30-day gratitude adventure with rhymes, reflection prompts, coloring pages, 1-minute Unwind Minis, and a completion certificate.</p>
-      <ul class="features">
-        <li>30 Days with Tiara (rhyme • prompts • coloring)</li>
-        <li>Unwind Mini calm exercises (screen-free)</li>
-        <li>Certificate of Gratitude</li>
-        <li>Bonus Printables (Prompt Cards, Refill Pages, Tracker)</li>
-      </ul>
-      <div class="cta-row">
-        <a href="/tiaras-grateful-heart#buy" class="btn-primary">Buy Now</a>
-        <a href="/tiaras-grateful-heart#sample" class="btn-outline">Download Sample Pages</a>
-        <a href="#bulk-quote" class="btn-link open-bulk">Request Bulk Quote</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- Movement / Animated Quote -->
-<section class="quote-feature" aria-labelledby="quote-title">
-  <div class="quote-bg" aria-hidden="true">
-    <!-- soft floating orbs -->
-    <span class="orb orb-a"></span>
-    <span class="orb orb-b"></span>
-    <span class="orb orb-c"></span>
-  </div>
-
-  <div class="container">
-    <div class="quote-wrap">
-      <div class="quote-mark" aria-hidden="true">
-        <!-- elegant quote mark -->
-        <svg width="72" height="72" viewBox="0 0 72 72" fill="none" role="img">
-          <path d="M28 18c-8 0-14 6-14 14 0 6 4 10 9 11-2 9-8 15-16 17 14-1 24-12 24-26 0-8-1-16-3-16zM58 18c-8 0-14 6-14 14 0 6 4 10 9 11-2 9-8 15-16 17 14-1 24-12 24-26 0-8-1-16-3-16z" fill="currentColor"/>
-        </svg>
-      </div>
-
-      <h2 id="quote-title" class="quote-title q-reveal">
-        Unwind & Thrive is <span class="accent">not an event</span> — it’s a <span class="accent">movement</span>.
-      </h2>
-
-      <p class="quote-sub q-reveal">
-        Choose <span class="underline">rest today</span> — so you can <span class="underline">thrive tomorrow</span>.
-      </p>
-
-      <div class="quote-cta q-reveal">
-        <a href="/unwind-thrive" class="btn-primary btn-pulse">Bring it to my community</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-
-
-
-
-  <section>
+  <!-- Why Valentine Edition -->
+  <section class="section why-valentine">
     <div class="container">
       <div class="section-head">
         <div>
-          <div class="kicker">Testimonials</div>
-          <h2>What our clients say</h2>
+          <p class="ed-kicker">The Movement</p>
+          <h2 class="ed-title">Why Valentine Edition?</h2>
+          <div class="rule"></div>
+          <p class="ed-sub">Love isn't just romance — it's rest, renewal, and remembering to pause</p>
         </div>
       </div>
-      <div class="grid">
-        <div class="card col-4"><div class="card-body"><p style="margin:0 0 8px">“The most luxurious and relaxing experience of my life!”</p><span class="muted">— Grace O.</span></div></div>
-        <div class="card col-4"><div class="card-body"><p style="margin:0 0 8px">“A perfect blend of elegance and care.”</p><span class="muted">— Yomi H.</span></div></div>
-        <div class="card col-4"><div class="card-body"><p style="margin:0 0 8px">“From the spa to the yacht, every moment was unforgettable.”</p><span class="muted">— Tope S.</span></div></div>
+
+      <div class="love-grid">
+        <div class="love-card">
+          <div class="love-icon">💕</div>
+          <h3 class="love-title">Redefining Romance</h3>
+          <p class="muted">The most romantic gift? Permission to rest. To breathe. To simply be together without agenda.</p>
+        </div>
+
+        <div class="love-card">
+          <div class="love-icon">🌊</div>
+          <h3 class="love-title">Couples Deserve Care</h3>
+          <p class="muted">They hold down careers, families, communities. This Valentine's, someone holds space for them.</p>
+        </div>
+
+        <div class="love-card">
+          <div class="love-icon">✨</div>
+          <h3 class="love-title">Community Celebration</h3>
+          <p class="muted">Nominate to Unwind brings people together to honor those who give endlessly. Love in action.</p>
+        </div>
       </div>
     </div>
   </section>
 
-{% endblock %}
+  <!-- Final CTA -->
+  <section id="payment-details" class="section final-cta">
+    <div class="container">
+      <div class="cta-content">
+        <h2 class="cta-title">Ready to Nominate?</h2>
+        <p class="cta-subtitle">Send us the couple's names and your story via WhatsApp</p>
 
-<script>
-  // UA header menu toggle
-  const uaOpenBtn = document.getElementById('uaOpenMenu');
-  const uaMobileMenu = document.getElementById('uaMobileMenu');
-  uaOpenBtn?.addEventListener('click', () => {
-    const open = uaMobileMenu.classList.toggle('open');
-    uaOpenBtn.setAttribute('aria-expanded', open);
-  });
+        <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: clamp(24px,4vw,40px); margin: 40px auto; max-width: 600px; border: 2px solid rgba(255,255,255,0.2);">
+          <h3 style="font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 16px; opacity: 0.8;">Payment Details</h3>
+          <div style="font-size: 1.4rem; font-weight: 700; margin-bottom: 8px;">₦2,000 Nomination Fee</div>
+          <p style="opacity: 0.85; margin: 16px 0;">After payment, send proof of payment along with:</p>
+          <ul style="text-align: left; max-width: 400px; margin: 16px auto; line-height: 1.8;">
+            <li>Couple's full names</li>
+            <li>Your 50-150 word story about them</li>
+            <li>Your contact information</li>
+            <li>Payment reference number</li>
+          </ul>
+        </div>
 
-  // UA theme toggle + persist
-  const uaThemeBtn = document.getElementById('uaThemeBtn');
-  const uaThemeBtnMobile = document.getElementById('uaThemeBtnMobile');
-  const root = document.documentElement;
-  function setTheme(mode){
-    document.documentElement.setAttribute('data-theme', mode);
-    localStorage.setItem('ua-theme', mode);
-    const pressed = mode === 'dark';
-    uaThemeBtn?.setAttribute('aria-pressed', pressed);
-    uaThemeBtnMobile?.setAttribute('aria-pressed', pressed);
-  }
-  const saved = localStorage.getItem('ua-theme');
-  if(saved){ setTheme(saved); }
-  uaThemeBtn?.addEventListener('click', () => setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
-  uaThemeBtnMobile?.addEventListener('click', () => setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
+        <a href="https://wa.me/2348062067832?text=Hi%20Unwind%20Africa%2C%20I%20would%20like%20to%20nominate%20a%20couple%20for%20the%20Valentine%20Edition%20of%20Nominate%20to%20Unwind." class="btn primary-solid" style="font-size: 1.2rem; padding: 1.2rem 2.5rem;">
+          <span style="font-size: 1.5rem;">💌</span> Send Nomination via WhatsApp
+        </a>
 
-  // Mobile menu (legacy)
-  const btn = document.getElementById('menuBtn');
-  btn?.addEventListener('click', () => {
-    const links = document.querySelector('.nav-links');
-    if (!links) return;
-    const visible = getComputedStyle(links).display !== 'none';
-    links.style.display = visible ? 'none' : 'flex';
-  });
+        <p style="margin-top: 32px; font-size: 0.95rem; opacity: 0.7;">Questions? Reach us at <strong>0806 206 7832</strong></p>
+      </div>
+    </div>
+  </section>
 
-  // Smooth scroll for in-page anchors
-  document.querySelectorAll("a[href^='#']").forEach(a=>{
-    a.addEventListener('click',e=>{
-      const id=a.getAttribute('href');
-      if(id && id!=='#'){
+  <!-- Footer -->
+  <footer class="ua-footer">
+    <div class="ua-footer-inner">
+      <div class="ua-footer-brand">Unwind Africa</div>
+      <p class="footer-text">Celebrate love. Gift rest. Create memories.</p>
+      <p class="footer-text" style="font-size: 0.85rem;">© 2025 Unwind Africa — Valentine Edition</p>
+    </div>
+  </footer>
+
+  <script>
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        document.querySelector(id)?.scrollIntoView({behavior:'smooth'});
-      }
-    })
-  });
-
-  // Staggered reveal for quote feature
-  const qEls = document.querySelectorAll('.q-reveal');
-  if (qEls.length && 'IntersectionObserver' in window) {
-    const qObs = new IntersectionObserver(entries=>{
-      entries.forEach(e=>{
-        if(e.isIntersecting){ e.target.classList.add('in'); qObs.unobserve(e.target); }
-      });
-    }, {threshold:.2});
-    qEls.forEach(el=>qObs.observe(el));
-  } else {
-    qEls.forEach(el=>el.classList.add('in'));
-  }
-
-  // Timeline (guard if none)
-  const tItems = document.querySelectorAll('.timeline-item');
-  if (tItems.length && 'IntersectionObserver' in window) {
-    const tObserver = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          tObserver.unobserve(entry.target);
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       });
-    }, { threshold: 0.2 });
-    tItems.forEach(item => tObserver.observe(item));
-  }
-</script>
+    });
 
-
-
-
-
-<footer>
-  <div class="foot">
-    <div class="foot-grid">
-      
-      <!-- Brand & Address -->
-      <div>
-        <div class="brand" style="margin-bottom:8px">
-          <span class="brand-badge"><span>UA</span></span> Unwind Africa
-        </div>
-        <p style="margin:8px 0; font-size:14px; color:#5d6b81;">
-          No 8, Providence Street,<br>
-          Lekki Phase 1,<br>
-          Lagos, Nigeria.
-        </p>
-        <small>Â© <span id="year"></span> Unwind Africa. Crafted with Luxury & Care.</small>
-      </div>
-
-      <!-- Company Links -->
-      <div>
-        <strong>Company</strong>
-        <div><a href="/about">About</a></div>
-        <div><a href="/blog">Blog</a></div>
-        <div><a href="#contact">Contact</a></div>
-      </div>
-
-      <!-- Explore Links -->
-      <div>
-        <strong>Explore</strong>
-        <div><a href="/packages">Packages</a></div>
-        <div><a href="#experiences">Experiences</a></div>
-        <div><a href="#top">Home</a></div>
-      </div>
-
-      <!-- Newsletter -->
-      <div>
-        <strong>Newsletter</strong>
-        <form onsubmit="event.preventDefault();alert('Subscribed!')">
-          <input placeholder="Email address" 
-                 style="width:100%;padding:10px;border-radius:10px;
-                        border:1px solid var(--border);background:#fff;margin:8px 0" />
-          <button class="btn btn-ghost" style="width:100%">Subscribe</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Contact Info & Socials -->
-    <div style="margin-top:40px; text-align:center">
-      <div style="margin-bottom:12px;">
-        <a href="mailto:Info@unwindafrica.com" 
-           style="font-weight:600; font-size:16px; color:#334155; text-decoration:none;">
-          Info@unwindafrica.com
-        </a>
-      </div>
-      <div style="margin-bottom:12px;">
-        <a href="tel:+2348062067832" style="margin-right:16px; color:#334155;">+234 8062067832</a>
-        <a href="tel:+2348038268669" style="color:#334155;">+234 8038268669</a>
-      </div>
-      <div class="socials" style="display:flex;justify-content:center;gap:16px;font-size:20px;color:#5d6b81;">
-        <a href="#" aria-label="Facebook" style="color:#1877f2;"><i class="fab fa-facebook-f"></i></a>
-        <a href="#" aria-label="Instagram" style="color:#e4405f;"><i class="fab fa-instagram"></i></a>
-        <a href="#" aria-label="Twitter" style="color:#1da1f2;"><i class="fab fa-twitter"></i></a>
-      </div>
-    </div>
-
-  </div>
-</footer>
+    // Respect reduced motion for video
+    const heroVideo = document.querySelector('.hero-media video');
+    if (heroVideo && 'matchMedia' in window) {
+      const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const applyMotionPreference = () => {
+        if (reduceMotionQuery.matches) {
+          heroVideo.pause();
+          heroVideo.removeAttribute('autoplay');
+        } else if (heroVideo.paused) {
+          heroVideo.play().catch(() => {});
+        }
+      };
+      applyMotionPreference();
+      if ('addEventListener' in reduceMotionQuery) {
+        reduceMotionQuery.addEventListener('change', applyMotionPreference);
+      }
+    }
+  </script>
+</body>
+</html>

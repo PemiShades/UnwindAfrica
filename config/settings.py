@@ -24,6 +24,7 @@ ALLOWED_HOSTS = [
     "server1.unwindafrica.com", # VPS hostname
     "unwindafrica.com",         # <-- add this
     "www.unwindafrica.com",
+    "testserver",
 ]
 
 # Required for HTTPS + CSRF protection
@@ -60,6 +61,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Analytics middleware
+    'Web.middleware.AnalyticsMiddleware',
+    'Web.middleware.SessionCleanupMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -149,6 +153,16 @@ MEDIA_ROOT = os.getenv('MEDIA_ROOT')    # Nginx location /media/ -> /srv/unwinda
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# --- Email Configuration ---
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', True)
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'no-reply@unwindafrica.com')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'no-reply@unwindafrica.com')
+SERVER_EMAIL = os.getenv('SERVER_EMAIL', 'no-reply@unwindafrica.com')
 
 # --- Paystack Configuration ---
 PAYSTACK_PUBLIC_KEY = os.getenv("PAYSTACK_PUBLIC_KEY", "")

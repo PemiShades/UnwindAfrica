@@ -1,0 +1,281 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}Nomination Confirmed | Unwind Africa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .confirmation-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .confirmation-card {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eef0f6;
+        text-align: center;
+    }
+    
+    .success-icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 2rem;
+        background: linear-gradient(135deg, var(--ua-rose), var(--ua-sky));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: white;
+    }
+    
+    .success-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: var(--ua-ink);
+        margin-bottom: 1rem;
+    }
+    
+    .success-message {
+        color: #666;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+    
+    .nominee-info {
+        background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(0, 178, 255, 0.1));
+        border: 2px solid rgba(255, 107, 157, 0.2);
+        border-radius: 16px;
+        padding: 2rem;
+        margin: 2rem 0;
+        text-align: left;
+    }
+    
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 700;
+        color: var(--ua-ink);
+    }
+    
+    .info-value {
+        color: #666;
+    }
+    
+    .nominee-photo {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin: 1rem auto;
+        border: 3px solid #eef0f6;
+    }
+    
+    .next-steps {
+        text-align: left;
+        margin-top: 2rem;
+    }
+    
+    .next-steps h3 {
+        color: var(--ua-ink);
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+    
+    .next-steps ul {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .next-steps li {
+        padding: 0.75rem 0;
+        color: #666;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .next-steps li::before {
+        content: "→";
+        color: var(--ua-rose);
+        font-weight: 900;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+        margin-top: 0.1rem;
+    }
+    
+    .actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--ua-rose), var(--ua-sky));
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+    }
+    
+    .btn-secondary {
+        background: white;
+        color: var(--ua-ink);
+        border: 2px solid #eef0f6;
+        padding: 0.75rem 2rem;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        border-color: var(--ua-rose);
+        background: rgba(255, 107, 157, 0.05);
+    }
+    
+    .share-section {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #eef0f6;
+    }
+    
+    .share-title {
+        color: var(--ua-ink);
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+    
+    .share-links {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .share-link {
+        background: #f8f9fa;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        color: #666;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: 1px solid #eef0f6;
+    }
+    
+    .share-link:hover {
+        background: white;
+        border-color: var(--ua-rose);
+        color: var(--ua-ink);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="confirmation-container">
+            <div class="confirmation-card">
+                <div class="success-icon">
+                    ✓
+                </div>
+                
+                <h2 class="success-title">Nomination Confirmed!</h2>
+                
+                <p class="success-message">
+                    Thank you for nominating {{ nominee.name }} for the {{ campaign.name }} campaign.
+                    Their nomination has been received and is pending approval.
+                </p>
+                
+                <div class="nominee-info">
+                    {% if nominee.photo %}
+                    <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" class="nominee-photo">
+                    {% else %}
+                    <div class="nominee-photo bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
+                        {{ nominee.name|slice:":2"|upper }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="info-row">
+                        <span class="info-label">Nominee Number:</span>
+                        <span class="info-value">{{ nominee.number }}</span>
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">Couple Name:</span>
+                        <span class="info-value">{{ nominee.name }}</span>
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">Nominee Story:</span>
+                        <span class="info-value">{{ nominee.story }}</span>
+                    </div>
+                </div>
+                
+                <div class="next-steps">
+                    <h3>What's Next?</h3>
+                    <ul>
+                        <li>Your nomination will be reviewed by our team</li>
+                        <li>Once approved, {{ nominee.name }} will be added to the voting page</li>
+                        <li>Share this nomination with friends and family to encourage votes</li>
+                        <li>Voting will begin on {{ campaign.start_date|date:"F d, Y" }}</li>
+                        <li>Winners will be announced on {{ campaign.end_date|date:"F d, Y" }}</li>
+                    </ul>
+                </div>
+                
+                <div class="share-section">
+                    <h4 class="share-title">Share Nomination</h4>
+                    <div class="share-links">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" class="share-link" target="_blank">
+                            <i class="fab fa-facebook"></i> Share on Facebook
+                        </a>
+                        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text=I%20just%20nominated%20{{ nominee.name|urlencode }}%20for%20the%20{{ campaign.name|urlencode }}%20on%20@UnwindAfrica!%20Vote%20for%20them%20today!" class="share-link" target="_blank">
+                            <i class="fab fa-twitter"></i> Share on Twitter
+                        </a>
+                        <a href="https://wa.me/?text={{ request.build_absolute_uri }}" class="share-link" target="_blank">
+                            <i class="fab fa-whatsapp"></i> Share on WhatsApp
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button onclick="window.print()" class="btn-secondary">
+                        <i class="fas fa-print"></i> Print Confirmation
+                    </button>
+                    <a href="{% url 'home' %}" class="btn-primary">
+                        Return to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -8,7 +8,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 from django.db import transaction as db_transaction
 from django.conf import settings
-from django.utils import timezone
+from django.utils.timezone import now
 import requests
 import json
 import secrets
@@ -227,10 +227,10 @@ def update_rest_card_points(vote):
     # Check for auto-activation at ₦1,000 points
     if rest_card.status == 'waitlist' and rest_card.total_rest_points >= 1000:
         rest_card.status = 'active'
-        rest_card.activated_at = timezone.now()
+        rest_card.activated_at = now()
         # Card expires 1 year from activation
         from datetime import timedelta
-        rest_card.expires_at = timezone.now() + timedelta(days=365)
+        rest_card.expires_at = now() + timedelta(days=365)
         
         # TODO: Send activation email notification
         # send_activation_email(rest_card)
@@ -311,7 +311,7 @@ def verify_payment(request, reference):
                     for trans in transactions:
                         if trans.status != 'success':  # Only update if not already successful
                             trans.status = 'success'
-                            trans.paid_at = timezone.now()
+                            trans.paid_at = now()
                             trans.paystack_reference = data.get('reference')
                             trans.paystack_response = response_data
                             trans.save()
@@ -344,7 +344,7 @@ def verify_payment(request, reference):
                 if rest_card and rest_card.status == 'active' and rest_card.activated_at:
                     # Check if just activated (within last minute)
                     from datetime import timedelta
-                    if rest_card.activated_at > timezone.now() - timedelta(minutes=1):
+                    if rest_card.activated_at > now() - timedelta(minutes=1):
                         success_msg += ' 🎉 Your Rest Card has been ACTIVATED!'
                 
                 messages.success(request, success_msg)
@@ -418,7 +418,7 @@ def paystack_webhook(request):
                 for trans in transactions:
                     if trans.status != 'success':
                         trans.status = 'success'
-                        trans.paid_at = timezone.now()
+                        trans.paid_at = now()
                         trans.paystack_reference = reference
                         trans.paystack_response = payload
                         trans.save()

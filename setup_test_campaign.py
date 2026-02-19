@@ -29,10 +29,10 @@ def create_test_campaign():
     campaign = VotingCampaign.objects.filter(slug='nominate-to-unwind-december-2025').first()
     
     if campaign:
-        print(f"\n✓ Campaign already exists: {campaign.name}")
+        print(f"\nOK Campaign already exists: {campaign.name}")
         print(f"  Updating campaign...")
     else:
-        print(f"\n✓ Creating new campaign: {campaign_name}")
+        print(f"\nOK Creating new campaign: {campaign_name}")
         campaign = VotingCampaign()
     
     # Set campaign details
@@ -47,10 +47,10 @@ def create_test_campaign():
     campaign.save()
     
     print(f"  Campaign: {campaign.name}")
-    print(f"  Vote Price: ₦{campaign.vote_price}")
+    print(f"  Vote Price: N{campaign.vote_price}")
     print(f"  Rest Points: {campaign.rest_points_per_vote} per vote")
     print(f"  Period: {campaign.start_date.date()} to {campaign.end_date.date()}")
-    print(f"  Status: {'✓ ACTIVE' if campaign.is_active else '✗ Inactive'}")
+    print(f"  Status: {'OK ACTIVE' if campaign.is_active else 'X Inactive'}")
     
     # 2. Create Nominees
     nominees_data = [
@@ -92,7 +92,7 @@ def create_test_campaign():
         },
     ]
     
-    print(f"\n✓ Creating {len(nominees_data)} nominees...")
+    print(f"\nOK Creating {len(nominees_data)} nominees...")
     
     created_count = 0
     updated_count = 0
@@ -116,15 +116,15 @@ def create_test_campaign():
             nominee.order = data['order']
             nominee.save()
             updated_count += 1
-            print(f"  ✓ Updated: {nominee.name} (@{nominee.instagram_handle})")
+            print(f"  OK Updated: {nominee.name} (@{nominee.instagram_handle})")
         else:
             created_count += 1
-            print(f"  ✓ Created: {nominee.name} (@{nominee.instagram_handle})")
+            print(f"  OK Created: {nominee.name} (@{nominee.instagram_handle})")
     
     print(f"\nNominees: {created_count} created, {updated_count} updated")
     
     # 3. Add some initial votes to make it realistic
-    print(f"\n✓ Adding initial votes for realism...")
+    print(f"\nOK Adding initial votes for realism...")
     
     nominees = campaign.nominees.all()
     if nominees.exists():
@@ -137,14 +137,14 @@ def create_test_campaign():
     
     # 4. Summary
     print("\n" + "="*60)
-    print("✅ SETUP COMPLETE!")
+    print("OK SETUP COMPLETE!")
     print("="*60)
     print(f"\nCampaign URL: http://localhost:8000/voting/{campaign.slug}/")
     print(f"\nTest Instructions:")
     print("1. Open the URL above in your browser")
     print("2. Browse the nominees with their stories")
     print("3. Add votes to your ballot")
-    print("4. Check ballot shows 'points' not ₦ symbol")
+    print("4. Check ballot shows 'points' not N symbol")
     print("5. Click 'Proceed to Payment'")
     print("6. Fill required 'Who told you about Unwind Africa?' field")
     print("7. View countdown timer")
@@ -157,7 +157,7 @@ def create_test_campaign():
     print(f"Name: {campaign.name}")
     print(f"Nominees: {campaign.nominees.count()}")
     print(f"Total Votes: {sum(n.vote_count for n in campaign.nominees.all())}")
-    print(f"Vote Price: ₦{campaign.vote_price}")
+    print(f"Vote Price: N{campaign.vote_price}")
     print(f"Rest Points: {campaign.rest_points_per_vote} per vote")
     print(f"Ends in: {(campaign.end_date - timezone.now()).days} days")
     print("="*60 + "\n")
@@ -183,10 +183,10 @@ if __name__ == '__main__':
         campaign = create_test_campaign()
         show_nominees(campaign)
         
-        print("\n🎉 SUCCESS! Open your browser and start testing:")
-        print(f"\n   👉 http://localhost:8000/voting/{campaign.slug}/\n")
+        print("\nSUCCESS! Open your browser and start testing:")
+        print(f"\n   -> http://localhost:8000/voting/{campaign.slug}/\n")
         
     except Exception as e:
-        print(f"\n❌ ERROR: {str(e)}")
+        print(f"\nERROR: {str(e)}")
         import traceback
         traceback.print_exc()

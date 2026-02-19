@@ -1,0 +1,240 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}Nominate to Unwind | Unwind Africa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .nomination-form {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .form-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eef0f6;
+    }
+    
+    .form-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .form-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--ua-rose), var(--ua-sky));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-subtitle {
+        color: #666;
+        font-size: 1.1rem;
+    }
+    
+    .form-field {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-field label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--ua-ink);
+    }
+    
+    .form-field input,
+    .form-field textarea,
+    .form-field select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #eef0f6;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-field input:focus,
+    .form-field textarea:focus,
+    .form-field select:focus {
+        outline: none;
+        border-color: var(--ua-rose);
+        box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+    }
+    
+    .form-field textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--ua-rose), var(--ua-sky));
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+    }
+    
+    .btn-secondary {
+        background: white;
+        color: var(--ua-ink);
+        border: 2px solid #eef0f6;
+        padding: 0.75rem 2rem;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        border-color: var(--ua-rose);
+        background: rgba(255, 107, 157, 0.05);
+    }
+    
+    .campaign-info {
+        background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(0, 178, 255, 0.1));
+        border: 2px solid rgba(255, 107, 157, 0.2);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .campaign-info h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--ua-rose);
+    }
+    
+    .campaign-info p {
+        color: #666;
+        line-height: 1.6;
+    }
+    
+    .requirements {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .requirements h4 {
+        color: var(--ua-ink);
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+    
+    .requirements ul {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .requirements li {
+        padding: 0.5rem 0;
+        color: #666;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .requirements li::before {
+        content: "✓";
+        color: var(--ua-rose);
+        font-weight: 900;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+        margin-top: 0.1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="nomination-form">
+            {% if campaign %}
+            <div class="campaign-info">
+                <h3>{{ campaign.name }}</h3>
+                <p>{{ campaign.description }}</p>
+            </div>
+            {% endif %}
+            
+            <div class="form-section">
+                <div class="form-header">
+                    <h2 class="form-title">Nominate an Individual</h2>
+                    <p class="form-subtitle">Honour students and young people who show resilience and strength</p>
+                </div>
+                
+                {% if error %}
+                <div class="alert alert-error" style="background: #fee; color: #c33; padding: 1rem; border-radius: 12px; margin-bottom: 2rem;">
+                    {{ error }}
+                </div>
+                {% endif %}
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                    <div class="form-field">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.help_text %}
+                        <small class="help-text">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% for error in field.errors %}
+                        <div class="error-message" style="color: #c33; font-size: 0.875rem; margin-top: 0.5rem;">
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="requirements">
+                        <h4>Nomination Requirements</h4>
+                        <ul>
+                            <li>Must be a student or young person navigating responsibility beyond their age</li>
+                            <li>Must demonstrate resilience, quiet strength, and perseverance</li>
+                            <li>Must be willing to participate in the campaign</li>
+                            <li>Must agree to our terms and conditions</li>
+                            <li>Nomination is free and open to all</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">
+                            Submit Nomination
+                        </button>
+                        <button type="button" class="btn-secondary" onclick="window.history.back()">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

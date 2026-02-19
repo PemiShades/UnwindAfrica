@@ -1,0 +1,272 @@
+{% extends "dashboard/index.html" %}
+{% load static %}
+
+{% block content %}
+<div class="board">
+  <div class="flex h-full">
+    <!-- Sidebar -->
+    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
+           class="fixed md:static z-40 inset-y-0 left-0 w-72 p-5 transition-transform duration-300">
+      <div class=" shadow-soft rounded-3xl h-full flex flex-col">
+        <div class="flex items-center justify-between px-3 py-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl grid place-items-center shadow-md"
+                 style="background: linear-gradient(135deg, var(--brand), #705CFF);">
+              <i class="fa-solid fa-sparkles text-white"></i>
+            </div>
+            <div>
+              <div class="text-lg font-extrabold">Unwind Admin</div>
+              <div class="text-xs opacity-70">Dashboard</div>
+            </div>
+          </div>
+          <button class="md:hidden btn-ghost" @click="sidebarOpen=false" aria-label="Close sidebar">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <nav class="px-2 py-4 grid gap-3 text-sm overflow-auto">
+          <div class="px-4 mt-2 mb-1 text-xs uppercase tracking-wider font-bold opacity-60">Main</div>
+
+          <button @click="setTab('overview')" :class="tab==='overview' ? 'side-link active' : 'side-link'"
+                  :aria-current="tab==='overview' ? 'page' : null">
+            <i class="fa-solid fa-chart-line w-5 text-purple-600 dark:text-purple-400"></i>
+            <span class="leading-none">Overview</span>
+            <span class="ml-auto badge-soft border border-black/10 text-[10px] px-2 py-[2px] rounded-full
+                         dark:border-white/20">Live</span>
+          </button>
+
+          <button @click="setTab('charts')" :class="tab==='charts' ? 'side-link active' : 'side-link'"
+                  :aria-current="tab==='charts' ? 'page' : null">
+            <i class="fa-solid fa-chart-pie w-5 text-emerald-600 dark:text-emerald-400"></i>
+            <span class="leading-none">Charts</span>
+          </button>
+
+          <div class="px-4 mt-4 mb-1 text-xs uppercase tracking-wider font-bold opacity-60">Content</div>
+
+          <button @click="setTab('create_blog')" :class="tab==='create_blog' ? 'side-link active' : 'side-link'">
+            <i class="fa-solid fa-pen w-5 text-yellow-600 dark:text-yellow-300"></i><span class="leading-none">Create Blog</span>
+          </button>
+
+          <button @click="setTab('blogs')" :class="tab==='blogs' ? 'side-link active' : 'side-link'">
+            <i class="fa-solid fa-table-list w-5 text-cyan-700 dark:text-cyan-300"></i><span class="leading-none">Blogs List</span>
+          </button>
+
+          <button @click="setTab('events')" :class="tab==='events' ? 'side-link active' : 'side-link'">
+            <i class="fa-solid fa-calendar-days w-5 text-pink-600 dark:text-pink-300"></i><span class="leading-none">Events</span>
+          </button>
+
+          <button @click="setTab('voting')" :class="tab==='voting' ? 'side-link active' : 'side-link'">
+            <i class="fa-solid fa-vote-yea w-5 text-blue-600 dark:text-blue-300"></i><span class="leading-none">Voting</span>
+          </button>
+
+          <div class="mt-4 h-px bg-black/10 dark:bg-white/10"></div>
+          <a href="/" class="side-link"><i class="fa-solid fa-globe w-5"></i><span class="leading-none">View site</span></a>
+        </nav>
+
+        <div class="mt-auto p-4 grid gap-3">
+          <div class=" rounded-2xl p-4">
+            <div class="text-xs opacity-70 mb-1">Storage</div>
+            <div class="w-full h-2 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
+              <div class="h-full rounded-full" style="width:55%; background: linear-gradient(90deg, var(--brand), var(--brand2));"></div>
+            </div>
+            <div class="text-xs mt-1 opacity-80">5.5 GB / 10 GB</div>
+          </div>
+          <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="w-full btn-ghost border border-red-300 hover:border-red-500/60 text-red-600 dark:text-red-400 dark:border-red-500/30">
+              <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout
+            </button>
+          </form>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="flex-1 flex flex-col gap-6 p-4 md:p-6 overflow-auto">
+      <!-- Topbar -->
+      <header class=" shadow-soft rounded-2xl px-4 py-3 flex items-center gap-3">
+        <button class="md:hidden btn-ghost" @click="sidebarOpen=true" aria-label="Open sidebar"><i class="fa-solid fa-bars"></i></button>
+        <div class="relative flex-1 max-w-xl">
+          <input type="search" placeholder="Search posts, events, users…" class="field ring-brand" />
+          <span class="absolute right-2 top-1/2 -translate-y-1/2 text-xs opacity-70">/</span>
+        </div>
+        <button class="btn-ghost" @click="toggleTheme()" :aria-pressed="theme==='light'">
+          <i :class="theme==='light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"></i>
+        </button>
+        <button class="btn-ghost relative" aria-label="Notifications">
+          <i class="fa-regular fa-bell"></i>
+          <span class="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 text-[10px] rounded-full text-white"
+                style="background: linear-gradient(135deg, var(--brand), #705CFF);">3</span>
+        </button>
+        <!-- Pixabay avatar -->
+        <div class="w-9 h-9 rounded-full overflow-hidden ring-2 ring-black/10 dark:ring-white/20">
+          <img
+            src="https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_1280.png"
+            alt="Admin"
+            class="w-full h-full object-cover"
+            referrerpolicy="no-referrer"
+          />
+        </div>
+      </header>
+
+      <!-- Voting Content -->
+      <main class="grid gap-6">
+        <template x-if="tab==='voting'">
+          <section class="grid gap-6">
+            <div class="grid md:grid-cols-4 sm:grid-cols-2 gap-4">
+              <div class="kpi">
+                <div class="text-xs opacity-70">Total Campaigns</div>
+                <div class="text-2xl font-extrabold">{{ campaigns.count }}</div>
+                <div class="text-xs opacity-70">Active campaigns</div>
+              </div>
+              <div class="kpi">
+                <div class="text-xs opacity-70">Total Nominees</div>
+                <div class="text-2xl font-extrabold">{{ nominees.count }}</div>
+                <div class="text-xs opacity-70">Across all campaigns</div>
+              </div>
+              <div class="kpi">
+                <div class="text-xs opacity-70">Total Votes</div>
+                <div class="text-2xl font-extrabold">{{ votes.count }}</div>
+                <div class="text-xs opacity-70">Cast votes</div>
+              </div>
+              <div class="kpi">
+                <div class="text-xs opacity-70">Total Revenue</div>
+                <div class="text-2xl font-extrabold">₦{{ total_revenue|floatformat:0 }}</div>
+                <div class="text-xs opacity-70">From successful transactions</div>
+              </div>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-6">
+              <div class=" rounded-2xl p-4 shadow-soft">
+                <h3 class="font-bold mb-4">Voting Campaigns</h3>
+                <div class="space-y-4">
+                  {% for campaign in campaigns %}
+                  <div class="p-4 rounded-xl border border-gray-100 dark:border-gray-800">
+                    <div class="flex justify-between items-start">
+                      <div>
+                        <h4 class="font-bold">{{ campaign.name }}</h4>
+                        <p class="text-sm opacity-70">{{ campaign.start_date }} - {{ campaign.end_date }}</p>
+                      </div>
+                      <span class="px-2 py-1 text-xs rounded-full {% if campaign.is_ongoing %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200{% else %}bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200{% endif %}">
+                        {% if campaign.is_ongoing %}Active{% else %}Ended{% endif %}
+                      </span>
+                    </div>
+                    <div class="mt-3 grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span class="opacity-70">Nominees:</span>
+                        <span class="font-bold">{{ campaign.nominees.count }}</span>
+                      </div>
+                      <div>
+                        <span class="opacity-70">Total Votes:</span>
+                        <span class="font-bold">{{ campaign.total_votes }}</span>
+                      </div>
+                    </div>
+                    <div class="mt-3">
+                      <a href="{% url 'view_campaign_voters' campaign.slug %}" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                        View Voters ({{ campaign.votes.count }})
+                      </a>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <div class=" rounded-2xl p-4 shadow-soft">
+                <h3 class="font-bold mb-4">Create Campaign</h3>
+                <form method="post" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  {{ campaign_form.as_p }}
+                  <button type="submit" name="create_campaign" class="btn-primary">Create Campaign</button>
+                </form>
+              </div>
+
+              <div class="grid gap-6">
+                <div class=" rounded-2xl p-4 shadow-soft">
+                  <h3 class="font-bold mb-4">Top Nominees</h3>
+                  <div class="space-y-4">
+                    {% for nominee in nominees|slice:":5" %}
+                    <div class="p-4 rounded-xl border border-gray-100 dark:border-gray-800">
+                      <div class="flex items-center gap-3">
+                        {% if nominee.photo %}
+                        <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" class="w-10 h-10 rounded-full object-cover" />
+                        {% endif %}
+                        <div class="flex-1">
+                          <h4 class="font-bold">{{ nominee.name }}</h4>
+                          <p class="text-sm opacity-70">{{ nominee.campaign.name }}</p>
+                        </div>
+                        <span class="font-bold">{{ nominee.vote_count }} votes</span>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+
+                <div class=" rounded-2xl p-4 shadow-soft">
+                  <h3 class="font-bold mb-4">Recent Votes</h3>
+                  <div class="space-y-4">
+                    {% for vote in votes|slice:":5" %}
+                    <div class="p-4 rounded-xl border border-gray-100 dark:border-gray-800">
+                      <div class="flex justify-between items-start">
+                        <div>
+                          <h4 class="font-bold">{{ vote.voter_name }}</h4>
+                          <p class="text-sm opacity-70">{{ vote.voter_email }}</p>
+                        </div>
+                        <span class="text-xs opacity-70">{{ vote.created_at|timesince }} ago</span>
+                      </div>
+                      <div class="mt-2">
+                        <span class="opacity-70">Voted for:</span>
+                        <span class="font-bold">{{ vote.nominee.name }}</span>
+                      </div>
+                      <div class="mt-1">
+                        <span class="opacity-70">Votes:</span>
+                        <span class="font-bold">{{ vote.vote_quantity }}</span>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class=" rounded-2xl p-4 shadow-soft">
+              <h3 class="font-bold mb-4">Transaction History</h3>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="border-b border-gray-200 dark:border-gray-800">
+                      <th class="text-left py-2">Date</th>
+                      <th class="text-left py-2">Voter</th>
+                      <th class="text-left py-2">Nominee</th>
+                      <th class="text-left py-2">Campaign</th>
+                      <th class="text-left py-2">Votes</th>
+                      <th class="text-left py-2">Amount</th>
+                      <th class="text-left py-2">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for transaction in transactions|slice:":10" %}
+                    <tr class="border-b border-gray-100 dark:border-gray-800">
+                      <td class="py-2">{{ transaction.created_at }}</td>
+                      <td class="py-2">{{ transaction.vote.voter_name }}</td>
+                      <td class="py-2">{{ transaction.vote.nominee.name }}</td>
+                      <td class="py-2">{{ transaction.vote.nominee.campaign.name }}</td>
+                      <td class="py-2">{{ transaction.vote.vote_quantity }}</td>
+                      <td class="py-2">₦{{ transaction.amount|floatformat:0 }}</td>
+                      <td class="py-2">
+                        <span class="px-2 py-1 text-xs rounded-full {% if transaction.status == 'success' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200{% elif transaction.status == 'pending' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200{% else %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}">
+                          {{ transaction.status }}
+                        </span>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </template>
+      </main>
+    </div>
+  </div>
+</div>
+{% endblock %}

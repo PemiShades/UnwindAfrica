@@ -1,0 +1,148 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}Vote Confirmed - Nominate to Unwind{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .confirmation-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            margin-top: 4rem;
+            margin-bottom: 4rem;
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            color: #4caf50;
+            margin-bottom: 2rem;
+        }
+        
+        .confirmation-title {
+            color: #ff6b9d;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+        
+        .confirmation-message {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .vote-details {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        
+        .vote-details h3 {
+            margin: 0 0 1rem 0;
+            color: #333;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+            font-size: 1.1rem;
+        }
+        
+        .detail-item strong {
+            color: #333;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: opacity 0.2s;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b9d, #ff8a65);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        @media (max-width: 768px) {
+            .confirmation-container {
+                padding: 1rem;
+                margin: 2rem 1rem;
+            }
+            
+            .confirmation-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="confirmation-container">
+        <div class="success-icon">
+            ✓
+        </div>
+        
+        <h1 class="confirmation-title">Vote Confirmed!</h1>
+        
+        <p class="confirmation-message">
+            Thank you for your support! Your vote(s) have been recorded successfully.
+        </p>
+        
+        <div class="vote-details">
+            <h3>Vote Details</h3>
+            <div class="detail-item">
+                <span><strong>Campaign:</strong></span>
+                <span>{{ campaign.name }}</span>
+            </div>
+            <div class="detail-item">
+                <span><strong>Nominee:</strong></span>
+                <span>{{ vote.nominee.name }}</span>
+            </div>
+            <div class="detail-item">
+                <span><strong>Number of Votes:</strong></span>
+                <span>{{ vote.vote_quantity }}</span>
+            </div>
+            <div class="detail-item">
+                <span><strong>Total Amount:</strong></span>
+                <span>₦{{ vote.amount }}</span>
+            </div>
+            <div class="detail-item">
+                <span><strong>Date:</strong></span>
+                <span>{{ vote.created_at|date:"d M Y" }}</span>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="{% url 'home' %}" class="btn btn-primary">Return to Home</a>
+            <a href="{% url 'vote' %}" class="btn btn-secondary">Vote for Another Nominee</a>
+        </div>
+    </div>
+{% endblock %}

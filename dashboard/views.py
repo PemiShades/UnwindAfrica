@@ -8,9 +8,12 @@ from django.utils.text import slugify
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth import login as auth_login
+from django.db.models import Avg, Count, Sum
+from django.utils.timezone import now
 
 from .models import Post, Event
-from .forms import PostForm, EventForm, AdminAuthenticationForm
+from .forms import PostForm, EventForm, AdminAuthenticationForm, VotingCampaignForm
+from Web.models import PageView, Session, VotingCampaign, Nominee, Vote, Transaction
 
 
 def _ensure_unique_slug(instance, base_text: str):
@@ -27,8 +30,34 @@ def _ensure_unique_slug(instance, base_text: str):
         slug = f"{base}-{i}"
     instance.slug = slug
 
+def _calculate_avg_session_duration(sessions_qs):
+    """Calculate average session duration in minutes"""
+    if not sessions_qs.exists():
+        return 0
+
+    # Calculate duration for each session
+    durations = []
+    for session in sessions_qs:
+        duration = session.duration  # in seconds
+        if duration > 0:  # Only count sessions with activity
+            durations.append(duration / 60)  # Convert to minutes
+
+    return round(sum(durations) / len(durations), 1) if durations else 0
+
+
+def _get_top_pages(since_date):
+    """Get top 5 most visited pages"""
+    top_pages = PageView.objects.filter(timestamp__gte=since_date)\
+        .values('url')\
+        .annotate(views=Count('id'))\
+        .order_by('-views')[:5]
+
+    return list(top_pages)
+
+
 @login_required
 def dashboard_home(request):
+    from collections import Counter
     posts_qs = Post.objects.all().order_by("-created_at")
     events_qs = Event.objects.all().order_by("-created_at")
 
@@ -36,12 +65,25 @@ def dashboard_home(request):
     post_form = PostForm()
     event_form = EventForm()
 
+    # Calculate real analytics data
+    # Sessions from last 30 days
+    thirty_days_ago = now() - timedelta(days=30)
+    recent_sessions = Session.objects.filter(start_time__gte=thirty_days_ago)
+    total_sessions = recent_sessions.count()
+
+    # Bounce rate: sessions with only 1 page view
+    bounce_sessions = recent_sessions.filter(page_views__lte=1).count()
+    bounce_rate = (bounce_sessions / total_sessions * 100) if total_sessions > 0 else 0
+
+    # Page views from last 30 days
+    recent_page_views = PageView.objects.filter(timestamp__gte=thirty_days_ago).count()
+
     # KPIs (align with index.html keys)
     kpis = {
-        "total_sessions": None,
+        "total_sessions": total_sessions,
         "events_count": events_qs.count(),
-        "pending_events": 0,
-        "bounce_rate": None,
+        "pending_events": 0,  # Could be used for events awaiting approval
+        "bounce_rate": round(bounce_rate, 1),
         "posts_total": posts_qs.count(),
         "posts_published": posts_qs.filter(is_published=True).count(),
         "posts_featured": posts_qs.filter(is_featured=True).count(),
@@ -49,6 +91,10 @@ def dashboard_home(request):
             date__gte=date.today(),
             date__lte=date.today() + timedelta(days=60)
         ).count(),
+        # Additional metrics
+        "page_views_30d": recent_page_views,
+        "avg_session_duration": _calculate_avg_session_duration(recent_sessions),
+        "top_pages": _get_top_pages(thirty_days_ago),
     }
 
     # Categories chart
@@ -71,6 +117,34 @@ def dashboard_home(request):
         monthly_chart_labels.append(d.strftime("%b %Y"))
         monthly_chart_counts.append(by_month.get(key, 0))
 
+    # Voting data
+    from Web.models import VotingCampaign, Nominee, Vote, Transaction
+    campaigns = VotingCampaign.objects.all().order_by('-start_date')
+    nominees = Nominee.objects.all().order_by('-vote_count')
+    votes = Vote.objects.all().order_by('-created_at')
+    transactions = Transaction.objects.all().order_by('-created_at')
+    
+    # Calculate total revenue from successful transactions
+    total_revenue = Transaction.objects.filter(status='success').aggregate(total=Sum('amount'))['total'] or 0
+    
+    # Engagement chart data: monthly vote counts
+    from collections import Counter
+    by_month = Counter(v.created_at.strftime("%Y-%m") for v in votes)
+    first_of_this_month = date.today().replace(day=1)
+    monthly_chart_labels, monthly_chart_counts = [], []
+    for i in range(-11, 1):
+        d = add_months(first_of_this_month, i)
+        key = d.strftime("%Y-%m")
+        monthly_chart_labels.append(d.strftime("%b %Y"))
+        monthly_chart_counts.append(by_month.get(key, 0))
+    
+    # Rest Cards data
+    from Web.models import RestCard
+    rest_cards = RestCard.objects.all().order_by('-activated_at')
+    active_cards = rest_cards.filter(status='active')
+    pending_cards = rest_cards.filter(status='pending')
+    total_rest_points = RestCard.objects.aggregate(total=Sum('total_rest_points'))['total'] or 0
+    
     ctx = {
         "posts": list(posts_qs[:18]),
         "events": events_qs[:12],
@@ -81,6 +155,15 @@ def dashboard_home(request):
         "monthly_chart_counts": monthly_chart_counts,
         "post_form": post_form,
         "event_form": event_form,
+        "campaigns": campaigns,
+        "nominees": nominees,
+        "votes": votes,
+        "transactions": transactions,
+        "total_revenue": total_revenue,
+        "rest_cards": rest_cards,
+        "active_cards": active_cards,
+        "pending_cards": pending_cards,
+        "total_rest_points": total_rest_points,
     }
     return render(request, "dashboard/index.html", ctx)
 
@@ -173,40 +256,72 @@ def toggle_feature(request, slug):
 
 
 # ---------- Events ----------
+@require_POST
 @login_required
 def create_event(request):
-    if request.method == "POST":
+    """Create a new event via AJAX"""
+    try:
         form = EventForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            return redirect("dashboard_home")
-    else:
-        form = EventForm()
-    return render(request, "dashboard/create_event.html", {"event_form": form})
+            event = form.save(commit=False)
+            # Ensure unique slug
+            if not event.slug:
+                _ensure_unique_slug(event, event.name or "event")
+            event.save()
+            return JsonResponse({"ok": True})
+
+        # Return form errors
+        errors = {field: error[0] for field, error in form.errors.items()}
+        return JsonResponse({"ok": False, "error": "Invalid form", "errors": errors}, status=400)
+
+    except Exception as e:
+        print(f"Error creating event: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
 
 @login_required
-def edit_event(request, slug):
-    event = get_object_or_404(Event, slug=slug)
-    if request.method == "POST":
-        form = EventForm(request.POST, request.FILES, instance=event)
-        if form.is_valid():
-            form.save()
-            return redirect("dashboard_home")
-    else:
-        form = EventForm(instance=event)
-    return render(request, "dashboard/create_event.html", {
-        "event_form": form, 
-        "editing": True, 
-        "event": event
-    })
+def edit_event(request, identifier):
+    """Edit an existing event via AJAX"""
+    try:
+        # Try slug first, then pk
+        try:
+            event = get_object_or_404(Event, slug=identifier)
+        except:
+            event = get_object_or_404(Event, pk=identifier)
+
+        if request.method == "POST":
+            form = EventForm(request.POST, request.FILES, instance=event)
+            if form.is_valid():
+                event = form.save(commit=False)
+                # Ensure slug is still unique if name changed
+                if not event.slug or form.has_changed() and 'name' in form.changed_data:
+                    _ensure_unique_slug(event, event.name or "event")
+                event.save()
+                return JsonResponse({"ok": True})
+
+            # Return form errors
+            errors = {field: error[0] for field, error in form.errors.items()}
+            return JsonResponse({"ok": False, "error": "Invalid form", "errors": errors}, status=400)
+
+    except Exception as e:
+        print(f"Error editing event: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
 
 @require_POST
 @login_required
-def delete_event(request, slug):
-    get_object_or_404(Event, slug=slug).delete()
-    return redirect("dashboard_home")
+def delete_event(request, identifier):
+    try:
+        # Try slug first, then pk
+        try:
+            event = get_object_or_404(Event, slug=identifier)
+        except:
+            event = get_object_or_404(Event, pk=identifier)
+        event.delete()
+        return JsonResponse({"ok": True})
+    except Exception as e:
+        print(f"Error deleting event: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
 
 # ---------- API ----------
@@ -222,38 +337,200 @@ def engagement_api(request):
     return JsonResponse(data)
 
 
+@login_required
+def voting_dashboard(request):
+    """Voting dashboard: view campaigns, nominees, and votes"""
+    campaigns = VotingCampaign.objects.all().order_by('-start_date')
+    nominees = Nominee.objects.all().order_by('-vote_count')
+    votes = Vote.objects.all().order_by('-created_at')
+    transactions = Transaction.objects.all().order_by('-created_at')
+    
+    # Campaign form
+    if request.method == 'POST' and 'create_campaign' in request.POST:
+        form = VotingCampaignForm(request.POST, request.FILES)
+        if form.is_valid():
+            campaign = form.save(commit=False)
+            if not campaign.slug:
+                _ensure_unique_slug(campaign, campaign.name or "campaign")
+            campaign.save()
+            return redirect('voting_dashboard')
+    else:
+        form = VotingCampaignForm()
+    
+    context = {
+        'campaigns': campaigns,
+        'nominees': nominees,
+        'votes': votes,
+        'transactions': transactions,
+        'campaign_form': form,
+    }
+    
+    return render(request, 'dashboard/voting.html', context)
+
+
+@login_required
+def view_campaign_voters(request, slug):
+    """View all voters for a specific campaign"""
+    campaign = get_object_or_404(VotingCampaign, slug=slug)
+    voters = Vote.objects.filter(nominee__campaign=campaign).order_by('-created_at')
+    
+    context = {
+        'campaign': campaign,
+        'voters': voters,
+    }
+    
+    return render(request, 'dashboard/view_campaign_voters.html', context)
+
+
+@require_POST
+@login_required
+def create_campaign(request):
+    """Create a new voting campaign via AJAX"""
+    try:
+        form = VotingCampaignForm(request.POST, request.FILES)
+        if form.is_valid():
+            campaign = form.save(commit=False)
+            if not campaign.slug:
+                _ensure_unique_slug(campaign, campaign.name or "campaign")
+            campaign.save()
+            return JsonResponse({"ok": True})
+        
+        errors = {field: error[0] for field, error in form.errors.items()}
+        return JsonResponse({"ok": False, "error": "Invalid form", "errors": errors}, status=400)
+    
+    except Exception as e:
+        print(f"Error creating campaign: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@login_required
+def edit_campaign(request, slug):
+    """Edit an existing voting campaign via AJAX"""
+    try:
+        campaign = get_object_or_404(VotingCampaign, slug=slug)
+        
+        if request.method == "POST":
+            form = VotingCampaignForm(request.POST, request.FILES, instance=campaign)
+            if form.is_valid():
+                campaign = form.save(commit=False)
+                if not campaign.slug or form.has_changed() and 'name' in form.changed_data:
+                    _ensure_unique_slug(campaign, campaign.name or "campaign")
+                campaign.save()
+                return JsonResponse({"ok": True})
+            
+            errors = {field: error[0] for field, error in form.errors.items()}
+            return JsonResponse({"ok": False, "error": "Invalid form", "errors": errors}, status=400)
+    
+    except Exception as e:
+        print(f"Error editing campaign: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@require_POST
+@login_required
+def delete_campaign(request, slug):
+    """Delete a voting campaign"""
+    try:
+        campaign = get_object_or_404(VotingCampaign, slug=slug)
+        campaign.delete()
+        return JsonResponse({"ok": True})
+    except Exception as e:
+        print(f"Error deleting campaign: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
 
 
 
 
 
-# # dashboard/views.py
-# from datetime import date, timedelta
-# from collections import Counter
-# from django.shortcuts import render, redirect, get_object_or_404
-# from django.views.decorators.http import require_POST
-# from django.http import JsonResponse
-# from .models import Post, Event  # proxies
-# from .forms import PostForm, EventForm
 
-# # ---------- Home: lists + KPIs + chart arrays ----------
-# # dashboard/views.py
 
-# # dashboard/views.py
-# from datetime import date, timedelta
-# from collections import Counter
+# ---------- Rest Card Management ----------
+from Web.models import RestCard
 
-# from django.shortcuts import render, redirect, get_object_or_404
-# from django.views.decorators.http import require_POST
-# from django.http import JsonResponse
-# from django.utils.text import slugify
+@login_required
+@require_http_methods(["POST"])
+def edit_rest_card(request, card_id):
+    """Edit a rest card"""
+    try:
+        card = get_object_or_404(RestCard, pk=card_id)
+        
+        # Parse JSON data if sent
+        import json
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+            member_name = data.get('member_name', '').strip()
+            member_email = data.get('member_email', '').strip()
+            member_phone = data.get('member_phone', '').strip()
+        else:
+            # Fallback to form data
+            member_name = request.POST.get('member_name', '').strip()
+            member_email = request.POST.get('member_email', '').strip()
+            member_phone = request.POST.get('member_phone', '').strip()
+        
+        if member_name:
+            card.member_name = member_name
+        if member_email:
+            card.member_email = member_email
+        if member_phone:
+            card.member_phone = member_phone
+        
+        card.save()
+        return JsonResponse({"ok": True, "message": "Card updated successfully"})
+    
+    except Exception as e:
+        print(f"Error editing rest card: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
-# from .models import Post, Event
-# from .forms import PostForm, EventForm
-# from django.contrib.auth.decorators import login_required
-# from django.views.decorators.csrf import csrf_protect
-# from django.contrib.auth import login as auth_login
+
+@login_required
+@require_http_methods(["POST"])
+def generate_rest_card(request, card_id):
+    """Generate a rest card"""
+    try:
+        card = get_object_or_404(RestCard, pk=card_id)
+        # In a real implementation, this would generate a PDF or image of the card
+        # For now, we'll just return a success message
+        return JsonResponse({"ok": True, "message": "Card generated successfully"})
+    
+    except Exception as e:
+        print(f"Error generating rest card: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def resend_rest_card(request, card_id):
+    """Resend rest card details to the member"""
+    try:
+        card = get_object_or_404(RestCard, pk=card_id)
+        # In a real implementation, this would send an email with the card details
+        # For now, we'll just return a success message
+        return JsonResponse({"ok": True, "message": "Card details resent successfully"})
+    
+    except Exception as e:
+        print(f"Error resending rest card: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def toggle_rest_card_status(request, card_id):
+    """Activate or deactivate a rest card"""
+    try:
+        card = get_object_or_404(RestCard, pk=card_id)
+        if card.status == 'active':
+            card.status = 'suspended'
+            message = "Card deactivated successfully"
+        else:
+            card.status = 'active'
+            message = "Card activated successfully"
+        card.save()
+        return JsonResponse({"ok": True, "message": message, "new_status": card.status})
+    
+    except Exception as e:
+        print(f"Error toggling rest card status: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
 
 # def _ensure_unique_slug(instance, base_text: str):

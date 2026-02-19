@@ -14,17 +14,44 @@ logger = logging.getLogger(__name__)
 
 
 def home(request):
-    today = timezone.now().date()
-    events = Event.objects.filter(date__gte=today).order_by('date')
-    posts = Post.objects.filter(is_published=True).order_by('-created_at')[:6]
+    from .models import VotingCampaign, Nominee
+    
+    # Get the latest active campaign
+    latest_campaign = VotingCampaign.objects.filter(is_active=True).order_by('-start_date').first()
+    
+    # Calculate additional campaign data
+    total_nominations = 0
+    days_remaining = 0
+    top_nominees = []
+    
+    if latest_campaign:
+        total_nominations = Nominee.objects.filter(campaign=latest_campaign).count()
+        
+        # Calculate days remaining
+        from datetime import date
+        if latest_campaign.end_date:
+            today = date.today()
+            end_date = latest_campaign.end_date.date() if hasattr(latest_campaign.end_date, 'date') else latest_campaign.end_date
+            delta = end_date - today
+            days_remaining = max(0, delta.days)
+        
+        # Get top nominees (top 3 by votes)
+        top_nominees = Nominee.objects.filter(campaign=latest_campaign).order_by('-vote_count')[:3]
+    
     return render(request, 'Web/home.html', {
-        'posts': posts,
-        'events': events,
+        'campaign': latest_campaign,
+        'total_nominations': total_nominations,
+        'days_remaining': days_remaining,
+        'top_nominees': top_nominees,
     })
 
 
 def about(request):
     return render(request, 'Web/about.html', context={})
+
+
+def raising_readers(request):
+    return render(request, 'Web/raising_readers.html', context={})
 
 
 def packages(request):
@@ -42,6 +69,14 @@ def privacy_policy(request):
 
 def terms(request):
     return render(request, 'Web/terms.html')
+
+
+def refund_policy(request):
+    return render(request, 'Web/refund_policy.html')
+
+
+def faq(request):
+    return render(request, 'Web/faq.html')
 
 # -----------------------------
 # BLOG
@@ -162,6 +197,70 @@ def quote_request(request):
     return JsonResponse({"ok": True})
 
 
+@require_POST
+@csrf_protect
+def card_request(request):
+    """Handle Rest Card request form - add to waitlist and send emails"""
+    from .models import RestCard
+    
+    name = request.POST.get("name","").strip()
+    email = request.POST.get("email","").strip()
+    phone = request.POST.get("phone","").strip()
+    message = request.POST.get("message","").strip()
+
+    if not name or not email or not phone:
+        return JsonResponse({"success": False, "error": "Name, email and phone are required."}, status=400)
+
+    # Check if already on waitlist
+    if RestCard.objects.filter(member_email=email).exists():
+        return JsonResponse({"success": False, "error": "This email is already on the waitlist."}, status=400)
+
+    # Check if waitlist is full
+    waitlist_count = RestCard.objects.filter(status='waitlist').count()
+    if waitlist_count >= 1000:
+        return JsonResponse({"success": False, "error": "Waitlist is currently full. Check back soon!"}, status=400)
+
+    # Create waitlist entry
+    try:
+        card = RestCard.objects.create(
+            member_name=name,
+            member_email=email,
+            member_phone=phone,
+            status='waitlist'
+        )
+
+        # Send email to clientservicesunwindafrica@gmail.com
+        subject_admin = f"New Rest Card Request from {name}"
+        body_admin = (
+            f"New Rest Card Request:\n\n"
+            f"Name: {name}\nEmail: {email}\nPhone: {phone}\n"
+            f"Message: {message}\n"
+            f"Waitlist Position: #{card.waitlist_position}\n"
+        )
+        send_mail(subject_admin, body_admin, "no-reply@unwindafrica.com", ["clientservicesunwindafrica@gmail.com"], fail_silently=False)
+
+        # Send confirmation email to user
+        subject_user = "Thank you for your Rest Card request!"
+        body_user = (
+            f"Dear {name},\n\n"
+            f"Thank you for requesting a Rest Card from Unwind Africa!\n\n"
+            f"We have received your request and added you to our waitlist.\n"
+            f"Your position on the waitlist is: #{card.waitlist_position}\n\n"
+            f"We will contact you as soon as more spots become available.\n\n"
+            f"Best regards,\n"
+            f"The Unwind Africa Team\n"
+            f"Phone: +234 123 456 7890\n"
+            f"Email: hello@unwindafrica.com"
+        )
+        send_mail(subject_user, body_user, "no-reply@unwindafrica.com", [email], fail_silently=False)
+
+    except Exception as e:
+        print(f"Error processing card request: {e}")
+        return JsonResponse({"success": False, "error": "Failed to process request. Please try again."}, status=500)
+
+    return JsonResponse({"success": True, "message": f"Thank you for your request! You are #{card.waitlist_position} on the waitlist."})
+
+
 # ===================== COMMUNITY & REST CARD VIEWS =====================
 
 def community_stats(request):
@@ -198,22 +297,9 @@ def community_stats(request):
 
 
 def rest_card_info(request):
-    """Rest Card information and benefits page"""
-    from .models import RestCard
-    
-    # Count waitlist members
-    waitlist_count = RestCard.objects.filter(status='waitlist').count()
-    active_count = RestCard.objects.filter(status='active').count()
-    spots_remaining = max(0, 1000 - waitlist_count)
-    
-    context = {
-        'waitlist_count': waitlist_count,
-        'active_count': active_count,
-        'spots_remaining': spots_remaining,
-        'is_waitlist_full': waitlist_count >= 1000,
-    }
-    
-    return render(request, 'Web/community/rest_card.html', context)
+    """Redirect to home page's card request section"""
+    from django.shortcuts import redirect
+    return redirect('/#card-request')
 
 
 @require_POST
@@ -307,4 +393,240 @@ def token_wallet_view(request):
 def unwind_and_win(request):
     """Unwind & Win rewards page"""
     return render(request, 'Web/community/unwind_and_win.html', {})
+
+
+def vote(request):
+    """Voting page for users - displays nominees with search and filter"""
+    from .models import VotingCampaign, Nominee
+    
+    # Get active campaign
+    campaign = VotingCampaign.objects.filter(is_active=True).order_by('-start_date').first()
+    
+    if not campaign:
+        return render(request, 'Web/vote.html', {'campaign': None, 'error': 'No active campaign'})
+    
+    # Get all nominees for the campaign
+    nominees = Nominee.objects.filter(campaign=campaign).order_by('number')
+    
+    context = {
+        'campaign': campaign,
+        'nominees': nominees
+    }
+    
+    return render(request, 'Web/vote.html', context)
+
+
+def payment(request, vote_id):
+    """Payment page for votes"""
+    from .models import Vote
+    
+    vote = get_object_or_404(Vote, id=vote_id)
+    
+    if request.method == 'POST':
+        # Process payment (implement Paystack integration)
+        payment_method = request.POST.get('payment_method')
+        
+        # For now, just mark as paid
+        vote.payment_status = 'paid'
+        vote.save()
+        
+        return redirect('vote_confirmation', vote_id=vote.id)
+    
+    context = {
+        'vote': vote,
+        'campaign': vote.nominee.campaign
+    }
+    
+    return render(request, 'Web/payment.html', context)
+
+
+def vote_confirmation(request, vote_id):
+    """Vote confirmation page"""
+    from .models import Vote
+    
+    vote = get_object_or_404(Vote, id=vote_id)
+    
+    context = {
+        'vote': vote,
+        'campaign': vote.nominee.campaign
+    }
+    
+    return render(request, 'Web/vote_confirmation.html', context)
+
+
+def nominate(request):
+    """Nomination form for couples"""
+    from .models import VotingCampaign
+    from .forms import NominationForm
+    
+    # Get active campaign
+    campaign = VotingCampaign.objects.filter(is_active=True).order_by('-start_date').first()
+    
+    if not campaign:
+        return render(request, 'Web/nominate.html', {'campaign': None, 'error': 'No active campaign'})
+    
+    if request.method == 'POST':
+        form = NominationForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Save nomination
+            nominee = form.save(campaign)
+            
+            return redirect('nomination_confirmation', nominee_id=nominee.id)
+    else:
+        form = NominationForm()
+    
+    context = {
+        'campaign': campaign,
+        'form': form
+    }
+    
+    return render(request, 'Web/nominate.html', context)
+
+
+def nomination_confirmation(request, nominee_id):
+    """Nomination confirmation page"""
+    from .models import Nominee
+    
+    nominee = get_object_or_404(Nominee, id=nominee_id)
+    
+    context = {
+        'nominee': nominee,
+        'campaign': nominee.campaign
+    }
+    
+    return render(request, 'Web/nomination_confirmation.html', context)
+
+
+def my_rest_card(request):
+    """User's Rest Card view (requires email + OTP authentication)"""
+    # For now, we'll use email lookup - in production, this should use OTP
+    email = request.GET.get('email', '').strip()
+    
+    if not email:
+        return render(request, 'Web/community/my_rest_card.html', {'card': None})
+    
+    from .models import RestCard, TokenWallet
+    
+    try:
+        card = RestCard.objects.get(member_email=email)
+        
+        # Get token wallet
+        try:
+            wallet = TokenWallet.objects.get(member_email=email)
+        except TokenWallet.DoesNotExist:
+            wallet = None
+            
+        context = {
+            'card': card,
+            'wallet': wallet
+        }
+        
+        return render(request, 'Web/community/my_rest_card.html', context)
+        
+    except RestCard.DoesNotExist:
+        return render(request, 'Web/community/my_rest_card.html', {
+            'card': None,
+            'error': 'No Rest Card found for this email.'
+        })
+
+
+def generate_rest_card(request, card_id):
+    """Generate a digital Rest Card as PNG image"""
+    from django.http import HttpResponse
+    from io import BytesIO
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except ImportError:
+        return HttpResponse("PIL library not available", status=500)
+    
+    from .models import RestCard, TokenWallet
+    
+    try:
+        card = RestCard.objects.get(id=card_id)
+        
+        # Get token wallet
+        try:
+            wallet = TokenWallet.objects.get(member_email=card.member_email)
+        except TokenWallet.DoesNotExist:
+            wallet = None
+            
+        # Create card image
+        width, height = 800, 500
+        image = Image.new('RGB', (width, height), color='#ffffff')
+        draw = ImageDraw.Draw(image)
+        
+        # Card background
+        draw.rectangle([0, 0, width, height], fill='#ffffff')
+        draw.rectangle([10, 10, width-10, height-10], fill='#f8f9fa', width=2)
+        
+         # Card header
+        draw.rectangle([10, 10, width-10, 100], fill='#667eea')
+        try:
+            draw.text((width//2, 55), 'UNWIND AFRICA', fill='#ffffff', font=ImageFont.truetype('arial.ttf', 36), anchor='mm')
+            draw.text((width//2, 80), 'REST CARD', fill='#ffffff', font=ImageFont.truetype('arial.ttf', 18), anchor='mm')
+            
+            # Card details
+            y_offset = 120
+            draw.text((20, y_offset), 'Member Name:', fill='#000000', font=ImageFont.truetype('arial.ttf', 14))
+            draw.text((200, y_offset), card.member_name, fill='#000000', font=ImageFont.truetype('arial.ttf', 16))
+            
+            y_offset += 40
+            draw.text((20, y_offset), 'Rest Card ID:', fill='#000000', font=ImageFont.truetype('arial.ttf', 14))
+            draw.text((200, y_offset), card.card_number, fill='#000000', font=ImageFont.truetype('arial.ttf', 16))
+            
+            y_offset += 40
+            draw.text((20, y_offset), 'Status:', fill='#000000', font=ImageFont.truetype('arial.ttf', 14))
+            status_text = card.status.title()
+            status_color = '#28a745' if card.status == 'active' else '#ffc107' if card.status == 'pending' else '#dc3545'
+            draw.text((200, y_offset), status_text, fill=status_color, font=ImageFont.truetype('arial.ttf', 16))
+            
+            y_offset += 40
+            draw.text((20, y_offset), 'Tokens Earned:', fill='#000000', font=ImageFont.truetype('arial.ttf', 14))
+            tokens = wallet.tokens_earned if wallet else 0
+            draw.text((200, y_offset), str(tokens), fill='#000000', font=ImageFont.truetype('arial.ttf', 16))
+            
+            y_offset += 40
+            draw.text((20, y_offset), 'Issue Date:', fill='#000000', font=ImageFont.truetype('arial.ttf', 14))
+            issue_date = card.activated_at.strftime('%B %d, %Y') if card.activated_at else '-'
+            draw.text((200, y_offset), issue_date, fill='#000000', font=ImageFont.truetype('arial.ttf', 16))
+        except IOError:
+            # If arial.ttf not found, use default font
+            draw.text((width//2, 55), 'UNWIND AFRICA', fill='#ffffff', font=ImageFont.load_default(), anchor='mm')
+            draw.text((width//2, 80), 'REST CARD', fill='#ffffff', font=ImageFont.load_default(), anchor='mm')
+            
+            y_offset = 120
+            draw.text((20, y_offset), 'Member Name:', fill='#000000', font=ImageFont.load_default())
+            draw.text((200, y_offset), card.member_name, fill='#000000', font=ImageFont.load_default())
+            
+            y_offset += 40
+            draw.text((20, y_offset), 'Rest Card ID:', fill='#000000', font=ImageFont.load_default())
+            draw.text((200, y_offset), card.card_number, fill='#000000', font=ImageFont.load_default())
+            
+            y_offset += 40
+            draw.text((20, y_offset), 'Status:', fill='#000000', font=ImageFont.load_default())
+            status_text = card.status.title()
+            status_color = '#28a745' if card.status == 'active' else '#ffc107' if card.status == 'pending' else '#dc3545'
+            draw.text((200, y_offset), status_text, fill=status_color, font=ImageFont.load_default())
+            
+            y_offset += 40
+            draw.text((20, y_offset), 'Tokens Earned:', fill='#000000', font=ImageFont.load_default())
+            tokens = wallet.tokens_earned if wallet else 0
+            draw.text((200, y_offset), str(tokens), fill='#000000', font=ImageFont.load_default())
+            
+            y_offset += 40
+            draw.text((20, y_offset), 'Issue Date:', fill='#000000', font=ImageFont.load_default())
+            issue_date = card.activated_at.strftime('%B %d, %Y') if card.activated_at else '-'
+            draw.text((200, y_offset), issue_date, fill='#000000', font=ImageFont.load_default())
+        
+        # Save image to buffer
+        buffer = BytesIO()
+        image.save(buffer, format='PNG')
+        buffer.seek(0)
+        
+        return HttpResponse(buffer, content_type='image/png')
+        
+    except RestCard.DoesNotExist:
+        return HttpResponse("Rest Card not found", status=404)
+    except Exception as e:
+        return HttpResponse(f"Error generating card: {str(e)}", status=500)
 

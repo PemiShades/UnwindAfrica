@@ -48,6 +48,7 @@ from django.forms import (
 # IMPORTANT: import the PROXY models from dashboard.models
 # (These point to the same DB tables defined in web.models)
 from .models import Post, Event
+from Web.models import VotingCampaign
 
 
 
@@ -192,6 +193,162 @@ class EventForm(forms.ModelForm):
         if not name:
             raise forms.ValidationError("Event name is required.")
         return name
+
+
+class VotingCampaignForm(forms.ModelForm):
+    """
+    Form for creating and editing voting campaigns in the dashboard.
+    """
+    class Meta:
+        model = VotingCampaign
+        fields = [
+            'name', 'tagline', 'description', 'start_date', 'end_date',
+            'vote_price', 'prize_description', 'is_active'
+        ]
+        widgets = {
+            'name': TextInput(attrs={
+                "class": "field ring-brand",
+                "placeholder": "Campaign name (e.g., Valentine Edition)",
+                "maxlength": 255,
+            }),
+            'tagline': TextInput(attrs={
+                "class": "field ring-brand",
+                "placeholder": "Short tagline (e.g., Spread love this February)",
+                "maxlength": 255,
+            }),
+            'description': Textarea(attrs={
+                "class": "field ring-brand",
+                "rows": 6,
+                "placeholder": "Detailed campaign description...",
+            }),
+            'start_date': DateInput(attrs={
+                "type": "date",
+                "class": "field ring-brand",
+            }),
+            'end_date': DateInput(attrs={
+                "type": "date",
+                "class": "field ring-brand",
+            }),
+            'vote_price': TextInput(attrs={
+                "class": "field ring-brand",
+                "placeholder": "Price per vote",
+            }),
+            'prize_description': Textarea(attrs={
+                "class": "field ring-brand",
+                "rows": 4,
+                "placeholder": "Prize description for winners...",
+            }),
+            'is_active': CheckboxInput(attrs={
+                "class": "field ring-brand",
+            }),
+        }
+
+
+class VotingCampaignForm(forms.ModelForm):
+    """
+    Form for creating and editing voting campaigns.
+    """
+    class Meta:
+        model = VotingCampaign
+        fields = [
+            "name", "description", "tagline", "start_date", "end_date",
+            "vote_price", "rest_points_per_vote",
+            "grand_prize", "grand_prize_description",
+            "second_prize", "second_prize_description",
+            "third_prize", "third_prize_description",
+            "prize_description", "banner_image", "is_active"
+        ]
+        widgets = {
+            "name": TextInput(attrs={
+                "class": "field ring-brand",
+                "placeholder": "Campaign name (e.g., Nominate to Unwind – February Edition)",
+                "maxlength": 255,
+            }),
+            "description": Textarea(attrs={
+                "class": "field ring-brand",
+                "rows": 4,
+                "placeholder": "Campaign description…",
+            }),
+            "tagline": TextInput(attrs={
+                "class": "field ring-brand",
+                "placeholder": "Short tagline (e.g., Spread love and relaxation)",
+                "maxlength": 255,
+            }),
+            "start_date": DateInput(attrs={
+                "type": "date",
+                "class": "field ring-brand",
+            }),
+            "end_date": DateInput(attrs={
+                "type": "date",
+                "class": "field ring-brand",
+            }),
+            "vote_price": TextInput(attrs={
+                "class": "field ring-brand",
+                "placeholder": "Price per vote (e.g., 500)",
+            }),
+            "rest_points_per_vote": TextInput(attrs={
+                "class": "field ring-brand",
+                "placeholder": "Rest points per vote (e.g., 100)",
+            }),
+            "grand_prize": TextInput(attrs={
+                "class": "field ring-brand",
+                "placeholder": "Grand prize (e.g., Luxury Getaway)",
+                "maxlength": 255,
+            }),
+            "grand_prize_description": Textarea(attrs={
+                "class": "field ring-brand",
+                "rows": 3,
+                "placeholder": "Grand prize description…",
+            }),
+            "second_prize": TextInput(attrs={
+                "class": "field ring-brand",
+                "placeholder": "Second prize (e.g., Spa Retreat)",
+                "maxlength": 255,
+            }),
+            "second_prize_description": Textarea(attrs={
+                "class": "field ring-brand",
+                "rows": 3,
+                "placeholder": "Second prize description…",
+            }),
+            "third_prize": TextInput(attrs={
+                "class": "field ring-brand",
+                "placeholder": "Third prize (e.g., Dinner & Movie)",
+                "maxlength": 255,
+            }),
+            "third_prize_description": Textarea(attrs={
+                "class": "field ring-brand",
+                "rows": 3,
+                "placeholder": "Third prize description…",
+            }),
+            "prize_description": Textarea(attrs={
+                "class": "field ring-brand",
+                "rows": 3,
+                "placeholder": "Overall prizes description…",
+            }),
+            "banner_image": ClearableFileInput(attrs={
+                "class": "field ring-brand",
+                "accept": "image/*",
+            }),
+            "is_active": CheckboxInput(attrs={
+                "class": "field ring-brand",
+            }),
+        }
+
+    def clean_name(self):
+        name = self.cleaned_data.get("name", "").strip()
+        if not name:
+            raise forms.ValidationError("Campaign name is required.")
+        return name
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get("start_date")
+        end_date = cleaned_data.get("end_date")
+
+        if start_date and end_date and start_date > end_date:
+            raise forms.ValidationError("Start date must be before end date.")
+
+        return cleaned_data
 
 
 # Back-compat alias so existing imports like `from dashboard.forms import BlogPostForm`

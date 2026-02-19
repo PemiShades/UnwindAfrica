@@ -1,0 +1,618 @@
+{% extends 'Web/main.html' %}
+{% load static %}
+
+{% block title %}Raising Readers — Reading and Rest for Families | Unwind Africa{% endblock %}
+
+{% block extra_css %}
+<style>
+:root{
+  --ua-sky:#00B2FF;--ua-sea:#00C2FF;--ua-sun:#FFB648;--ua-ink:#0A0B10;--ua-paper:#FFFFFF;
+  --radius:20px;--shadow:0 26px 58px rgba(10,11,16,.12);--container:min(1180px, 92vw);
+}
+
+.raising-readers-page{font-family:Inter,system-ui,sans-serif;color:var(--ua-ink);background:linear-gradient(135deg,#f8fafc 0%,#e0e7ff 100%);line-height:1.7;overflow-x:hidden;}
+.section{padding:clamp(90px,12vw,160px) 0;}
+.container{width:var(--container);margin-inline:auto;padding-inline:clamp(20px,4vw,48px);}
+
+.ed-kicker{font-size:.78rem;letter-spacing:.26em;text-transform:uppercase;font-weight:900;color:var(--ua-sky);}
+.ed-title{font-family:"Playfair Display",serif;font-weight:900;letter-spacing:-.03em;line-height:1.02;
+          font-size:clamp(3rem,8.5vw,6.2rem);margin:0 0 .35em;}
+.ed-sub{max-width:74ch;font-size:clamp(1.12rem,2.3vw,1.34rem);line-height:1.74;color:#2d3748;}
+.rule{height:4px;width:70px;background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));border-radius:4px;margin:1.2rem 0;}
+
+/* Hero Section - Enhanced */
+.readers-hero{
+  position:relative;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  color:#fff;
+  overflow:hidden;
+  padding-top:120px;
+}
+.readers-hero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg,rgba(10,11,16,.96) 0%,rgba(8,18,38,.88) 66%);
+  z-index:1;
+}
+.readers-hero::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:url("{% static 'assets/home/family.jpg' %}") center/cover no-repeat;
+  filter:brightness(.62) contrast(1.12);
+  transform:scale(1.05);
+}
+.readers-hero .hero-content{
+  position:relative;
+  z-index:2;
+  text-align:center;
+}
+.hero-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:.6rem 1.2rem;
+  border-radius:999px;
+  background:rgba(255,255,255,.15);
+  backdrop-filter:blur(10px);
+  border:2px solid rgba(255,255,255,.3);
+  font-weight:900;
+  font-size:.8rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  margin-bottom:24px;
+  box-shadow:0 8px 24px rgba(255,107,157,.3);
+}
+.hero-title{
+  font-size:clamp(1.5rem,2vw,2.5rem);
+  max-width:60ch;
+  font-weight:900;
+  line-height:.95;
+  letter-spacing:-.02em;
+  margin-bottom:clamp(20px,3vw,32px);
+  text-transform:uppercase;
+}
+.hero-subtitle{
+  font-size:clamp(1.1rem,1vw,1.5rem);
+  max-width:62ch;
+  margin:0 auto clamp(32px,5vw,48px);
+  line-height:1.5;
+  color:rgba(255,255,255,.9);
+}
+.hero-actions{
+  display:flex;
+  gap:.6rem;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin:.8rem 0 1.6rem;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:.9rem 1.2rem;
+  border-radius:999px;
+  font-weight:900;
+  border:1px solid transparent;
+  transition:all .3s ease;
+  cursor:pointer;
+  text-align:center;
+  white-space:nowrap;
+  position:relative;
+  overflow:hidden;
+}
+.btn:hover{transform:translateY(-3px);box-shadow:0 15px 35px rgba(0,0,0,0.2);}
+.primary-solid{
+  background:linear-gradient(90deg,#FF6B9D,var(--ua-sky));
+  color:#fff;
+  border-color:color-mix(in oklab,#FF6B9D 40%,transparent);
+  box-shadow:0 8px 24px rgba(255,107,157,0.3);
+}
+.primary-solid::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:100%;
+  height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);
+  transition:left .5s;
+}
+.primary-solid:hover::before{left:100%;}
+
+/* Content Sections - Enhanced */
+.section-content{
+  max-width:900px;
+  margin:0 auto;
+}
+.section-title{
+  font-family:"Playfair Display",serif;
+  font-size:clamp(2rem,5vw,3.5rem);
+  font-weight:900;
+  margin-bottom:1.5rem;
+  text-align:center;
+  background:linear-gradient(135deg,#FF6B9D,var(--ua-sky));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.section-text{
+  font-size:clamp(1rem,1.5vw,1.2rem);
+  line-height:1.8;
+  color:#4a5568;
+  margin-bottom:1.5rem;
+}
+.feature-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:2rem;
+  margin:3rem 0;
+}
+.feature-card{
+  background:white;
+  border-radius:16px;
+  padding:2rem;
+  box-shadow:0 10px 30px rgba(0,0,0,0.08);
+  transition:all .3s ease;
+  border:2px solid rgba(255,107,157,0.1);
+  position:relative;
+  overflow:hidden;
+}
+.feature-card::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:linear-gradient(135deg,rgba(255,107,157,0.1),rgba(0,178,255,0.05));
+  opacity:0;
+  transition:opacity .3s ease;
+}
+.feature-card:hover::before{opacity:1;}
+.feature-card:hover{
+  transform:translateY(-8px);
+  box-shadow:0 20px 50px rgba(0,0,0,0.15);
+  border-color:rgba(255,107,157,0.3);
+}
+.feature-icon{
+  font-size:2.5rem;
+  color:#FF6B9D;
+  margin-bottom:1rem;
+  position:relative;
+  z-index:1;
+}
+.feature-title{
+  font-family:"Playfair Display",serif;
+  font-size:1.5rem;
+  font-weight:700;
+  margin-bottom:.75rem;
+  position:relative;
+  z-index:1;
+}
+.feature-text{
+  font-size:1rem;
+  line-height:1.7;
+  color:#4a5568;
+  position:relative;
+  z-index:1;
+}
+.values-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:1.5rem;
+  margin:3rem 0;
+}
+.value-item{
+  text-align:center;
+  padding:1.5rem;
+  background:linear-gradient(135deg,rgba(255,107,157,0.08),rgba(0,178,255,0.06));
+  border-radius:16px;
+  border:2px solid rgba(255,107,157,0.2);
+  transition:all .3s ease;
+  position:relative;
+  overflow:hidden;
+}
+.value-item::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:linear-gradient(135deg,rgba(255,107,157,0.15),rgba(0,178,255,0.1));
+  opacity:0;
+  transition:opacity .3s ease;
+}
+.value-item:hover::before{opacity:1;}
+.value-item:hover{
+  transform:translateY(-5px);
+  box-shadow:0 15px 40px rgba(0,0,0,0.12);
+  border-color:rgba(255,107,157,0.4);
+}
+.value-icon{
+  font-size:2rem;
+  color:#FF6B9D;
+  margin-bottom:.75rem;
+  position:relative;
+  z-index:1;
+}
+.value-title{
+  font-family:"Playfair Display",serif;
+  font-size:1.25rem;
+  font-weight:700;
+  margin-bottom:.5rem;
+  position:relative;
+  z-index:1;
+}
+.value-text{
+  font-size:.9rem;
+  color:#4a5568;
+  position:relative;
+  z-index:1;
+}
+.how-it-works{
+  background:linear-gradient(135deg,rgba(255,107,157,0.05),rgba(0,178,255,0.03));
+  border-radius:24px;
+  padding:3rem;
+  margin:3rem 0;
+  position:relative;
+  overflow:hidden;
+}
+.how-it-works::before{
+  content:"";
+  position:absolute;
+  top:-50%;
+  right:-20%;
+  width:400px;
+  height:400px;
+  background:radial-gradient(circle,rgba(255,107,157,0.15),transparent 70%);
+  animation:float 20s ease-in-out infinite;
+}
+.how-it-works::after{
+  content:"";
+  position:absolute;
+  bottom:-30%;
+  left:-15%;
+  width:350px;
+  height:350px;
+  background:radial-gradient(circle,rgba(0,178,255,0.12),transparent 70%);
+  animation:float 25s ease-in-out infinite reverse;
+}
+@keyframes float{
+  0%,100%{transform:translate(0,0) scale(1);}
+  50%{transform:translate(-30px,-40px) scale(1.05);}
+}
+.step{
+  display:flex;
+  gap:2rem;
+  margin-bottom:2rem;
+  align-items:flex-start;
+  position:relative;
+  z-index:2;
+}
+.step-number{
+  font-family:"Playfair Display",serif;
+  font-size:2.5rem;
+  font-weight:900;
+  color:#FF6B9D;
+  min-width:60px;
+  position:relative;
+}
+.step-content{
+  flex:1;
+}
+.step-title{
+  font-family:"Playfair Display",serif;
+  font-size:1.5rem;
+  font-weight:700;
+  margin-bottom:.75rem;
+}
+.step-text{
+  font-size:1rem;
+  line-height:1.7;
+  color:#4a5568;
+}
+.join-section{
+  text-align:center;
+  background:linear-gradient(135deg,#FF6B9D,var(--ua-sky));
+  color:white;
+  border-radius:24px;
+  padding:3rem;
+  margin:3rem 0;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 20px 60px rgba(255,107,157,0.4);
+}
+.join-section::before{
+  content:"";
+  position:absolute;
+  top:-50%;
+  left:-50%;
+  width:200%;
+  height:200%;
+  background:linear-gradient(45deg,transparent, rgba(255,255,255,.1), transparent);
+  animation:shimmer 3s infinite;
+}
+@keyframes shimmer{
+  0%{transform:rotate(0deg);}
+  100%{transform:rotate(360deg);}
+}
+.join-title{
+  font-family:"Playfair Display",serif;
+  font-size:clamp(2rem,5vw,3rem);
+  font-weight:900;
+  margin-bottom:1rem;
+  position:relative;
+  z-index:1;
+}
+.join-text{
+  font-size:clamp(1rem,1.5vw,1.2rem);
+  line-height:1.7;
+  margin-bottom:2rem;
+  position:relative;
+  z-index:1;
+}
+.join-btn{
+  background:white;
+  color:#FF6B9D;
+  padding:1rem 2rem;
+  font-size:1.1rem;
+  border:none;
+  position:relative;
+  z-index:1;
+}
+.join-btn:hover{
+  transform:translateY(-3px);
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* Responsive */
+@media (max-width:768px){
+  .section{padding:clamp(60px,10vw,100px) 0;}
+  .readers-hero{padding-top:80px;}
+  .how-it-works{padding:2rem;}
+  .step{flex-direction:column;gap:1rem;}
+  .join-section{padding:2rem;}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="raising-readers-page">
+  <!-- Hero Section -->
+  <section class="readers-hero">
+    <div class="container hero-content">
+      <div class="hero-badge">
+        <span class="hero-emoji">📚</span>
+        <span>Literacy Initiative</span>
+      </div>
+      <h1 class="hero-title">Raising Readers:<br>Reading and Rest for Families</h1>
+      <p class="hero-subtitle">A structured, adult-led reading community designed to strengthen literacy within families. Powered by REST, accessible to verified REST Card members.</p>
+      <div class="hero-actions">
+        <a href="#what-is" class="btn primary-solid">Learn More</a>
+        <a href="#join" class="btn primary-solid">Join Now</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- What Is Raising Readers -->
+  <section id="what-is" class="section">
+    <div class="container section-content">
+      <h2 class="section-title">What Is Raising Readers?</h2>
+      <div class="rule"></div>
+      <p class="section-text">Raising Readers is a family-centered literacy initiative that allows REST members to lend books responsibly, borrow books within structured cycles, encourage consistent reading habits, submit reflections and reviews, and participate in community literacy engagement.</p>
+      <p class="section-text">REST provides the registration and verification structure. Raising Readers activates reading culture within that structure.</p>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">📖</div>
+          <h3 class="feature-title">Responsible Lending</h3>
+          <p class="feature-text">Lend books through our structured system with clear guidelines and accountability measures.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📚</div>
+          <h3 class="feature-title">Structured Borrowing</h3>
+          <p class="feature-text">Borrow books within scheduled cycles with clear due dates and return processes.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">✨</div>
+          <h3 class="feature-title">Consistent Habits</h3>
+          <p class="feature-text">Build and maintain regular reading habits through our structured program.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💬</div>
+          <h3 class="feature-title">Community Engagement</h3>
+          <p class="feature-text">Share reflections, reviews, and engage with other families in our reading community.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Who Can Participate -->
+  <section class="section">
+    <div class="container section-content">
+      <h2 class="section-title">Who Can Participate?</h2>
+      <div class="rule"></div>
+      <p class="section-text">Raising Readers is open to parents, guardians, and adult readers (18+). All borrowing and book listings must be done through an adult.</p>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">👨‍👩‍👧‍👦</div>
+          <h3 class="feature-title">Parents & Guardians</h3>
+          <p class="feature-text">Register and manage book borrowing for your children and family.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🧑</div>
+          <h3 class="feature-title">Adult Readers</h3>
+          <p class="feature-text">Individual adult readers aged 18+ can participate directly.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">👶</div>
+          <h3 class="feature-title">Children & Teens</h3>
+          <p class="feature-text">Participate through your parent or guardian who manages the process.</p>
+        </div>
+      </div>
+
+      <div class="how-it-works">
+        <h3 class="section-title" style="font-size:2rem;">Adult Responsibilities</h3>
+        <p class="section-text">Adults are responsible for:</p>
+        <ul class="section-text">
+          <li>Maintaining the condition of borrowed books</li>
+          <li>Ensuring timely return of books</li>
+          <li>Replacing lost or damaged books</li>
+          <li>Overseeing children's participation</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="section">
+    <div class="container section-content">
+      <h2 class="section-title">How It Works</h2>
+      <div class="rule"></div>
+      
+      <div class="how-it-works">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3 class="step-title">REST Card Registration</h3>
+            <p class="step-text">All participants must complete the REST Card Registration Form for identity verification and accountability.</p>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3 class="step-title">Request Access</h3>
+            <p class="step-text">After registration, interested members may request to join the Raising Readers coordination platform.</p>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3 class="step-title">Verification</h3>
+            <p class="step-text">REST registration is confirmed before access is granted.</p>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <h3 class="step-title">Lend or Borrow</h3>
+            <p class="step-text">Verified members may submit books to lend, request books to borrow, and participate in reading engagement activities.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">📅</div>
+          <h3 class="feature-title">Twice Monthly Cycles</h3>
+          <p class="feature-text">Borrowing cycles take place twice monthly with 3-week borrowing periods.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3 class="feature-title">Limited Books per Cycle</h3>
+          <p class="feature-text">Members can borrow a limited number of books per cycle to ensure fair access for all.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">✅</div>
+          <h3 class="feature-title">Good Condition Return</h3>
+          <p class="feature-text">Books must be returned in good condition. Lost or damaged books must be replaced.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Community Engagement -->
+  <section class="section">
+    <div class="container section-content">
+      <h2 class="section-title">Community Engagement</h2>
+      <div class="rule"></div>
+      <p class="section-text">Raising Readers encourages active participation in literacy. Members may submit written reviews, audio reflections (submitted through parents), and optional reading photos. Selected submissions may be featured on REST platforms to celebrate reading culture within families.</p>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">✍️</div>
+          <h3 class="feature-title">Written Reviews</h3>
+          <p class="feature-text">Share your thoughts on the books you've read with the community.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎤</div>
+          <h3 class="feature-title">Audio Reflections</h3>
+          <p class="feature-text">Record and submit audio reflections, especially great for younger readers.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📸</div>
+          <h3 class="feature-title">Reading Photos</h3>
+          <p class="feature-text">Share optional photos of your reading moments to inspire others.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Our Values -->
+  <section class="section">
+    <div class="container section-content">
+      <h2 class="section-title">Our Values</h2>
+      <div class="rule"></div>
+      <p class="section-text">Raising Readers operates on core values that guide our community and mission.</p>
+
+      <div class="values-grid">
+        <div class="value-item">
+          <div class="value-icon">🏗️</div>
+          <h3 class="value-title">Structure</h3>
+          <p class="value-text">Clear guidelines and processes for consistent reading habits</p>
+        </div>
+        <div class="value-item">
+          <div class="value-icon">🤝</div>
+          <h3 class="value-title">Responsibility</h3>
+          <p class="value-text">Accountability for book care and timely returns</p>
+        </div>
+        <div class="value-item">
+          <div class="value-icon">❤️</div>
+          <h3 class="value-title">Respect</h3>
+          <p class="value-text">For books, readers, and the reading community</p>
+        </div>
+        <div class="value-item">
+          <div class="value-icon">📈</div>
+          <h3 class="value-title">Literacy Growth</h3>
+          <p class="value-text">Supporting reading development for all ages</p>
+        </div>
+        <div class="value-item">
+          <div class="value-icon">👥</div>
+          <h3 class="value-title">Community Trust</h3>
+          <p class="value-text">Building trust through transparency and reliability</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Join Section -->
+  <section id="join" class="section">
+    <div class="container section-content">
+      <div class="join-section">
+        <h2 class="join-title">Join Raising Readers</h2>
+        <p class="join-text">Be part of a structured reading community that strengthens families through intentional reading habits.</p>
+        <a href="{% url 'rest_card_info' %}" class="btn join-btn">Get Started</a>
+      </div>
+
+      <div class="how-it-works">
+        <h3 class="section-title" style="font-size:2rem;">How to Participate</h3>
+        <ol class="section-text">
+          <li>Complete your REST Card registration</li>
+          <li>Indicate your interest in Raising Readers</li>
+          <li>Await verification and onboarding instructions</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

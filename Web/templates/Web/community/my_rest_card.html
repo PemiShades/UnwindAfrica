@@ -1,0 +1,275 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}My Rest Card - Unwind Africa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .rest-card-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 2rem 1rem;
+    }
+
+    .rest-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        max-width: 600px;
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .rest-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #FFB648, #00B2FF);
+    }
+
+    .card-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .card-logo {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .card-title {
+        font-size: 2rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-subtitle {
+        color: #666;
+        font-size: 1rem;
+    }
+
+    .card-details {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .detail-item {
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .detail-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .detail-label {
+        font-size: 0.875rem;
+        color: #666;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .detail-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #0A0B10;
+    }
+
+    .card-status {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 700;
+    }
+
+    .status-active {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-suspended {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-expired {
+        background: #e2e3f3;
+        color: #383d8b;
+    }
+
+    .tokens-section {
+        background: linear-gradient(135deg, #FFB648, #00B2FF);
+        border-radius: 15px;
+        padding: 1.5rem;
+        color: white;
+        text-align: center;
+    }
+
+    .tokens-title {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .tokens-value {
+        font-size: 3rem;
+        font-weight: 900;
+    }
+
+    .access-form {
+        max-width: 400px;
+        margin: 0 auto;
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #0A0B10;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #eef0f6;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rest-card-container">
+    {% if card %}
+        <!-- Rest Card Display -->
+        <div class="rest-card">
+            <div class="card-header">
+                <div class="card-logo">💳</div>
+                <h1 class="card-title">UNWIND AFRICA</h1>
+                <p class="card-subtitle">REST CARD</p>
+            </div>
+
+            <div class="card-details">
+                <div class="detail-item">
+                    <div class="detail-label">Member Name</div>
+                    <div class="detail-value">{{ card.member_name }}</div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Rest Card ID</div>
+                    <div class="detail-value font-mono">{{ card.card_number }}</div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value">
+                        <span class="card-status status-{{ card.status }}">
+                            {{ card.status|title }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Issue Date</div>
+                    <div class="detail-value">{{ card.activated_at|date:"M d, Y"|default:"-" }}</div>
+                </div>
+
+                {% if card.expires_at %}
+                <div class="detail-item">
+                    <div class="detail-label">Expiry Date</div>
+                    <div class="detail-value">{{ card.expires_at|date:"M d, Y" }}</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="tokens-section">
+                <div class="tokens-title">Tokens Earned</div>
+                <div class="tokens-value">{{ wallet.tokens_earned|default:"0" }}</div>
+            </div>
+        </div>
+    {% else %}
+        <!-- Access Form -->
+        <div class="access-form">
+            <h2 style="text-align: center; margin-bottom: 1.5rem; color: #0A0B10;">Access Your Rest Card</h2>
+            
+            {% if error %}
+            <div class="error-message">{{ error }}</div>
+            {% endif %}
+            
+            <form method="get">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required 
+                           placeholder="Enter your email address">
+                </div>
+                
+                <button type="submit" class="btn-primary">View My Rest Card</button>
+            </form>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -21,4 +21,17 @@ urlpatterns = [
     path("event/create/", views.create_event, name="create_event"),
     re_path(r"^event/(?P<identifier>[-a-zA-Z0-9_]+)/edit/$", views.edit_event, name="edit_event"),
     re_path(r"^event/(?P<identifier>[-a-zA-Z0-9_]+)/delete/$", views.delete_event, name="delete_event"),
+
+    # Voting dashboard
+    path("voting/", views.voting_dashboard, name="voting_dashboard"),
+    path("voting/create/", views.create_campaign, name="create_campaign"),
+    path("voting/<slug:slug>/edit/", views.edit_campaign, name="edit_campaign"),
+    path("voting/<slug:slug>/delete/", views.delete_campaign, name="delete_campaign"),
+    path("voting/<slug:slug>/voters/", views.view_campaign_voters, name="view_campaign_voters"),
+    
+    # Rest Card management
+    path("rest-cards/<int:card_id>/edit/", views.edit_rest_card, name="edit_rest_card"),
+    path("rest-cards/<int:card_id>/generate/", views.generate_rest_card, name="generate_rest_card"),
+    path("rest-cards/<int:card_id>/resend/", views.resend_rest_card, name="resend_rest_card"),
+    path("rest-cards/<int:card_id>/toggle-status/", views.toggle_rest_card_status, name="toggle_rest_card_status"),
 ]

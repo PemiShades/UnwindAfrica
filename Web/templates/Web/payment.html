@@ -1,0 +1,212 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}Payment - Nominate to Unwind{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .payment-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            margin-top: 4rem;
+            margin-bottom: 4rem;
+        }
+        
+        .payment-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .payment-header h1 {
+            color: #ff6b9d;
+            margin-bottom: 1rem;
+        }
+        
+        .payment-summary {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        
+        .payment-summary h3 {
+            margin: 0 0 1rem 0;
+            color: #333;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+            font-size: 1.1rem;
+        }
+        
+        .summary-item.total {
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #ddd;
+        }
+        
+        .payment-methods {
+            margin-bottom: 2rem;
+        }
+        
+        .payment-methods h3 {
+            margin: 0 0 1rem 0;
+            color: #333;
+        }
+        
+        .payment-method {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .payment-method input[type="radio"] {
+            margin-right: 1rem;
+            transform: scale(1.2);
+        }
+        
+        .payment-method label {
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        
+        .payment-button {
+            background: linear-gradient(135deg, #ff6b9d, #ff8a65);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.2s;
+        }
+        
+        .payment-button:hover {
+            opacity: 0.9;
+        }
+        
+        .payment-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .back-button {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: #666;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        
+        .back-button:hover {
+            color: #333;
+        }
+        
+        .back-button::before {
+            content: "← ";
+        }
+        
+        .payment-info {
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .payment-container {
+                padding: 1rem;
+                margin: 2rem 1rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="payment-container">
+        <a href="{% url 'vote' %}" class="back-button">Back to Voting Form</a>
+        
+        <div class="payment-header">
+            <h1>Complete Your Payment</h1>
+            <p>Please complete your payment to confirm your vote(s)</p>
+        </div>
+        
+        <div class="payment-summary">
+            <h3>Order Summary</h3>
+            <div class="summary-item">
+                <span>Campaign:</span>
+                <span>{{ campaign.name }}</span>
+            </div>
+            <div class="summary-item">
+                <span>Nominee:</span>
+                <span>{{ vote.nominee.name }}</span>
+            </div>
+            <div class="summary-item">
+                <span>Number of Votes:</span>
+                <span>{{ vote.vote_quantity }}</span>
+            </div>
+            <div class="summary-item">
+                <span>Price per Vote:</span>
+                <span>₦{{ campaign.vote_price }}</span>
+            </div>
+            <div class="summary-item total">
+                <span>Total:</span>
+                <span>₦{{ vote.amount }}</span>
+            </div>
+        </div>
+        
+        <div class="payment-methods">
+            <h3>Select Payment Method</h3>
+            <div class="payment-method">
+                <input type="radio" id="paystack" name="payment_method" value="paystack" checked>
+                <label for="paystack">Paystack (Card Payment)</label>
+            </div>
+            <div class="payment-method">
+                <input type="radio" id="bank_transfer" name="payment_method" value="bank_transfer">
+                <label for="bank_transfer">Bank Transfer</label>
+            </div>
+        </div>
+
+        <div id="bank-details" class="payment-info" style="display: none;">
+            <h3 class="font-bold mb-4">Bank Account Details</h3>
+            <p class="text-sm opacity-70 mb-4">Please make payment to the following account:</p>
+            <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-xl mb-4">
+                <p class="font-bold">UNWIND AFRICA LIMITED</p>
+                <p>Bank: Providus Bank</p>
+                <p>Account Name: UNWIND AFRICA LIMITED</p>
+                <p>Account Number: 1308699471 (USD)</p>
+                <p>Swift Code: PROVUS</p>
+            </div>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="payment-button">Complete Payment</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const paymentMethodRadios = document.querySelectorAll('input[name="payment_method"]');
+            const bankDetails = document.getElementById('bank-details');
+
+            paymentMethodRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'bank_transfer') {
+                        bankDetails.style.display = 'block';
+                    } else {
+                        bankDetails.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
