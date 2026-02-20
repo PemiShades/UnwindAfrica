@@ -39,6 +39,7 @@ urlpatterns = [
     path('rest-card/', views.rest_card_info, name='rest_card_info'),
     path('rest-card/join/', views.rest_card_waitlist_join, name='rest_card_waitlist_join'),
     path('rest-card/status/', views.rest_card_status, name='rest_card_status'),
+    path('rest-card/signup/', views.rest_card_signup, name='rest_card_signup'),
     path('token-wallet/', views.token_wallet_view, name='token_wallet'),
     path('unwind-and-win/', views.unwind_and_win, name='unwind_and_win'),
     path('raising-readers/', views.raising_readers, name='raising_readers'),

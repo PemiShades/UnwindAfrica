@@ -1,0 +1,3 @@
+Card ID,Member Name,Member Email,Member Phone,Status,Created At,Activated At
+1,Test User 1,test1@example.com,+234 801 234 5678,active,2023-10-01 10:00:00,2023-10-02 12:00:00
+2,Test User 2,test2@example.com,+234 802 234 5678,pending,2023-10-03 09:00:00,

@@ -444,7 +444,7 @@
           Nominate Now
           <span>→</span>
         </a>
-        <a href="#card-request" class="btn secondary-ink">
+        <a href="{% url 'rest_card_signup' %}" class="btn secondary-ink">
           Request Rest Card
         </a>
       </div>
@@ -526,7 +526,7 @@
     </div>
   </section>
 
-  <!-- Rest Card Request Section -->
+  <!-- Rest Card Information Section -->
   <section id="card-request" class="section">
     <div class="container">
       <div class="section-head">
@@ -539,33 +539,133 @@
         </div>
       </div>
 
-      <div class="card-request-form">
-        <h3>Request Your Rest Card</h3>
-        <form id="cardRequestForm" method="POST">
-          {% csrf_token %}
-          <div class="form-field">
-            <label for="name">Full Name</label>
-            <input type="text" id="name" name="name" required placeholder="Enter your full name">
+      <div style="display: grid; md:grid-cols-2 gap-8 items-center">
+        <div style="text-align: center;">
+          <div style="font-size: 4rem; margin-bottom: 1rem;">🎁</div>
+          <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem;">Unlock Exclusive Benefits</h3>
+          <p style="color: #666; line-height: 1.6;">
+            The Unwind Africa Rest Card gives you access to exclusive rest experiences, partner rewards, 
+            and community wellness offers beginning January 2026.
+          </p>
+          <div style="margin-top: 2rem; background: linear-gradient(135deg, rgba(0, 178, 255, 0.1), rgba(255, 182, 72, 0.1)); padding: 1.5rem; border-radius: 12px;">
+            <p style="font-weight: 700; margin-bottom: 0.5rem;">🎯 First 1,000 registrants get a FREE single-user account!</p>
+            <p style="font-size: 0.9rem; color: #666;">Limited spots available - Register now to secure your place</p>
           </div>
-          <div class="form-field">
-            <label for="email">Email Address</label>
-            <input type="email" id="email" name="email" required placeholder="Enter your email address">
+        </div>
+
+        <div style="background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,.08); border: 1px solid #eef0f6;">
+          <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center;">
+            Rest Card Pricing
+          </h3>
+          
+          <div style="margin-bottom: 1.5rem; padding: 1rem; background: linear-gradient(135deg, rgba(0, 178, 255, 0.1), rgba(255, 182, 72, 0.1)); border-radius: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 600;">Free (First 1,000)</span>
+              <span style="font-size: 1.5rem; font-weight: 700; color: #00B2FF;">₦0</span>
+            </div>
+            <p style="font-size: 0.9rem; color: #666;">Single-user account with basic benefits</p>
           </div>
-          <div class="form-field">
-            <label for="phone">Phone Number</label>
-            <input type="tel" id="phone" name="phone" required placeholder="Enter your phone number">
+
+          <div style="margin-bottom: 1.5rem; padding: 1rem; background: linear-gradient(135deg, rgba(0, 178, 255, 0.05), rgba(255, 182, 72, 0.05)); border-radius: 12px; border: 2px dashed #eef0f6;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 600;">Premium</span>
+              <span style="font-size: 1.5rem; font-weight: 700; color: #FFB648;">₦5,000/year</span>
+            </div>
+            <p style="font-size: 0.9rem; color: #666;">Family account with premium benefits</p>
           </div>
-          <div class="form-field">
-            <label for="message">Message (Optional)</label>
-            <textarea id="message" name="message" placeholder="Tell us a little about yourself..."></textarea>
+
+          <div style="margin-bottom: 2rem; padding: 1rem; background: #f8fafc; border-radius: 12px;">
+            <p style="font-size: 0.85rem; color: #666;">
+              ✨ All accounts include: Partner discounts, wellness experiences, community events, and more!
+            </p>
           </div>
-          <div class="form-actions">
-            <button type="submit" class="btn-primary">
-              Submit Request
-            </button>
+
+          <div style="text-align: center;">
+            <a href="{% url 'rest_card_signup' %}" class="btn-primary" style="width: 100%;">
+              Get Your Free Rest Card Now
+            </a>
+            <p style="font-size: 0.85rem; color: #666; margin-top: 1rem;">
+              Join the waitlist today - Limited slots available
+            </p>
           </div>
-        </form>
-        <div id="formMessage" style="margin-top: 1rem; text-align: center; font-weight: 600;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Prizes Section -->
+  <section class="section" style="background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%); padding: 4rem 0;">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <div class="rule"></div>
+          <h2 class="ed-title">Prizes You Can Win</h2>
+          <p class="ed-sub muted">
+            Amazing prizes await our nominees. Recognize their resilience and they could win these incredible relaxation experiences.
+          </p>
+        </div>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🏨</div>
+          <h3 class="feature-title">Spa Treatment</h3>
+          <p class="feature-description">
+            A luxurious spa day with full body massage, facial, and aromatherapy session
+          </p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🏖️</div>
+          <h3 class="feature-title">Weekend Getaway</h3>
+          <p class="feature-description">
+            All-expenses paid weekend retreat at a premium resort in Lagos
+          </p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🎁</div>
+          <h3 class="feature-title">Wellness Package</h3>
+          <p class="feature-description">
+            Comprehensive wellness package including yoga classes, meditation sessions, and healthy meal plans
+          </p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">📚</div>
+          <h3 class="feature-title">Personal Development</h3>
+          <p class="feature-description">
+            Online courses and workshops on leadership, resilience, and personal growth
+          </p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">💆</div>
+          <h3 class="feature-title">Self-Care Kit</h3>
+          <p class="feature-description">
+            Premium self-care kit with organic skincare products, essential oils, and relaxation tools
+          </p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🎉</div>
+          <h3 class="feature-title">Recognition Award</h3>
+          <p class="feature-description">
+            Custom trophy and certificate of recognition at our annual awards ceremony
+          </p>
+        </div>
+      </div>
+
+      <div class="cta-section" style="margin-top: 4rem;">
+        <div class="cta-content">
+          <h2 class="cta-title">Nominate Someone Today!</h2>
+          <p class="cta-description">
+            Help us recognize exceptional students and young people who deserve to be celebrated with these amazing prizes
+          </p>
+          <a href="{% url 'nominate' %}" class="btn-primary">
+            Submit Your Nomination
+          </a>
+        </div>
       </div>
     </div>
   </section>
@@ -603,48 +703,4 @@
       </div>
     </div>
   </section>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-document.getElementById('cardRequestForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  
-  const form = e.target;
-  const formData = new FormData(form);
-  const messageDiv = document.getElementById('formMessage');
-  
-  fetch('/card-request/', {
-    method: 'POST',
-    body: formData,
-    headers: {
-      'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      messageDiv.style.color = '#155724';
-      messageDiv.style.background = '#d4edda';
-      messageDiv.style.padding = '1rem';
-      messageDiv.style.borderRadius = '8px';
-      messageDiv.textContent = data.message;
-      form.reset();
-    } else {
-      messageDiv.style.color = '#721c24';
-      messageDiv.style.background = '#f8d7da';
-      messageDiv.style.padding = '1rem';
-      messageDiv.style.borderRadius = '8px';
-      messageDiv.textContent = data.error || 'Something went wrong. Please try again.';
-    }
-  })
-  .catch(error => {
-    messageDiv.style.color = '#721c24';
-    messageDiv.style.background = '#f8d7da';
-    messageDiv.style.padding = '1rem';
-    messageDiv.style.borderRadius = '8px';
-    messageDiv.textContent = 'Network error. Please try again.';
-  });
-});
-</script>
 {% endblock %}

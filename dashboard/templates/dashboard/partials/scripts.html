@@ -21,18 +21,35 @@ document.addEventListener('alpine:init', () => {
       // ===== EVENT MODAL STATE =====
       showEventModal: false,
       editingEvent: false,
-      eventFormAction: "",
+      eventFormAction: "{% url 'create_event' %}",
       eventForm: { id:'', name:'', description:'', location:'', date:'', thumbnail:'', flier:'' },
+
+      // ===== CAMPAIGN MODAL STATE =====
+      showCampaignModal: false,
+      editingCampaign: false,
+      campaignFormAction: "{% url 'create_campaign' %}",
+      campaignForm: { id:'', name:'', tagline:'', description:'', start_date:'', end_date:'', vote_price:'', rest_points_per_vote:'', grand_prize:'', grand_prize_description:'', second_prize:'', second_prize_description:'', third_prize:'', third_prize_description:'', prize_description:'', banner_image:'', is_active:true },
+
+      // ===== NOTIFICATIONS STATE =====
+      notificationsOpen: true,
+      notifications: [],
+      
+      // ===== REST CARD MODAL STATE =====
+      showRestCardModal: false,
+      restCardModal: null,
 
       // ===== CHART STORAGE =====
       charts: {},
 
       // ===== INIT =====
       init() {
+        this.bindShortcuts();
         this.$nextTick(() => {
           this.hydrateCharts();
           this.setupFormResetListener();
+          this.paintCharts();
         });
+        this.loadNotifications();
       },
 
       // ===== SETUP FORM RESET LISTENER =====
@@ -327,6 +344,256 @@ document.addEventListener('alpine:init', () => {
             }
           });
         }
+      },
+
+      // ===== ADDITIONAL FUNCTIONS FROM MAIN INDEX.HTML =====
+      loadNotifications() {
+        // Simulate real-time notifications
+        this.notifications = [
+          { id: 1, message: 'John Doe paid ₦5000 for 10 votes to Queen Joe', time: '2 minutes ago', type: 'success' },
+          { id: 2, message: 'Jane Smith paid ₦10000 for 20 votes to King James', time: '5 minutes ago', type: 'success' },
+          { id: 3, message: 'Mike Johnson paid ₦30000 for 60 votes to Royal Couple', time: '10 minutes ago', type: 'success' }
+        ];
+      },
+
+      bindShortcuts() {
+        const isTyping = (e) => {
+          const el = e.target; if (!el) return false;
+          const tag = el.tagName;
+          if (tag === 'INPUT' || tag === 'TEXTAREA' || el.isContentEditable) return true;
+          return el.closest?.('input, textarea, [contenteditable], [role="textbox"], .ProseMirror');
+        };
+        window.addEventListener('keydown', (e) => {
+          if (isTyping(e)) return;
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); this.toggleTheme(); return; }
+          if (e.key.toLowerCase() === 'g') { this.setTab('overview'); return; }
+          if (e.key.toLowerCase() === 'c') { this.setTab('charts'); return; }
+          if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'b') { e.preventDefault(); this.setTab('blogs'); return; }
+          if (e.key.toLowerCase() === 'e') { this.setTab('events'); return; }
+        });
+      },
+
+      openCampaignModal() {
+        this.editingCampaign = false;
+        this.campaignFormAction = "{% url 'create_campaign' %}";
+        this.campaignForm = { id:'', name:'', tagline:'', description:'', start_date:'', end_date:'', vote_price:'', rest_points_per_vote:'', grand_prize:'', grand_prize_description:'', second_prize:'', second_prize_description:'', third_prize:'', third_prize_description:'', prize_description:'', banner_image:'', is_active:true };
+        this.showCampaignModal = true;
+      },
+
+      editCampaign(id, name, tagline, description, start_date, end_date, vote_price, rest_points_per_vote, grand_prize, grand_prize_description, second_prize, second_prize_description, third_prize, third_prize_description, prize_description, banner_image, is_active) {
+        this.editingCampaign = true;
+        this.campaignFormAction = `/dashboard/campaign/${id}/edit/`;
+        this.campaignForm = { id, name, tagline, description, start_date, end_date, vote_price, rest_points_per_vote, grand_prize, grand_prize_description, second_prize, second_prize_description, third_prize, third_prize_description, prize_description, banner_image, is_active };
+        this.showCampaignModal = true;
+      },
+
+      closeCampaignModal() { this.showCampaignModal = false; },
+
+      paintCharts: function(refresh=false) {
+        const fg = (this.theme === 'dark' ? '#E8ECF8' : '#0F1320');
+        const grid = this.theme === 'dark' ? 'rgba(255,255,255,.08)' : 'rgba(15,19,32,.08)';
+        const brand = getComputedStyle(document.documentElement).getPropertyValue('--brand') || '#8E7CFF';
+        const ctx = document.getElementById('chart-overview');
+        if (!ctx) return;
+        
+        // Properly destroy existing chart before reinitialization
+        if (this.charts.overview) {
+          try {
+            this.charts.overview.destroy();
+          } catch (error) {
+            console.error('Error destroying chart:', error);
+          }
+        }
+
+        // Get data from Django template variables
+        const labels = {{ monthly_chart_labels|default:"[]"|safe }};
+        const data = {{ monthly_chart_counts|default:"[]"|safe }};
+
+        this.charts.overview = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels.length ? labels : ['No data'],
+            datasets: [{
+              label: 'Engagement (Votes)',
+              data: data.length ? data : [0],
+              tension: .4,
+              borderColor: brand.trim() || '#8E7CFF',
+              fill: true,
+              backgroundColor: 'rgba(142,124,255,.18)'
+            }]
+          },
+          options: {
+            maintainAspectRatio: false,
+            scales: {
+              x: { grid: { color: grid }, ticks: { color: fg } },
+              y: {
+                grid: { color: grid },
+                ticks: { color: fg },
+                beginAtZero: true,
+                precision: 0
+              }
+            },
+            plugins: { legend: { labels: { color: fg } } }
+          }
+        });
+      },
+
+      exportRestCards: function() {
+        // Redirect to export endpoint
+        window.location.href = '/dashboard/rest-cards/export/';
+      },
+      
+      importRestCards: function() {
+        // Create file input element
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.csv';
+        input.onchange = (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            fetch('/dashboard/rest-cards/import/', {
+              method: 'POST',
+              body: formData,
+              headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+              }
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.ok) {
+                this.toast(`Imported ${data.imported_count} cards successfully`, 'success');
+                if (data.errors.length > 0) {
+                  this.toast(`${data.errors.length} errors during import`, 'error');
+                }
+                // Refresh the page to show updated data
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              } else {
+                this.toast(data.error, 'error');
+              }
+            })
+            .catch(error => {
+              this.toast('Error importing cards', 'error');
+              console.error('Error:', error);
+            });
+          }
+        };
+        input.click();
+      },
+      
+      editRestCard: function(cardId) {
+        // Get the card data
+        fetch(`/dashboard/rest-cards/${cardId}/edit/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            // Open modal with form
+            this.restCardModal = data.card;
+            this.showRestCardModal = true;
+          } else {
+            this.toast(data.error, 'error');
+          }
+        })
+        .catch(error => {
+          this.toast('Error loading card details', 'error');
+          console.error('Error:', error);
+        });
+      },
+
+      generateRestCard: function(cardId) {
+        fetch(`/dashboard/rest-cards/${cardId}/generate/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            this.toast(data.message, 'success');
+          } else {
+            this.toast(data.error, 'error');
+          }
+        })
+        .catch(error => {
+          this.toast('Error generating card', 'error');
+          console.error('Error:', error);
+        });
+      },
+
+      resendRestCard: function(cardId) {
+        fetch(`/dashboard/rest-cards/${cardId}/resend/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            this.toast(data.message, 'success');
+          } else {
+            this.toast(data.error, 'error');
+          }
+        })
+        .catch(error => {
+          this.toast('Error resending card', 'error');
+          console.error('Error:', error);
+        });
+      },
+
+      toggleRestCardStatus: function(cardId, currentStatus, event) {
+        fetch(`/dashboard/rest-cards/${cardId}/toggle-status/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            this.toast(data.message, 'success');
+            // Update the UI without reloading the page
+            const button = event?.target?.closest('button');
+            if (button) {
+              const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+              const newText = newStatus === 'active' ? 'Deactivate' : 'Activate';
+              const newClass = newStatus === 'active' ? 'border-red-400/30 hover:border-red-400/60' : 'border-green-400/30 hover:border-green-400/60';
+              
+              button.textContent = newText;
+              button.className = button.className.replace(/border-\w+-400\/\d+/g, newClass);
+              
+              // Also update the status indicator in the card
+              const card = button.closest('[data-card-id]');
+              if (card) {
+                const statusBadge = card.querySelector('[data-status]');
+                if (statusBadge) {
+                  statusBadge.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                  statusBadge.className = statusBadge.className.replace(/bg-\w+-500/, newStatus === 'active' ? 'bg-green-500' : 'bg-red-500');
+                }
+              }
+            }
+          } else {
+            this.toast(data.error, 'error');
+          }
+        })
+        .catch(error => {
+          this.toast('Error toggling card status', 'error');
+          console.error('Error:', error);
+        });
       },
 
       toggleTheme() {

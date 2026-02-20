@@ -34,4 +34,6 @@ urlpatterns = [
     path("rest-cards/<int:card_id>/generate/", views.generate_rest_card, name="generate_rest_card"),
     path("rest-cards/<int:card_id>/resend/", views.resend_rest_card, name="resend_rest_card"),
     path("rest-cards/<int:card_id>/toggle-status/", views.toggle_rest_card_status, name="toggle_rest_card_status"),
+    path("rest-cards/export/", views.export_rest_cards, name="export_rest_cards"),
+    path("rest-cards/import/", views.import_rest_cards, name="import_rest_cards"),
 ]

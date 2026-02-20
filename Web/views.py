@@ -46,6 +46,53 @@ def home(request):
     })
 
 
+def rest_card_signup(request):
+    """Rest Card Early Sign-up page"""
+    if request.method == 'POST':
+        try:
+            # Create or update RestCard
+            email = request.POST.get('email')
+            name = request.POST.get('name')
+            phone = request.POST.get('phone')
+            
+            if not email or not name or not phone:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Please fill in all required fields'
+                }, status=400)
+            
+            # Check if already exists
+            rest_card, created = RestCard.objects.get_or_create(
+                member_email=email,
+                defaults={
+                    'member_name': name,
+                    'member_phone': phone,
+                    'status': 'waitlist'
+                }
+            )
+            
+            if not created:
+                # Update existing record
+                rest_card.member_name = name
+                rest_card.member_phone = phone
+                rest_card.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Thank you for signing up! We will contact you soon with updates about your Rest Card.',
+                'waitlist_position': rest_card.waitlist_position
+            })
+        
+        except Exception as e:
+            logger.error(f"Error processing rest card signup: {str(e)}")
+            return JsonResponse({
+                'success': False,
+                'message': 'Something went wrong. Please try again.'
+            }, status=500)
+    
+    return render(request, 'Web/rest_card_signup.html')
+
+
 def about(request):
     return render(request, 'Web/about.html', context={})
 

@@ -1,10 +1,10 @@
 ﻿{% load static %}
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" x-data="app()" x-init="init()" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Unwind Africa — Admin</title>
+  <title>Unwind Africa â€” Admin</title>
 
   <!-- Tell Tailwind to use class-based dark mode BEFORE loading the CDN -->
   <script>
@@ -15,8 +15,235 @@
   <link rel="icon" href="{% static 'favicon.ico' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-  <!-- External Libraries -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Alpine app() goes first so it's available when Alpine boots -->
+  <script defer>
+  <!-- Alpine app() goes first so it's available when Alpine boots -->
+  <script defer>
+    window.app = function() {
+      return {
+        tab: 'overview',
+        sidebarOpen: false,
+        showEventModal: false,
+        editingEvent: false,
+        eventFormAction: "{% url 'create_event' %}",
+        eventForm: { id:'', name:'', description:'', location:'', date:'', thumbnail:'', flier:'' },
+        showCampaignModal: true,
+        editingCampaign: false,
+        campaignFormAction: "{% url 'create_campaign' %}",
+        campaignForm: { id:'', name:'', tagline:'', description:'', start_date:'', end_date:'', vote_price:'', rest_points_per_vote:'', grand_prize:'', grand_prize_description:'', second_prize:'', second_prize_description:'', third_prize:'', third_prize_description:'', prize_description:'', banner_image:'', is_active:true },
+        charts: {},
+        notifications: [],
+        toasts: [],
+        init: function() {
+          this.bindShortcuts();
+          this.$nextTick(() => this.paintCharts());
+          this.loadNotifications();
+        },
+        toggleTheme: function() {
+          this.theme = (this.theme === 'dark') ? 'light' : 'dark';
+          localStorage.setItem('theme', this.theme);
+          setTimeout(() => this.paintCharts(true), 0);
+        },
+        setTab: function(t) { 
+          this.tab = t; 
+          this.sidebarOpen = false; 
+        },
+        toast: function(msg, type='info') {
+          const id = Date.now();
+          this.toasts.push({ id, msg, type });
+          setTimeout(() => { 
+            this.toasts = this.toasts.filter(t => t.id !== id); 
+          }, 2400);
+        },
+        loadNotifications: function() {
+          this.notifications = [
+            { id: 1, message: 'John Doe paid â‚¦5000 for 10 votes to Queen Joe', time: '2 minutes ago', type: 'success' },
+            { id: 2, message: 'Jane Smith paid â‚¦10000 for 20 votes to King James', time: '5 minutes ago', type: 'success' },
+            { id: 3, message: 'Mike Johnson paid â‚¦30000 for 60 votes to Royal Couple', time: '10 minutes ago', type: 'success' }
+          ];
+        },
+        bindShortcuts: function() {
+          const isTyping = (e) => {
+            const el = e.target; 
+            if (!el) return false;
+            const tag = el.tagName;
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || el.isContentEditable) return true;
+            return el.closest?.('input, textarea, [contenteditable], [role="textbox"], .ProseMirror');
+          };
+          window.addEventListener('keydown', (e) => {
+            if (isTyping(e)) return;
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { 
+              e.preventDefault(); 
+              this.toggleTheme(); 
+              return; 
+            }
+            if (e.key.toLowerCase() === 'g') { 
+              this.setTab('overview'); 
+              return; 
+            }
+            if (e.key.toLowerCase() === 'c') { 
+              this.setTab('charts'); 
+              return; 
+            }
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'b') { 
+              e.preventDefault(); 
+              this.setTab('blogs'); 
+              return; 
+            }
+            if (e.key.toLowerCase() === 'e') { 
+              this.setTab('events'); 
+              return; 
+            }
+          });
+        },
+        openEventModal: function() {
+          this.editingEvent = false;
+          this.eventFormAction = "{% url 'create_event' %}";
+          this.eventForm = { id:'', name:'', description:'', location:'', date:'', thumbnail:'', flier:'' };
+          this.showEventModal = true;
+        },
+        editEvent: function(id, name, description, date, location, thumbnail, flier) {
+          this.editingEvent = true;
+          this.eventFormAction = `/dashboard/event/${id}/edit/`;
+          this.eventForm = { id, name, description, date, location, thumbnail, flier };
+          this.showEventModal = true;
+        },
+        closeEventModal: function() { 
+          this.showEventModal = false; 
+        },
+        openCampaignModal: function() {
+          this.editingCampaign = false;
+          this.campaignFormAction = "{% url 'create_campaign' %}";
+          this.campaignForm = { id:'', name:'', tagline:'', description:'', start_date:'', end_date:'', vote_price:'', rest_points_per_vote:'', grand_prize:'', grand_prize_description:'', second_prize:'', second_prize_description:'', third_prize:'', third_prize_description:'', prize_description:'', banner_image:'', is_active:true };
+          this.showCampaignModal = true;
+        },
+        editCampaign: function(id, name, tagline, description, start_date, end_date, vote_price, rest_points_per_vote, grand_prize, grand_prize_description, second_prize, second_prize_description, third_prize, third_prize_description, prize_description, banner_image, is_active) {
+          this.editingCampaign = true;
+          this.campaignFormAction = `/dashboard/campaign/${id}/edit/`;
+          this.campaignForm = { id, name, tagline, description, start_date, end_date, vote_price, rest_points_per_vote, grand_prize, grand_prize_description, second_prize, second_prize_description, third_prize, third_prize_description, prize_description, banner_image, is_active };
+          this.showCampaignModal = true;
+        },
+        closeCampaignModal: function() { 
+          this.showCampaignModal = false; 
+        },
+        paintCharts: function(refresh=false) {
+          const fg = (this.theme === 'dark' ? '#E8ECF8' : '#0F1320');
+          const grid = this.theme === 'dark' ? 'rgba(255,255,255,.08)' : 'rgba(15,19,32,.08)';
+          const brand = getComputedStyle(document.documentElement).getPropertyValue('--brand') || '#8E7CFF';
+          const ctx = document.getElementById('chart-overview');
+          if (!ctx) return;
+          if (refresh && this.charts.overview) this.charts.overview.destroy();
+          
+          const labels = {{ monthly_chart_labels|default:"[]"|safe }};
+          const data = {{ monthly_chart_counts|default:"[]"|safe }};
+
+          this.charts.overview = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: labels.length ? labels : ['No data'],
+              datasets: [{
+                label: 'Engagement (Votes)',
+                data: data.length ? data : [0],
+                tension: .4,
+                borderColor: brand.trim() || '#8E7CFF',
+                fill: true,
+                backgroundColor: 'rgba(142,124,255,.18)'
+              }]
+            },
+            options: {
+              maintainAspectRatio: false,
+              scales: {
+                x: { grid: { color: grid }, ticks: { color: fg } },
+                y: {
+                  grid: { color: grid },
+                  ticks: { color: fg },
+                  beginAtZero: true,
+                  precision: 0
+                }
+              },
+              plugins: { legend: { labels: { color: fg } } }
+            }
+          });
+        },
+        editRestCard: function(cardId) {
+          alert(`Edit card ${cardId} - functionality to be implemented`);
+        },
+        generateRestCard: function(cardId) {
+          fetch(`/dashboard/rest-cards/${cardId}/generate/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.ok) {
+              this.toast(data.message, 'success');
+            } else {
+              this.toast(data.error, 'error');
+            }
+          })
+          .catch(error => {
+            this.toast('Error generating card', 'error');
+            console.error('Error:', error);
+          });
+        },
+        resendRestCard: function(cardId) {
+          fetch(`/dashboard/rest-cards/${cardId}/resend/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.ok) {
+              this.toast(data.message, 'success');
+            } else {
+              this.toast(data.error, 'error');
+            }
+          })
+          .catch(error => {
+            this.toast('Error resending card', 'error');
+            console.error('Error:', error);
+          });
+        },
+        toggleRestCardStatus: function(cardId, currentStatus) {
+          fetch(`/dashboard/rest-cards/${cardId}/toggle-status/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.ok) {
+              this.toast(data.message, 'success');
+              location.reload();
+            } else {
+              this.toast(data.error, 'error');
+            }
+          })
+          .catch(error => {
+            this.toast('Error toggling card status', 'error');
+            console.error('Error:', error);
+          });
+        }
+      };
+    };
+              this.toast(data.error, 'error');
+            }
+          })
+          .catch(error => {
+            this.toast('Error toggling card status', 'error');
+            console.error('Error:', error);
+          });
+        }
+      };
+    };
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- Minimal custom CSS (light = default, dark overrides under .dark) -->
@@ -37,8 +264,8 @@
     }
 
     /*  cards */
-    .card { backdrop-filter: blur(12px) saturate(120%); background:#fff; border:1px solid #eef0f6; }
-    .dark .card { background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,.14); }
+    . { backdrop-filter: blur(12px) saturate(120%); background:#fff; border:1px solid #eef0f6; }
+    .dark . { background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,.14); }
 
     .shadow-soft { box-shadow: 0 18px 42px rgba(10,16,30,.08); }
     .dark .shadow-soft { box-shadow: 0 20px 60px rgba(0,0,0,.20); }
@@ -96,7 +323,7 @@
 </head>
 
 <!-- Light defaults + dark overrides -->
-<body x-data="app()" x-init="init()" class="h-screen w-screen font-[Inter] antialiased bg-[#070912] text-white">
+<body class="h-screen w-screen font-[Inter] antialiased bg-[#070912] text-white">
 
   <div class="board">
     <div class="flex h-screen">
@@ -193,7 +420,7 @@
         <header class=" shadow-soft rounded-2xl px-4 py-3 flex items-center gap-3 m-4 md:m-6">
           <button class="md:hidden btn-ghost" @click="sidebarOpen=true" aria-label="Open sidebar"><i class="fa-solid fa-bars"></i></button>
           <div class="relative flex-1 max-w-xl">
-            <input type="search" placeholder="Search posts, events, users…" class="field ring-brand" />
+            <input type="search" placeholder="Search posts, events, usersâ€¦" class="field ring-brand" />
             <span class="absolute right-2 top-1/2 -translate-y-1/2 text-xs opacity-70">/</span>
           </div>
           <button @click="setTab('notifications')" class="btn-ghost relative" aria-label="Notifications">
@@ -215,36 +442,34 @@
         <!-- Content Area -->
         <div class="flex-1 p-4 md:p-6 overflow-auto">
         <!-- Notifications -->
-        <div class="fixed bottom-6 right-6 z-50 w-80">
+        <div class="fixed bottom-6 right-6 z-50 w-80" x-data="{ isOpen: true }">
           <div class="rounded-2xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-800">
-              <div class="bg-gradient-to-r from-purple-600 to-blue-600 p-4 text-white">
+            <div class="bg-gradient-to-r from-purple-600 to-blue-600 p-4 text-white">
               <h3 class="font-bold flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2">
                   <i class="fa-solid fa-bell"></i>
                   Notifications
                 </div>
-                <button @click="notificationsOpen = !notificationsOpen" class="text-white hover:bg-white/20 rounded-full p-1 transition-colors">
-                  <i :class="notificationsOpen ? 'fa-solid fa-chevron-down' : 'fa-solid fa-chevron-up'"></i>
+                <button @click="isOpen = !isOpen" class="text-white hover:bg-white/20 rounded-full p-1 transition-colors">
+                  <i :class="isOpen ? 'fa-solid fa-chevron-down' : 'fa-solid fa-chevron-up'"></i>
                 </button>
               </h3>
             </div>
-            <div x-show="notificationsOpen" x-transition class="bg-white dark:bg-gray-900 p-4 max-h-96 overflow-y-auto">
-              <template x-if="notifications.length === 0">
-                <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-                  <i class="fa-solid fa-inbox text-4xl mb-2 opacity-50"></i>
-                  <p class="text-sm">No notifications</p>
-                </div>
-              </template>
+            <div x-show="isOpen" x-transition class="bg-white dark:bg-gray-900 p-4 max-h-96 overflow-y-auto">
+              <div x-if="notifications.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
+                <i class="fa-solid fa-inbox text-4xl mb-2 opacity-50"></i>
+                <p class="text-sm">No notifications</p>
+              </div>
               <template x-if="notifications.length > 0">
                 <div class="space-y-3">
                   <template x-for="notification in notifications" :key="notification.id">
                     <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                       <div class="flex items-start gap-3">
                         <div class="mt-1">
-                          <template x-if="notification.type === 'success'"><i class="fa-solid fa-check-circle text-green-500"></i></template>
-                          <template x-if="notification.type === 'warning'"><i class="fa-solid fa-exclamation-circle text-yellow-500"></i></template>
-                          <template x-if="notification.type === 'error'"><i class="fa-solid fa-times-circle text-red-500"></i></template>
-                          <template x-if="notification.type === 'info'"><i class="fa-solid fa-info-circle text-blue-500"></i></template>
+                          <i class="fa-solid fa-check-circle text-green-500" x-if="notification.type === 'success'"></i>
+                          <i class="fa-solid fa-exclamation-circle text-yellow-500" x-if="notification.type === 'warning'"></i>
+                          <i class="fa-solid fa-times-circle text-red-500" x-if="notification.type === 'error'"></i>
+                          <i class="fa-solid fa-info-circle text-blue-500" x-if="notification.type === 'info'"></i>
                         </div>
                         <div class="flex-1 min-w-0">
                           <p class="text-sm font-medium text-gray-900 dark:text-white" x-text="notification.message"></p>
@@ -301,7 +526,7 @@
                   </div>
 
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vote Price (₦)</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vote Price (â‚¦)</label>
                     <input type="number" x-model="campaignForm.vote_price" name="vote_price" class="field ring-brand w-full" placeholder="500" min="0" step="100" required>
                   </div>
 
@@ -376,12 +601,12 @@
               <div class="grid md:grid-cols-4 sm:grid-cols-2 gap-4">
                 <div class="kpi">
                   <div class="text-xs opacity-70">Total Sessions</div>
-                  <div class="text-2xl font-extrabold">{{ kpis.total_sessions|default:"—" }}</div>
+                  <div class="text-2xl font-extrabold">{{ kpis.total_sessions|default:"â€”" }}</div>
                   <div class="text-xs opacity-70">7d trend</div>
                 </div>
                 <div class="kpi">
                   <div class="text-xs opacity-70">Posts</div>
-                  <div class="text-2xl font-extrabold">{{ kpis.posts_total|default:"—" }}</div>
+                  <div class="text-2xl font-extrabold">{{ kpis.posts_total|default:"â€”" }}</div>
                   <div class="text-xs opacity-70">
                     {% if kpis.posts_published and kpis.posts_featured %}
                       {{ kpis.posts_published }} published, {{ kpis.posts_featured }} featured
@@ -392,7 +617,7 @@
                 </div>
                 <div class="kpi">
                   <div class="text-xs opacity-70">Events</div>
-                  <div class="text-2xl font-extrabold">{{ kpis.events_count|default:"—" }}</div>
+                  <div class="text-2xl font-extrabold">{{ kpis.events_count|default:"â€”" }}</div>
                   <div class="text-xs text-yellow-600 dark:text-yellow-400">
                     {% if kpis.pending_events %}{{ kpis.pending_events }} pending{% else %}Up to date{% endif %}
                   </div>
@@ -400,7 +625,7 @@
                 <div class="kpi">
                   <div class="text-xs opacity-70">Bounce Rate</div>
                   <div class="text-2xl font-extrabold">
-                    {% if kpis.bounce_rate is not None %}{{ kpis.bounce_rate }}%{% else %}—{% endif %}
+                    {% if kpis.bounce_rate is not None %}{{ kpis.bounce_rate }}%{% else %}â€”{% endif %}
                   </div>
                   <div class="text-xs opacity-70">Site-wide</div>
                 </div>
@@ -470,7 +695,7 @@
                   <div class="text-xs opacity-70">Total Revenue</div>
                   <div class="text-2xl font-extrabold">
                     {% with total=total_revenue %}
-                      {% if total %}₦{{ total|floatformat:0 }}{% else %}₦0{% endif %}
+                      {% if total %}â‚¦{{ total|floatformat:0 }}{% else %}â‚¦0{% endif %}
                     {% endwith %}
                   </div>
                   <div class="text-xs opacity-70">From successful transactions</div>
@@ -596,7 +821,7 @@
                         <td class="py-3">{{ transaction.nominee.name }}</td>
                         <td class="py-3">{{ transaction.campaign.name }}</td>
                         <td class="py-3">{{ transaction.vote_count }}</td>
-                        <td class="py-3">₦{{ transaction.amount|floatformat:0 }}</td>
+                        <td class="py-3">â‚¦{{ transaction.amount|floatformat:0 }}</td>
                         <td class="py-3">
                           <span class="px-3 py-1 text-xs rounded-full {% if transaction.status == 'success' %}bg-green-500/20 text-green-400 border border-green-500/30{% elif transaction.status == 'pending' %}bg-yellow-500/20 text-yellow-400 border border-yellow-500/30{% else %}bg-red-500/20 text-red-400 border border-red-500/30{% endif %}">
                             {{ transaction.status }}
@@ -643,13 +868,10 @@
               <div class="rounded-2xl p-6 shadow-soft bg-white/5 border border-white/10">
                 <div class="flex justify-between items-center mb-6">
                   <h3 class="text-xl font-bold">Rest Cards Management</h3>
-                   <div class="flex gap-2">
+                  <div class="flex gap-2">
                     <button class="btn-primary">Generate New Card</button>
-                    <button class="btn-ghost border border-emerald-400/30 hover:border-emerald-400/60" @click="exportRestCards()">
+                    <button class="btn-ghost border border-emerald-400/30 hover:border-emerald-400/60">
                       <i class="fa-solid fa-file-export mr-2"></i>Export List
-                    </button>
-                    <button class="btn-ghost border border-purple-400/30 hover:border-purple-400/60" @click="importRestCards()">
-                      <i class="fa-solid fa-file-import mr-2"></i>Import CSV
                     </button>
                   </div>
                 </div>
@@ -718,10 +940,10 @@
                         <div class="p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
                           <div class="flex items-start gap-3">
                             <div class="mt-1">
-                              <template x-if="notification.type === 'success'"><i class="fa-solid fa-check-circle text-green-500"></i></template>
-                              <template x-if="notification.type === 'warning'"><i class="fa-solid fa-exclamation-circle text-yellow-500"></i></template>
-                              <template x-if="notification.type === 'error'"><i class="fa-solid fa-times-circle text-red-500"></i></template>
-                              <template x-if="notification.type === 'info'"><i class="fa-solid fa-info-circle text-blue-500"></i></template>
+                              <i class="fa-solid fa-check-circle text-green-500" x-if="notification.type === 'success'"></i>
+                              <i class="fa-solid fa-exclamation-circle text-yellow-500" x-if="notification.type === 'warning'"></i>
+                              <i class="fa-solid fa-times-circle text-red-500" x-if="notification.type === 'error'"></i>
+                              <i class="fa-solid fa-info-circle text-blue-500" x-if="notification.type === 'info'"></i>
                             </div>
                             <div class="flex-1 min-w-0">
                               <p class="text-sm font-medium text-gray-900 dark:text-white" x-text="notification.message"></p>
@@ -781,7 +1003,7 @@
           </template>
         </main>
 
-        <footer class="text-xs opacity-70 py-4 text-center">© {{ now|date:'Y' }} Unwind Africa • Built with ❤</footer>
+        <footer class="text-xs opacity-70 py-4 text-center">Â© {{ now|date:'Y' }} Unwind Africa â€¢ Built with â¤</footer>
       </div>
     </div>
   </div>
@@ -828,75 +1050,6 @@
           <button type="submit" class="btn-primary">Save</button>
         </div>
       </form>
-    </div>
-  </div>
-
-  <!-- Rest Card Edit Modal -->
-  <div x-show="showRestCardModal" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-      <div class="p-6 border-b border-gray-200 dark:border-gray-800">
-        <div class="flex justify-between items-center">
-          <h3 class="text-xl font-bold">Edit Rest Card</h3>
-          <button @click="showRestCardModal = false" class="btn-ghost text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-            <i class="fa-solid fa-xmark text-xl"></i>
-          </button>
-        </div>
-      </div>
-
-      <div class="p-6">
-        <form x-data="{ 
-          card: restCardModal,
-          submit() {
-            fetch(`/dashboard/rest-cards/${this.card.id}/edit/`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-              },
-              body: JSON.stringify({
-                member_name: this.card.member_name,
-                member_email: this.card.member_email,
-                member_phone: this.card.member_phone
-              })
-            })
-            .then(response => response.json())
-            .then(data => {
-              if (data.ok) {
-                this.toast('Card updated successfully', 'success');
-                this.showRestCardModal = false;
-              } else {
-                this.toast(data.error, 'error');
-              }
-            })
-            .catch(error => {
-              this.toast('Error updating card', 'error');
-              console.error('Error:', error);
-            });
-          }
-        }">
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Member Name</label>
-              <input type="text" x-model="card.member_name" class="field ring-brand w-full" placeholder="Enter member name">
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
-              <input type="email" x-model="card.member_email" class="field ring-brand w-full" placeholder="Enter email address">
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number</label>
-              <input type="tel" x-model="card.member_phone" class="field ring-brand w-full" placeholder="Enter phone number">
-            </div>
-          </div>
-
-          <div class="mt-6 flex justify-end gap-3">
-            <button type="button" @click="showRestCardModal = false" class="btn-ghost border border-gray-300 hover:border-gray-400">Cancel</button>
-            <button type="button" @click="submit()" class="btn-primary">Update Card</button>
-          </div>
-        </form>
-      </div>
     </div>
   </div>
 

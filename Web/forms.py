@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import TextInput, Textarea, Select, ClearableFileInput, DateInput, CheckboxInput
 
-from .models import Post, Event, VotingCampaign, Nominee, Vote
+from .models import Post, Event, VotingCampaign, Nominee, Vote, RestCard
 
 
 class PostForm(forms.ModelForm):
@@ -33,6 +33,30 @@ class PostForm(forms.ModelForm):
             }),
             'is_published': CheckboxInput(attrs={
                 'class': 'field ring-brand',
+            }),
+        }
+
+
+class RestCardSignupForm(forms.ModelForm):
+    """Form for Rest Card early sign-up"""
+    class Meta:
+        model = RestCard
+        fields = ['member_name', 'member_email', 'member_phone']
+        widgets = {
+            'member_name': TextInput(attrs={
+                'class': 'field ring-brand',
+                'placeholder': 'Enter your full name',
+                'maxlength': 255,
+            }),
+            'member_email': TextInput(attrs={
+                'class': 'field ring-brand',
+                'placeholder': 'Enter your email address',
+                'type': 'email',
+            }),
+            'member_phone': TextInput(attrs={
+                'class': 'field ring-brand',
+                'placeholder': 'Enter your phone number',
+                'maxlength': 20,
             }),
         }
 

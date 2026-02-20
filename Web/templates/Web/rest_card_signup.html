@@ -1,0 +1,770 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}Unwind Africa Rest Card Early Sign-Up{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet" />
+
+<style>
+    /* Rest Card Signup Styles */
+    :root {
+        --ua-sky: #00B2FF;
+        --ua-sea: #00C2FF;
+        --ua-sun: #FFB648;
+        --ua-ink: #0A0B10;
+        --ua-paper: #FFFFFF;
+        --border: #e9eef4;
+        --radius: 16px;
+        --shadow: 0 10px 24px rgba(0,0,0,.06);
+        --container: min(1180px, 92vw);
+    }
+
+    .signup-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .signup-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background: linear-gradient(135deg, rgba(0, 178, 255, 0.1), rgba(255, 182, 72, 0.1));
+        border-radius: 24px;
+        border: 1px solid rgba(0, 178, 255, 0.2);
+    }
+
+    .signup-header h1 {
+        font-family: "Playfair Display", ui-serif, Georgia, serif;
+        font-size: 2.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--ua-sun), var(--ua-sky));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+    }
+
+    .signup-header p {
+        font-size: 1.1rem;
+        color: #666;
+        line-height: 1.6;
+    }
+
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+
+    .step-indicator::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #eef0f6;
+        transform: translateY(-50%);
+        z-index: 0;
+    }
+
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+        flex: 1;
+    }
+
+    .step-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #eef0f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .step.active .step-circle {
+        background: linear-gradient(135deg, var(--ua-sun), var(--ua-sky));
+        color: white;
+        border-color: transparent;
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 178, 255, 0.3);
+    }
+
+    .step.completed .step-circle {
+        background: #00C2FF;
+        color: white;
+        border-color: transparent;
+    }
+
+    .step-label {
+        font-size: 0.85rem;
+        color: #666;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .step.active .step-label {
+        color: var(--ua-ink);
+    }
+
+    .form-step {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 20px 60px rgba(0,0,0,.08);
+        border: 1px solid #eef0f6;
+        display: none;
+    }
+
+    .form-step.active {
+        display: block;
+        animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-field {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-field label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--ua-ink);
+    }
+
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #eef0f6;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-field input:focus,
+    .form-field select:focus,
+    .form-field textarea:focus {
+        outline: none;
+        border-color: var(--ua-sky);
+        box-shadow: 0 0 0 3px rgba(0, 178, 255, 0.1);
+    }
+
+    .form-field textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-field input[type="file"] {
+        border: 2px dashed #eef0f6;
+        background: #f8fafc;
+        padding: 1rem;
+    }
+
+    .form-field input[type="file"]:hover {
+        border-color: var(--ua-sky);
+    }
+
+    .checkbox-field {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .checkbox-field input[type="checkbox"] {
+        width: auto;
+        margin-right: 0.5rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: space-between;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #eef0f6;
+    }
+
+    .btn {
+        padding: 0.75rem 2rem;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--ua-sun), var(--ua-sky));
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(0, 178, 255, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 178, 255, 0.4);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: var(--ua-ink);
+        border-color: #eef0f6;
+    }
+
+    .btn-secondary:hover {
+        border-color: var(--ua-sky);
+        background: rgba(0, 178, 255, 0.05);
+    }
+
+    .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .success-message {
+        text-align: center;
+        padding: 3rem;
+    }
+
+    .success-message i {
+        font-size: 4rem;
+        background: linear-gradient(135deg, var(--ua-sun), var(--ua-sky));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+    }
+
+    .success-message h2 {
+        font-family: "Playfair Display", ui-serif, Georgia, serif;
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        color: var(--ua-ink);
+    }
+
+    .success-message p {
+        font-size: 1.1rem;
+        color: #666;
+        line-height: 1.6;
+    }
+
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 3rem;
+        padding: 2rem;
+        background: linear-gradient(135deg, rgba(0, 178, 255, 0.05), rgba(255, 182, 72, 0.05));
+        border-radius: 16px;
+    }
+
+    .social-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--ua-ink);
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .social-link:hover {
+        color: var(--ua-sky);
+        transform: translateY(-2px);
+    }
+
+    .social-link i {
+        font-size: 1.5rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .step-indicator {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .step-indicator::before {
+            display: none;
+        }
+
+        .step {
+            flex-direction: row;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-circle {
+            margin-bottom: 0;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="signup-container">
+    <div class="signup-header">
+        <h1>🎉 Unwind Africa Rest Card Early Sign-Up</h1>
+        <p>Welcome to the Unwind Africa Rest Card pre-registration! This card connects you to exclusive rest experiences, partner rewards, and community wellness offers beginning January 2026. Please complete your details carefully only the first 1,000 entries qualify for the free single-user account.</p>
+    </div>
+
+    <div class="step-indicator" x-data="signupForm()">
+        <div class="step" :class="{ 'active': currentStep === 1, 'completed': currentStep > 1 }">
+            <div class="step-circle">1</div>
+            <div class="step-label">Personal Info</div>
+        </div>
+        <div class="step" :class="{ 'active': currentStep === 2, 'completed': currentStep > 2 }">
+            <div class="step-circle">2</div>
+            <div class="step-label">Professional</div>
+        </div>
+        <div class="step" :class="{ 'active': currentStep === 3, 'completed': currentStep > 3 }">
+            <div class="step-circle">3</div>
+            <div class="step-label">Community</div>
+        </div>
+        <div class="step" :class="{ 'active': currentStep === 4, 'completed': currentStep > 4 }">
+            <div class="step-circle">4</div>
+            <div class="step-label">Verification</div>
+        </div>
+    </div>
+
+    <form id="signupForm" x-data="signupForm()" x-init="init()">
+        <!-- Step 1: Personal Information -->
+        <div class="form-step" :class="{ 'active': currentStep === 1 }">
+            <h2 class="text-2xl font-bold mb-6">Personal Information</h2>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="form-field">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" name="name" required 
+                           x-model="formData.name" 
+                           placeholder="Enter your full name">
+                </div>
+
+                <div class="form-field">
+                    <label for="gender">Gender *</label>
+                    <select id="gender" name="gender" required x-model="formData.gender">
+                        <option value="">Select gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="maritalStatus">Marital Status *</label>
+                    <select id="maritalStatus" name="maritalStatus" required x-model="formData.maritalStatus">
+                        <option value="">Select status</option>
+                        <option value="single">Single</option>
+                        <option value="married">Married</option>
+                        <option value="divorced">Divorced / Widowed</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="ageRange">Age Range *</label>
+                    <select id="ageRange" name="ageRange" required x-model="formData.ageRange">
+                        <option value="">Select age range</option>
+                        <option value="18-25">18 - 25</option>
+                        <option value="26-35">26 - 35</option>
+                        <option value="36-45">36 - 45</option>
+                        <option value="46-55">46 - 55</option>
+                        <option value="56+">56+</option>
+                    </select>
+                </div>
+
+                <div class="form-field md:col-span-2">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" required 
+                           x-model="formData.email" 
+                           placeholder="Enter your email address">
+                </div>
+
+                <div class="form-field">
+                    <label for="city">City / State of Residence *</label>
+                    <input type="text" id="city" name="city" required 
+                           x-model="formData.city" 
+                           placeholder="Enter your city">
+                </div>
+
+                <div class="form-field">
+                    <label for="localGovernment">Local Government *</label>
+                    <input type="text" id="localGovernment" name="localGovernment" required 
+                           x-model="formData.localGovernment" 
+                           placeholder="Enter your local government">
+                </div>
+
+                <div class="form-field md:col-span-2">
+                    <label for="phone">Phone Number (WhatsApp Preferred) *</label>
+                    <input type="tel" id="phone" name="phone" required 
+                           x-model="formData.phone" 
+                           placeholder="Enter your phone number">
+                </div>
+
+                <div class="form-field md:col-span-2">
+                    <label for="instagram">Instagram Handle</label>
+                    <input type="text" id="instagram" name="instagram" 
+                           x-model="formData.instagram" 
+                           placeholder="@yourusername">
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 mt-4">
+                <div class="form-field checkbox-field">
+                    <input type="checkbox" id="followedInstagram" name="followedInstagram" 
+                           x-model="formData.followedInstagram">
+                    <label for="followedInstagram">Have you followed Unwind Africa on Instagram? (@unwindafrica)</label>
+                </div>
+
+                <div class="form-field checkbox-field">
+                    <input type="checkbox" id="subscribedYouTube" name="subscribedYouTube" 
+                           x-model="formData.subscribedYouTube">
+                    <label for="subscribedYouTube">Have you subscribed to our YouTube channel? (Unwind Africa TV)</label>
+                </div>
+            </div>
+
+            <div class="form-field mt-4">
+                <label for="howHeard">How did you hear about Unwind Africa? (Please write their full name)</label>
+                <input type="text" id="howHeard" name="howHeard" 
+                       x-model="formData.howHeard" 
+                       placeholder="Enter the name of the person who referred you">
+            </div>
+        </div>
+
+        <!-- Step 2: Professional Information -->
+        <div class="form-step" :class="{ 'active': currentStep === 2 }">
+            <h2 class="text-2xl font-bold mb-6">Professional Information</h2>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="form-field">
+                    <label for="employmentStatus">Employment Status *</label>
+                    <select id="employmentStatus" name="employmentStatus" required x-model="formData.employmentStatus">
+                        <option value="">Select status</option>
+                        <option value="employed">Employed</option>
+                        <option value="self-employed">Self-Employed</option>
+                        <option value="student">Student</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="company">Company / Business Name</label>
+                    <input type="text" id="company" name="company" 
+                           x-model="formData.company" 
+                           placeholder="Enter your company name">
+                </div>
+
+                <div class="form-field">
+                    <label for="jobTitle">Job Title / Role</label>
+                    <input type="text" id="jobTitle" name="jobTitle" 
+                           x-model="formData.jobTitle" 
+                           placeholder="Enter your job title">
+                </div>
+
+                <div class="form-field">
+                    <label for="industry">Industry / Field of Work</label>
+                    <input type="text" id="industry" name="industry" 
+                           x-model="formData.industry" 
+                           placeholder="Enter your industry">
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Community & Access -->
+        <div class="form-step" :class="{ 'active': currentStep === 3 }">
+            <h2 class="text-2xl font-bold mb-6">Community & Access</h2>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="form-field checkbox-field">
+                    <input type="checkbox" id="partOfCommunity" name="partOfCommunity" 
+                           x-model="formData.partOfCommunity">
+                    <label for="partOfCommunity">Are you already part of the Unwind Africa Community?</label>
+                </div>
+
+                <div class="form-field checkbox-field">
+                    <input type="checkbox" id="foundersCircle" name="foundersCircle" 
+                           x-model="formData.foundersCircle">
+                    <label for="foundersCircle">Are you a Founders Circle Member?</label>
+                </div>
+            </div>
+
+            <div class="form-field mt-4">
+                <label for="whyWantCard">Why would you like to have the Unwind Africa Rest Card? *</label>
+                <textarea id="whyWantCard" name="whyWantCard" required 
+                          x-model="formData.whyWantCard" 
+                          placeholder="Tell us why you want the Rest Card"
+                          rows="4"></textarea>
+            </div>
+
+            <div class="form-field mt-4">
+                <label>Where would you most likely want to Unwind? (Choose all that apply)</label>
+                <div class="space-y-2 mt-2">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="unwind_1" 
+                               name="unwindPlaces" value="Spa or wellness center"
+                               x-model="formData.unwindPlaces">
+                        <label for="unwind_1">Spa or wellness center</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="unwind_2" 
+                               name="unwindPlaces" value="Beach resort"
+                               x-model="formData.unwindPlaces">
+                        <label for="unwind_2">Beach resort</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="unwind_3" 
+                               name="unwindPlaces" value="Countryside retreat or cabin"
+                               x-model="formData.unwindPlaces">
+                        <label for="unwind_3">Countryside retreat or cabin</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="unwind_4" 
+                               name="unwindPlaces" value="Private villa or short-stay apartment"
+                               x-model="formData.unwindPlaces">
+                        <label for="unwind_4">Private villa or short-stay apartment</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="unwind_5" 
+                               name="unwindPlaces" value="Boat cruise"
+                               x-model="formData.unwindPlaces">
+                        <label for="unwind_5">Boat cruise</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="unwind_6" 
+                               name="unwindPlaces" value="Cinema or theatre"
+                               x-model="formData.unwindPlaces">
+                        <label for="unwind_6">Cinema or theatre</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="unwind_7" 
+                               name="unwindPlaces" value="Restaurant or rooftop lounge"
+                               x-model="formData.unwindPlaces">
+                        <label for="unwind_7">Restaurant or rooftop lounge</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="unwind_8" 
+                               name="unwindPlaces" value="Adventure getaway (hiking, nature park, etc.)"
+                               x-model="formData.unwindPlaces">
+                        <label for="unwind_8">Adventure getaway (hiking, nature park, etc.)</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="unwind_9" 
+                               name="unwindPlaces" value="Talking to a therapist or counselor"
+                               x-model="formData.unwindPlaces">
+                        <label for="unwind_9">Talking to a therapist or counselor</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="unwind_other" name="unwindPlaces" value="other">
+                        <label for="unwind_other">Other:</label>
+                        <input type="text" id="unwind_other_text" name="unwindOther" 
+                               x-model="formData.unwindOther" 
+                               placeholder="Specify other place"
+                               class="ml-2">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-field mt-4">
+                <label for="useDiscounts">Would you like to use your Unwind Card to enjoy discounts at partner spas, resorts, and cinemas in 2026? *</label>
+                <select id="useDiscounts" name="useDiscounts" required x-model="formData.useDiscounts">
+                    <option value="">Select an option</option>
+                    <option value="yes">Yes, I'm excited to use it</option>
+                    <option value="not-sure">Not sure yet</option>
+                    <option value="not-interested">Not interested</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Step 4: Verification & Consent -->
+        <div class="form-step" :class="{ 'active': currentStep === 4 }">
+            <h2 class="text-2xl font-bold mb-6">Verification & Consent</h2>
+            
+            <div class="form-field">
+                <label for="photo">Upload a recent photo (passport-style or clear headshot) *</label>
+                <input type="file" id="photo" name="photo" accept="image/*" required 
+                       x-model="formData.photo">
+                <p class="text-sm text-gray-500 mt-1">Supported file types: image. Max 10 MB.</p>
+            </div>
+
+            <div class="form-field checkbox-field mt-4">
+                <input type="checkbox" id="consent" name="consent" required 
+                       x-model="formData.consent">
+                <label for="consent">I agree to be part of the Unwind Africa community and to receive updates. *</label>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div class="form-step" :class="{ 'active': currentStep === 5 }">
+            <div class="success-message">
+                <i class="fas fa-check-circle"></i>
+                <h2>Thank You!</h2>
+                <p>Your rest card application has been submitted successfully! We'll review your information and get back to you soon with updates about your card.</p>
+                <p class="mt-2 text-sm text-gray-500">You will receive a confirmation email at: <strong x-text="formData.email"></strong></p>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions" x-show="currentStep < 5">
+            <button type="button" class="btn btn-secondary" 
+                    @click="previousStep()"
+                    :disabled="currentStep === 1">
+                <i class="fas fa-arrow-left mr-2"></i> Previous
+            </button>
+            <button type="button" class="btn btn-primary" 
+                    @click="nextStep()"
+                    :disabled="!isStepValid()">
+                <span x-text="currentStep === 4 ? 'Submit Application' : 'Next Step'"></span>
+                <i class="fas fa-arrow-right ml-2" x-show="currentStep < 4"></i>
+            </button>
+        </div>
+    </form>
+
+    <div class="social-links">
+        <a href="https://www.instagram.com/unwindafrica/" target="_blank" class="social-link">
+            <i class="fab fa-instagram"></i>
+            <span>Instagram</span>
+        </a>
+        <a href="https://www.tiktok.com/@unwindafrica" target="_blank" class="social-link">
+            <i class="fab fa-tiktok"></i>
+            <span>TikTok</span>
+        </a>
+        <a href="https://www.youtube.com/@unwindafrica" target="_blank" class="social-link">
+            <i class="fab fa-youtube"></i>
+            <span>YouTube</span>
+        </a>
+    </div>
+</section>
+
+<script>
+    function signupForm() {
+        return {
+            currentStep: 1,
+            formData: {
+                name: '',
+                gender: '',
+                maritalStatus: '',
+                ageRange: '',
+                email: '',
+                city: '',
+                localGovernment: '',
+                phone: '',
+                instagram: '',
+                followedInstagram: false,
+                subscribedYouTube: false,
+                howHeard: '',
+                employmentStatus: '',
+                company: '',
+                jobTitle: '',
+                industry: '',
+                partOfCommunity: false,
+                foundersCircle: false,
+                whyWantCard: '',
+                unwindPlaces: [],
+                unwindOther: '',
+                useDiscounts: '',
+                photo: null,
+                consent: false
+            },
+            init() {
+                // Initialize with default values
+                this.currentStep = 1;
+            },
+            nextStep() {
+                if (this.isStepValid()) {
+                    this.currentStep++;
+                }
+            },
+            previousStep() {
+                if (this.currentStep > 1) {
+                    this.currentStep--;
+                }
+            },
+            isStepValid() {
+                const step = this.currentStep;
+                switch (step) {
+                    case 1:
+                        return this.formData.name && this.formData.gender && 
+                               this.formData.maritalStatus && this.formData.ageRange &&
+                               this.formData.email && this.formData.city && 
+                               this.formData.localGovernment && this.formData.phone;
+                    case 2:
+                        return this.formData.employmentStatus;
+                    case 3:
+                        return this.formData.whyWantCard && this.formData.useDiscounts;
+                    case 4:
+                        return this.formData.photo && this.formData.consent;
+                    default:
+                        return true;
+                }
+            },
+            async submitForm() {
+                if (!this.isStepValid()) return;
+                
+                try {
+                    const formData = new FormData();
+                    Object.keys(this.formData).forEach(key => {
+                        const value = this.formData[key];
+                        if (value !== null && value !== undefined && value !== '') {
+                            if (Array.isArray(value)) {
+                                value.forEach(item => formData.append(key, item));
+                            } else {
+                                formData.append(key, value);
+                            }
+                        }
+                    });
+
+                    const response = await fetch("{% url 'rest_card_signup' %}", {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        }
+                    });
+
+                    if (response.ok) {
+                        this.currentStep = 5;
+                    } else {
+                        alert('Error submitting application. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Network error. Please check your connection and try again.');
+                }
+            }
+        };
+    }
+</script>
+{% endblock %}

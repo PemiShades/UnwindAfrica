@@ -449,11 +449,24 @@ def delete_campaign(request, slug):
 from Web.models import RestCard
 
 @login_required
-@require_http_methods(["POST"])
+@require_http_methods(["GET", "POST"])
 def edit_rest_card(request, card_id):
     """Edit a rest card"""
     try:
         card = get_object_or_404(RestCard, pk=card_id)
+        
+        if request.method == 'GET':
+            # Return card data for editing
+            return JsonResponse({
+                "ok": True,
+                "card": {
+                    "id": card.pk,
+                    "member_name": card.member_name,
+                    "member_email": card.member_email,
+                    "member_phone": card.member_phone,
+                    "status": card.status
+                }
+            })
         
         # Parse JSON data if sent
         import json
@@ -530,6 +543,83 @@ def toggle_rest_card_status(request, card_id):
     
     except Exception as e:
         print(f"Error toggling rest card status: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@login_required
+def export_rest_cards(request):
+    """Export all rest cards to CSV"""
+    try:
+        import csv
+        from django.http import HttpResponse
+        
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="rest_cards.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow(['Card ID', 'Member Name', 'Member Email', 'Member Phone', 'Status', 'Created At', 'Activated At'])
+        
+        for card in RestCard.objects.all():
+            writer.writerow([
+                card.pk,
+                card.member_name,
+                card.member_email,
+                card.member_phone,
+                card.status,
+                card.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                card.activated_at.strftime('%Y-%m-%d %H:%M:%S') if card.activated_at else ''
+            ])
+        
+        return response
+    
+    except Exception as e:
+        print(f"Error exporting rest cards: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def import_rest_cards(request):
+    """Import rest cards from CSV file"""
+    try:
+        if 'file' not in request.FILES:
+            return JsonResponse({"ok": False, "error": "No file uploaded"}, status=400)
+        
+        import csv
+        from io import TextIOWrapper
+        
+        file = request.FILES['file']
+        if not file.name.endswith('.csv'):
+            return JsonResponse({"ok": False, "error": "File must be a CSV"}, status=400)
+        
+        reader = csv.DictReader(TextIOWrapper(file, encoding='UTF-8'))
+        imported_count = 0
+        errors = []
+        
+        for row in reader:
+            try:
+                # Create or update rest card
+                card, created = RestCard.objects.update_or_create(
+                    pk=row.get('Card ID') if row.get('Card ID') else None,
+                    defaults={
+                        'member_name': row.get('Member Name', '').strip(),
+                        'member_email': row.get('Member Email', '').strip(),
+                        'member_phone': row.get('Member Phone', '').strip(),
+                        'status': row.get('Status', 'pending').lower()
+                    }
+                )
+                imported_count += 1
+            except Exception as e:
+                errors.append(f"Error processing row: {str(e)}")
+        
+        return JsonResponse({
+            "ok": True, 
+            "message": f"Imported {imported_count} cards", 
+            "errors": errors
+        })
+    
+    except Exception as e:
+        print(f"Error importing rest cards: {e}")
         return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
 
