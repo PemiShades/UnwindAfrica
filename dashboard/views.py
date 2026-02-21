@@ -448,6 +448,9 @@ def delete_campaign(request, slug):
 # ---------- Rest Card Management ----------
 from Web.models import RestCard
 
+import random
+from django.utils import timezone
+
 @login_required
 @require_http_methods(["GET", "POST"])
 def edit_rest_card(request, card_id):
@@ -547,6 +550,79 @@ def toggle_rest_card_status(request, card_id):
 
 
 @login_required
+def get_rest_card(request, card_id):
+    """Return rest card data (GET) for modal editing"""
+    try:
+        if request.method != 'GET':
+            return JsonResponse({"ok": False, "error": "Method not allowed"}, status=405)
+        card = get_object_or_404(RestCard, pk=card_id)
+        return JsonResponse({
+            "ok": True,
+            "card": {
+                "id": card.pk,
+                "member_name": card.member_name,
+                "member_email": card.member_email,
+                "member_phone": card.member_phone,
+                "status": card.status
+            }
+        })
+    except Exception as e:
+        print(f"Error fetching rest card: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@login_required
+@require_POST
+def create_rest_card(request):
+    """Create a new rest card via AJAX"""
+    try:
+        import json
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+            member_name = data.get('member_name', '').strip()
+            member_email = data.get('member_email', '').strip()
+            member_phone = data.get('member_phone', '').strip()
+        else:
+            member_name = request.POST.get('member_name', '').strip()
+            member_email = request.POST.get('member_email', '').strip()
+            member_phone = request.POST.get('member_phone', '').strip()
+
+        # generate unique 16-digit card number
+        def gen_number():
+            return ''.join(str(random.randint(0,9)) for _ in range(16))
+
+        card_number = gen_number()
+        while RestCard.objects.filter(card_number=card_number).exists():
+            card_number = gen_number()
+
+        card = RestCard.objects.create(
+            card_number=card_number,
+            member_name=member_name or 'New Member',
+            member_email=member_email or '',
+            member_phone=member_phone or '',
+            status='active',
+            activated_at=timezone.now()
+        )
+
+        return JsonResponse({
+            'ok': True,
+            'card': {
+                'id': card.pk,
+                'card_number': card.card_number,
+                'member_name': card.member_name,
+                'member_email': card.member_email,
+                'member_phone': card.member_phone,
+                'status': card.status,
+                'total_rest_points': card.total_rest_points,
+                'activated_at': card.activated_at.strftime('%b %d, %Y') if card.activated_at else '-'
+            }
+        })
+    except Exception as e:
+        print(f"Error creating rest card: {e}")
+        return JsonResponse({'ok': False, 'error': str(e)}, status=500)
+
+
+@login_required
 def export_rest_cards(request):
     """Export all rest cards to CSV"""
     try:
@@ -617,7 +693,54 @@ def import_rest_cards(request):
             "message": f"Imported {imported_count} cards", 
             "errors": errors
         })
-    
+    except Exception as e:
+        print(f"Error importing rest cards: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@login_required
+def rest_cards_stats(request):
+    """Return simple counts for rest-cards KPIs (AJAX)"""
+    try:
+        total = RestCard.objects.count()
+        active = RestCard.objects.filter(status='active').count()
+        pending = RestCard.objects.filter(status='pending').count()
+        total_points = RestCard.objects.aggregate(total=Sum('total_rest_points'))['total'] or 0
+        return JsonResponse({"ok": True, "total": total, "active": active, "pending": pending, "total_points": total_points})
+    except Exception as e:
+        print(f"Error fetching rest cards stats: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@login_required
+def engagement_data(request):
+    """Return monthly engagement (votes) labels and counts for chart polling"""
+    try:
+        from Web.models import Vote
+        from collections import Counter
+        from datetime import date
+
+        votes = Vote.objects.all()
+        by_month = Counter(v.created_at.strftime("%Y-%m") for v in votes)
+
+        def add_months(d, n):
+            y = d.year + (d.month - 1 + n) // 12
+            m = (d.month - 1 + n) % 12 + 1
+            return d.replace(year=y, month=m)
+
+        first_of_this_month = date.today().replace(day=1)
+        monthly_chart_labels, monthly_chart_counts = [], []
+        for i in range(-11, 1):
+            d = add_months(first_of_this_month, i)
+            key = d.strftime("%Y-%m")
+            monthly_chart_labels.append(d.strftime("%b %Y"))
+            monthly_chart_counts.append(by_month.get(key, 0))
+
+        return JsonResponse({"ok": True, "labels": monthly_chart_labels, "counts": monthly_chart_counts})
+    except Exception as e:
+        print(f"Error fetching engagement data: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
     except Exception as e:
         print(f"Error importing rest cards: {e}")
         return JsonResponse({"ok": False, "error": str(e)}, status=500)

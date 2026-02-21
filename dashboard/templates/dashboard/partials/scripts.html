@@ -36,7 +36,7 @@ document.addEventListener('alpine:init', () => {
       
       // ===== REST CARD MODAL STATE =====
       showRestCardModal: false,
-      restCardModal: null,
+      restCardModal: {},
 
       // ===== CHART STORAGE =====
       charts: {},
@@ -50,6 +50,8 @@ document.addEventListener('alpine:init', () => {
           this.paintCharts();
         });
         this.loadNotifications();
+        // start polling engagement chart data
+        setInterval(() => this.pollEngagementData(), 10000);
       },
 
       // ===== SETUP FORM RESET LISTENER =====
@@ -438,6 +440,33 @@ document.addEventListener('alpine:init', () => {
         });
       },
 
+      // Fetch latest engagement data and update the overview chart in-place
+      pollEngagementData() {
+        fetch('/dashboard/engagement-data/')
+          .then(r => r.json())
+          .then(json => {
+            if (!json.ok) return;
+            const labels = json.labels || [];
+            const data = json.counts || [];
+            if (this.charts.overview) {
+              try {
+                this.charts.overview.data.labels = labels;
+                if (this.charts.overview.data.datasets && this.charts.overview.data.datasets[0]) {
+                  this.charts.overview.data.datasets[0].data = data;
+                }
+                this.charts.overview.update();
+              } catch (e) {
+                console.error('Chart update error', e);
+                this.paintCharts(true);
+              }
+            } else {
+              // If chart isn't initialized, paint it
+              this.paintCharts(true);
+            }
+          })
+          .catch(err => console.error('Engagement poll error', err));
+      },
+
       exportRestCards: function() {
         // Redirect to export endpoint
         window.location.href = '/dashboard/rest-cards/export/';
@@ -486,22 +515,20 @@ document.addEventListener('alpine:init', () => {
       },
       
       editRestCard: function(cardId) {
-        // Get the card data
-        fetch(`/dashboard/rest-cards/${cardId}/edit/`, {
+        // Get the card data from dedicated GET endpoint
+        fetch(`/dashboard/rest-cards/${cardId}/get/`, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-          }
         })
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) throw new Error('Network response was not ok');
+          return response.json();
+        })
         .then(data => {
           if (data.ok) {
-            // Open modal with form
-            this.restCardModal = data.card;
+            this.restCardModal = data.card || {};
             this.showRestCardModal = true;
           } else {
-            this.toast(data.error, 'error');
+            this.toast(data.error || 'Failed to load card', 'error');
           }
         })
         .catch(error => {
@@ -532,6 +559,66 @@ document.addEventListener('alpine:init', () => {
         });
       },
 
+      // Create new rest card via prompt and insert row
+      createRestCard: function() {
+        const name = prompt('Member name (optional)');
+        const email = prompt('Member email (optional)');
+        const phone = prompt('Member phone (optional)');
+        const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || this.getCsrfToken();
+        if (!csrf) return this.toast('CSRF token missing', 'error');
+
+        fetch('/dashboard/rest-cards/create/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrf
+          },
+          body: JSON.stringify({ member_name: name, member_email: email, member_phone: phone })
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.ok) {
+            const c = data.card;
+            // append new row to table
+            const tbody = document.querySelector('table.w-full text-sm tbody') || document.querySelector('table.w-full tbody');
+            const table = document.querySelector('table.w-full');
+            if (table) {
+              const tb = table.querySelector('tbody');
+              if (tb) {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-white/5 hover:bg-white/5 transition-colors';
+                tr.setAttribute('data-card-id', c.id);
+                tr.innerHTML = `
+                  <td class="py-3 font-mono">${c.card_number}</td>
+                  <td class="py-3">${c.member_name}</td>
+                  <td class="py-3">${c.member_email}</td>
+                  <td class="py-3">${c.member_phone}</td>
+                  <td class="py-3"><span data-status class="px-3 py-1 text-xs rounded-full bg-green-500/20 text-green-400 border border-green-500/30">${c.status}</span></td>
+                  <td class="py-3">${c.total_rest_points}</td>
+                  <td class="py-3">${c.activated_at}</td>
+                  <td class="py-3">
+                    <div class="flex gap-2">
+                      <button onclick="window.app().editRestCard(${c.id})" class="text-xs btn-ghost border border-blue-400/30 hover:border-blue-400/60">Edit</button>
+                      <button onclick="window.app().generateRestCard(${c.id})" class="text-xs btn-ghost border border-purple-400/30 hover:border-purple-400/60">Generate Card</button>
+                      <button onclick="window.app().resendRestCard(${c.id})" class="text-xs btn-ghost border border-orange-400/30 hover:border-orange-400/60">Resend</button>
+                      <button onclick="window.app().toggleRestCardStatus(${c.id}, '${c.status}', event)" class="text-xs btn-ghost border border-red-400/30 hover:border-red-400/60">Deactivate</button>
+                    </div>
+                  </td>`;
+                tb.insertBefore(tr, tb.firstChild);
+              }
+            }
+
+            // refresh KPIs
+            fetch('/dashboard/rest-cards/stats/').then(r=>r.json()).then(s=>{ if(s.ok){ document.getElementById('restCardsTotal').textContent = s.total; document.getElementById('restCardsActive').textContent = s.active; document.getElementById('restCardsPending').textContent = s.pending; document.getElementById('restCardsPoints').textContent = s.total_points; } }).catch(()=>{});
+
+            this.toast('Card created', 'success');
+          } else {
+            this.toast(data.error || 'Create failed', 'error');
+          }
+        })
+        .catch(err => { console.error(err); this.toast('Network error', 'error'); });
+      },
+
       resendRestCard: function(cardId) {
         fetch(`/dashboard/rest-cards/${cardId}/resend/`, {
           method: 'POST',
@@ -555,37 +642,68 @@ document.addEventListener('alpine:init', () => {
       },
 
       toggleRestCardStatus: function(cardId, currentStatus, event) {
+        const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || this.getCsrfToken();
+        if (!csrf) return this.toast('CSRF token missing', 'error');
+
         fetch(`/dashboard/rest-cards/${cardId}/toggle-status/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            'X-CSRFToken': csrf
           }
         })
         .then(response => response.json())
         .then(data => {
           if (data.ok) {
             this.toast(data.message, 'success');
-            // Update the UI without reloading the page
-            const button = event?.target?.closest('button');
-            if (button) {
-              const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-              const newText = newStatus === 'active' ? 'Deactivate' : 'Activate';
-              const newClass = newStatus === 'active' ? 'border-red-400/30 hover:border-red-400/60' : 'border-green-400/30 hover:border-green-400/60';
-              
-              button.textContent = newText;
-              button.className = button.className.replace(/border-\w+-400\/\d+/g, newClass);
-              
-              // Also update the status indicator in the card
-              const card = button.closest('[data-card-id]');
-              if (card) {
-                const statusBadge = card.querySelector('[data-status]');
-                if (statusBadge) {
-                  statusBadge.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
-                  statusBadge.className = statusBadge.className.replace(/bg-\w+-500/, newStatus === 'active' ? 'bg-green-500' : 'bg-red-500');
+
+            // Update the row using data-card-id
+            const row = document.querySelector(`tr[data-card-id="${cardId}"]`);
+            if (row) {
+              const statusBadge = row.querySelector('[data-status]');
+              if (statusBadge) {
+                const newStatus = data.new_status || currentStatus;
+                statusBadge.textContent = newStatus;
+                // Replace classes with exact template classes
+                if (newStatus === 'active') {
+                  statusBadge.className = 'px-3 py-1 text-xs rounded-full bg-green-500/20 text-green-400 border border-green-500/30';
+                } else if (newStatus === 'pending') {
+                  statusBadge.className = 'px-3 py-1 text-xs rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30';
+                } else if (newStatus === 'suspended') {
+                  statusBadge.className = 'px-3 py-1 text-xs rounded-full bg-red-500/20 text-red-400 border border-red-500/30';
+                } else {
+                  statusBadge.className = 'px-3 py-1 text-xs rounded-full bg-gray-500/20 text-gray-400 border border-gray-500/30';
                 }
+
+              }
+
+              // Update toggle button text
+              const toggleBtn = row.querySelector('button[onclick], button');
+              // find the button in the actions group (last button)
+              const actionButtons = row.querySelectorAll('td:last-child button');
+              const btn = actionButtons[actionButtons.length - 1];
+              if (btn) {
+                btn.textContent = (data.new_status === 'active') ? 'Deactivate' : 'Activate';
               }
             }
+
+            // Refresh KPI counts by requesting stats endpoint
+            fetch('/dashboard/rest-cards/stats/')
+              .then(r => r.json())
+              .then(s => {
+                if (s.ok) {
+                  const totalEl = document.getElementById('restCardsTotal');
+                  const activeEl = document.getElementById('restCardsActive');
+                  const pendingEl = document.getElementById('restCardsPending');
+                  const pointsEl = document.getElementById('restCardsPoints');
+                  if (totalEl) totalEl.textContent = s.total;
+                  if (activeEl) activeEl.textContent = s.active;
+                  if (pendingEl) pendingEl.textContent = s.pending;
+                  if (pointsEl) pointsEl.textContent = s.total_points;
+                }
+              })
+              .catch(err => console.error('Stats fetch error:', err));
+
           } else {
             this.toast(data.error, 'error');
           }
@@ -615,6 +733,25 @@ document.addEventListener('alpine:init', () => {
   };
 
 });
+
+// Expose a small proxy to call Alpine root methods from dynamic elements
+window.appProxy = function(method, ...args) {
+  try {
+    const root = document.querySelector('[x-data]');
+    if (!root || !root.__x) return console.warn('Alpine root not found');
+    const data = root.__x.$data || root.__x.getUnobservedData?.();
+    if (data && typeof data[method] === 'function') return data[method](...args);
+    console.warn('Method not found on Alpine root:', method);
+  } catch (e) {
+    console.error('appProxy error', e);
+  }
+};
+
+// Convenience globals for dynamic buttons
+window.generateRestCard = function(id){ return window.appProxy('generateRestCard', id); };
+window.resendRestCard = function(id){ return window.appProxy('resendRestCard', id); };
+window.toggleRestCardStatus = function(id){ return window.appProxy('toggleRestCardStatus', id); };
+window.editRestCard = function(id){ return window.appProxy('editRestCard', id); };
 </script>
 
 <script>

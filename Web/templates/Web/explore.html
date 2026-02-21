@@ -1,0 +1,800 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}Explore — Unwind Africa{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --ua-primary: #8E7CFF;
+        --ua-secondary: #51E1A7;
+        --ua-accent: #FFB648;
+        --ua-dark: #0A0B10;
+        --ua-light: #F7FBFF;
+        --ua-gray: #60708C;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes glow {
+        0%, 100% {
+            box-shadow: 0 0 20px rgba(142, 124, 255, 0.2);
+        }
+        50% {
+            box-shadow: 0 0 40px rgba(142, 124, 255, 0.5);
+        }
+    }
+
+    @keyframes shimmer {
+        0% {
+            background-position: -1000px 0;
+        }
+        100% {
+            background-position: 1000px 0;
+        }
+    }
+
+    @keyframes pulse-float {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .hero {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #0A0B10 0%, #1a1b2e 100%);
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 20% 50%, rgba(142, 124, 255, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 80%, rgba(81, 225, 167, 0.1) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .hero-media {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+    }
+
+    .hero-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.3;
+        animation: pulse-float 6s ease-in-out infinite;
+    }
+
+    .hero-inner {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh;
+        text-align: center;
+        padding: 4rem 2rem;
+        animation: fadeInUp 1s ease-out;
+    }
+
+    .hero-tag {
+        display: inline-block;
+        padding: 0.6rem 1.5rem;
+        background: linear-gradient(135deg, rgba(142, 124, 255, 0.15), rgba(81, 225, 167, 0.15));
+        border: 1px solid rgba(142, 124, 255, 0.3);
+        border-radius: 2rem;
+        color: var(--ua-secondary);
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 1.5rem;
+        animation: slideInDown 0.8s ease-out;
+    }
+
+    .hero h1 {
+        color: white;
+        font-weight: 900;
+        background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.8) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: fadeInUp 1s ease-out 0.1s both;
+        line-height: 1.2;
+    }
+
+    .hero-inner > p {
+        color: rgba(255,255,255,0.85);
+        animation: fadeInUp 1s ease-out 0.2s both;
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        animation: fadeInUp 1s ease-out 0.3s both;
+    }
+
+    .hero-actions .btn {
+        padding: 0.9rem 2rem;
+        border-radius: 2rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--ua-primary), var(--ua-secondary));
+        color: white;
+        box-shadow: 0 10px 40px rgba(142, 124, 255, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 60px rgba(142, 124, 255, 0.5);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: white;
+        border: 2px solid rgba(255,255,255,0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline:hover {
+        border-color: var(--ua-secondary);
+        background: rgba(81, 225, 167, 0.1);
+        transform: translateY(-3px);
+    }
+
+    .explore-section {
+        padding: 6rem 0;
+        background: var(--ua-light);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .explore-section.dark {
+        background: linear-gradient(135deg, #0A0B10 0%, #1a1b2e 100%);
+        color: var(--ua-light);
+    }
+
+    .section-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 4rem;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .section-header h2 {
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--ua-primary), var(--ua-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        position: relative;
+        display: inline-block;
+        letter-spacing: -0.02em;
+    }
+
+    .explore-section.dark .section-header h2 {
+        background: linear-gradient(135deg, var(--ua-secondary), #FFD700);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .section-header p {
+        font-size: 1.15rem;
+        color: var(--ua-gray);
+        max-width: 650px;
+        margin: 0 auto;
+        line-height: 1.6;
+        animation: fadeInUp 0.8s ease-out 0.1s both;
+    }
+
+    .explore-section.dark .section-header p {
+        color: rgba(247, 251, 255, 0.7);
+    }
+
+    .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .explore-card {
+        background: white;
+        border-radius: 1.5rem;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(10, 11, 16, 0.12);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+        position: relative;
+        animation: fadeInUp 0.8s ease-out both;
+    }
+
+    .explore-card:nth-child(1) { animation-delay: 0.1s; }
+    .explore-card:nth-child(2) { animation-delay: 0.2s; }
+    .explore-card:nth-child(3) { animation-delay: 0.3s; }
+    .explore-card:nth-child(4) { animation-delay: 0.4s; }
+    .explore-card:nth-child(5) { animation-delay: 0.5s; }
+    .explore-card:nth-child(6) { animation-delay: 0.6s; }
+
+    .explore-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(142, 124, 255, 0), rgba(142, 124, 255, 0.1));
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .explore-card:hover {
+        transform: translateY(-12px) scale(1.02);
+        box-shadow: 0 40px 80px rgba(142, 124, 255, 0.25);
+    }
+
+    .explore-card:hover::before {
+        opacity: 1;
+    }
+
+    .explore-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        transition: transform 0.5s cubic-bezier(0.23, 1, 0.320, 1);
+        position: relative;
+        z-index: 1;
+    }
+
+    .explore-card:hover img {
+        transform: scale(1.1);
+    }
+
+    .explore-card-content {
+        padding: 1.8rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .explore-card-category {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, var(--ua-primary), var(--ua-secondary));
+        color: white;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 1rem;
+        animation: scaleIn 0.5s ease-out;
+        box-shadow: 0 4px 15px rgba(142, 124, 255, 0.2);
+    }
+
+    .explore-card h3 {
+        font-size: 1.4rem;
+        font-weight: 900;
+        margin-bottom: 0.8rem;
+        color: var(--ua-dark);
+        line-height: 1.3;
+        transition: color 0.3s ease;
+    }
+
+    .explore-card:hover h3 {
+        color: var(--ua-primary);
+    }
+
+    .explore-card p {
+        color: var(--ua-gray);
+        line-height: 1.6;
+        margin-bottom: 1.2rem;
+        font-size: 0.95rem;
+        transition: color 0.3s ease;
+    }
+
+    .explore-card:hover p {
+        color: #4a5568;
+    }
+
+    .explore-card-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        color: var(--ua-primary);
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+        background: linear-gradient(90deg, var(--ua-primary) 0%, var(--ua-secondary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        position: relative;
+    }
+
+    .explore-card-link::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--ua-primary) 0%, var(--ua-secondary) 100%);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .explore-card-link:hover::after {
+        transform: scaleX(1);
+    }
+
+    .explore-card-link i {
+        transition: transform 0.3s ease;
+        display: inline-block;
+    }
+
+    .explore-card-link:hover i {
+        transform: translateX(6px);
+    }
+
+    .dark .explore-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    }
+
+    .dark .explore-card:hover {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+        border-color: rgba(81, 225, 167, 0.3);
+        box-shadow: 0 40px 80px rgba(81, 225, 167, 0.2);
+    }
+
+    .dark .explore-card h3 {
+        color: var(--ua-light);
+    }
+
+    .dark .explore-card p {
+        color: rgba(247, 251, 255, 0.7);
+    }
+
+    .dark .explore-card:hover p {
+        color: rgba(247, 251, 255, 0.9);
+    }
+
+    .cta-section {
+        background: linear-gradient(135deg, var(--ua-primary) 0%, var(--ua-secondary) 100%);
+        color: white;
+        padding: 7rem 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .cta-section > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .cta-section h2 {
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 1.2rem;
+        line-height: 1.2;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .cta-section p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.95;
+        animation: fadeInUp 0.8s ease-out 0.1s both;
+    }
+
+    .featured-item {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        align-items: center;
+        background: white;
+        border-radius: 1.5rem;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(10, 11, 16, 0.12);
+        animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+
+    .featured-item img {
+        height: 100%;
+        min-height: 320px;
+        width: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .featured-item:hover img {
+        transform: scale(1.05);
+    }
+
+    .featured-item-content {
+        padding: 2.5rem;
+    }
+
+    .featured-item h3 {
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--ua-dark);
+        margin-bottom: 1rem;
+        line-height: 1.3;
+    }
+
+    .featured-item p {
+        color: var(--ua-gray);
+        font-size: 1rem;
+        line-height: 1.8;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .hero-inner {
+            min-height: 50vh;
+            padding: 3rem 1.5rem;
+        }
+
+        .hero h1 {
+            font-size: 1.8rem;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+        }
+
+        .section-header p {
+            font-size: 1rem;
+        }
+
+        .featured-item {
+            grid-template-columns: 1fr;
+        }
+
+        .featured-item img {
+            min-height: 200px;
+        }
+
+        .featured-item-content {
+            padding: 1.5rem;
+        }
+
+        .featured-item h3 {
+            font-size: 1.5rem;
+        }
+
+        .cta-section h2 {
+            font-size: 2rem;
+        }
+
+        .card-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .hero-actions {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .hero-actions .btn {
+            width: 100%;
+        }
+    }
+
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+    <!-- Hero Section -->
+    <header class="hero" style="min-height: 60vh;">
+        {% include './partials/header/navbar.html' %}
+        {% include './partials/header/hamburger-menu.html' with faq_link="/about#faq" %}
+        <div class="hero-media" aria-hidden="true">
+            <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=2000&auto=format&fit=crop" alt="Explore Unwind Africa" />
+        </div>
+        <div class="hero-inner">
+            <span class="hero-tag">Discover • Explore • Experience</span>
+            <h1 style="font-size: 2.8rem; margin-bottom: 1.5rem;">Explore everything Unwind Africa has to offer</h1>
+            <p style="color: #fff; max-width: 700px; margin: 0 auto 2rem; font-size: 1.1rem;">From luxury packages to vibrant events, inspiring blogs, and exciting voting campaigns – explore our world of wellness and adventure.</p>
+            <div class="hero-actions">
+                <a class="btn btn-primary" href="#blog">Read Our Stories</a>
+                <a class="btn btn-outline" href="#events">View Events</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Blog Posts Section -->
+    <section id="blog" class="explore-section">
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Latest Stories</h2>
+                <p>Explore our blog for wellness tips, travel guides, and inspiring stories from the Unwind Africa community.</p>
+            </div>
+            <div class="card-grid">
+                {% if latest_posts %}
+                    {% for post in latest_posts %}
+                    <article class="explore-card">
+                        <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}">
+                        <div class="explore-card-content">
+                            <span class="explore-card-category">{{ post.category }}</span>
+                            <h3>{{ post.title }}</h3>
+                            <p>{{ post.excerpt }}</p>
+                            <a href="{% url 'blog_detail' post.slug %}" class="explore-card-link">
+                                Read Article <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+                    {% endfor %}
+                {% else %}
+                    <article class="explore-card">
+                        <img src="{% static 'assets/home/Events-1.jpg' %}" alt="No posts available">
+                        <div class="explore-card-content">
+                            <span class="explore-card-category">Latest</span>
+                            <h3>No posts available</h3>
+                            <p>Check back soon for new content and updates from Unwind Africa.</p>
+                            <a href="{% url 'blog' %}" class="explore-card-link">
+                                View All Posts <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+                {% endif %}
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="{% url 'blog' %}" class="btn btn-primary">View All Blog Posts</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Events Section -->
+    <section id="events" class="explore-section dark">
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Upcoming Events</h2>
+                <p>Join us for unforgettable experiences, workshops, and wellness retreats across Africa.</p>
+            </div>
+            <div class="card-grid">
+                {% if upcoming_events %}
+                    {% for event in upcoming_events %}
+                    <article class="explore-card">
+                        <img src="{{ event.thumbnail.url }}" alt="{{ event.name }}">
+                        <div class="explore-card-content">
+                            <span class="explore-card-category">{{ event.date|date:"M d, Y" }}</span>
+                            <h3>{{ event.name }}</h3>
+                            <p>{{ event.description|truncatewords:20 }}</p>
+                            <a href="{% url 'event_detail' event.slug %}" class="explore-card-link">
+                                Learn More <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+                    {% endfor %}
+                {% else %}
+                    <article class="explore-card">
+                        <img src="{% static 'assets/home/Events-2.jpg' %}" alt="No events available">
+                        <div class="explore-card-content">
+                            <span class="explore-card-category">Upcoming</span>
+                            <h3>No events currently scheduled</h3>
+                            <p>Stay tuned for exciting upcoming events and workshops.</p>
+                            <a href="{% url 'event_list' %}" class="explore-card-link">
+                                View All Events <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+                {% endif %}
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="{% url 'event_list' %}" class="btn btn-primary">View All Events</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Packages Section -->
+    <section id="packages" class="explore-section">
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Luxury Packages</h2>
+                <p>Discover our curated collection of wellness retreats and luxury travel experiences.</p>
+            </div>
+            <div class="card-grid">
+                <!-- Solo Packages -->
+                <article class="explore-card featured-item">
+                    <img src="{% static 'assets/home/orchid.jpg' %}" alt="Orchid Solo Package">
+                    <div class="explore-card-content featured-item-content">
+                        <span class="explore-card-category">Solo Retreats</span>
+                        <h3>Orchid - Ultimate Solo Luxury</h3>
+                        <p>Experience ultimate solo luxury with a private concierge and curated adventures. Includes full spa itinerary, private boat or picnic experience, and premium photo add-on.</p>
+                        <a href="{% url 'packages' %}#solo" class="explore-card-link">
+                            View Solo Packages <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Family Packages -->
+                <article class="explore-card">
+                    <img src="{% static 'assets/packages/excursion.jpeg' %}" alt="Maple Family Package">
+                    <div class="explore-card-content">
+                        <span class="explore-card-category">Family Getaways</span>
+                        <h3>Maple - Family Luxury</h3>
+                        <p>Ultimate family week with three curated excursions, daily breakfast, two hosted dinners, and complimentary video montage.</p>
+                        <a href="{% url 'packages' %}#family" class="explore-card-link">
+                            View Family Packages <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Group Packages -->
+                <article class="explore-card">
+                    <img src="{% static 'assets/home/packages/royal.jpeg' %}" alt="Royal Group Package">
+                    <div class="explore-card-content">
+                        <span class="explore-card-category">Group Experiences</span>
+                        <h3>Royal - Group Escape</h3>
+                        <p>Ultimate 7-day luxury group experience with VIP welcomes, daily activity plan, and signature group dinner.</p>
+                        <a href="{% url 'packages' %}#group" class="explore-card-link">
+                            View Group Packages <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </article>
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="{% url 'packages' %}" class="btn btn-primary">View All Packages</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Voting Campaigns Section -->
+    <section id="voting" class="explore-section dark">
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Nominate to Unwind</h2>
+                <p>Join our monthly voting campaigns and help someone special win a luxurious Unwind Africa experience.</p>
+            </div>
+            <div class="card-grid">
+                {% if active_campaigns %}
+                    {% for campaign in active_campaigns %}
+                    <article class="explore-card">
+                        <img src="{% if campaign.banner_image %}{{ campaign.banner_image.url }}{% else %}{% static 'assets/home/hero.png' %}{% endif %}" alt="{{ campaign.name }}">
+                        <div class="explore-card-content">
+                            <span class="explore-card-category">Voting Campaign</span>
+                            <h3>{{ campaign.name }}</h3>
+                            <p>{{ campaign.tagline }}</p>
+                            <a href="{% url 'voting_campaign' campaign.slug %}" class="explore-card-link">
+                                Vote Now <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+                    {% endfor %}
+                {% else %}
+                    <article class="explore-card">
+                        <img src="{% static 'assets/home/hero.png' %}" alt="No active campaigns">
+                        <div class="explore-card-content">
+                            <span class="explore-card-category">Voting Campaign</span>
+                            <h3>No active campaigns</h3>
+                            <p>Check back soon for our next Nominate to Unwind campaign.</p>
+                            <a href="{% url 'voting_campaigns_list' %}" class="explore-card-link">
+                                View Campaigns <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+                {% endif %}
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="{% url 'voting_campaigns_list' %}" class="btn btn-primary">View All Campaigns</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="section-container">
+            <h2>Ready to Start Your Journey?</h2>
+            <p>Discover your perfect Unwind Africa experience and begin your wellness journey today.</p>
+            <a href="{% url 'contact' %}" class="btn-primary">
+                Get in Touch <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+    </section>
+</div>
+{% endblock %}

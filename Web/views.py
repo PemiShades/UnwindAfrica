@@ -46,6 +46,27 @@ def home(request):
     })
 
 
+def explore(request):
+    """Explore page showing all website sections"""
+    # Get latest blog posts
+    from .models import Post
+    latest_posts = Post.objects.filter(is_published=True).order_by('-created_at')[:3]
+    
+    # Get upcoming events
+    from .models import Event
+    upcoming_events = Event.objects.filter(date__gte=timezone.now()).order_by('date')[:3]
+    
+    # Get active voting campaigns
+    from .models import VotingCampaign
+    active_campaigns = VotingCampaign.objects.filter(is_active=True).order_by('-start_date')[:2]
+    
+    return render(request, 'Web/explore.html', {
+        'latest_posts': latest_posts,
+        'upcoming_events': upcoming_events,
+        'active_campaigns': active_campaigns,
+    })
+
+
 def rest_card_signup(request):
     """Rest Card Early Sign-up page"""
     if request.method == 'POST':

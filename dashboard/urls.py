@@ -34,6 +34,10 @@ urlpatterns = [
     path("rest-cards/<int:card_id>/generate/", views.generate_rest_card, name="generate_rest_card"),
     path("rest-cards/<int:card_id>/resend/", views.resend_rest_card, name="resend_rest_card"),
     path("rest-cards/<int:card_id>/toggle-status/", views.toggle_rest_card_status, name="toggle_rest_card_status"),
+    path("rest-cards/<int:card_id>/get/", views.get_rest_card, name="get_rest_card"),
+    path("rest-cards/create/", views.create_rest_card, name="create_rest_card"),
+    path("rest-cards/stats/", views.rest_cards_stats, name="rest_cards_stats"),
+    path("engagement-data/", views.engagement_data, name="engagement_data"),
     path("rest-cards/export/", views.export_rest_cards, name="export_rest_cards"),
     path("rest-cards/import/", views.import_rest_cards, name="import_rest_cards"),
 ]

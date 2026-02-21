@@ -50,6 +50,7 @@ urlpatterns = [
     path('nomination-confirmation/<int:nominee_id>/', views.nomination_confirmation, name='nomination_confirmation'),
     path('my-rest-card/', views.my_rest_card, name='my_rest_card'),
     path('generate-rest-card/<int:card_id>/', views.generate_rest_card, name='generate_rest_card'),
+    path('explore/', views.explore, name='explore'),
 ]
 
 

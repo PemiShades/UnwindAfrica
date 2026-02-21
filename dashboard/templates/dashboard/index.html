@@ -10,14 +10,12 @@
   <script>
     window.tailwind = { config: { darkMode: 'class' } };
   </script>
-  <script defer src="https://cdn.tailwindcss.com"></script>
+   <script defer src="https://cdn.tailwindcss.com"></script>
 
   <link rel="icon" href="{% static 'favicon.ico' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-  <!-- External Libraries -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- External Libraries loaded in partials/scripts.html -->
 
   <!-- Minimal custom CSS (light = default, dark overrides under .dark) -->
   <style>
@@ -618,33 +616,33 @@
             <section class="grid gap-6">
                <div class="grid md:grid-cols-4 sm:grid-cols-2 gap-4">
                 <div class="kpi">
-                  <div class="text-xs opacity-70">Total Cards</div>
-                  <div class="text-2xl font-extrabold">{{ rest_cards.count }}</div>
-                  <div class="text-xs opacity-70">All cards issued</div>
-                </div>
-                <div class="kpi">
-                  <div class="text-xs opacity-70">Active Cards</div>
-                  <div class="text-2xl font-extrabold">{{ active_cards.count }}</div>
-                  <div class="text-xs opacity-70">Currently active</div>
-                </div>
-                <div class="kpi">
-                  <div class="text-xs opacity-70">Pending Activation</div>
-                  <div class="text-2xl font-extrabold">{{ pending_cards.count }}</div>
-                  <div class="text-xs opacity-70">Awaiting activation</div>
-                </div>
-                <div class="kpi">
-                  <div class="text-xs opacity-70">Total Rest Points</div>
-                  <div class="text-2xl font-extrabold">{{ total_rest_points|default:"0" }}</div>
-                  <div class="text-xs opacity-70">Across all cards</div>
-                </div>
+                    <div class="text-xs opacity-70">Total Cards</div>
+                    <div class="text-2xl font-extrabold"><span id="restCardsTotal">{{ rest_cards.count }}</span></div>
+                    <div class="text-xs opacity-70">All cards issued</div>
+                  </div>
+                  <div class="kpi">
+                    <div class="text-xs opacity-70">Active Cards</div>
+                    <div class="text-2xl font-extrabold"><span id="restCardsActive">{{ active_cards.count }}</span></div>
+                    <div class="text-xs opacity-70">Currently active</div>
+                  </div>
+                  <div class="kpi">
+                    <div class="text-xs opacity-70">Pending Activation</div>
+                    <div class="text-2xl font-extrabold"><span id="restCardsPending">{{ pending_cards.count }}</span></div>
+                    <div class="text-xs opacity-70">Awaiting activation</div>
+                  </div>
+                  <div class="kpi">
+                    <div class="text-xs opacity-70">Total Rest Points</div>
+                    <div class="text-2xl font-extrabold"><span id="restCardsPoints">{{ total_rest_points|default:"0" }}</span></div>
+                    <div class="text-xs opacity-70">Across all cards</div>
+                  </div>
               </div>
 
               <!-- Rest Cards Management -->
               <div class="rounded-2xl p-6 shadow-soft bg-white/5 border border-white/10">
                 <div class="flex justify-between items-center mb-6">
                   <h3 class="text-xl font-bold">Rest Cards Management</h3>
-                   <div class="flex gap-2">
-                    <button class="btn-primary">Generate New Card</button>
+                    <div class="flex gap-2">
+                    <button @click="createRestCard()" class="btn-primary">Generate New Card</button>
                     <button class="btn-ghost border border-emerald-400/30 hover:border-emerald-400/60" @click="exportRestCards()">
                       <i class="fa-solid fa-file-export mr-2"></i>Export List
                     </button>
@@ -669,13 +667,13 @@
                     </thead>
                     <tbody>
                       {% for card in rest_cards %}
-                      <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                      <tr class="border-b border-white/5 hover:bg-white/5 transition-colors" data-card-id="{{ card.id }}">
                         <td class="py-3 font-mono">{{ card.card_number }}</td>
                         <td class="py-3">{{ card.member_name }}</td>
                         <td class="py-3">{{ card.member_email }}</td>
                         <td class="py-3">{{ card.member_phone }}</td>
                         <td class="py-3">
-                          <span class="px-3 py-1 text-xs rounded-full {% if card.status == 'active' %}bg-green-500/20 text-green-400 border border-green-500/30{% elif card.status == 'pending' %}bg-yellow-500/20 text-yellow-400 border border-yellow-500/30{% elif card.status == 'suspended' %}bg-red-500/20 text-red-400 border border-red-500/30{% else %}bg-gray-500/20 text-gray-400 border border-gray-500/30{% endif %}">
+                          <span data-status class="px-3 py-1 text-xs rounded-full {% if card.status == 'active' %}bg-green-500/20 text-green-400 border border-green-500/30{% elif card.status == 'pending' %}bg-yellow-500/20 text-yellow-400 border border-yellow-500/30{% elif card.status == 'suspended' %}bg-red-500/20 text-red-400 border border-red-500/30{% else %}bg-gray-500/20 text-gray-400 border border-gray-500/30{% endif %}">
                             {{ card.status }}
                           </span>
                         </td>
@@ -686,7 +684,7 @@
                               <button @click="editRestCard({{ card.id }})" class="text-xs btn-ghost border border-blue-400/30 hover:border-blue-400/60">Edit</button>
                               <button @click="generateRestCard({{ card.id }})" class="text-xs btn-ghost border border-purple-400/30 hover:border-purple-400/60">Generate Card</button>
                               <button @click="resendRestCard({{ card.id }})" class="text-xs btn-ghost border border-orange-400/30 hover:border-orange-400/60">Resend</button>
-                              <button @click="toggleRestCardStatus({{ card.id }}, '{{ card.status }}')" class="text-xs btn-ghost border border-red-400/30 hover:border-red-400/60">
+                              <button @click="toggleRestCardStatus({{ card.id }}, '{{ card.status }}', $event)" class="text-xs btn-ghost border border-red-400/30 hover:border-red-400/60">
                                 {% if card.status == 'active' %}Deactivate{% else %}Activate{% endif %}
                               </button>
                             </div>
@@ -844,14 +842,15 @@
       </div>
 
       <div class="p-6">
-        <form x-data="{ 
-          card: restCardModal,
-          submit() {
+         <template x-if="restCardModal && restCardModal.id">
+          <form x-data="{ card: restCardModal, submit() {
+            const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+            if (!csrf) return alert('CSRF token missing');
             fetch(`/dashboard/rest-cards/${this.card.id}/edit/`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                'X-CSRFToken': csrf
               },
               body: JSON.stringify({
                 member_name: this.card.member_name,
@@ -862,18 +861,41 @@
             .then(response => response.json())
             .then(data => {
               if (data.ok) {
-                this.toast('Card updated successfully', 'success');
-                this.showRestCardModal = false;
+                // Use root Alpine instance for toast and modal state
+                try { this.$root.toast('Card updated successfully', 'success'); } catch(e) { console.log('toast error', e); }
+                try { this.$root.showRestCardModal = false; } catch(e) { /* ignore */ }
+
+                // Update the row in the table
+                const row = document.querySelector(`tr[data-card-id="${this.card.id}"]`);
+                if (row) {
+                  const tds = row.querySelectorAll('td');
+                  // card.member_name is second cell
+                  if (tds[1]) tds[1].textContent = this.card.member_name;
+                  if (tds[2]) tds[2].textContent = this.card.member_email;
+                  if (tds[3]) tds[3].textContent = this.card.member_phone;
+                }
+
+                // Refresh KPIs
+                fetch('/dashboard/rest-cards/stats/')
+                  .then(r => r.json())
+                  .then(s => {
+                    if (s.ok) {
+                      document.getElementById('restCardsTotal').textContent = s.total;
+                      document.getElementById('restCardsActive').textContent = s.active;
+                      document.getElementById('restCardsPending').textContent = s.pending;
+                      document.getElementById('restCardsPoints').textContent = s.total_points;
+                    }
+                  }).catch(err => console.error('stats error', err));
+
               } else {
-                this.toast(data.error, 'error');
+                try { this.$root.toast(data.error, 'error'); } catch(e) { alert(data.error); }
               }
             })
             .catch(error => {
-              this.toast('Error updating card', 'error');
+              try { this.$root.toast('Error updating card', 'error'); } catch(e) { alert('Error updating card'); }
               console.error('Error:', error);
             });
-          }
-        }">
+          }}">
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Member Name</label>
@@ -895,7 +917,11 @@
             <button type="button" @click="showRestCardModal = false" class="btn-ghost border border-gray-300 hover:border-gray-400">Cancel</button>
             <button type="button" @click="submit()" class="btn-primary">Update Card</button>
           </div>
-        </form>
+          </form>
+        </template>
+        <template x-if="!restCardModal || !restCardModal.id">
+          <div class="p-4">Loading…</div>
+        </template>
       </div>
     </div>
   </div>
