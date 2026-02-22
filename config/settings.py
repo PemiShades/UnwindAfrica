@@ -20,18 +20,21 @@ DEBUG = env_bool("DEBUG", False)
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    "159.198.76.102",           # server IP
-    "server1.unwindafrica.com", # VPS hostname
-    "unwindafrica.com",         # <-- add this
+    "159.198.76.102",
+    "server1.unwindafrica.com",
+    "unwindafrica.com",
     "www.unwindafrica.com",
     "testserver",
 ]
 
 # Required for HTTPS + CSRF protection
 CSRF_TRUSTED_ORIGINS = [
-    "https://unwindafrica.com",     # <-- add this
+    "https://unwindafrica.com",
+    "http://unwindafrica.com",
     "https://server1.unwindafrica.com",
+    "http://server1.unwindafrica.com",
     "https://www.unwindafrica.com",
+    "http://www.unwindafrica.com",
 ]
 
 

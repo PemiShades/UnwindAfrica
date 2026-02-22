@@ -1,4 +1,4 @@
-{% extends "Web/main.html" %}
+{% extends 'Web/base.html' %}
 {% load static %}
 
 {% block title %}Nominate to Unwind | Unwind Africa{% endblock %}
@@ -171,6 +171,9 @@
     }
 </style>
 {% endblock %}
+
+ {% include './partials/header/navbar.html' with theme='dark'%}
+
 
 {% block content %}
 <section class="section">
