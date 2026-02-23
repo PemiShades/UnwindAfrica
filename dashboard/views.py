@@ -747,9 +747,61 @@ def engagement_data(request):
         print(f"Error fetching engagement data: {e}")
         return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
+
+@login_required
+def export_nominees(request):
+    """Export all nominees and their votes to CSV"""
+    try:
+        import csv
+        from django.http import HttpResponse
+        
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="nominees_and_votes.csv"'
+        
+        writer = csv.writer(response)
+        # Write header row
+        writer.writerow([
+            'Nominee ID',
+            'Nominee Number',
+            'Nominee Name',
+            'Campaign',
+            'Vote Count',
+            'Voter Name',
+            'Voter Email',
+            'Voter Phone',
+            'Votes Cast',
+            'Amount Paid',
+            'Payment Status',
+            'Vote Date'
+        ])
+        
+        # Get all votes and write them
+        votes = Vote.objects.select_related('nominee', 'nominee__campaign').all().order_by('-created_at')
+        
+        for vote in votes:
+            writer.writerow([
+                vote.nominee.pk,
+                vote.nominee.number or '',
+                vote.nominee.name,
+                vote.nominee.campaign.name if vote.nominee.campaign else '',
+                vote.nominee.vote_count,
+                vote.voter_name,
+                vote.voter_email,
+                vote.voter_phone,
+                vote.vote_quantity,
+                f"₦{vote.amount}",
+                vote.payment_status,
+                vote.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            ])
+        
+        return response
+    
     except Exception as e:
-        print(f"Error importing rest cards: {e}")
-        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+        print(f"Error exporting nominees: {e}")
+        from django.http import HttpResponse
+        response = HttpResponse(f"Error: {str(e)}", status=500)
+        return response
+
 
 
 # def _ensure_unique_slug(instance, base_text: str):

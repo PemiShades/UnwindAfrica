@@ -40,4 +40,5 @@ urlpatterns = [
     path("engagement-data/", views.engagement_data, name="engagement_data"),
     path("rest-cards/export/", views.export_rest_cards, name="export_rest_cards"),
     path("rest-cards/import/", views.import_rest_cards, name="import_rest_cards"),
+    path("nominees/export/", views.export_nominees, name="export_nominees"),
 ]
