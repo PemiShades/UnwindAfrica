@@ -749,6 +749,137 @@ def engagement_data(request):
 
 
 @login_required
+def get_nominee_details(request, nominee_id):
+    """API: Get nominee details with all votes"""
+    try:
+        nominee = get_object_or_404(Nominee, pk=nominee_id)
+        votes = nominee.votes.all().order_by('-created_at')
+        
+        votes_data = []
+        for vote in votes:
+            votes_data.append({
+                'id': vote.id,
+                'voter_name': vote.voter_name,
+                'voter_email': vote.voter_email,
+                'voter_phone': vote.voter_phone,
+                'votes': vote.vote_quantity,
+                'amount': float(vote.amount),
+                'status': vote.payment_status,
+                'date': vote.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            })
+        
+        return JsonResponse({
+            'ok': True,
+            'nominee': {
+                'id': nominee.id,
+                'number': nominee.number or '',
+                'name': nominee.name,
+                'photo': nominee.photo.url if nominee.photo else '',
+                'votes_count': nominee.vote_count,
+                'total_raised': float(nominee.total_amount_raised),
+                'votes': votes_data
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+
+
+@login_required
+@require_POST
+def delete_vote(request, vote_id):
+    """API: Delete a vote and update nominee count"""
+    try:
+        vote = get_object_or_404(Vote, pk=vote_id)
+        nominee = vote.nominee
+        
+        # Delete transaction if exists
+        if hasattr(vote, 'transaction'):
+            vote.transaction.delete()
+        
+        vote.delete()
+        
+        # Update nominee vote count
+        nominee.vote_count = nominee.votes.count()
+        nominee.save()
+        
+        return JsonResponse({'ok': True, 'msg': 'Vote deleted'})
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+
+
+@login_required
+def get_nominees_data(request):
+    """API: Get all nominees with vote counts for dashboard"""
+    try:
+        campaign_id = request.GET.get('campaign_id')
+        nominees = Nominee.objects.all()
+        
+        if campaign_id:
+            nominees = nominees.filter(campaign_id=campaign_id)
+        
+        nominees = nominees.order_by('-vote_count')
+        
+        data = []
+        for nominee in nominees:
+            data.append({
+                'id': nominee.id,
+                'number': nominee.number or '',
+                'name': nominee.name,
+                'photo': nominee.photo.url if nominee.photo else '',
+                'votes': nominee.vote_count,
+                'raised': float(nominee.total_amount_raised),
+                'campaign': nominee.campaign.name if nominee.campaign else ''
+            })
+        
+        return JsonResponse({'ok': True, 'nominees': data})
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+
+
+@login_required
+@require_POST
+def add_vote(request):
+    """API: Add a new vote (admin only)"""
+    try:
+        import json
+        data = json.loads(request.body)
+        
+        nominee = get_object_or_404(Nominee, pk=data.get('nominee_id'))
+        campaign = nominee.campaign
+        
+        vote_qty = int(data.get('vote_quantity', 1))
+        amount = float(campaign.vote_price) * vote_qty
+        
+        vote = Vote.objects.create(
+            nominee=nominee,
+            voter_name=data.get('voter_name', 'Admin'),
+            voter_email=data.get('voter_email', 'admin@unwindafrica.com'),
+            voter_phone=data.get('voter_phone', '+234800000000'),
+            vote_quantity=vote_qty,
+            amount=amount,
+            rest_points_earned=float(campaign.rest_points_per_vote) * vote_qty,
+            payment_status='paid'
+        )
+        
+        # Create transaction
+        Transaction.objects.create(
+            vote=vote,
+            reference=f'ADMIN_{vote.id}_{now().timestamp()}',
+            amount=amount,
+            status='success',
+            paid_at=now()
+        )
+        
+        # Update nominee count
+        nominee.vote_count = nominee.votes.count()
+        nominee.save()
+        
+        return JsonResponse({'ok': True, 'msg': 'Vote added', 'vote_id': vote.id})
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+
+
+@login_required
 def export_nominees(request):
     """Export all nominees and their votes to CSV"""
     try:

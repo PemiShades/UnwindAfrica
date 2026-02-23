@@ -506,7 +506,7 @@
                   <div class="space-y-4">
                     {% if nominees %}
                       {% for nominee in nominees %}
-                      <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                      <div @click="openNomineeModal({{ nominee.id }})" class="p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer hover:border-blue-400/50">
                         <div class="flex justify-between items-start">
                           <div class="flex-1 flex gap-3">
                             {% if nominee.photo %}
@@ -529,16 +529,21 @@
                           <div class="text-right">
                             <div class="text-3xl font-bold text-blue-400">{{ nominee.vote_count|default:0 }}</div>
                             <div class="text-xs opacity-70">votes</div>
+                            <div class="text-xs opacity-50 mt-2">NGN{{ nominee.total_amount_raised|floatformat:2 }}</div>
                           </div>
                         </div>
-                        <div class="mt-4 grid grid-cols-2 gap-3 text-xs">
+                        <div class="mt-4 grid grid-cols-3 gap-3 text-xs">
                           <div class="bg-white/5 rounded p-2">
                             <span class="opacity-70">Status:</span>
-                            <span class="font-semibold ml-1">{% if nominee.is_active %}Active{% else %}Inactive{% endif %}</span>
+                            <span class="font-semibold ml-1 text-green-400">Active</span>
                           </div>
                           <div class="bg-white/5 rounded p-2">
                             <span class="opacity-70">ID:</span>
-                            <span class="font-mono">{{ nominee.number }}</span>
+                            <span class="font-mono">#{{ nominee.number }}</span>
+                          </div>
+                          <div class="bg-blue-500/20 rounded p-2 text-right">
+                            <span class="font-semibold text-blue-400">View Details</span>
+                            <i class="fa-solid fa-arrow-right text-blue-400 ml-1"></i>
                           </div>
                         </div>
                       </div>
@@ -996,6 +1001,90 @@
         <template x-if="!restCardModal || !restCardModal.id">
           <div class="p-4">Loading…</div>
         </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nominee Detail Modal -->
+  <div x-show="showNomineeModal" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" x-cloak>
+    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
+        <div>
+          <h2 class="text-2xl font-bold" x-text="nomineeDetail.name"></h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            <span x-text="`Nominee #${nomineeDetail.number}`"></span> | 
+            <span x-text="`${nomineeDetail.votes_count} votes`"></span>
+          </p>
+        </div>
+        <button @click="closeNomineeModal()" class="btn-ghost text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+
+      <div class="p-6">
+        <!-- Summary Stats -->
+        <div class="grid md:grid-cols-3 gap-4 mb-6">
+          <div class="kpi">
+            <div class="text-xs opacity-70">Total Votes</div>
+            <div class="text-2xl font-bold" x-text="nomineeDetail.votes_count"></div>
+          </div>
+          <div class="kpi">
+            <div class="text-xs opacity-70">Amount Raised</div>
+            <div class="text-2xl font-bold" x-text="`NGN${nomineeDetail.total_raised.toLocaleString()}`"></div>
+          </div>
+          <div class="kpi">
+            <div class="text-xs opacity-70">Voters Count</div>
+            <div class="text-2xl font-bold" x-text="nomineeDetail.votes.length"></div>
+          </div>
+        </div>
+
+        <!-- Add Vote Button -->
+        <div class="mb-6">
+          <button @click="addVote(nomineeDetail.id)" class="w-full btn-primary">
+            <i class="fa-solid fa-plus mr-2"></i> Add Vote
+          </button>
+        </div>
+
+        <!-- Votes Table -->
+        <div class="overflow-x-auto">
+          <h3 class="text-lg font-bold mb-3">Voter Details</h3>
+          <template x-if="nomineeDetail.votes.length === 0">
+            <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+              <i class="fa-solid fa-inbox text-3xl opacity-50 mb-2"></i>
+              <p>No votes yet</p>
+            </div>
+          </template>
+          <template x-if="nomineeDetail.votes.length > 0">
+            <table class="w-full text-sm">
+              <thead class="border-b border-gray-200 dark:border-gray-700">
+                <tr>
+                  <th class="text-left py-2 px-2">Voter Name</th>
+                  <th class="text-left py-2 px-2">Email</th>
+                  <th class="text-left py-2 px-2">Phone</th>
+                  <th class="text-center py-2 px-2">Votes</th>
+                  <th class="text-right py-2 px-2">Amount</th>
+                  <th class="text-center py-2 px-2">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="vote in nomineeDetail.votes" :key="vote.id">
+                  <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                    <td class="py-3 px-2" x-text="vote.voter_name"></td>
+                    <td class="py-3 px-2 text-xs" x-text="vote.voter_email"></td>
+                    <td class="py-3 px-2 text-xs" x-text="vote.voter_phone"></td>
+                    <td class="py-3 px-2 text-center font-bold" x-text="vote.votes"></td>
+                    <td class="py-3 px-2 text-right font-semibold" x-text="`NGN${vote.amount.toLocaleString()}`"></td>
+                    <td class="py-3 px-2 text-center">
+                      <button @click="deleteVote(vote.id)" class="text-red-500 hover:text-red-700 text-sm">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </template>
+        </div>
       </div>
     </div>
   </div>

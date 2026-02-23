@@ -46,6 +46,10 @@ document.addEventListener('alpine:init', () => {
       showRestCardModal: false,
       restCardModal: {},
 
+      // ===== NOMINEE DETAIL MODAL STATE =====
+      showNomineeModal: false,
+      nomineeDetail: { id: null, name: '', votes: [], votes_count: 0, total_raised: 0 },
+
       // ===== CHART STORAGE =====
       charts: {},
 
@@ -405,6 +409,76 @@ document.addEventListener('alpine:init', () => {
       },
 
       closeCampaignModal() { this.showCampaignModal = false; },
+
+      // ===== NOMINEE MODAL FUNCTIONS =====
+      openNomineeModal(nomineeId) {
+        fetch(`/dashboard/nominees/${nomineeId}/details/`)
+          .then(r => r.json())
+          .then(data => {
+            if (data.ok) {
+              this.nomineeDetail = data.nominee;
+              this.showNomineeModal = true;
+            }
+          })
+          .catch(e => console.error('Error loading nominee:', e));
+      },
+
+      closeNomineeModal() {
+        this.showNomineeModal = false;
+      },
+
+      deleteVote(voteId) {
+        if (!confirm('Delete this vote?')) return;
+        
+        fetch(`/dashboard/votes/${voteId}/delete/`, {
+          method: 'POST',
+          headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
+        })
+          .then(r => r.json())
+          .then(data => {
+            if (data.ok) {
+              this.nomineeDetail.votes = this.nomineeDetail.votes.filter(v => v.id !== voteId);
+              this.toast('Vote deleted', 'success');
+            } else {
+              this.toast(data.error || 'Error deleting vote', 'error');
+            }
+          })
+          .catch(e => this.toast('Error: ' + e.message, 'error'));
+      },
+
+      addVote(nomineeId) {
+        const formData = new FormData();
+        const voter_name = prompt('Voter name:');
+        if (!voter_name) return;
+        
+        const vote_quantity = parseInt(prompt('Number of votes:', '1') || '1');
+        if (vote_quantity < 1) return;
+
+        fetch('/dashboard/votes/add/', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            nominee_id: nomineeId,
+            voter_name: voter_name,
+            voter_email: prompt('Voter email (optional):', 'admin@unwindafrica.com'),
+            voter_phone: prompt('Voter phone (optional):', '+2348000000000'),
+            vote_quantity: vote_quantity
+          })
+        })
+          .then(r => r.json())
+          .then(data => {
+            if (data.ok) {
+              this.openNomineeModal(nomineeId);
+              this.toast('Vote added successfully', 'success');
+            } else {
+              this.toast(data.error || 'Error adding vote', 'error');
+            }
+          })
+          .catch(e => this.toast('Error: ' + e.message, 'error'));
+      },
 
       paintCharts: function(refresh=false) {
         const fg = (this.theme === 'dark' ? '#E8ECF8' : '#0F1320');

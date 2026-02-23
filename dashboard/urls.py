@@ -41,4 +41,10 @@ urlpatterns = [
     path("rest-cards/export/", views.export_rest_cards, name="export_rest_cards"),
     path("rest-cards/import/", views.import_rest_cards, name="import_rest_cards"),
     path("nominees/export/", views.export_nominees, name="export_nominees"),
+    
+    # Voting management APIs
+    path("nominees/<int:nominee_id>/details/", views.get_nominee_details, name="nominee_details"),
+    path("nominees/data/", views.get_nominees_data, name="nominees_data"),
+    path("votes/<int:vote_id>/delete/", views.delete_vote, name="delete_vote"),
+    path("votes/add/", views.add_vote, name="add_vote"),
 ]
