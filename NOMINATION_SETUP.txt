@@ -1,0 +1,127 @@
+"""
+NOMINATION SYSTEM SETUP INSTRUCTIONS
+====================================
+
+This file documents how to set up and use the Unwind Africa nomination system.
+
+## Overview
+The nomination system allows users to submit nominations for individuals in a voting campaign.
+The website will display a public nomination form at /nominate/ that collects:
+- Nominator's details (name, email, phone)
+- Nominee's details (name, age, location, school)
+- Nomination reason (long text)
+- Nominee's photo (optional)
+
+## Database Setup
+
+Once you've made migrations and applied them, seed the database with the current campaign:
+
+    python manage.py seed_campaign
+
+This will create the "Nominate to Unwind — Students & Youth Edition" campaign with:
+- Auto-generated slug: nominate-to-unwind-students-youth
+- 3-month duration from today
+- Pre-filled prize details and campaign description
+- Status: Active (ready for nominations)
+
+## Accessing the Nomination Page
+
+After seeding, the nomination form will be available at:
+    
+    http://localhost:8000/nominate/
+or
+    https://www.unwindafrica.com/nominate/
+
+## Forms and Models
+
+### Related Files:
+- Model: Web/models.py → VotingCampaign, Nominee, Vote classes
+- Form: Web/forms.py → NominationForm class
+- View: Web/views.py → nominate() view function
+- Template: Web/templates/Web/nominate.html
+
+### Form Fields:
+The NominationForm collects the following information:
+
+Nominator Section:
+- NOMINATOR_NAME (required)
+- NOMINATOR_EMAIL (required)
+- NOMINATOR_PHONE (required)
+
+Nominee Section:
+- NOMINEE_NAME (required)
+- NOMINEE_AGE (required)
+- NOMINEE_LOCATION (required)
+- NOMINEE_SCHOOL (optional)
+
+Nomination Content:
+- NOMINATION_REASON (required) - Long text field for why person is nominated
+- NOMINEE_PHOTO (optional) - Image upload
+
+### Auto-numbering:
+When a nomination is submitted, the system automatically assigns a nominee number:
+- First nomination: 001
+- Second nomination: 002
+- And so on...
+
+## Viewing Nominations in Admin
+
+Go to Django Admin (http://localhost:8000/admin/) and navigate to:
+
+1. **Voting Campaigns** → View campaign details
+2. **Nominees** → View all submitted nominations
+   - Sorted by campaign and number
+   - Shows vote count for each nominee
+   - Can view nominee details, story, and photo
+
+3. **Votes** → View voting activity
+   - Shows who voted for whom
+   - Payment status and amount
+
+## Exporting Nomination Data
+
+Admins can export all nominees and votes from the dashboard:
+- Dashboard → Nomination & Votes tab
+- Click "Export" button
+- Downloads CSV with all nominee information
+
+## Default Campaign Details
+
+Name: "Nominate to Unwind — Students & Youth Edition"
+Description: Focuses on honouring students and young people showing resilience
+Duration: 90 days from creation date
+Vote Price: ₦500 per vote
+Rest Points: ₦100 per vote
+Status: Automatically set as active
+
+Prizes (configurable):
+- Grand Prize: Cash Prize + Features & Opportunities
+- Second Prize: Featured Recognition
+- Third Prize: Certificate of Recognition
+
+## Email Notifications (Optional)
+
+You may want to add:
+1. Confirmation email to nominator after submission
+2. Notification to selected nominees
+3. Invite to voting/next phase
+
+See Web/views.py → nomination_confirmation() for confirmation page.
+
+## Troubleshooting
+
+If seed command fails:
+- Ensure Django migrations are applied: `python manage.py migrate`
+- Check that Web app is in INSTALLED_APPS in settings.py
+- Verify database connection is working
+
+If form doesn't submit:
+- Check form validation messages in browser
+- Ensure all required fields are filled
+- Verify file sizes for image uploads (if applicable)
+
+If nominations don't appear:
+- Refresh Django admin
+- Check VotingCampaign.is_active is True
+- Verify campaign dates haven't ended
+"""

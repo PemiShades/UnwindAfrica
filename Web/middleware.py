@@ -143,12 +143,15 @@ class SessionCleanupMiddleware:
         if hasattr(request, '_session_cleanup_done'):
             return self.get_response(request)
 
-        # Mark sessions inactive if no activity for 30 minutes
-        cutoff = now() - timedelta(minutes=30)
-        Session.objects.filter(
-            last_activity__lt=cutoff,
-            is_active=True
-        ).update(is_active=False)
+        try:
+            # Mark sessions inactive if no activity for 30 minutes
+            cutoff = now() - timedelta(minutes=30)
+            Session.objects.filter(
+                last_activity__lt=cutoff,
+                is_active=True
+            ).update(is_active=False)
+        except Exception as e:
+            print(f"Session cleanup error: {e}")
 
         request._session_cleanup_done = True
 

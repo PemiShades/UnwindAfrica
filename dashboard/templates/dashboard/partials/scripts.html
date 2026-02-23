@@ -12,9 +12,17 @@ document.addEventListener('alpine:init', () => {
 
   // ===== ALPINE ROOT FUNCTION =====
   window.app = function () {
+    // Safe localStorage access with fallback (handles tracking prevention)
+    let theme = 'dark';
+    try {
+      theme = localStorage.getItem('theme') || 'dark';
+    } catch (e) {
+      console.warn('localStorage access blocked by tracking prevention:', e);
+    }
+
     return {
       // ===== GLOBAL STATE =====
-      theme: localStorage.getItem('theme') || 'dark',
+      theme: theme,
       tab: 'overview',
       sidebarOpen: false,
 
@@ -47,11 +55,18 @@ document.addEventListener('alpine:init', () => {
         this.$nextTick(() => {
           this.hydrateCharts();
           this.setupFormResetListener();
-          this.paintCharts();
+          // Only paint charts if the element exists
+          if (document.getElementById('chart-overview')) {
+            this.paintCharts();
+          }
         });
         this.loadNotifications();
-        // start polling engagement chart data
-        setInterval(() => this.pollEngagementData(), 10000);
+        // start polling engagement chart data (but only if chart element exists)
+        if (document.getElementById('chart-overview')) {
+          setTimeout(() => {
+            this.pollEngagementData();
+          }, 15000); // Poll once after 15 seconds
+        }
       },
 
       // ===== SETUP FORM RESET LISTENER =====
@@ -396,7 +411,12 @@ document.addEventListener('alpine:init', () => {
         const grid = this.theme === 'dark' ? 'rgba(255,255,255,.08)' : 'rgba(15,19,32,.08)';
         const brand = getComputedStyle(document.documentElement).getPropertyValue('--brand') || '#8E7CFF';
         const ctx = document.getElementById('chart-overview');
-        if (!ctx) return;
+        
+        // Early return if canvas doesn't exist
+        if (!ctx) {
+          console.warn('Chart canvas element chart-overview not found');
+          return;
+        }
         
         // Properly destroy existing chart before reinitialization
         if (this.charts.overview) {
@@ -411,57 +431,69 @@ document.addEventListener('alpine:init', () => {
         const labels = {{ monthly_chart_labels|default:"[]"|safe }};
         const data = {{ monthly_chart_counts|default:"[]"|safe }};
 
-        this.charts.overview = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels.length ? labels : ['No data'],
-            datasets: [{
-              label: 'Engagement (Votes)',
-              data: data.length ? data : [0],
-              tension: .4,
-              borderColor: brand.trim() || '#8E7CFF',
-              fill: true,
-              backgroundColor: 'rgba(142,124,255,.18)'
-            }]
-          },
-          options: {
-            maintainAspectRatio: false,
-            scales: {
-              x: { grid: { color: grid }, ticks: { color: fg } },
-              y: {
-                grid: { color: grid },
-                ticks: { color: fg },
-                beginAtZero: true,
-                precision: 0
-              }
+        try {
+          this.charts.overview = new Chart(ctx.getContext('2d'), {
+            type: 'line',
+            data: {
+              labels: labels.length ? labels : ['No data'],
+              datasets: [{
+                label: 'Engagement (Votes)',
+                data: data.length ? data : [0],
+                tension: .4,
+                borderColor: brand.trim() || '#8E7CFF',
+                fill: true,
+                backgroundColor: 'rgba(142,124,255,.18)'
+              }]
             },
-            plugins: { legend: { labels: { color: fg } } }
-          }
-        });
+            options: {
+              maintainAspectRatio: false,
+              responsive: true,
+              scales: {
+                x: { grid: { color: grid }, ticks: { color: fg } },
+                y: {
+                  grid: { color: grid },
+                  ticks: { color: fg },
+                  beginAtZero: true,
+                  precision: 0
+                }
+              },
+              plugins: { legend: { labels: { color: fg } } }
+            }
+          });
+        } catch (error) {
+          console.error('Error creating chart:', error);
+        }
       },
 
       // Fetch latest engagement data and update the overview chart in-place
       pollEngagementData() {
+        // Guard: only proceed if chart exists
+        if (!document.getElementById('chart-overview') || !this.charts.overview) {
+          return;
+        }
+
         fetch('/dashboard/engagement-data/')
-          .then(r => r.json())
+          .then(r => {
+            if (!r.ok) throw new Error('Network error');
+            return r.json();
+          })
           .then(json => {
-            if (!json.ok) return;
+            if (!json.ok || !this.charts.overview) return;
+            
             const labels = json.labels || [];
             const data = json.counts || [];
-            if (this.charts.overview) {
-              try {
-                this.charts.overview.data.labels = labels;
-                if (this.charts.overview.data.datasets && this.charts.overview.data.datasets[0]) {
-                  this.charts.overview.data.datasets[0].data = data;
-                }
-                this.charts.overview.update();
-              } catch (e) {
-                console.error('Chart update error', e);
-                this.paintCharts(true);
+            
+            try {
+              // Use proper data update without infinite recursion
+              const chartData = this.charts.overview.data;
+              if (chartData && chartData.labels && chartData.datasets && chartData.datasets[0]) {
+                chartData.labels = labels;
+                chartData.datasets[0].data = data;
+                this.charts.overview.update('none'); // Use 'none' animation to prevent overhead
               }
-            } else {
-              // If chart isn't initialized, paint it
-              this.paintCharts(true);
+            } catch (e) {
+              console.error('Chart update error', e);
+              // Don't repaint on error - avoid recursion
             }
           })
           .catch(err => console.error('Engagement poll error', err));
@@ -470,6 +502,11 @@ document.addEventListener('alpine:init', () => {
       exportRestCards: function() {
         // Redirect to export endpoint
         window.location.href = '/dashboard/rest-cards/export/';
+      },
+
+      exportNominees: function() {
+        // Redirect to export nominees endpoint
+        window.location.href = '/dashboard/nominees/export/';
       },
       
       importRestCards: function() {
@@ -716,7 +753,11 @@ document.addEventListener('alpine:init', () => {
 
       toggleTheme() {
         this.theme = this.theme === 'dark' ? 'light' : 'dark';
-        localStorage.setItem('theme', this.theme);
+        try {
+          localStorage.setItem('theme', this.theme);
+        } catch (e) {
+          console.warn('localStorage write blocked by tracking prevention:', e);
+        }
         this.$nextTick(() => this.hydrateCharts(true));
       },
 

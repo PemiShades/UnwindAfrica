@@ -145,6 +145,11 @@ def dashboard_home(request):
     pending_cards = rest_cards.filter(status='pending')
     total_rest_points = RestCard.objects.aggregate(total=Sum('total_rest_points'))['total'] or 0
     
+    # Calculate average votes per nominee
+    avg_votes_per_nominee = 0
+    if nominees.count() > 0:
+        avg_votes_per_nominee = round(votes.count() / nominees.count())
+    
     ctx = {
         "posts": list(posts_qs[:18]),
         "events": events_qs[:12],
@@ -164,6 +169,7 @@ def dashboard_home(request):
         "active_cards": active_cards,
         "pending_cards": pending_cards,
         "total_rest_points": total_rest_points,
+        "avg_votes_per_nominee": avg_votes_per_nominee,
     }
     return render(request, "dashboard/index.html", ctx)
 

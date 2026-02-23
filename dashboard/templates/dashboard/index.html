@@ -8,7 +8,22 @@
 
   <!-- Tell Tailwind to use class-based dark mode BEFORE loading the CDN -->
   <script>
-    window.tailwind = { config: { darkMode: 'class' } };
+    window.tailwind = { 
+      config: { darkMode: 'class' },
+      disablePreflight: true
+    };
+  </script>
+  <!-- Suppress Tailwind CDN development warning -->
+  <meta name="tailwindConfig" content='{"disablePreflight":true}'>
+  <script>
+    // Suppress Tailwind console warning for development CDN usage
+    const originalWarn = console.warn;
+    console.warn = function(...args) {
+      if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
+        return; // Suppress this specific warning
+      }
+      originalWarn.apply(console, args);
+    };
   </script>
    <script defer src="https://cdn.tailwindcss.com"></script>
 
@@ -156,7 +171,7 @@
             </button>
 
             <button @click="setTab('voting')" :class="tab==='voting' ? 'side-link active' : 'side-link'">
-              <i class="fa-solid fa-vote-yea w-5 text-blue-600 dark:text-blue-300"></i><span class="leading-none">Voting</span>
+              <i class="fa-solid fa-user-check w-5 text-blue-600 dark:text-blue-300"></i><span class="leading-none">Nomination & Votes</span>
             </button>
 
             <button @click="setTab('rest_cards')" :class="tab==='rest_cards' ? 'side-link active' : 'side-link'">
@@ -445,19 +460,19 @@
             </section>
           </template>
 
-          <!-- VOTING -->
+          <!-- NOMINATION & VOTES -->
           <template x-if="tab==='voting'">
             <section class="grid gap-6">
               <div class="grid md:grid-cols-4 sm:grid-cols-2 gap-4">
                 <div class="kpi">
-                  <div class="text-xs opacity-70">Total Campaigns</div>
-                  <div class="text-2xl font-extrabold">{{ campaigns.count }}</div>
-                  <div class="text-xs opacity-70">Active campaigns</div>
-                </div>
-                <div class="kpi">
                   <div class="text-xs opacity-70">Total Nominees</div>
                   <div class="text-2xl font-extrabold">{{ nominees.count }}</div>
-                  <div class="text-xs opacity-70">Across all campaigns</div>
+                  <div class="text-xs opacity-70">All nominees</div>
+                </div>
+                <div class="kpi">
+                  <div class="text-xs opacity-70">Active Nominees</div>
+                  <div class="text-2xl font-extrabold">{{ nominees.count }}</div>
+                  <div class="text-xs opacity-70">Ready for votes</div>
                 </div>
                 <div class="kpi">
                   <div class="text-xs opacity-70">Total Votes</div>
@@ -475,15 +490,126 @@
                 </div>
               </div>
 
-              <!-- Main Content Grid -->
+              <!-- Nominees & Votes Management -->
               <div class="grid lg:grid-cols-3 gap-6">
-                <!-- Campaign Management -->
+                <!-- Nominees Management -->
                 <div class="lg:col-span-2 rounded-2xl p-6 shadow-soft bg-white/5 border border-white/10">
                   <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold">Voting Campaigns</h3>
-                    <button @click="openCampaignModal()" class="btn-primary">Create Campaign</button>
+                    <h3 class="text-xl font-bold">Nominees & Votes</h3>
+                    <div class="flex gap-2">
+                      <button @click="openCampaignModal()" class="btn-primary text-sm">Create Campaign</button>
+                      <button class="btn-ghost border border-emerald-400/30 hover:border-emerald-400/60 text-sm" @click="exportNominees()">
+                        <i class="fa-solid fa-file-export mr-2"></i>Export
+                      </button>
+                    </div>
                   </div>
                   <div class="space-y-4">
+                    {% if nominees %}
+                      {% for nominee in nominees %}
+                      <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <div class="flex justify-between items-start">
+                          <div class="flex-1 flex gap-3">
+                            {% if nominee.photo %}
+                              <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" class="w-12 h-12 rounded-lg object-cover border border-white/20" />
+                            {% else %}
+                              <div class="w-12 h-12 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center font-bold text-white border border-white/20">
+                                {{ nominee.name|first|upper }}
+                              </div>
+                            {% endif %}
+                            <div class="flex-1 min-w-0">
+                              <h4 class="font-bold text-lg">{{ nominee.name }}</h4>
+                              {% if nominee.campaign %}
+                                <p class="text-sm opacity-70">{{ nominee.campaign.name }}</p>
+                              {% else %}
+                                <p class="text-sm opacity-70 italic">No campaign assigned</p>
+                              {% endif %}
+                              <p class="text-xs opacity-50 mt-1">Nominated: {{ nominee.created_at|date:"M d, Y" }}</p>
+                            </div>
+                          </div>
+                          <div class="text-right">
+                            <div class="text-3xl font-bold text-blue-400">{{ nominee.vote_count|default:0 }}</div>
+                            <div class="text-xs opacity-70">votes</div>
+                          </div>
+                        </div>
+                        <div class="mt-4 grid grid-cols-2 gap-3 text-xs">
+                          <div class="bg-white/5 rounded p-2">
+                            <span class="opacity-70">Status:</span>
+                            <span class="font-semibold ml-1">{% if nominee.is_active %}Active{% else %}Inactive{% endif %}</span>
+                          </div>
+                          <div class="bg-white/5 rounded p-2">
+                            <span class="opacity-70">ID:</span>
+                            <span class="font-mono">{{ nominee.number }}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {% endfor %}
+                    {% else %}
+                      <div class="text-center py-12">
+                        <i class="fa-solid fa-inbox text-gray-400 text-4xl mb-3 opacity-50"></i>
+                        <p class="text-gray-400">No nominees yet</p>
+                        <p class="text-xs opacity-60 mt-2">Nominees will appear here once submissions are received</p>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <!-- Right Sidebar - Top Nominees & Recent Votes -->
+                <div class="grid gap-6">
+                  <!-- Vote Statistics -->
+                  <div class="rounded-2xl p-6 shadow-soft bg-white/5 border border-white/10">
+                    <h3 class="text-lg font-bold mb-4">Vote Statistics</h3>
+                    <div class="space-y-3">
+                      <div class="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                        <span class="opacity-70">Total Votes Cast</span>
+                        <span class="font-bold text-xl">{{ votes.count|default:0 }}</span>
+                      </div>
+                      <div class="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                        <span class="opacity-70">Average per Nominee</span>
+                        <span class="font-bold text-xl">
+                          {{ avg_votes_per_nominee }}
+                        </span>
+                      </div>
+                      <div class="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                        <span class="opacity-70">Revenue Generated</span>
+                        <span class="font-bold text-lg text-green-400">
+                          {% with total=total_revenue %}
+                            {% if total %}₦{{ total|floatformat:0 }}{% else %}₦0{% endif %}
+                          {% endwith %}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Top 5 Nominees -->
+                  <div class="rounded-2xl p-6 shadow-soft bg-white/5 border border-white/10">
+                    <h3 class="text-lg font-bold mb-4">🏆 Top Nominees</h3>
+                    <div class="space-y-3">
+                      {% for nominee in nominees|dictsort:"vote_count"|slice:":5" reversed %}
+                      <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center font-bold text-white text-sm">
+                          {{ forloop.counter }}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <p class="font-semibold text-sm truncate">{{ nominee.name }}</p>
+                        </div>
+                        <span class="font-bold text-sm">{{ nominee.vote_count }}</span>
+                      </div>
+                      {% empty %}
+                      <p class="text-center opacity-50 py-4">No votes yet</p>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Campaigns Section (Optional) -->
+              <div class="rounded-2xl p-6 shadow-soft bg-white/5 border border-white/10">
+                <div class="flex justify-between items-center mb-6">
+                  <h3 class="text-xl font-bold">Active Campaigns</h3>
+                  <button @click="openCampaignModal()" class="btn-ghost border border-purple-400/30 hover:border-purple-400/60 text-sm">+ New Campaign</button>
+                </div>
+                <div class="space-y-4">
+                  {% if campaigns %}
                     {% for campaign in campaigns %}
                     <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
                       <div class="flex justify-between items-start">
@@ -512,61 +638,9 @@
                       </div>
                     </div>
                     {% endfor %}
-                  </div>
-                </div>
-
-                <!-- Right Sidebar - Statistics and Recent Activity -->
-                <div class="grid gap-6">
-                  <!-- Top Nominees -->
-                  <div class="rounded-2xl p-6 shadow-soft bg-white/5 border border-white/10">
-                    <h3 class="text-lg font-bold mb-4">Top Nominees</h3>
-                    <div class="space-y-4">
-                      {% for nominee in nominees|slice:":5" %}
-                      <div class="p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                        <div class="flex items-center gap-3">
-                          {% if nominee.photo %}
-                          <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" class="w-12 h-12 rounded-full object-cover border-2 border-white/10" />
-                          {% else %}
-                          <div class="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center font-bold text-white border-2 border-white/10">
-                            {{ nominee.name|first|upper }}
-                          </div>
-                          {% endif %}
-                          <div class="flex-1 min-w-0">
-                            <h4 class="font-bold text-sm truncate">{{ nominee.name }}</h4>
-                            <p class="text-xs opacity-70 truncate">{{ nominee.campaign.name }}</p>
-                          </div>
-                          <span class="font-bold text-sm">{{ nominee.vote_count }} votes</span>
-                        </div>
-                      </div>
-                      {% endfor %}
-                    </div>
-                  </div>
-
-                  <!-- Recent Votes -->
-                  <div class="rounded-2xl p-6 shadow-soft bg-white/5 border border-white/10">
-                    <h3 class="text-lg font-bold mb-4">Recent Votes</h3>
-                    <div class="space-y-4">
-                      {% for vote in votes|slice:":5" %}
-                      <div class="p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                        <div class="flex justify-between items-start">
-                          <div class="flex-1 min-w-0">
-                            <h4 class="font-bold text-sm truncate">{{ vote.voter_name }}</h4>
-                            <p class="text-xs opacity-70 truncate">{{ vote.voter_email }}</p>
-                          </div>
-                          <span class="text-xs opacity-70">{{ vote.created_at|timesince }} ago</span>
-                        </div>
-                        <div class="mt-2">
-                          <span class="opacity-70 text-xs">Voted for:</span>
-                          <span class="font-bold text-sm">{{ vote.nominee.name }}</span>
-                        </div>
-                        <div class="mt-1">
-                          <span class="opacity-70 text-xs">Votes:</span>
-                          <span class="font-bold text-sm">{{ vote.vote_quantity }}</span>
-                        </div>
-                      </div>
-                      {% endfor %}
-                    </div>
-                  </div>
+                  {% else %}
+                    <p class="text-center opacity-50 py-8">No campaigns created yet</p>
+                  {% endif %}
                 </div>
               </div>
 
@@ -934,5 +1008,5 @@
   </div>
 
   {% include 'dashboard/partials/scripts.html' %}
-</body>
+  </body>
 </html>
