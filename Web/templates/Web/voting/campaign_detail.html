@@ -63,7 +63,14 @@ header.absolute svg {
             </div>
         </div>
         
-        {% if campaign.is_ongoing %}
+        <!-- Test Mode Banner -->
+        {% if is_test_mode %}
+        <div style="background: #f39c12; color: white; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: clamp(0.85rem, 2vw, 0.9rem); text-align: center; animate: pulse;">
+            <strong>⚙️ TEST MODE:</strong> {{ test_mode_message }} No real charges will be made.
+        </div>
+        {% endif %}
+        
+        {% if is_ongoing %}
         <div style="background: #27ae60; color: white; padding: 0.5rem 1rem; border-radius: 20px; display: inline-block; font-size: clamp(0.85rem, 2vw, 0.95rem);">
             ✓ Campaign Active - Voting Open
         </div>
@@ -129,7 +136,7 @@ header.absolute svg {
 
     <!-- Nominees Grid -->
     <div class="nominees-section">
-        {% if campaign.is_ongoing %}
+        {% if is_ongoing %}
         <div id="countdown" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 1rem; border-radius: 12px; text-align: center; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
             <div style="font-size: 0.9rem; opacity: 0.95; margin-bottom: 0.3rem;">⏳ Voting closes in:</div>
             <div id="countdownTimer" style="font-size: clamp(1.5rem, 5vw, 2rem); font-weight: bold;">
@@ -140,7 +147,7 @@ header.absolute svg {
         
         <h2 style="font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: 1.5rem; color: #34495e; text-align: center; padding: 0 0.5rem;">Vote for Your Favorite Nominees</h2>
         
-        {% if not campaign.is_ongoing %}
+        {% if not is_ongoing %}
         <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center; font-size: clamp(0.9rem, 2vw, 1rem);">
             ⚠️ This campaign has ended. Voting is closed.
         </div>
@@ -175,7 +182,7 @@ header.absolute svg {
                         <div style="font-size: clamp(1.8rem, 5vw, 2rem); font-weight: bold; color: #3498db;">{{ nominee.vote_count }}</div>
                     </div>
                     
-                    {% if campaign.is_ongoing %}
+                    {% if is_ongoing %}
                     <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
                         <button onclick="decrementVote({{ nominee.id }})" 
                                 style="background: #e74c3c; color: white; border: none; padding: 0.75rem; border-radius: 6px; cursor: pointer; font-size: clamp(1rem, 3vw, 1.2rem); width: 40px; flex-shrink: 0;">−</button>
@@ -386,41 +393,68 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e) => 
     // Show loading notification
     const loading = showLoading('Initializing payment...');
     
-    try {
-        const response = await fetch('{% url "initialize_payment" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({
-                ballot: ballotArray,
-                voter_name: document.getElementById('voterName').value,
-                voter_email: document.getElementById('voterEmail').value,
-                voter_phone: document.getElementById('voterPhone').value,
-                referral_source: document.getElementById('referralSource').value
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            loading.success('Redirecting to payment gateway...');
+    // Check if in test mode
+    const isTestMode = {{ is_test_mode|lower }};
+    
+    if (isTestMode) {
+        // PSEUDO PAYMENT MODE - for testing/development
+        try {
+            // Simulate payment with delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Show success
+            loading.success('Test payment successful! Vote recorded.');
+            
+            // Automatically submit form for voting
             setTimeout(() => {
-                window.location.href = data.authorization_url;
-            }, 1000);
-        } else {
+                // Redirect to thank you page
+                window.location.href = '{% url "voting_thank_you" %}?test=true&votes=' + ballotArray.length;
+            }, 1500);
+        } catch (error) {
             loading.close();
-            showError(data.message || 'Payment initialization failed. Please try again.');
+            showError('Test payment failed. Please try again.');
             payButton.disabled = false;
             payButton.textContent = originalText;
         }
-    } catch (error) {
-        loading.close();
-        showError('Network error. Please check your connection and try again.');
-        console.error('Payment error:', error);
-        payButton.disabled = false;
-        payButton.textContent = originalText;
+    } else {
+        // REAL PAYSTACK PAYMENT MODE
+        try {
+            const response = await fetch('{% url "initialize_payment" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    ballot: ballotArray,
+                    voter_name: document.getElementById('voterName').value,
+                    voter_email: document.getElementById('voterEmail').value,
+                    voter_phone: document.getElementById('voterPhone').value,
+                    referral_source: document.getElementById('referralSource').value
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                loading.success('Redirecting to payment gateway...');
+                setTimeout(() => {
+                    window.location.href = data.authorization_url;
+                }, 1000);
+            } else {
+                loading.close();
+                showError(data.message || 'Payment initialization failed. Please try again.');
+                payButton.disabled = false;
+                payButton.textContent = originalText;
+            }
+        } catch (error) {
+            loading.close();
+            showError('Network error. Please check your connection and try again.');
+            console.error('Payment error:', error);
+            payButton.disabled = false;
+            payButton.textContent = originalText;
+        }
+    }
     }
 });
 
@@ -432,7 +466,7 @@ document.getElementById('checkoutModal').addEventListener('click', (e) => {
 });
 
 // Countdown Timer
-{% if campaign.is_ongoing %}
+{% if is_ongoing %}
 const endDate = new Date('{{ campaign.end_date|date:"Y-m-d" }}T23:59:59').getTime();
 
 function updateCountdown() {

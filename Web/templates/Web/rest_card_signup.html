@@ -343,26 +343,27 @@
         <p>Welcome to the Unwind Africa Rest Card pre-registration! This card connects you to exclusive rest experiences, partner rewards, and community wellness offers beginning January 2026. Please complete your details carefully only the first 1,000 entries qualify for the free single-user account.</p>
     </div>
 
-    <div class="step-indicator" x-data="signupForm()">
-        <div class="step" :class="{ 'active': currentStep === 1, 'completed': currentStep > 1 }">
-            <div class="step-circle">1</div>
-            <div class="step-label">Personal Info</div>
+    <div x-data="signupForm()" x-init="init()">
+        <div class="step-indicator">
+            <div class="step" :class="{ 'active': currentStep === 1, 'completed': currentStep > 1 }">
+                <div class="step-circle">1</div>
+                <div class="step-label">Personal Info</div>
+            </div>
+            <div class="step" :class="{ 'active': currentStep === 2, 'completed': currentStep > 2 }">
+                <div class="step-circle">2</div>
+                <div class="step-label">Professional</div>
+            </div>
+            <div class="step" :class="{ 'active': currentStep === 3, 'completed': currentStep > 3 }">
+                <div class="step-circle">3</div>
+                <div class="step-label">Community</div>
+            </div>
+            <div class="step" :class="{ 'active': currentStep === 4, 'completed': currentStep > 4 }">
+                <div class="step-circle">4</div>
+                <div class="step-label">Verification</div>
+            </div>
         </div>
-        <div class="step" :class="{ 'active': currentStep === 2, 'completed': currentStep > 2 }">
-            <div class="step-circle">2</div>
-            <div class="step-label">Professional</div>
-        </div>
-        <div class="step" :class="{ 'active': currentStep === 3, 'completed': currentStep > 3 }">
-            <div class="step-circle">3</div>
-            <div class="step-label">Community</div>
-        </div>
-        <div class="step" :class="{ 'active': currentStep === 4, 'completed': currentStep > 4 }">
-            <div class="step-circle">4</div>
-            <div class="step-label">Verification</div>
-        </div>
-    </div>
 
-    <form id="signupForm" x-data="signupForm()" x-init="init()">
+        <form id="signupForm">
         <!-- Step 1: Personal Information -->
         <div class="form-step" :class="{ 'active': currentStep === 1 }">
             <h2 class="text-2xl font-bold mb-6">Personal Information</h2>
@@ -531,7 +532,7 @@
 
             <div class="form-field mt-4">
                 <label>Where would you most likely want to Unwind? (Choose all that apply)</label>
-                <div class="space-y-2 mt-2">
+                <div class="flex flex-col gap-3 mt-2">
                     <div class="flex items-center gap-2">
                         <input type="checkbox" id="unwind_1" 
                                name="unwindPlaces" value="Spa or wellness center"
@@ -651,6 +652,7 @@
             </button>
         </div>
     </form>
+    </div>
 
     <div class="social-links">
         <a href="https://www.instagram.com/unwindafrica/" target="_blank" class="social-link">

@@ -37,12 +37,20 @@ def voting_campaign_detail(request, slug):
     # Get leaderboard (top 3)
     leaderboard = campaign.nominees.all().order_by('-vote_count')[:3]
     
+    # Determine if campaign is ongoing (use fresh query)
+    from django.utils.timezone import now as get_now
+    current_time = get_now()
+    is_ongoing = campaign.is_active and campaign.start_date <= current_time <= campaign.end_date
+    
     context = {
         'campaign': campaign,
         'nominees': nominees,
         'leaderboard': leaderboard,
         'vote_price': campaign.vote_price,
         'rest_points_per_vote': campaign.rest_points_per_vote,
+        'is_ongoing': is_ongoing,  # Explicitly pass
+        'is_test_mode': True,  # Add test mode flag
+        'test_mode_message': 'TEST MODE: Pseudo voting enabled. Real Paystack integration coming soon.',
     }
     return render(request, 'Web/voting/campaign_detail.html', context)
 
