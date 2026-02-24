@@ -150,6 +150,31 @@ def dashboard_home(request):
     if nominees.count() > 0:
         avg_votes_per_nominee = round(votes.count() / nominees.count())
     
+    # Nominee chart data (top 10 nominees by votes)
+    top_nominees = nominees[:10]
+    nominee_chart_labels = [nominee.name for nominee in top_nominees]
+    nominee_chart_counts = [nominee.vote_count for nominee in top_nominees]
+    
+    # Campaign votes chart data
+    campaign_vote_chart_labels = [campaign.name for campaign in campaigns]
+    campaign_vote_chart_counts = []
+    for campaign in campaigns:
+        campaign_vote_chart_counts.append(Vote.objects.filter(nominee__campaign=campaign).count())
+    
+    # Votes monthly trends chart data
+    votes_monthly_labels, votes_monthly_counts = [], []
+    first_of_this_month = date.today().replace(day=1)
+    for i in range(-11, 1):
+        d = add_months(first_of_this_month, i)
+        key = d.strftime("%Y-%m")
+        votes_monthly_labels.append(d.strftime("%b %Y"))
+        # Count votes in this month
+        month_votes = Vote.objects.filter(
+            created_at__year=d.year,
+            created_at__month=d.month
+        ).count()
+        votes_monthly_counts.append(month_votes)
+    
     ctx = {
         "posts": list(posts_qs[:18]),
         "events": events_qs[:12],
@@ -158,6 +183,12 @@ def dashboard_home(request):
         "category_chart_counts": category_chart_counts,
         "monthly_chart_labels": monthly_chart_labels,
         "monthly_chart_counts": monthly_chart_counts,
+        "nominee_chart_labels": nominee_chart_labels,
+        "nominee_chart_counts": nominee_chart_counts,
+        "campaign_vote_chart_labels": campaign_vote_chart_labels,
+        "campaign_vote_chart_counts": campaign_vote_chart_counts,
+        "votes_monthly_labels": votes_monthly_labels,
+        "votes_monthly_counts": votes_monthly_counts,
         "post_form": post_form,
         "event_form": event_form,
         "campaigns": campaigns,
@@ -351,6 +382,34 @@ def voting_dashboard(request):
     votes = Vote.objects.all().order_by('-created_at')
     transactions = Transaction.objects.all().order_by('-created_at')
     
+    # Calculate total revenue
+    total_revenue = Transaction.objects.filter(status='success').aggregate(total=Sum('amount'))['total'] or 0
+    
+    # Prepare chart data for nominees
+    nominee_names = [f"{n.name} ({n.campaign.name})" for n in nominees[:15]]
+    nominee_votes = [n.vote_count for n in nominees[:15]]
+    
+    # Prepare chart data for votes by campaign
+    from collections import Counter
+    campaign_votes = Counter(v.nominee.campaign.name for v in votes)
+    campaign_names = sorted(campaign_votes.keys())
+    campaign_vote_counts = [campaign_votes[c] for c in campaign_names]
+    
+    # Prepare chart data for votes over time (last 12 months)
+    def add_months(d, n):
+        y = d.year + (d.month - 1 + n) // 12
+        m = (d.month - 1 + n) % 12 + 1
+        return d.replace(year=y, month=m)
+    
+    votes_by_month = Counter(v.created_at.strftime("%Y-%m") for v in votes)
+    first_of_this_month = date.today().replace(day=1)
+    monthly_labels, monthly_counts = [], []
+    for i in range(-11, 1):
+        d = add_months(first_of_this_month, i)
+        key = d.strftime("%Y-%m")
+        monthly_labels.append(d.strftime("%b %Y"))
+        monthly_counts.append(votes_by_month.get(key, 0))
+    
     # Campaign form
     if request.method == 'POST' and 'create_campaign' in request.POST:
         form = VotingCampaignForm(request.POST, request.FILES)
@@ -368,7 +427,14 @@ def voting_dashboard(request):
         'nominees': nominees,
         'votes': votes,
         'transactions': transactions,
+        'total_revenue': total_revenue,
         'campaign_form': form,
+        'nominee_chart_labels': nominee_names,
+        'nominee_chart_counts': nominee_votes,
+        'campaign_vote_chart_labels': campaign_names,
+        'campaign_vote_chart_counts': campaign_vote_counts,
+        'votes_monthly_labels': monthly_labels,
+        'votes_monthly_counts': monthly_counts,
     }
     
     return render(request, 'dashboard/voting.html', context)
@@ -445,6 +511,17 @@ def delete_campaign(request, slug):
         return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
 
+@require_POST
+@login_required
+def delete_nominee(request, nominee_id):
+    """Delete a nominee by ID"""
+    try:
+        nominee = get_object_or_404(Nominee, pk=nominee_id)
+        nominee.delete()
+        return JsonResponse({"ok": True, "message": "Nominee deleted successfully"})
+    except Exception as e:
+        print(f"Error deleting nominee: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
 
 

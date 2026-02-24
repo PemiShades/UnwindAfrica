@@ -44,6 +44,7 @@ urlpatterns = [
     
     # Voting management APIs
     path("nominees/<int:nominee_id>/details/", views.get_nominee_details, name="nominee_details"),
+    path("nominees/<int:nominee_id>/delete/", views.delete_nominee, name="delete_nominee"),
     path("nominees/data/", views.get_nominees_data, name="nominees_data"),
     path("votes/<int:vote_id>/delete/", views.delete_vote, name="delete_vote"),
     path("votes/add/", views.add_vote, name="add_vote"),

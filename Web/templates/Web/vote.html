@@ -299,23 +299,6 @@
                 </select>
             </div>
             
-            <!-- Test Button -->
-            <button onclick="testFunction()">Test JavaScript</button>
-            
-            <script>
-                function testFunction() {
-                    console.log('Test function called');
-                    const voteButtons = document.querySelectorAll('.vote-button');
-                    console.log('Number of vote buttons:', voteButtons.length);
-                    
-                    voteButtons.forEach(button => {
-                        console.log('Button data-nominee-id:', button.dataset.nomineeId);
-                        console.log('Button data-nominee-name:', button.dataset.nomineeName);
-                        console.log('Button data-nominee-number:', button.dataset.nomineeNumber);
-                    });
-                }
-            </script>
-            
             <!-- Nominees Grid -->
             <div class="nominees-grid" id="nomineesGrid">
                 {% for nominee in nominees %}
@@ -338,7 +321,7 @@
                             <i class="fa-solid fa-heart"></i>
                             {{ nominee.vote_count }} votes
                         </div>
-                        <button class="vote-button" onclick="voteForNominee('{{ nominee.id }}', '{{ nominee.name|escapejs }}', '{{ nominee.number }}')">
+                        <button class="vote-button" data-nominee-id="{{ nominee.id }}" data-nominee-name="{{ nominee.name }}" data-nominee-number="{{ nominee.number }}">
                             Vote
                         </button>
                     </div>
@@ -418,17 +401,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             generatePaymentOptions();
             
-            // Add click event listeners to all vote buttons
+            // Add click event listeners to all vote buttons using data attributes
             const voteButtons = document.querySelectorAll('.vote-button');
             voteButtons.forEach(button => {
                 button.addEventListener('click', function() {
-                    console.log('Vote button clicked!');
-                    const nomineeId = button.dataset.nomineeId;
-                    const nomineeName = button.dataset.nomineeName;
-                    const nomineeNumber = button.dataset.nomineeNumber;
-                    console.log('Nominee ID:', nomineeId);
-                    console.log('Nominee Name:', nomineeName);
-                    console.log('Nominee Number:', nomineeNumber);
+                    const nomineeId = this.getAttribute('data-nominee-id');
+                    const nomineeName = this.getAttribute('data-nominee-name');
+                    const nomineeNumber = this.getAttribute('data-nominee-number');
                     voteForNominee(nomineeId, nomineeName, nomineeNumber);
                 });
             });
@@ -437,12 +416,16 @@
         let selectedNominee = null;
         let selectedPaymentOption = null;
 
+        // Wrapper function for any external calls
+        function openVoteModal(nomineeId, nomineeName, nomineeNumber) {
+            voteForNominee(nomineeId, nomineeName, nomineeNumber);
+        }
+
         function voteForNominee(nomineeId, nomineeName, nomineeNumber) {
-            alert('voteForNominee called with: ' + nomineeId + ', ' + nomineeName + ', ' + nomineeNumber);
-            // Decode HTML entities in nomineeName
+            // Decode HTML entities in nomineeName if needed
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = nomineeName;
-            const decodedName = tempDiv.textContent || tempDiv.innerText || '';
+            const decodedName = tempDiv.textContent || tempDiv.innerText || nomineeName;
             
             selectedNominee = { id: nomineeId, name: decodedName, number: nomineeNumber };
             selectedPaymentOption = null;
@@ -493,70 +476,79 @@
             confirmBtn.textContent = 'Processing...';
             confirmBtn.disabled = true;
 
-            // Initialize Paystack payment
-            const paystackHandler = PaystackPop.setup({
-                key: 'pk_test_12345678901234567890123456789012', // Replace with your actual test public key
-                email: prompt('Please enter your email address for payment receipt:'), // Get user email
-                amount: selectedPaymentOption.price * 100, // Convert to kobo
-                currency: 'NGN',
-                ref: 'UNWIND_' + Math.floor(Math.random() * 1000000000), // Generate random reference
-                metadata: {
-                    nominee_id: selectedNominee.id,
-                    nominee_name: selectedNominee.name,
-                    nominee_number: selectedNominee.number,
-                    votes: selectedPaymentOption.votes,
-                    bonus: selectedPaymentOption.bonus
-                },
-                callback: function(response) {
-                    // Payment successful
-                    console.log('Paystack payment successful:', response);
-                    simulatePayment();
-                },
-                onClose: function() {
-                    // Payment canceled
-                    confirmBtn.textContent = originalText;
-                    confirmBtn.disabled = false;
-                    alert('Payment canceled. Please try again.');
-                }
-            });
+            // Prompt for email safely
+            const userEmail = prompt('Please enter your email address for payment receipt:');
+            if (!userEmail) {
+                confirmBtn.textContent = originalText;
+                confirmBtn.disabled = false;
+                return;
+            }
 
-            paystackHandler.openIframe();
+            // Initialize Paystack payment
+            try {
+                const paystackHandler = PaystackPop.setup({
+                    key: 'pk_test_12345678901234567890123456789012', // Replace with actual key
+                    email: userEmail,
+                    amount: selectedPaymentOption.price * 100,
+                    currency: 'NGN',
+                    ref: 'UNWIND_' + Math.floor(Math.random() * 1000000000),
+                    metadata: {
+                        nominee_id: selectedNominee.id,
+                        nominee_name: selectedNominee.name,
+                        nominee_number: selectedNominee.number,
+                        votes: selectedPaymentOption.votes,
+                        bonus: selectedPaymentOption.bonus
+                    },
+                    callback: function(response) {
+                        console.log('Paystack payment successful:', response);
+                        simulatePayment();
+                    },
+                    onClose: function() {
+                        confirmBtn.textContent = originalText;
+                        confirmBtn.disabled = false;
+                        alert('Payment canceled. Please try again.');
+                    }
+                });
+
+                paystackHandler.openIframe();
+            } catch (error) {
+                console.error('Paystack error:', error);
+                confirmBtn.textContent = originalText;
+                confirmBtn.disabled = false;
+                alert('Payment service error. Please try again.');
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             console.log('JavaScript loaded');
-
-            // Add click event listeners to all vote buttons
-            const voteButtons = document.querySelectorAll('.vote-button');
-            voteButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    alert('Vote button clicked!');
-                    const nomineeId = this.getAttribute('data-nominee-id');
-                    const nomineeName = this.getAttribute('data-nominee-name');
-                    const nomineeNumber = this.getAttribute('data-nominee-number');
-                    voteForNominee(nomineeId, nomineeName, nomineeNumber);
-                });
-            });
         });
 
         function simulatePayment() {
             // Simulate successful payment and vote update
+            if (!selectedPaymentOption) return;
+            
             const totalVotes = selectedPaymentOption.votes + selectedPaymentOption.bonus;
             
             // Update vote count on frontend
             const nomineeCards = document.querySelectorAll('.nominee-card');
+            let updated = false;
+            
             nomineeCards.forEach(card => {
-                if (card.querySelector('.nominee-info').textContent.includes(selectedNominee.name)) {
+                const nameElement = card.querySelector('.nominee-name');
+                if (nameElement && nameElement.textContent === selectedNominee.name) {
                     const voteCountElement = card.querySelector('.vote-count');
-                    const currentVotes = parseInt(voteCountElement.textContent);
-                    const newVotes = currentVotes + totalVotes;
-                    voteCountElement.textContent = newVotes + ' votes';
+                    if (voteCountElement) {
+                        const textContent = voteCountElement.textContent;
+                        const currentVotes = parseInt(textContent) || 0;
+                        const newVotes = currentVotes + totalVotes;
+                        voteCountElement.innerHTML = `<i class="fa-solid fa-heart"></i>\n                            ${newVotes} votes`;
+                        updated = true;
+                    }
                 }
             });
 
             // Show success message
-            alert(`Thank you! Your payment was successful.
-You have successfully voted ${totalVotes} times for ${selectedNominee.name} (Nominee #${selectedNominee.number})`);
+            alert(`Thank you! Your payment was successful.\nYou have successfully voted ${totalVotes} times for ${selectedNominee.name} (Nominee #${selectedNominee.number})`);
 
             // Close modal
             closePaymentModal();

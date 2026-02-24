@@ -54,24 +54,25 @@ document.addEventListener('alpine:init', () => {
       charts: {},
 
       // ===== INIT =====
-      init() {
-        this.bindShortcuts();
-        this.$nextTick(() => {
-          this.hydrateCharts();
-          this.setupFormResetListener();
-          // Only paint charts if the element exists
-          if (document.getElementById('chart-overview')) {
-            this.paintCharts();
-          }
-        });
-        this.loadNotifications();
-        // start polling engagement chart data (but only if chart element exists)
-        if (document.getElementById('chart-overview')) {
-          setTimeout(() => {
-            this.pollEngagementData();
-          }, 15000); // Poll once after 15 seconds
-        }
-      },
+       init() {
+         this.bindShortcuts();
+         this.$nextTick(() => {
+           this.setupFormResetListener();
+           // Only initialize charts if the elements exist (overview chart is visible)
+           if (this.tab === 'overview' && document.getElementById('chart-overview')) {
+             this.paintCharts();
+           } else if (this.tab === 'charts') {
+             this.hydrateCharts();
+           }
+         });
+         this.loadNotifications();
+         // start polling engagement chart data only if on overview tab
+         if (this.tab === 'overview' && document.getElementById('chart-overview')) {
+           setTimeout(() => {
+             this.pollEngagementData();
+           }, 15000); // Poll once after 15 seconds
+         }
+       },
 
       // ===== SETUP FORM RESET LISTENER =====
       setupFormResetListener() {
@@ -90,98 +91,290 @@ document.addEventListener('alpine:init', () => {
       },
 
       // ===== CHART HYDRATION =====
-      hydrateCharts(refresh=false) {
-        const cat = document.getElementById('categoryChart');
-        const mon = document.getElementById('monthlyChart');
-        if (!cat && !mon) return;
+       hydrateCharts(refresh=false) {
+         // Check if any chart elements exist before proceeding
+         const cat = document.getElementById('categoryChart');
+         const mon = document.getElementById('monthlyChart');
+         const nom = document.getElementById('nomineeChart');
+         const cam = document.getElementById('campaignVotesChart');
+         const vtr = document.getElementById('voteTrendsChart');
+         
+         if (!cat && !mon && !nom && !cam && !vtr) {
+           console.warn('No chart elements found in DOM');
+           return;
+         }
 
-        const categoryLabels = {{ category_chart_labels|default:"[]"|safe }};
-        const categoryData   = {{ category_chart_counts|default:"[]"|safe }};
-        const monthlyLabels  = {{ monthly_chart_labels|default:"[]"|safe }};
-        const monthlyData    = {{ monthly_chart_counts|default:"[]"|safe }};
+         const categoryLabels = {{ category_chart_labels|default:"[]"|safe }};
+         const categoryData   = {{ category_chart_counts|default:"[]"|safe }};
+         const hydrateMonthlyLabels  = {{ monthly_chart_labels|default:"[]"|safe }};
+         const hydrateMonthlyData    = {{ monthly_chart_counts|default:"[]"|safe }};
+         
+         // Voting charts data
+         const nomineeLabels = {{ nominee_chart_labels|default:"[]"|safe }};
+         const nomineeData = {{ nominee_chart_counts|default:"[]"|safe }};
+         const campaignLabels = {{ campaign_vote_chart_labels|default:"[]"|safe }};
+         const campaignData = {{ campaign_vote_chart_counts|default:"[]"|safe }};
+         const votesMonthlyLabels = {{ votes_monthly_labels|default:"[]"|safe }};
+         const votesMonthlyData = {{ votes_monthly_counts|default:"[]"|safe }};
 
-        if (cat && (!this.charts.category || refresh)) {
-          if (this.charts.category && refresh) this.charts.category.destroy();
-          this.charts.category = new Chart(cat, {
-            type: 'pie',
-            data: { 
-              labels: categoryLabels, 
-              datasets: [{ 
-                data: categoryData,
-                backgroundColor: [
-                  'rgba(255, 99, 132, 0.8)',
-                  'rgba(54, 162, 235, 0.8)',
-                  'rgba(255, 206, 86, 0.8)',
-                  'rgba(75, 192, 192, 0.8)',
-                  'rgba(153, 102, 255, 0.8)',
-                  'rgba(255, 159, 64, 0.8)'
-                ],
-                borderWidth: 2,
-                borderColor: this.theme === 'dark' ? '#1f2937' : '#fff'
-              }] 
-            },
-            options: { 
-              maintainAspectRatio: false, 
-              plugins: { 
-                legend: { 
-                  position: 'bottom',
-                  labels: {
-                    color: this.theme === 'dark' ? '#e5e7eb' : '#374151',
-                    font: { size: 12 }
-                  }
-                } 
-              } 
-            }
-          });
-        }
+         if (cat) {
+           try {
+             if (this.charts.category) {
+               if (refresh) {
+                 this.charts.category.destroy();
+               } else {
+                 return; // Chart already exists and no refresh needed
+               }
+             }
+             this.charts.category = new Chart(cat.getContext('2d'), {
+               type: 'pie',
+               data: { 
+                 labels: categoryLabels, 
+                 datasets: [{ 
+                   data: categoryData,
+                   backgroundColor: [
+                     'rgba(255, 99, 132, 0.8)',
+                     'rgba(54, 162, 235, 0.8)',
+                     'rgba(255, 206, 86, 0.8)',
+                     'rgba(75, 192, 192, 0.8)',
+                     'rgba(153, 102, 255, 0.8)',
+                     'rgba(255, 159, 64, 0.8)'
+                   ],
+                   borderWidth: 2,
+                   borderColor: this.theme === 'dark' ? '#1f2937' : '#fff'
+                 }] 
+               },
+               options: { 
+                 maintainAspectRatio: false, 
+                 plugins: { 
+                   legend: { 
+                     position: 'bottom',
+                     labels: {
+                       color: this.theme === 'dark' ? '#e5e7eb' : '#374151',
+                       font: { size: 12 }
+                     }
+                   } 
+                 } 
+               }
+             });
+           } catch (e) {
+             console.error('Error initializing category chart:', e);
+           }
+         }
 
-        if (mon && (!this.charts.monthly || refresh)) {
-          if (this.charts.monthly && refresh) this.charts.monthly.destroy();
-          this.charts.monthly = new Chart(mon, {
-            type: 'line',
-            data: { 
-              labels: monthlyLabels, 
-              datasets: [{ 
-                label: 'Posts', 
-                data: monthlyData, 
-                tension: 0.35, 
-                fill: false,
-                borderColor: 'rgba(99, 102, 241, 1)',
-                backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                borderWidth: 2,
-                pointRadius: 4,
-                pointBackgroundColor: 'rgba(99, 102, 241, 1)'
-              }] 
-            },
-            options: { 
-              maintainAspectRatio: false, 
-              plugins: { 
-                legend: { display: false } 
-              }, 
-              scales: { 
-                y: { 
-                  beginAtZero: true, 
-                  ticks: { 
-                    stepSize: 1,
-                    color: this.theme === 'dark' ? '#9ca3af' : '#6b7280'
-                  },
-                  grid: {
-                    color: this.theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
-                  }
-                },
-                x: {
-                  ticks: {
-                    color: this.theme === 'dark' ? '#9ca3af' : '#6b7280'
-                  },
-                  grid: {
-                    color: this.theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
-                  }
-                }
-              } 
-            }
-          });
-        }
-      },
+         if (mon) {
+           try {
+             if (this.charts.monthly) {
+               if (refresh) {
+                 this.charts.monthly.destroy();
+               } else {
+                 return; // Chart already exists and no refresh needed
+               }
+             }
+             this.charts.monthly = new Chart(mon.getContext('2d'), {
+               type: 'line',
+               data: { 
+                 labels: hydrateMonthlyLabels, 
+                 datasets: [{ 
+                   label: 'Posts', 
+                   data: hydrateMonthlyData, 
+                   tension: 0.35, 
+                   fill: false,
+                   borderColor: 'rgba(99, 102, 241, 1)',
+                   backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                   borderWidth: 2,
+                   pointRadius: 4,
+                   pointBackgroundColor: 'rgba(99, 102, 241, 1)'
+                 }] 
+               },
+               options: { 
+                 maintainAspectRatio: false, 
+                 plugins: { 
+                   legend: { display: false } 
+                 }, 
+                 scales: { 
+                   y: { 
+                     beginAtZero: true, 
+                     ticks: { 
+                       stepSize: 1,
+                       color: this.theme === 'dark' ? '#9ca3af' : '#6b7280'
+                     },
+                     grid: {
+                       color: this.theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+                     }
+                   },
+                   x: {
+                     ticks: {
+                       color: this.theme === 'dark' ? '#9ca3af' : '#6b7280'
+                     },
+                     grid: {
+                       color: this.theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+                     }
+                   }
+                 } 
+               }
+             });
+           } catch (e) {
+             console.error('Error initializing monthly chart:', e);
+           }
+         }
+
+         // Nominee votes chart
+         if (nom) {
+           try {
+             if (this.charts.nominee) {
+               if (refresh) {
+                 this.charts.nominee.destroy();
+               } else {
+                 return; // Chart already exists and no refresh needed
+               }
+             }
+             this.charts.nominee = new Chart(nom.getContext('2d'), {
+               type: 'bar',
+               data: {
+                 labels: nomineeLabels,
+                 datasets: [{
+                   label: 'Votes',
+                   data: nomineeData,
+                   backgroundColor: 'rgba(51, 195, 141, 0.8)',
+                   borderColor: 'rgba(51, 195, 141, 1)',
+                   borderWidth: 2
+                 }]
+               },
+               options: {
+                 maintainAspectRatio: false,
+                 indexAxis: 'y',
+                 plugins: {
+                   legend: { display: false }
+                 },
+                 scales: {
+                   x: {
+                     beginAtZero: true,
+                     ticks: {
+                       color: this.theme === 'dark' ? '#9ca3af' : '#6b7280'
+                     },
+                     grid: {
+                       color: this.theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+                     }
+                   },
+                   y: {
+                     ticks: {
+                       color: this.theme === 'dark' ? '#9ca3af' : '#6b7280',
+                       font: { size: 11 }
+                     }
+                   }
+                 }
+               }
+             });
+           } catch (e) {
+             console.error('Error initializing nominee chart:', e);
+           }
+         }
+
+         // Campaign votes chart
+         if (cam) {
+           try {
+             if (this.charts.campaign) {
+               if (refresh) {
+                 this.charts.campaign.destroy();
+               } else {
+                 return; // Chart already exists and no refresh needed
+               }
+             }
+             this.charts.campaign = new Chart(cam.getContext('2d'), {
+               type: 'doughnut',
+               data: {
+                 labels: campaignLabels,
+                 datasets: [{
+                   data: campaignData,
+                   backgroundColor: [
+                     'rgba(102, 126, 234, 0.8)',
+                     'rgba(240, 114, 250, 0.8)',
+                     'rgba(74, 222, 128, 0.8)',
+                     'rgba(251, 146, 60, 0.8)',
+                     'rgba(59, 130, 246, 0.8)'
+                   ],
+                   borderWidth: 2,
+                   borderColor: this.theme === 'dark' ? '#1f2937' : '#fff'
+                 }]
+               },
+               options: {
+                 maintainAspectRatio: false,
+                 plugins: {
+                   legend: {
+                     position: 'bottom',
+                     labels: {
+                       color: this.theme === 'dark' ? '#e5e7eb' : '#374151',
+                       font: { size: 12 }
+                     }
+                   }
+                 }
+               }
+             });
+           } catch (e) {
+             console.error('Error initializing campaign chart:', e);
+           }
+         }
+
+         // Vote trends chart
+         if (vtr) {
+           try {
+             if (this.charts.trends) {
+               if (refresh) {
+                 this.charts.trends.destroy();
+               } else {
+                 return; // Chart already exists and no refresh needed
+               }
+             }
+             this.charts.trends = new Chart(vtr.getContext('2d'), {
+               type: 'line',
+               data: {
+                 labels: votesMonthlyLabels,
+                 datasets: [{
+                   label: 'Monthly Votes',
+                   data: votesMonthlyData,
+                   tension: 0.4,
+                   fill: true,
+                   borderColor: 'rgba(14, 165, 233, 1)',
+                   backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                   borderWidth: 2,
+                   pointRadius: 5,
+                   pointBackgroundColor: 'rgba(14, 165, 233, 1)',
+                   pointBorderColor: '#fff',
+                   pointBorderWidth: 2
+                 }]
+               },
+               options: {
+                 maintainAspectRatio: false,
+                 plugins: {
+                   legend: { display: false }
+                 },
+                 scales: {
+                   y: {
+                     beginAtZero: true,
+                     ticks: {
+                       color: this.theme === 'dark' ? '#9ca3af' : '#6b7280'
+                     },
+                     grid: {
+                       color: this.theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+                     }
+                   },
+                   x: {
+                     ticks: {
+                       color: this.theme === 'dark' ? '#9ca3af' : '#6b7280'
+                     },
+                     grid: {
+                       color: this.theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+                     }
+                   }
+                 }
+               }
+             });
+           } catch (e) {
+             console.error('Error initializing trends chart:', e);
+           }
+         }
+       },
 
       // ===== GET CSRF TOKEN =====
       getCsrfToken() {
@@ -351,7 +544,7 @@ document.addEventListener('alpine:init', () => {
       },
 
       // ===== UI TAB HELPERS =====
-      setTab(t) { 
+       setTab(t) { 
         this.tab = t; 
         this.sidebarOpen = false;
         
@@ -363,6 +556,13 @@ document.addEventListener('alpine:init', () => {
               form.action = "{% url 'blog_create' %}";
               form.reset();
             }
+          });
+        }
+        
+        // Initialize charts when switching to charts tab or overview tab
+        if (t === 'charts' || t === 'overview') {
+          this.$nextTick(() => {
+            this.hydrateCharts(true);
           });
         }
       },
@@ -484,11 +684,18 @@ document.addEventListener('alpine:init', () => {
         const fg = (this.theme === 'dark' ? '#E8ECF8' : '#0F1320');
         const grid = this.theme === 'dark' ? 'rgba(255,255,255,.08)' : 'rgba(15,19,32,.08)';
         const brand = getComputedStyle(document.documentElement).getPropertyValue('--brand') || '#8E7CFF';
-        const ctx = document.getElementById('chart-overview');
+        const canvas = document.getElementById('chart-overview');
         
         // Early return if canvas doesn't exist
-        if (!ctx) {
+        if (!canvas) {
           console.warn('Chart canvas element chart-overview not found');
+          return;
+        }
+        
+        // Check if canvas has context
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          console.warn('Canvas context not available');
           return;
         }
         
@@ -502,17 +709,17 @@ document.addEventListener('alpine:init', () => {
         }
 
         // Get data from Django template variables
-        const labels = {{ monthly_chart_labels|default:"[]"|safe }};
-        const data = {{ monthly_chart_counts|default:"[]"|safe }};
+        const overviewLabels = {{ monthly_chart_labels|default:"[]"|safe }};
+        const overviewChartData = {{ monthly_chart_counts|default:"[]"|safe }};
 
         try {
-          this.charts.overview = new Chart(ctx.getContext('2d'), {
+          this.charts.overview = new Chart(ctx, {
             type: 'line',
             data: {
-              labels: labels.length ? labels : ['No data'],
+              labels: overviewLabels.length ? overviewLabels : ['No data'],
               datasets: [{
                 label: 'Engagement (Votes)',
-                data: data.length ? data : [0],
+                data: overviewChartData.length ? overviewChartData : [0],
                 tension: .4,
                 borderColor: brand.trim() || '#8E7CFF',
                 fill: true,
@@ -847,26 +1054,26 @@ document.addEventListener('alpine:init', () => {
     };
   };
 
+  // Expose a small proxy to call Alpine root methods from dynamic elements
+  window.appProxy = function(method, ...args) {
+    try {
+      const root = document.querySelector('[x-data]');
+      if (!root || !root.__x) return console.warn('Alpine root not found');
+      const data = root.__x.$data || root.__x.getUnobservedData?.();
+      if (data && typeof data[method] === 'function') return data[method](...args);
+      console.warn('Method not found on Alpine root:', method);
+    } catch (e) {
+      console.error('appProxy error', e);
+    }
+  };
+
+  // Convenience globals for dynamic buttons
+  window.generateRestCard = function(id){ return window.appProxy('generateRestCard', id); };
+  window.resendRestCard = function(id){ return window.appProxy('resendRestCard', id); };
+  window.toggleRestCardStatus = function(id){ return window.appProxy('toggleRestCardStatus', id); };
+  window.editRestCard = function(id){ return window.appProxy('editRestCard', id); };
+
 });
-
-// Expose a small proxy to call Alpine root methods from dynamic elements
-window.appProxy = function(method, ...args) {
-  try {
-    const root = document.querySelector('[x-data]');
-    if (!root || !root.__x) return console.warn('Alpine root not found');
-    const data = root.__x.$data || root.__x.getUnobservedData?.();
-    if (data && typeof data[method] === 'function') return data[method](...args);
-    console.warn('Method not found on Alpine root:', method);
-  } catch (e) {
-    console.error('appProxy error', e);
-  }
-};
-
-// Convenience globals for dynamic buttons
-window.generateRestCard = function(id){ return window.appProxy('generateRestCard', id); };
-window.resendRestCard = function(id){ return window.appProxy('resendRestCard', id); };
-window.toggleRestCardStatus = function(id){ return window.appProxy('toggleRestCardStatus', id); };
-window.editRestCard = function(id){ return window.appProxy('editRestCard', id); };
 </script>
 
 <script>

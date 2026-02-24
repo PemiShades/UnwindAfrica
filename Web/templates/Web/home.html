@@ -670,6 +670,147 @@
     </div>
   </section>
 
+  <!-- Voting Section -->
+  <section style="background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%); padding: 4rem 0; border-block: 1px solid #e0f2fe;">
+    <div class="container">
+      <div class="section-head" style="margin-bottom: 2rem;">
+        <div style="width: 100%;">
+          <div class="rule" style="margin: 0 0 1rem;"></div>
+          <h2 class="ed-title" style="text-transform: uppercase; font-size: clamp(1.8rem, 5vw, 2.5rem);">Top Nominees</h2>
+          <p class="ed-sub muted" style="max-width: 600px;">
+            Vote for the students and young people you believe deserve to win an unforgettable wellness experience.
+          </p>
+        </div>
+      </div>
+
+      {% if top_nominees %}
+      <!-- Top Nominees Carousel -->
+      <div style="position: relative; margin-bottom: 3rem;">
+        <div style="display: flex; overflow-x: auto; scroll-behavior: smooth; gap: 1.5rem; padding: 0.5rem 0; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;" id="nominees-carousel">
+          {% for nominee in top_nominees %}
+          <div style="flex: 0 0 calc(min(100%, 350px)); scroll-snap-align: start; transition: transform 0.3s ease;" class="nominee-card">
+            <!-- Card Container -->
+            <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.1); transition: all 0.3s ease; height: 100%; display: flex; flex-direction: column; hover: {transform: translateY(-8px); box-shadow: 0 12px 32px rgba(0,0,0,0.15);}" >
+              
+              <!-- Nominee Image -->
+              <div style="position: relative; width: 100%; height: 280px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); overflow: hidden;">
+                {% if nominee.image %}
+                  <img src="{{ nominee.image.url }}" alt="{{ nominee.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                  <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">👤</div>
+                {% endif %}
+                
+                <!-- Vote Count Badge -->
+                <div style="position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #FFB648 0%, #FF8C42 100%); color: white; padding: 8px 12px; border-radius: 20px; font-weight: 700; font-size: 0.9rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                  {{ nominee.vote_count }} votes
+                </div>
+                
+                <!-- Rank Badge -->
+                <div style="position: absolute; top: 12px; left: 12px; background: rgba(0, 0, 0, 0.6); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; backdrop-filter: blur(4px);">
+                  #{{ forloop.counter }}
+                </div>
+              </div>
+              
+              <!-- Nominee Info -->
+              <div style="padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column;">
+                <h3 style="font-size: clamp(1.1rem, 3vw, 1.3rem); margin-bottom: 0.5rem; color: #0A0B10; font-family: 'Playfair Display', serif; font-weight: 700; line-height: 1.3;">{{ nominee.name }}</h3>
+                
+                {% if nominee.instagram_handle %}
+                <p style="color: #667eea; font-size: 0.85rem; margin-bottom: 0.75rem; font-weight: 500;">@{{ nominee.instagram_handle }}</p>
+                {% endif %}
+                
+                {% if nominee.story %}
+                <p style="color: #666; font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem; flex-grow: 1;">{{ nominee.story|truncatewords:25 }}</p>
+                {% endif %}
+                
+                <!-- Stats Row -->
+                <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; font-size: 0.85rem;">
+                  <div style="background: #f0f9ff; padding: 0.5rem 0.75rem; border-radius: 6px; border-left: 3px solid #0ea5e9;">
+                    <div style="color: #666; font-size: 0.75rem; margin-bottom: 0.25rem;">Campaign</div>
+                    <div style="color: #0a0b10; font-weight: 600;">{{ nominee.campaign.name }}</div>
+                  </div>
+                </div>
+                
+                <!-- Vote Button -->
+                <a href="{% url 'voting_campaign' nominee.campaign.slug %}" style="display: block; text-align: center; background: linear-gradient(90deg, #FFB648, #00B2FF); color: #0A0B10; padding: 0.875rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; cursor: pointer; border: none;">
+                  Vote Now →
+                </a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Carousel Navigation (Mobile/Tablet) -->
+        <div style="display: flex; justify-content: center; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap;">
+          <button onclick="document.getElementById('nominees-carousel').scrollBy({left: -400, behavior: 'smooth'})" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; transition: all 0.3s ease; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+            ←
+          </button>
+          
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span style="color: #666; font-size: 0.9rem; font-weight: 500;" id="carousel-count">1 - {{ top_nominees|length }}</span>
+          </div>
+          
+          <button onclick="document.getElementById('nominees-carousel').scrollBy({left: 400, behavior: 'smooth'})" style="background: linear-gradient(90deg, #FFB648, #00B2FF); color: #0A0B10; border: none; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; transition: all 0.3s ease; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+            →
+          </button>
+        </div>
+      </div>
+
+      <!-- View All Button -->
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <a href="{% url 'voting_campaigns_list' %}" style="display: inline-flex; align-items: center; justify-content: center; padding: 0.9rem 1.5rem; background: linear-gradient(90deg, #FFB648, #00B2FF); color: #0A0B10; border-radius: 999px; font-weight: 900; text-decoration: none; transition: transform 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          View All Campaigns & Vote
+          <span style="margin-left: 0.5rem;">→</span>
+        </a>
+      </div>
+
+      <style>
+        .nominee-card:hover {
+          transform: translateY(-8px);
+        }
+        
+        #nominees-carousel {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
+        }
+        
+        #nominees-carousel::-webkit-scrollbar {
+          height: 6px;
+        }
+        
+        #nominees-carousel::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        
+        #nominees-carousel::-webkit-scrollbar-thumb {
+          background-color: rgba(102, 126, 234, 0.3);
+          border-radius: 3px;
+        }
+        
+        #nominees-carousel::-webkit-scrollbar-thumb:hover {
+          background-color: rgba(102, 126, 234, 0.5);
+        }
+
+        @media (max-width: 768px) {
+          #nominees-carousel {
+            gap: 1rem;
+          }
+          
+          .nominee-card {
+            flex: 0 0 calc(min(100%, 320px)) !important;
+          }
+        }
+      </style>
+
+      {% else %}
+      <div style="text-align: center; padding: 3rem 1rem; background: white; border-radius: 12px; border: 2px dashed #e0f2fe;">
+        <p style="color: #7f8c8d; font-size: clamp(1rem, 2vw, 1.1rem);">No active campaigns or nominees yet. Check back soon!</p>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+
   <!-- Testimonial Section -->
   <section class="testimonial-section">
     <div class="container">

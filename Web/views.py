@@ -15,8 +15,18 @@ logger = logging.getLogger(__name__)
 
 def home(request):
     from .models import VotingCampaign, Nominee
+    from django.utils.timezone import now as get_now
+    from django.db.models import Count
     
-    # Get the latest active campaign
+    # Get active campaigns
+    current_time = get_now()
+    active_campaigns = VotingCampaign.objects.filter(
+        is_active=True, 
+        start_date__lte=current_time,
+        end_date__gte=current_time
+    ).order_by('-start_date')
+    
+    # Get the latest campaign
     latest_campaign = VotingCampaign.objects.filter(is_active=True).order_by('-start_date').first()
     
     # Calculate additional campaign data
@@ -34,15 +44,24 @@ def home(request):
             end_date = latest_campaign.end_date.date() if hasattr(latest_campaign.end_date, 'date') else latest_campaign.end_date
             delta = end_date - today
             days_remaining = max(0, delta.days)
-        
-        # Get top nominees (top 3 by votes)
-        top_nominees = Nominee.objects.filter(campaign=latest_campaign).order_by('-vote_count')[:3]
+    
+    # Get top nominees across all active campaigns (top 15 by votes)
+    if active_campaigns:
+        campaign_ids = [c.id for c in active_campaigns]
+        top_nominees = Nominee.objects.filter(
+            campaign_id__in=campaign_ids
+        ).order_by('-vote_count')[:15]
+    else:
+        # Fallback to latest campaign if no active ones
+        if latest_campaign:
+            top_nominees = Nominee.objects.filter(campaign=latest_campaign).order_by('-vote_count')[:15]
     
     return render(request, 'Web/home.html', {
         'campaign': latest_campaign,
         'total_nominations': total_nominations,
         'days_remaining': days_remaining,
         'top_nominees': top_nominees,
+        'active_campaigns': active_campaigns,
     })
 
 

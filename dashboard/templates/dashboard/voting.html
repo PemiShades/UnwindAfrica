@@ -186,15 +186,20 @@
                   <div class="space-y-4">
                     {% for nominee in nominees|slice:":5" %}
                     <div class="p-4 rounded-xl border border-gray-100 dark:border-gray-800">
-                      <div class="flex items-center gap-3">
-                        {% if nominee.photo %}
-                        <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" class="w-10 h-10 rounded-full object-cover" />
-                        {% endif %}
-                        <div class="flex-1">
-                          <h4 class="font-bold">{{ nominee.name }}</h4>
-                          <p class="text-sm opacity-70">{{ nominee.campaign.name }}</p>
+                      <div class="flex items-center gap-3 justify-between">
+                        <div class="flex items-center gap-3 flex-1">
+                          {% if nominee.photo %}
+                          <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" class="w-10 h-10 rounded-full object-cover" />
+                          {% endif %}
+                          <div class="flex-1">
+                            <h4 class="font-bold">{{ nominee.name }}</h4>
+                            <p class="text-sm opacity-70">{{ nominee.campaign.name }}</p>
+                          </div>
+                          <span class="font-bold">{{ nominee.vote_count }} votes</span>
                         </div>
-                        <span class="font-bold">{{ nominee.vote_count }} votes</span>
+                        <button type="button" onclick="deleteNominee({{ nominee.id }}, '{{ nominee.name }}')" class="ml-2 px-2 py-1 text-xs bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-100 rounded hover:bg-red-200 dark:hover:bg-red-800 transition-colors">
+                          Delete
+                        </button>
                       </div>
                     </div>
                     {% endfor %}
@@ -269,4 +274,34 @@
     </div>
   </div>
 </div>
+
+<script>
+function deleteNominee(nomineeId, nomineeName) {
+  if (confirm(`Are you sure you want to delete ${nomineeName}? This action cannot be undone.`)) {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                      document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+    
+    fetch(`/dashboard/nominees/${nomineeId}/delete/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrfToken,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.ok) {
+        alert('Nominee deleted successfully!');
+        location.reload();
+      } else {
+        alert('Error deleting nominee: ' + data.error);
+      }
+    })
+    .catch(error => {
+      alert('Error: ' + error);
+    });
+  }
+}
+</script>
 {% endblock %}

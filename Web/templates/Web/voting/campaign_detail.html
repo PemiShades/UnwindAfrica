@@ -183,25 +183,55 @@ header.absolute svg {
                     </div>
                     
                     {% if is_ongoing %}
-                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-                        <button onclick="decrementVote({{ nominee.id }})" 
-                                style="background: #e74c3c; color: white; border: none; padding: 0.75rem; border-radius: 6px; cursor: pointer; font-size: clamp(1rem, 3vw, 1.2rem); width: 40px; flex-shrink: 0;">−</button>
-                        <input type="number" id="votes-{{ nominee.id }}" value="0" min="0" 
-                               onchange="updateBallot()"
-                               style="flex: 1; text-align: center; font-size: clamp(1rem, 3vw, 1.2rem); border: 2px solid #ecf0f1; border-radius: 6px; padding: 0.75rem; min-width: 0;">
-                        <button onclick="incrementVote({{ nominee.id }})" 
-                                style="background: #27ae60; color: white; border: none; padding: 0.75rem; border-radius: 6px; cursor: pointer; font-size: clamp(1rem, 3vw, 1.2rem); width: 40px; flex-shrink: 0;">+</button>
-                    </div>
-                    
-                    <button onclick="addVotes({{ nominee.id }}, '{{ nominee.name }}')" 
+                    <button onclick="openVoteModal({{ nominee.id }}, '{{ nominee.name }}', '{{ campaign.vote_price }}')" 
                             style="width: 100%; background: #3498db; color: white; border: none; padding: 0.875rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.3s; font-size: clamp(0.9rem, 2vw, 1rem);">
-                        Add to Ballot
+                        Vote Now →
                     </button>
                     {% endif %}
                 </div>
             </div>
             {% endfor %}
         </div>
+    </div>
+</div>
+
+<!-- Vote Modal -->
+<div id="voteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1999; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;">
+    <div style="background: white; border-radius: 12px; padding: clamp(1.25rem, 4vw, 2rem); max-width: 450px; width: 100%; max-height: 90vh; overflow-y: auto; margin: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h2 id="voteModalTitle" style="font-size: clamp(1.3rem, 4vw, 1.8rem); color: #2c3e50; margin: 0;">Vote</h2>
+            <button onclick="closeVoteModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0.25rem;">×</button>
+        </div>
+        
+        <div style="margin-bottom: 1.25rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: clamp(0.9rem, 2vw, 1rem);">Number of Votes *</label>
+            <input type="number" id="voteVotesInput" value="1" min="1" max="1000" onchange="updateVotePrice()" oninput="updateVotePrice()"
+                   style="width: 100%; padding: 0.875rem; border: 2px solid #3498db; border-radius: 8px; font-size: clamp(1rem, 2vw, 1.1rem); box-sizing: border-box; text-align: center;">
+        </div>
+        
+        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: clamp(0.9rem, 2vw, 1rem);">
+                <span>Price per vote:</span>
+                <span id="votePricePerVote">₦500</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: clamp(1rem, 2vw, 1.1rem); font-weight: 600;">
+                <span>Total Amount:</span>
+                <span id="voteTotalPrice">₦500</span>
+            </div>
+            <div style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 0.75rem; display: flex; justify-content: space-between; font-size: clamp(0.85rem, 2vw, 0.95rem);">
+                <span>Rest Points Earned:</span>
+                <span id="voteRestPoints">100 points</span>
+            </div>
+        </div>
+        
+        <button onclick="confirmVote()" 
+                style="width: 100%; background: #27ae60; color: white; border: none; padding: 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(1rem, 2vw, 1.1rem); margin-bottom: 0.75rem; transition: background 0.3s;">
+            Confirm Vote
+        </button>
+        <button onclick="closeVoteModal()" 
+                style="width: 100%; background: #ecf0f1; color: #2c3e50; border: none; padding: 0.875rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(0.95rem, 2vw, 1rem); transition: background 0.3s;">
+            Cancel
+        </button>
     </div>
 </div>
 
@@ -271,6 +301,49 @@ header.absolute svg {
 const VOTE_PRICE = {{ vote_price }};
 const REST_POINTS_PER_VOTE = {{ rest_points_per_vote }};
 let ballot = {};
+
+let voteModalData = { nomineeId: null, nomineeName: null, votePrice: null };
+
+function openVoteModal(nomineeId, nomineeName, votePrice) {
+    voteModalData = { nomineeId, nomineeName, votePrice: parseFloat(votePrice) };
+    document.getElementById('voteModalTitle').textContent = `Vote for ${nomineeName}`;
+    document.getElementById('voteVotesInput').value = '1';
+    document.getElementById('votePricePerVote').textContent = `₦${parseFloat(votePrice).toLocaleString()}`;
+    document.getElementById('voteTotalPrice').textContent = `₦${parseFloat(votePrice).toLocaleString()}`;
+    document.getElementById('voteRestPoints').textContent = `${Math.floor(REST_POINTS_PER_VOTE).toLocaleString()} points`;
+    document.getElementById('voteModal').style.display = 'flex';
+}
+
+function closeVoteModal() {
+    document.getElementById('voteModal').style.display = 'none';
+}
+
+function updateVotePrice() {
+    const votes = parseInt(document.getElementById('voteVotesInput').value) || 1;
+    const pricePerVote = voteModalData.votePrice;
+    const totalPrice = votes * pricePerVote;
+    const restPoints = votes * REST_POINTS_PER_VOTE;
+    
+    document.getElementById('voteTotalPrice').textContent = `₦${totalPrice.toLocaleString()}`;
+    document.getElementById('voteRestPoints').textContent = `${Math.floor(restPoints).toLocaleString()} points`;
+}
+
+function confirmVote() {
+    const votes = parseInt(document.getElementById('voteVotesInput').value) || 1;
+    if (votes < 1) {
+        alert('Please enter a valid number of votes');
+        return;
+    }
+    
+    ballot[voteModalData.nomineeId] = {
+        name: voteModalData.nomineeName,
+        votes: votes
+    };
+    
+    updateBallot();
+    closeVoteModal();
+    showSuccess(`Added ${votes} vote(s) for ${voteModalData.nomineeName} to your ballot!`);
+}
 
 function incrementVote(nomineeId) {
     const input = document.getElementById(`votes-${nomineeId}`);
