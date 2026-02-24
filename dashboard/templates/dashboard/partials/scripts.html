@@ -627,6 +627,27 @@ document.addEventListener('alpine:init', () => {
         this.showNomineeModal = false;
       },
 
+      deleteNominee(nomineeId) {
+        if (!confirm('Are you sure you want to delete this nominee? This action cannot be undone.')) return;
+        
+        fetch(`/dashboard/nominees/${nomineeId}/delete/`, {
+          method: 'POST',
+          headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
+        })
+          .then(r => r.json())
+          .then(data => {
+            if (data.ok) {
+              this.closeNomineeModal();
+              this.toast('Nominee deleted successfully', 'success');
+              // Refresh the nominees list by reloading the page or fetching fresh data
+              setTimeout(() => window.location.reload(), 1000);
+            } else {
+              this.toast(data.error || 'Error deleting nominee', 'error');
+            }
+          })
+          .catch(e => this.toast('Error: ' + e.message, 'error'));
+      },
+
       deleteVote(voteId) {
         if (!confirm('Delete this vote?')) return;
         

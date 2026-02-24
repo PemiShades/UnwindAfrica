@@ -513,6 +513,8 @@ def delete_campaign(request, slug):
 
 @require_POST
 @login_required
+@login_required
+@require_POST
 def delete_nominee(request, nominee_id):
     """Delete a nominee by ID"""
     try:
@@ -854,6 +856,11 @@ def get_nominee_details(request, nominee_id):
                 'photo': nominee.photo.url if nominee.photo else '',
                 'votes_count': nominee.vote_count,
                 'total_raised': float(nominee.total_amount_raised),
+                'story': nominee.story,
+                'instagram_handle': nominee.instagram_handle or '',
+                'instagram_url': nominee.instagram_url or '',
+                'campaign': nominee.campaign.name if nominee.campaign else '',
+                'created_at': nominee.created_at.strftime('%B %d, %Y'),
                 'votes': votes_data
             }
         })
@@ -961,19 +968,21 @@ def export_nominees(request):
     """Export all nominees and their votes to CSV"""
     try:
         import csv
+        import io
         from django.http import HttpResponse
         
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="nominees_and_votes.csv"'
+        # Create a string buffer to handle encoding
+        output = io.StringIO()
+        writer = csv.writer(output)
         
-        writer = csv.writer(response)
         # Write header row
         writer.writerow([
             'Nominee ID',
             'Nominee Number',
             'Nominee Name',
             'Campaign',
-            'Vote Count',
+            'Total Vote Count',
+            'Total Amount Raised',
             'Voter Name',
             'Voter Email',
             'Voter Phone',
@@ -983,32 +992,70 @@ def export_nominees(request):
             'Vote Date'
         ])
         
-        # Get all votes and write them
-        votes = Vote.objects.select_related('nominee', 'nominee__campaign').all().order_by('-created_at')
+        # Get all nominees with their votes
+        nominees = Nominee.objects.select_related('campaign').prefetch_related('votes').all().order_by('-vote_count')
         
-        for vote in votes:
-            writer.writerow([
-                vote.nominee.pk,
-                vote.nominee.number or '',
-                vote.nominee.name,
-                vote.nominee.campaign.name if vote.nominee.campaign else '',
-                vote.nominee.vote_count,
-                vote.voter_name,
-                vote.voter_email,
-                vote.voter_phone,
-                vote.vote_quantity,
-                f"₦{vote.amount}",
-                vote.payment_status,
-                vote.created_at.strftime('%Y-%m-%d %H:%M:%S')
-            ])
+        for nominee in nominees:
+            # Get all votes for this nominee
+            votes = nominee.votes.all().order_by('-created_at')
+            
+            if votes.exists():
+                # Write a row for each vote
+                for vote in votes:
+                    try:
+                        writer.writerow([
+                            nominee.pk,
+                            nominee.number or '',
+                            nominee.name or '',
+                            nominee.campaign.name if nominee.campaign else '',
+                            nominee.vote_count,
+                            str(nominee.total_amount_raised),  # Convert to string to avoid formatting issues
+                            vote.voter_name or '',
+                            vote.voter_email or '',
+                            vote.voter_phone or '',
+                            vote.vote_quantity,
+                            str(vote.amount),  # Remove currency symbol for data integrity
+                            vote.payment_status or '',
+                            vote.created_at.strftime('%Y-%m-%d %H:%M:%S') if vote.created_at else '',
+                        ])
+                    except Exception as e:
+                        print(f"Error writing vote for nominee {nominee.name}: {e}")
+                        continue
+            else:
+                # Write nominee even if no votes
+                try:
+                    writer.writerow([
+                        nominee.pk,
+                        nominee.number or '',
+                        nominee.name or '',
+                        nominee.campaign.name if nominee.campaign else '',
+                        nominee.vote_count,
+                        str(nominee.total_amount_raised),
+                        '',  # No voter data
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                    ])
+                except Exception as e:
+                    print(f"Error writing nominee {nominee.name}: {e}")
+                    continue
         
+        # Create response with proper encoding
+        response = HttpResponse(output.getvalue(), content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = 'attachment; filename="nominees_and_votes_export.csv"'        
         return response
     
     except Exception as e:
         print(f"Error exporting nominees: {e}")
-        from django.http import HttpResponse
-        response = HttpResponse(f"Error: {str(e)}", status=500)
-        return response
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'ok': False, 
+            'error': f'Export failed: {str(e)}'
+        }, status=500)
 
 
 
