@@ -648,6 +648,24 @@ document.addEventListener('alpine:init', () => {
           .catch(e => this.toast('Error: ' + e.message, 'error'));
       },
 
+      deleteCampaign(slug) {
+        if (!confirm('Delete this campaign? This will remove all associated nominees and votes.')) return;
+        fetch(`/dashboard/voting/${slug}/delete/`, {
+          method: 'POST',
+          headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
+        })
+          .then(r => r.json())
+          .then(data => {
+            if (data.ok) {
+              this.toast('Campaign deleted', 'success');
+              setTimeout(() => window.location.reload(), 800);
+            } else {
+              this.toast(data.error || 'Error deleting campaign', 'error');
+            }
+          })
+          .catch(e => this.toast('Error: ' + e.message, 'error'));
+      },
+
       deleteVote(voteId) {
         if (!confirm('Delete this vote?')) return;
         

@@ -511,16 +511,30 @@ def delete_campaign(request, slug):
         return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
 
-@require_POST
-@login_required
 @login_required
 @require_POST
 def delete_nominee(request, nominee_id):
-    """Delete a nominee by ID"""
+    """Delete a nominee by ID and renumber remaining nominees in the campaign.
+
+    After deletion, nominee numbers are re-assigned sequentially (001, 002, ...)
+    within the same campaign to avoid gaps.
+    """
     try:
         nominee = get_object_or_404(Nominee, pk=nominee_id)
+        campaign = nominee.campaign
+
+        # Delete the nominee
         nominee.delete()
-        return JsonResponse({"ok": True, "message": "Nominee deleted successfully"})
+
+        # Renumber remaining nominees for the campaign
+        remaining = Nominee.objects.filter(campaign=campaign).order_by('order', 'created_at', 'pk')
+        for idx, n in enumerate(remaining, start=1):
+            new_number = str(idx).zfill(3)
+            if (n.number or '') != new_number:
+                n.number = new_number
+                n.save(update_fields=['number'])
+
+        return JsonResponse({"ok": True, "message": "Nominee deleted and numbers refreshed"})
     except Exception as e:
         print(f"Error deleting nominee: {e}")
         return JsonResponse({"ok": False, "error": str(e)}, status=500)

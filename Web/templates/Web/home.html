@@ -694,8 +694,8 @@
               
               <!-- Nominee Image -->
               <div style="position: relative; width: 100%; height: 280px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); overflow: hidden;">
-                {% if nominee.image %}
-                  <img src="{{ nominee.image.url }}" alt="{{ nominee.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% if nominee.photo %}
+                  <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" style="width: 100%; height: 100%; object-fit: cover;">
                 {% else %}
                   <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">👤</div>
                 {% endif %}
@@ -732,7 +732,7 @@
                 </div>
                 
                 <!-- Vote Button -->
-                <a href="{% url 'voting_campaign' nominee.campaign.slug %}" style="display: block; text-align: center; background: linear-gradient(90deg, #FFB648, #00B2FF); color: #0A0B10; padding: 0.875rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; cursor: pointer; border: none;">
+                <a href="{% url 'voting_campaign' nominee.campaign.slug %}" class="vote-now" data-start="{{ nominee.campaign.start_date|date:'Y-m-d H:i:s' }}" data-active="{{ nominee.campaign.is_active|yesno:'1,0' }}" style="display: block; text-align: center; background: linear-gradient(90deg, #FFB648, #00B2FF); color: #0A0B10; padding: 0.875rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; cursor: pointer; border: none;">
                   Vote Now →
                 </a>
               </div>
@@ -823,6 +823,45 @@
         </div>
       </div>
     </div>
+
+    <!-- Voting modal (shows when voting hasn't started yet) -->
+    <div id="voting-start-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
+      <div style="background:white; color:#0a0b10; max-width:520px; width:90%; border-radius:12px; padding:1.25rem; text-align:center;">
+        <h3 style="margin-bottom:0.5rem;">Voting Starts Soon</h3>
+        <p id="voting-start-text" style="margin-bottom:1rem; color:#444;">Voting for this campaign hasn't started yet. Check back soon.</p>
+        <div style="display:flex; gap:0.5rem; justify-content:center;">
+          <button id="voting-start-close" style="padding:0.6rem 1rem; border-radius:8px; background:#e5e7eb; border:none;">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function(){
+        const modal = document.getElementById('voting-start-modal');
+        const text = document.getElementById('voting-start-text');
+        const close = document.getElementById('voting-start-close');
+        close.addEventListener('click', ()=> modal.style.display='none');
+
+        document.querySelectorAll('.vote-now').forEach(a => {
+          a.addEventListener('click', function(e){
+            try {
+              const active = this.getAttribute('data-active') === '1';
+              const start = this.getAttribute('data-start');
+              if (!active && start) {
+                const startDt = new Date(start.replace(' ', 'T'));
+                const now = new Date();
+                if (startDt > now) {
+                  e.preventDefault();
+                  text.textContent = `Voting starts on ${startDt.toLocaleString()}.`; 
+                  modal.style.display = 'flex';
+                  return false;
+                }
+              }
+            } catch(err) { /* fallback: allow navigation */ }
+          });
+        });
+      })();
+    </script>
   </section>
 
   <!-- CTA Section -->

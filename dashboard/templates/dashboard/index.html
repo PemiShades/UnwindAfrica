@@ -600,6 +600,7 @@
                       <div class="mt-4 flex gap-3">
                         <button @click="editCampaign('{{ campaign.id }}', '{{ campaign.name }}', '{{ campaign.tagline }}', '{{ campaign.description }}', '{{ campaign.start_date|date:"Y-m-d" }}', '{{ campaign.end_date|date:"Y-m-d" }}', '{{ campaign.vote_price }}', '{{ campaign.rest_points_per_vote }}', '{{ campaign.grand_prize }}', '{{ campaign.grand_prize_description }}', '{{ campaign.second_prize }}', '{{ campaign.second_prize_description }}', '{{ campaign.third_prize }}', '{{ campaign.third_prize_description }}', '{{ campaign.prize_description }}', '{% if campaign.banner_image %}{{ campaign.banner_image.url }}{% else %}{% endif %}', '{{ campaign.is_active }}')" class="text-sm btn-ghost border border-blue-400/30 hover:border-blue-400/60">Edit</button>
                         <a href="{% url 'view_campaign_voters' campaign.slug %}" class="text-sm btn-ghost border border-green-400/30 hover:border-green-400/60">View Voters</a>
+                        <button @click.stop="deleteCampaign('{{ campaign.slug }}')" class="text-sm btn-ghost border border-red-400/30 hover:border-red-400/60">Delete</button>
                       </div>
                     </div>
                     {% endfor %}
