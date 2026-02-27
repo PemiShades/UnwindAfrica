@@ -1,10 +1,56 @@
-{% extends "Web/main.html" %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="same-origin" />
 
-{% block title %}{{ campaign.name }} - Vote Now{% endblock %}
+  <link rel="icon" href="/static/assets/LOGO.png" type="image/x-icon" />
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+  <!-- Primary Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Vendor CSS (deduped) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+
+  <!-- Tailwind (CDN for dev only) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'ua-sky': '#00B2FF',
+            'ua-sea': '#00C2FF',
+            'ua-sun': '#FFB648',
+            'ua-ink': '#0A0B10',
+            'ua-paper': '#FFFFFF',
+            'ua-cream': '#F5F7FA',
+          },
+          fontFamily: {
+            'display': ['Space Grotesk', 'sans-serif'],
+            'body': ['Inter', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <!-- Your CSS -->
+  <link rel="stylesheet" href="/static/css/index.css" />
+  <link rel="stylesheet" href="/static/css/packages_section.css" />
+  <link rel="stylesheet" href="/static/css/home.css" />
+  <link rel="stylesheet" href="/static/css/main.css" />
+  <link rel="stylesheet" href="/static/css/notifications.css" />
+
+  
+<link rel="stylesheet" href="/static/css/notifications.css">
 <style>
 /* Ensure navbar is visible on voting pages */
 body {
@@ -29,81 +75,242 @@ header.absolute svg {
     fill: #0A0B10 !important;
 }
 </style>
-{% endblock %}
 
-{% block content %}
+  <title>Nominate to Unwind — Students &amp; Youth Edition - Vote Now</title>
+</head>
+<body>
+  <!-- Navigation - can be overridden in child templates -->
+  
+  
+<!-- Navigation -->
+
+<header class="absolute top-0 left-0 w-full z-30 transition-opacity duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-20">
+      
+      <!-- Left: Explore -->
+      <a href="/explore/" class="flex items-center space-x-2 
+        
+          text-white
+        
+        hover:opacity-80 transition drop-shadow">
+        
+        <!-- Compass Icon -->
+        <svg class="w-7 h-7 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 2a10 10 0 100 20 10 10 0 000-20zm3.5 11.5l-7-3 3 7 4-4z" />
+        </svg>
+        <span class="hidden sm:inline text-lg lg:text-xl tracking-wide drop-shadow">
+          Explore
+        </span>
+      </a>
+
+      <!-- Center: Logo -->
+      <a href="/" class="text-2xl sm:text-3xl font-semibold tracking-widest drop-shadow 
+        
+          text-white
+        ">
+        Unwind Africa
+      </a>
+
+      <!-- Right: Menu Button -->
+      <button onclick="toggleMenu()" class="flex items-center space-x-2 hover:opacity-80 transition drop-shadow 
+        
+          text-white
+        ">
+        
+        <!-- Hide this text on small screens -->
+        <span class="hidden sm:inline text-lg font-medium drop-shadow">Menu</span>
+
+        <!-- Dots Icon -->
+        <svg class="w-7 h-7 drop-shadow" fill="currentColor" viewBox="0 0 20 20">
+          <circle cx="3" cy="10" r="2"/>
+          <circle cx="10" cy="10" r="2"/>
+          <circle cx="17" cy="10" r="2"/>
+        </svg>
+      </button>
+
+    </div>
+  </div>
+</header>
+
+
+<!-- JavaScript -->
+<script>
+  // document.addEventListener('DOMContentLoaded', () => {
+  //   const toggleBtn = document.getElementById('hamburgerToggle');
+  //   const menu = document.getElementById('hamburgerMenu');
+  //   const links = document.querySelectorAll('.menu-link');
+
+  //   toggleBtn.addEventListener('click', () => {
+  //     const isOpen = menu.classList.contains('translate-y-0');
+
+  //     if (isOpen) {
+  //       // Close
+  //       menu.classList.remove('translate-y-0', 'opacity-100');
+  //       menu.classList.add('-translate-y-full', 'opacity-0', 'pointer-events-none');
+  //       links.forEach(link => {
+  //         link.classList.remove('opacity-100', 'translate-y-0');
+  //         link.classList.add('opacity-0', '-translate-y-10');
+  //       });
+  //     } else {
+  //       // Open
+  //       menu.classList.remove('-translate-y-full', 'opacity-0', 'pointer-events-none');
+  //       menu.classList.add('translate-y-0', 'opacity-100');
+  //       links.forEach((link, i) => {
+  //         setTimeout(() => {
+  //           link.classList.remove('opacity-0', '-translate-y-10');
+  //           link.classList.add('opacity-100', 'translate-y-0');
+  //         }, 100 * (i + 1));
+  //       });
+  //     }
+  //   });
+  // });
+    function toggleMenu() {
+      const menu = document.getElementById('hamburgerMenu');
+      menu.classList.toggle('translate-x-full');
+    }
+</script>
+
+  
+<!-- Hamburger Icon -->
+
+<!-- Hamburger Menu Overlay -->
+<div id="hamburgerMenu" class="fixed inset-0 z-40 bg-white overflow-y-auto transition-transform duration-500 transform translate-x-full">
+  <div class="flex h-full">
+
+    <!-- Left Side Branding -->
+    <div class="w-1/2 hidden md:flex bg-[#111827] text-white justify-center items-center relative">
+      <div class="text-5xl font-bold tracking-widest rotate-[-90deg]">
+        EXPLORE
+      </div>
+    </div>
+
+    <!-- Right Side Menu Content -->
+    <div class="w-full md:w-1/2 p-10 flex flex-col justify-between">
+
+      <!-- Close Button -->
+      <div class="flex justify-end">
+        <button onclick="toggleMenu()" class="text-3xl text-gray-700 hover:text-black">
+          &times;
+        </button>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="mt-10 space-y-6 text-gray-800 text-xl font-semibold">
+        <a href="/about" class="block hover:text-blue-600 transition">About</a>
+        <a href="/packages" class="block hover:text-blue-600 transition">Packages</a>
+        <a href="/blog" class="block hover:text-blue-600 transition">Blog</a>
+        <a href="/contact/" class="block hover:text-blue-600 transition">Contact-Us</a>
+        
+        <!-- Community Section -->
+        <div class="border-t border-gray-200 pt-4 mt-4">
+          <div class="text-sm text-gray-500 uppercase tracking-wide mb-3">Community</div>
+          <a href="/community/" class="block hover:text-blue-600 transition">Community Stats</a>
+          <a href="/rest-card/signup/" class="block hover:text-blue-600 transition mt-3">Rest Card</a>
+          <a href="/token-wallet/" class="block hover:text-blue-600 transition mt-3">Token Wallet</a>
+          <a href="/voting/" class="block hover:text-blue-600 transition mt-3">Vote Now</a>
+        </div>
+      </div>
+
+      <!-- Socials -->
+      <div class="mt-10">
+        <div class="text-gray-600 text-sm mb-4">Follow Us</div>
+        <div class="flex gap-4">
+          <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200">
+            <i class="fab fa-linkedin-in text-gray-700"></i>
+          </a>
+          <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200">
+            <i class="fab fa-instagram text-gray-700"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toggle Script -->
+<script>
+  function toggleMenu() {
+    const menu = document.getElementById('hamburgerMenu');
+    menu.classList.toggle('translate-x-full');
+  }
+</script>
+
+<!-- Font Awesome -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+  
+  
+  
 <div class="voting-campaign-page" style="padding: 1.5rem 1rem; max-width: 1400px; margin: 0 auto;">
     
     <!-- Campaign Header -->
     <div class="campaign-header" style="text-align: center; margin-bottom: 2rem;">
-        {% if campaign.banner_image %}
-        <img src="{{ campaign.banner_image.url }}" alt="{{ campaign.name }}" 
-             style="width: 100%; max-height: 250px; object-fit: cover; border-radius: 12px; margin-bottom: 1.5rem;">
-        {% endif %}
         
-        <h1 style="font-size: clamp(1.5rem, 5vw, 2.5rem); margin-bottom: 1rem; color: #2c3e50; padding: 0 0.5rem; word-wrap: break-word;">{{ campaign.name }}</h1>
+        
+        <h1 style="font-size: clamp(1.5rem, 5vw, 2.5rem); margin-bottom: 1rem; color: #2c3e50; padding: 0 0.5rem; word-wrap: break-word;">Nominate to Unwind — Students &amp; Youth Edition</h1>
         <p style="font-size: clamp(0.95rem, 2.5vw, 1.1rem); color: #7f8c8d; max-width: 800px; margin: 0 auto 1rem; padding: 0 1rem; line-height: 1.6;">
-            {{ campaign.description }}
+            We are opening nominations to honour students and young people who are navigating responsibility, pressure, leadership, and growth beyond their age.
+
+This edition recognises resilience, quiet strength, and young individuals who continue to show up despite challenges.
+
+Nominate someone today and help us celebrate the next generation of leaders.
         </p>
         
         <div class="campaign-stats" style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
             <div style="background: #ecf0f1; padding: 0.875rem 1.25rem; border-radius: 8px; min-width: 140px;">
                 <div style="font-size: clamp(0.8rem, 2vw, 0.9rem); color: #7f8c8d;">Campaign Period</div>
                 <div style="font-weight: 600; color: #2c3e50; font-size: clamp(0.85rem, 2vw, 0.95rem);">
-                    {{ campaign.start_date|date:"M d" }} - {{ campaign.end_date|date:"M d, Y" }}
+                    Feb 23 - May 24, 2026
                 </div>
             </div>
             <div style="background: #ecf0f1; padding: 0.875rem 1.25rem; border-radius: 8px; min-width: 100px;">
                 <div style="font-size: clamp(0.8rem, 2vw, 0.9rem); color: #7f8c8d;">Total Votes</div>
-                <div style="font-weight: 600; color: #2c3e50; font-size: clamp(1.2rem, 3vw, 1.5rem);">{{ campaign.total_votes }}</div>
+                <div style="font-weight: 600; color: #2c3e50; font-size: clamp(1.2rem, 3vw, 1.5rem);">40</div>
             </div>
             <div style="background: #ecf0f1; padding: 0.875rem 1.25rem; border-radius: 8px; min-width: 100px;">
                 <div style="font-size: clamp(0.8rem, 2vw, 0.9rem); color: #7f8c8d;">Vote Price</div>
-                <div style="font-weight: 600; color: #27ae60; font-size: clamp(1.2rem, 3vw, 1.5rem);">₦{{ vote_price|floatformat:0 }}</div>
+                <div style="font-weight: 600; color: #27ae60; font-size: clamp(1.2rem, 3vw, 1.5rem);">₦500</div>
             </div>
         </div>
         
         <!-- Test Mode Banner -->
-        {% if is_test_mode %}
-        <div style="background: #f39c12; color: white; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: clamp(0.85rem, 2vw, 0.9rem); text-align: center; animate: pulse;">
-            <strong>⚙️ TEST MODE:</strong> {{ test_mode_message }} No real charges will be made.
-        </div>
-        {% endif %}
         
-        {% if is_ongoing %}
+        <div style="background: #f39c12; color: white; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: clamp(0.85rem, 2vw, 0.9rem); text-align: center; animate: pulse;">
+            <strong>⚙️ TEST MODE:</strong> TEST MODE: Pseudo voting enabled. Real Paystack integration coming soon. No real charges will be made.
+        </div>
+        
+        
+        
         <div style="background: #27ae60; color: white; padding: 0.5rem 1rem; border-radius: 20px; display: inline-block; font-size: clamp(0.85rem, 2vw, 0.95rem);">
             ✓ Campaign Active - Voting Open
         </div>
-        {% else %}
-        <div style="background: #e74c3c; color: white; padding: 0.5rem 1rem; border-radius: 20px; display: inline-block; font-size: clamp(0.85rem, 2vw, 0.95rem);">
-            Campaign Ended
-        </div>
-        {% endif %}
+        
     </div>
 
     <!-- Leaderboard -->
-    {% if leaderboard %}
+    
     <div class="leaderboard" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem 1rem; border-radius: 12px; margin-bottom: 2rem; color: white;">
         <h2 style="text-align: center; margin-bottom: 1.25rem; font-size: clamp(1.3rem, 4vw, 2rem);">🏆 Top Nominees</h2>
         <div style="display: flex; justify-content: center; gap: clamp(1rem, 3vw, 2rem); flex-wrap: wrap;">
-            {% for nominee in leaderboard %}
-            <div style="text-align: center; {% if forloop.first %}transform: scale(1.05);{% endif %} max-width: 120px;">
+            
+            <div style="text-align: center; transform: scale(1.05); max-width: 120px;">
                 <div style="position: relative; width: clamp(80px, 15vw, 100px); height: clamp(80px, 15vw, 100px); margin: 0 auto 0.5rem;">
-                    {% if nominee.photo %}
-                    <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" 
+                    
+                    <img src="/media/nominees/photos/WhatsApp_Image_2026-02-20_at_9.34.11_AM.jpeg" alt="Inga Howell" 
                          style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid white;">
-                    {% endif %}
+                    
                     <div style="position: absolute; bottom: -10px; right: -10px; background: #f39c12; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid white; font-size: clamp(0.8rem, 2vw, 0.95rem);">
-                        {{ forloop.counter }}
+                        1
                     </div>
                 </div>
-                <div style="font-weight: 600; font-size: clamp(0.9rem, 2vw, 1.1rem); word-wrap: break-word;">{{ nominee.name }}</div>
-                <div style="opacity: 0.9; font-size: clamp(1rem, 2.5vw, 1.3rem); font-weight: bold;">{{ nominee.vote_count }} votes</div>
+                <div style="font-weight: 600; font-size: clamp(0.9rem, 2vw, 1.1rem); word-wrap: break-word;">Inga Howell</div>
+                <div style="opacity: 0.9; font-size: clamp(1rem, 2.5vw, 1.3rem); font-weight: bold;">40 votes</div>
             </div>
-            {% endfor %}
+            
         </div>
     </div>
-    {% endif %}
+    
 
     <!-- Voting Ballot Sticky Summary -->
     <div id="ballotSummary" class="ballot-summary" style="position: fixed; bottom: 20px; right: 20px; background: white; border: 2px solid #3498db; border-radius: 12px; padding: 1.25rem; box-shadow: 0 4px 16px rgba(0,0,0,0.2); min-width: 280px; max-width: 90vw; display: none; z-index: 1000;">
@@ -136,61 +343,52 @@ header.absolute svg {
 
     <!-- Nominees Grid -->
     <div class="nominees-section">
-        {% if is_ongoing %}
+        
         <div id="countdown" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 1rem; border-radius: 12px; text-align: center; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
             <div style="font-size: 0.9rem; opacity: 0.95; margin-bottom: 0.3rem;">⏳ Voting closes in:</div>
             <div id="countdownTimer" style="font-size: clamp(1.5rem, 5vw, 2rem); font-weight: bold;">
                 Loading...
             </div>
         </div>
-        {% endif %}
+        
         
         <h2 style="font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: 1.5rem; color: #34495e; text-align: center; padding: 0 0.5rem;">Vote for Your Favorite Nominees</h2>
         
-        {% if not is_ongoing %}
-        <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center; font-size: clamp(0.9rem, 2vw, 1rem);">
-            ⚠️ This campaign has ended. Voting is closed.
-        </div>
-        {% endif %}
+        
 
         <div class="nominees-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 1.5rem;">
-            {% for nominee in nominees %}
-            <div class="nominee-card" data-nominee-id="{{ nominee.id }}" 
+            
+            <div class="nominee-card" data-nominee-id="1" 
                  style="border: 2px solid #e1e8ed; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3;">
                 
-                {% if nominee.photo %}
-                <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" 
+                
+                <img src="/media/nominees/photos/WhatsApp_Image_2026-02-20_at_9.34.11_AM.jpeg" alt="Inga Howell" 
                      style="width: 100%; height: 220px; object-fit: cover;">
-                {% endif %}
+                
                 
                 <div style="padding: 1.25rem;">
-                    <h3 style="font-size: clamp(1.2rem, 3vw, 1.4rem); margin-bottom: 0.5rem; color: #2c3e50; word-wrap: break-word;">{{ nominee.name }}</h3>
+                    <h3 style="font-size: clamp(1.2rem, 3vw, 1.4rem); margin-bottom: 0.5rem; color: #2c3e50; word-wrap: break-word;">Inga Howell</h3>
                     
-                    {% if nominee.instagram_handle %}
-                    <a href="{{ nominee.instagram_url }}" target="_blank" 
-                       style="color: #e1306c; text-decoration: none; font-size: clamp(0.85rem, 2vw, 0.9rem); display: inline-block; margin-bottom: 0.875rem;">
-                        📷 @{{ nominee.instagram_handle }}
-                    </a>
-                    {% endif %}
+                    
                     
                     <p style="color: #7f8c8d; line-height: 1.6; margin-bottom: 1rem; font-size: clamp(0.9rem, 2vw, 0.95rem);">
-                        {{ nominee.story|truncatewords:30 }}
+                        Earum minim voluptat
                     </p>
                     
                     <div style="background: #f8f9fa; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; text-align: center;">
                         <div style="color: #7f8c8d; font-size: clamp(0.8rem, 2vw, 0.85rem);">Current Votes</div>
-                        <div style="font-size: clamp(1.8rem, 5vw, 2rem); font-weight: bold; color: #3498db;">{{ nominee.vote_count }}</div>
+                        <div style="font-size: clamp(1.8rem, 5vw, 2rem); font-weight: bold; color: #3498db;">40</div>
                     </div>
                     
-                    {% if is_ongoing %}
-                    <button onclick="openVoteModal({{ nominee.id }}, '{{ nominee.name }}', '{{ campaign.vote_price }}')" 
+                    
+                    <button onclick="openVoteModal(1, 'Inga Howell', '500.00')" 
                             style="width: 100%; background: #3498db; color: white; border: none; padding: 0.875rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.3s; font-size: clamp(0.9rem, 2vw, 1rem);">
                         Vote Now →
                     </button>
-                    {% endif %}
+                    
                 </div>
             </div>
-            {% endfor %}
+            
         </div>
     </div>
 </div>
@@ -298,8 +496,8 @@ header.absolute svg {
 </div>
 
 <script>
-const VOTE_PRICE = {{ vote_price }};
-const REST_POINTS_PER_VOTE = {{ rest_points_per_vote }};
+const VOTE_PRICE = 500.00;
+const REST_POINTS_PER_VOTE = 100.00;
 let ballot = {};
 
 let voteModalData = { nomineeId: null, nomineeName: null, votePrice: null };
@@ -413,11 +611,19 @@ function clearBallot() {
         return;
     }
     
-    if (confirm('Are you sure you want to remove all votes from your ballot?')) {
-        ballot = {};
-        updateBallot();
-        showSuccess('Ballot cleared');
-    }
+    showConfirm({
+        title: 'Clear Ballot?',
+        message: 'Are you sure you want to remove all votes from your ballot?',
+        confirmText: 'Yes, Clear',
+        cancelText: 'Cancel',
+        confirmClass: 'danger'
+    }).then(confirmed => {
+        if (confirmed) {
+            ballot = {};
+            updateBallot();
+            showSuccess('Ballot cleared');
+        }
+    });
 }
 
 function proceedToCheckout() {
@@ -459,7 +665,7 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e) => 
     const loading = showLoading('Initializing payment...');
     
     // Check if in test mode
-    const isTestMode = "{{ is_test_mode|lower }}" === "false";
+    const isTestMode = "true" === "true";
     
     if (isTestMode) {
         // PSEUDO PAYMENT MODE - for testing/development
@@ -473,7 +679,7 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e) => 
             // Automatically submit form for voting
             setTimeout(() => {
                 // Redirect to thank you page
-                window.location.href = '{% url "voting_thank_you" %}?test=true&votes=' + ballotArray.length;
+                window.location.href = '/voting/payment/thank-you/?test=true&votes=' + ballotArray.length;
             }, 1500);
         } catch (error) {
             loading.close();
@@ -484,25 +690,22 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e) => 
     } else {
         // REAL PAYSTACK PAYMENT MODE
         try {
-            const response = await fetch('{% url "initialize_payment" %}', {
+            const response = await fetch('/voting/payment/initialize/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
+                    'X-CSRFToken': 'VVgnfZDeEnynEV99O58avWq71AF0Pdty8XI69HRCzyWFoXXtaH7xQ4cnTJ5y2lie'
                 },
                 body: JSON.stringify({
                     ballot: ballotArray,
-                    campaign_id: {{ campaign.id }},
                     voter_name: document.getElementById('voterName').value,
                     voter_email: document.getElementById('voterEmail').value,
                     voter_phone: document.getElementById('voterPhone').value,
                     referral_source: document.getElementById('referralSource').value
                 })
             });
-            console.log('Payment initialization response:', response);
-            const data = await response.json();
-            console.log('Response data:', data);
             
+            const data = await response.json();
             
             if (data.success) {
                 loading.success('Redirecting to payment gateway...');
@@ -523,7 +726,7 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e) => 
             payButton.textContent = originalText;
         }
     }
-    
+    }
 });
 
 // Close modal on outside click
@@ -534,8 +737,8 @@ document.getElementById('checkoutModal').addEventListener('click', (e) => {
 });
 
 // Countdown Timer
-{% if is_ongoing %}
-const endDate = new Date('{{ campaign.end_date|date:"Y-m-d" }}T23:59:59').getTime();
+
+const endDate = new Date('2026-05-24T23:59:59').getTime();
 
 function updateCountdown() {
     const now = new Date().getTime();
@@ -566,7 +769,7 @@ function updateCountdown() {
 // Update countdown immediately and then every second
 updateCountdown();
 setInterval(updateCountdown, 1000);
-{% endif %}
+
 </script>
 
 <style>
@@ -688,4 +891,131 @@ input[type="number"]::-webkit-outer-spin-button {
     }
 }
 </style>
-{% endblock %}
+
+
+<!-- Footer - FINAL VERSION (Paystack-ready) -->
+<footer class="bg-[#0A0B10] text-white pt-24 pb-12 px-6 md:px-12">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid md:grid-cols-2 gap-12 mb-24">
+      <div>
+        <h2 class="text-5xl md:text-7xl font-bold font-display tracking-tighter mb-8">Stay<br>Inspired</h2>
+      </div>
+      <div class="flex flex-col justify-end">
+        <p class="mb-6 text-gray-400 max-w-md">Subscribe for exclusive previews, cultural insights, and curated experiences.</p>
+        
+        <!-- Real newsletter form (Formspree) -->
+        <form action="https://formspree.io/f/xdknwwla" method="POST" class="flex border-b border-white/20 pb-2">
+          <input type="email" name="email" placeholder="Email Address" required
+                 class="bg-transparent border-none outline-none w-full text-white placeholder-gray-600 focus:ring-0">
+          <button type="submit" class="text-xs uppercase tracking-widest hover:opacity-70 transition-opacity">Subscribe</button>
+        </form>
+        <p class="text-xs text-gray-500 mt-3">We respect your inbox. Unsubscribe anytime.</p>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-8 mb-16 border-t border-white/10 pt-16">
+      <div>
+        <h4 class="text-sm uppercase tracking-widest mb-4 font-bold">Studio</h4>
+        <div class="space-y-2 text-gray-400">
+          <p>No 8, Providence Street</p>
+          <p>Lekki Phase 1, Lagos</p>
+          <a href="tel:+2348062067832" class="block hover:text-white transition-colors">+234 806 206 7832</a>
+          <a href="mailto:info@unwindafrica.com" class="block hover:text-white transition-colors">info@unwindafrica.com</a>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="text-sm uppercase tracking-widest mb-4 font-bold">Experiences</h4>
+        <ul class="space-y-2 text-gray-400">
+          <li><a href="/packages" class="hover:text-white transition-colors">Retreats & Wellness</a></li>
+          <li><a href="/packages" class="hover:text-white transition-colors">Signature Parties</a></li>
+          <li><a href="/packages" class="hover:text-white transition-colors">Cultural Showcase</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="text-sm uppercase tracking-widest mb-4 font-bold">Company</h4>
+        <ul class="space-y-2 text-gray-400">
+          <li><a href="/about" class="hover:text-white transition-colors">About Unwind Africa</a></li>
+          <li><a href="/blog" class="hover:text-white transition-colors">Journal</a></li>
+          <li><a href="/#faq" class="hover:text-white transition-colors">FAQ</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="text-sm uppercase tracking-widest mb-4 font-bold">Connect</h4>
+        <div class="flex space-x-4">
+          <a href="https://instagram.com/unwindafrica" aria-label="Instagram" class="hover:text-white transition-colors text-gray-400">
+            <i class="fab fa-instagram text-xl"></i>
+          </a>
+          <a href="https://facebook.com/unwindafrica" aria-label="Facebook" class="hover:text-white transition-colors text-gray-400">
+            <i class="fab fa-facebook-f text-xl"></i>
+          </a>
+          <a href="https://x.com/unwindafrica" aria-label="X" class="hover:text-white transition-colors text-gray-400">
+            <i class="fab fa-twitter text-xl"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row justify-between items-center border-t border-white/10 pt-12 text-xs uppercase tracking-widest text-gray-500">
+      <div class="mb-6 md:mb-0">
+        <span class="font-display text-2xl text-white">UNWIND AFRICA</span>
+      </div>
+      <div class="flex flex-col md:flex-row md:space-x-8 text-center md:text-left">
+        <span>&copy; <span id="year"></span> Unwind Africa</span>
+         <a href="/privacy-policy/" class="hover:text-white transition-colors">Privacy Policy</a>
+         <a href="/terms/" class="hover:text-white transition-colors">Terms of Service</a>
+         <a href="/refund-policy/" class="hover:text-white transition-colors">Refund Policy</a>
+         <a href="/faq/" class="hover:text-white transition-colors">FAQ</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- <script>
+// Auto-update year
+document.getElementById('year').textContent = new Date().getFullYear();
+</script> -->
+
+  <!-- Vendor JS (place BEFORE closing body) -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+
+  <!-- Your JS -->
+  <script src="/static/javascript/main.js"></script>
+
+  <script>
+    // one-time year stamp
+    (function() {
+      var el = document.getElementById('year');
+      if (el) el.textContent = new Date().getFullYear();
+    })();
+
+    // AOS init
+    AOS.init({ duration: 1000, once: true });
+
+    // Vanilla Tilt
+    VanillaTilt.init(document.querySelectorAll(".tilt"), {
+      max: 15, speed: 400, glare: true, "max-glare": 0.2
+    });
+
+    // Optional mouse glow (guarded)
+    (function(){
+      var glow = document.getElementById("mouse-glow");
+      if (!glow) return;
+      document.addEventListener("mousemove", function(e){
+        var x = e.clientX - 80, y = e.clientY - 80;
+        glow.style.transform = "translate3d(" + x + "px," + y + "px,0)";
+      });
+    })();
+  </script>
+
+  <!-- Notification System -->
+  <script src="/static/javascript/notifications.js"></script>
+
+  
+</body>
+</html>

@@ -127,7 +127,9 @@ def initialize_payment(request):
         headers = {
             'Authorization': f'Bearer {paystack_secret}',
             'Content-Type': 'application/json',
+            
         }
+        
         
         payload = {
             'email': voter_email,
@@ -152,6 +154,7 @@ def initialize_payment(request):
             'https://api.paystack.co/transaction/initialize',
             headers=headers,
             json=payload,
+            verify=False,  # Disable SSL verification for local testing (remove in production)
             timeout=10
         )
         

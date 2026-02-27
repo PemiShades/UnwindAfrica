@@ -169,6 +169,7 @@ SERVER_EMAIL = os.getenv('SERVER_EMAIL', 'no-reply@unwindafrica.com')
 
 # --- Paystack Configuration ---
 PAYSTACK_PUBLIC_KEY = os.getenv("PAYSTACK_PUBLIC_KEY", "")
+print("PAYSTACK_PUBLIC_KEY:", PAYSTACK_PUBLIC_KEY)  # Debug print to verify key loading
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "")
 
 # --- Extra Security (enable once HTTPS is ready) ---

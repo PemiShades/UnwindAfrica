@@ -341,6 +341,7 @@
             const filterBy = document.getElementById('filterSelect').value;
             const cards = document.querySelectorAll('.nominee-card');
             
+            console.log('Filtering nominees with search term:', searchTerm, 'and filter:', filterBy);
             cards.forEach(card => {
                 const name = card.dataset.name;
                 const shouldShow = name.includes(searchTerm);
@@ -403,6 +404,8 @@
             
             // Add click event listeners to all vote buttons using data attributes
             const voteButtons = document.querySelectorAll('.vote-button');
+
+            console.log('Found vote buttons:', voteButtons.length);
             voteButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     const nomineeId = this.getAttribute('data-nominee-id');
@@ -416,11 +419,7 @@
         let selectedNominee = null;
         let selectedPaymentOption = null;
 
-        // Wrapper function for any external calls
-        function openVoteModal(nomineeId, nomineeName, nomineeNumber) {
-            voteForNominee(nomineeId, nomineeName, nomineeNumber);
-        }
-
+        
         function voteForNominee(nomineeId, nomineeName, nomineeNumber) {
             // Decode HTML entities in nomineeName if needed
             const tempDiv = document.createElement('div');
@@ -433,6 +432,13 @@
             document.getElementById('paymentModal').style.display = 'flex';
         }
 
+        // Wrapper function for any external calls
+        function openVoteModal(nomineeId, nomineeName, nomineeNumber) {
+            voteForNominee(nomineeId, nomineeName, nomineeNumber);
+        }
+
+
+    
         function closePaymentModal() {
             document.getElementById('paymentModal').style.display = 'none';
             selectedNominee = null;
@@ -484,10 +490,10 @@
                 return;
             }
 
-            // Initialize Paystack payment
+            // Initialize Paystack payment00
             try {
                 const paystackHandler = PaystackPop.setup({
-                    key: 'pk_test_12345678901234567890123456789012', // Replace with actual key
+                    key: 'pk_test_67a9ed0b0b2afc83e071b07c1ddae3cc76ea9805', // Replace with actual key
                     email: userEmail,
                     amount: selectedPaymentOption.price * 100,
                     currency: 'NGN',
