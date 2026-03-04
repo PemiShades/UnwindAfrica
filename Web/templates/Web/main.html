@@ -71,7 +71,6 @@
       <div class="flex flex-col justify-end">
         <p class="mb-6 text-gray-400 max-w-md">Subscribe for exclusive previews, cultural insights, and curated experiences.</p>
         
-        <!-- Real newsletter form (Formspree) -->
         <form action="https://formspree.io/f/xdknwwla" method="POST" class="flex border-b border-white/20 pb-2">
           <input type="email" name="email" placeholder="Email Address" required
                  class="bg-transparent border-none outline-none w-full text-white placeholder-gray-600 focus:ring-0">
@@ -83,14 +82,28 @@
 
     <div class="grid md:grid-cols-4 gap-8 mb-16 border-t border-white/10 pt-16">
       <div>
-        <h4 class="text-sm uppercase tracking-widest mb-4 font-bold">Office Address</h4>
-        <div class="space-y-2 text-gray-400">
-          <p>8 Providence road, Lekki Phase 1</p>
-          <p>Lekki, Lagos, Ibeju-Lekki</p>
-          <a href="tel:+2348051411198" class="block hover:text-white transition-colors">+234 805 141 1198</a>
-          <a href="tel:+2348062067832" class="block hover:text-white transition-colors">+234 806 206 7832</a>
-          <a href="mailto:unwindafrica24@gmail.com" class="block hover:text-white transition-colors">unwindafrica24@gmail.com</a>
-          <a href="mailto:info@unwindafrica.com" class="block hover:text-white transition-colors">info@unwindafrica.com</a>
+        <h4 class="text-sm uppercase tracking-widest mb-4 font-bold">Office</h4>
+        <div class="space-y-3 text-gray-400">
+          <p>8 Providence Road, Lekki Phase 1,</p>
+          <p>Lekki, Ibeju-Lekki, Lagos</p>
+          <div class="mt-4 space-y-2">
+            <div>
+              <span class="text-xs uppercase tracking-widest text-gray-600 block mb-0.5">Primary</span>
+              <a href="tel:+2348051411198" class="hover:text-white transition-colors">+234 805 141 1198</a>
+            </div>
+            <div>
+              <span class="text-xs uppercase tracking-widest text-gray-600 block mb-0.5">Support</span>
+              <a href="tel:+2348062067832" class="hover:text-white transition-colors">+234 806 206 7832</a>
+            </div>
+            <div class="pt-1">
+              <span class="text-xs uppercase tracking-widest text-gray-600 block mb-0.5">Business</span>
+              <a href="mailto:unwindafrica24@gmail.com" class="hover:text-white transition-colors">unwindafrica24@gmail.com</a>
+            </div>
+            <div>
+              <span class="text-xs uppercase tracking-widest text-gray-600 block mb-0.5">Support</span>
+              <a href="mailto:info@unwindafrica.com" class="hover:text-white transition-colors">info@unwindafrica.com</a>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -134,10 +147,10 @@
       </div>
       <div class="flex flex-col md:flex-row md:space-x-8 text-center md:text-left">
         <span>&copy; <span id="year"></span> Unwind Africa</span>
-         <a href="{% url 'privacy_policy' %}" class="hover:text-white transition-colors">Privacy Policy</a>
-         <a href="{% url 'terms' %}" class="hover:text-white transition-colors">Terms of Service</a>
-         <a href="{% url 'refund_policy' %}" class="hover:text-white transition-colors">Refund Policy</a>
-         <a href="{% url 'faq' %}" class="hover:text-white transition-colors">FAQ</a>
+        <a href="{% url 'privacy_policy' %}" class="hover:text-white transition-colors">Privacy Policy</a>
+        <a href="{% url 'terms' %}" class="hover:text-white transition-colors">Terms of Service</a>
+        <a href="{% url 'refund_policy' %}" class="hover:text-white transition-colors">Refund Policy</a>
+        <a href="{% url 'faq' %}" class="hover:text-white transition-colors">FAQ</a>
       </div>
     </div>
   </div>
