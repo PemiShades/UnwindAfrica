@@ -1,0 +1,604 @@
+{% extends 'Web/main.html' %}
+{% load static %}
+
+{% block title %}Free Trial Classes for Diaspora Children | EdBritish Consult × Unwind Africa{% endblock %}
+
+{% block navbar %}
+{% include './partials/header/navbar.html' with theme='dark' %}
+{% include './partials/header/hamburger-menu.html' with faq_link="/about#faq" %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Fixed navbar styling */
+    body {
+        padding-top: 80px;
+    }
+    
+    header.absolute {
+        position: fixed !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    header.absolute a,
+    header.absolute button,
+    header.absolute span {
+        color: #0A0B10 !important;
+    }
+    
+    header.absolute svg {
+        stroke: #0A0B10 !important;
+        fill: #0A0B10 !important;
+    }
+    
+    .trial-page {
+        min-height: 100vh;
+        background: linear-gradient(180deg, #F5F7FA 0%, #FFFFFF 100%);
+        padding-top: 80px;
+    }
+    
+    .partnership-header {
+        text-align: center;
+        padding: 4rem 1rem 3rem;
+        background: white;
+        border-bottom: 1px solid #eef0f6;
+    }
+    
+    .logos-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 3rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+    }
+    
+    .logo-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .logo-item img {
+        max-height: 80px;
+        width: auto;
+        object-fit: contain;
+    }
+    
+    .logo-item .logo-text {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: #0A0B10;
+    }
+    
+    .partnership-symbol {
+        font-size: 2rem;
+        color: #00B2FF;
+    }
+    
+    .partnership-tagline {
+        font-size: 1rem;
+        color: #666;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+    
+    .page-title-section {
+        text-align: center;
+        padding: 4rem 1rem 2rem;
+    }
+    
+    .page-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 3rem;
+        font-weight: 900;
+        color: #0A0B10;
+        margin-bottom: 0.5rem;
+        line-height: 1.2;
+    }
+    
+    .page-subtitle {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #00B2FF;
+    }
+    
+    .content-section {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .intro-text {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eef0f6;
+        margin-bottom: 2rem;
+        line-height: 1.8;
+        color: #333;
+    }
+    
+    .intro-text p {
+        margin-bottom: 1rem;
+    }
+    
+    .intro-text ul {
+        list-style: none;
+        padding: 0;
+        margin: 1.5rem 0;
+    }
+    
+    .intro-text ul li {
+        padding: 0.5rem 0;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+    
+    .intro-text ul li::before {
+        content: '✦';
+        position: absolute;
+        left: 0;
+        color: #00B2FF;
+    }
+    
+    .info-box {
+        background: linear-gradient(135deg, #00B2FF 0%, #00C2FF 100%);
+        color: white;
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
+        margin: 2rem 0;
+    }
+    
+    .info-box h4 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .who-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eef0f6;
+        margin-bottom: 2rem;
+    }
+    
+    .section-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #0A0B10;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .section-title i {
+        color: #00B2FF;
+    }
+    
+    .who-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .who-list li {
+        padding: 1rem 1.5rem;
+        background: #F5F7FA;
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+        border-left: 4px solid #00B2FF;
+    }
+    
+    .limited-trial-box {
+        background: #FFF8E7;
+        border: 2px solid #FFB648;
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .limited-trial-box h4 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        color: #B8860B;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .registration-form {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eef0f6;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .form-field.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    .form-field label {
+        font-weight: 600;
+        color: #0A0B10;
+        font-size: 0.95rem;
+    }
+    
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+        padding: 1rem;
+        border: 2px solid #eef0f6;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        background: #F5F7FA;
+    }
+    
+    .form-field input:focus,
+    .form-field select:focus,
+    .form-field textarea:focus {
+        outline: none;
+        border-color: #00B2FF;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(0, 178, 255, 0.1);
+    }
+    
+    .form-field input::placeholder {
+        color: #999;
+    }
+    
+    .subject-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+    
+    .subject-option {
+        position: relative;
+    }
+    
+    .subject-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+    
+    .subject-option label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: #F5F7FA;
+        border: 2px solid #eef0f6;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .subject-option input[type="radio"]:checked + label {
+        background: #00B2FF;
+        border-color: #00B2FF;
+        color: white;
+    }
+    
+    .subject-option label:hover {
+        border-color: #00B2FF;
+    }
+    
+    .submit-btn {
+        width: 100%;
+        padding: 1.25rem 2rem;
+        background: linear-gradient(135deg, #00B2FF 0%, #00C2FF 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        font-family: 'Space Grotesk', sans-serif;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 178, 255, 0.3);
+    }
+    
+    .trust-line {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+        font-size: 0.95rem;
+        border-top: 1px solid #eef0f6;
+        margin-top: 2rem;
+    }
+    
+    .success-message {
+        display: none;
+        text-align: center;
+        padding: 3rem;
+        background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+        color: white;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+    }
+    
+    .success-message.show {
+        display: block;
+    }
+    
+    .success-message h3 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+    }
+    
+    .success-message p {
+        font-size: 1.1rem;
+        opacity: 0.95;
+    }
+    
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 2rem;
+        }
+        
+        .page-subtitle {
+            font-size: 1.2rem;
+        }
+        
+        .logos-container {
+            gap: 1.5rem;
+        }
+        
+        .logos-container img {
+            max-height: 60px;
+        }
+        
+        .partnership-symbol {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="trial-page">
+    <!-- Partnership Header -->
+    <div class="partnership-header">
+        <div class="logos-container">
+            <div class="logo-item">
+                <img src="{% static 'assets/LOGO.png' %}" alt="Unwind Africa">
+                <span class="logo-text">Unwind Africa</span>
+            </div>
+            <span class="partnership-symbol">×</span>
+            <div class="logo-item">
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 1.5rem;">
+                    EBC
+                </div>
+                <span class="logo-text">EdBritish Consult</span>
+            </div>
+        </div>
+        <p class="partnership-tagline">Educational Partnership for the Nominate to Unwind – Students & Youth Edition</p>
+    </div>
+
+    <!-- Page Title -->
+    <div class="page-title-section">
+        <h1 class="page-title">Free Trial Classes for Diaspora Children</h1>
+        <p class="page-subtitle">EdBritish Consult × Unwind Africa</p>
+    </div>
+
+    <!-- Content Section -->
+    <div class="content-section">
+        <!-- Introduction -->
+        <div class="intro-text" data-aos="fade-up">
+            <p>Unwind Africa, in collaboration with EdBritish Consult, is offering free trial classes for children aged 5–15 living in diaspora.</p>
+            <p>This initiative allows families abroad to explore structured learning support in subjects such as:</p>
+            <ul>
+                <li>English</li>
+                <li>Mathematics</li>
+                <li>Music</li>
+                <li>Arts</li>
+            </ul>
+            <p>Members of the Unwind Africa community can share this opportunity with friends and families abroad whose children may benefit from additional learning support.</p>
+            <div class="info-box">
+                <h4>⏰ Limited Time Offer</h4>
+                <p style="margin: 0; opacity: 0.95;">This trial opportunity will run from now until May 27 (Children's Day).</p>
+            </div>
+        </div>
+
+        <!-- Who This Is For -->
+        <div class="who-section" data-aos="fade-up" data-aos-delay="100">
+            <h2 class="section-title"><i class="fas fa-user-friends"></i> Who This Is For</h2>
+            <ul class="who-list">
+                <li>Families in diaspora who want structured academic support for their children</li>
+                <li>Parents who want their children to build stronger learning foundations</li>
+                <li>Children aged 5–15 interested in English, Mathematics, Music, or Arts</li>
+            </ul>
+        </div>
+
+        <!-- Limited Trial Note -->
+        <div class="limited-trial-box" data-aos="fade-up" data-aos-delay="200">
+            <h4><i class="fas fa-exclamation-circle"></i> Limited Trial Access</h4>
+            <p style="margin: 0; color: #666;">To maintain quality learning sessions, a limited number of trial spots are available each month. Early registration is recommended.</p>
+        </div>
+
+        <!-- Registration Form -->
+        <div class="registration-form" data-aos="fade-up" data-aos-delay="300" id="registration-form">
+            <!-- Success Message -->
+            <div class="success-message" id="success-message">
+                <h3>✓ Registration Successful!</h3>
+                <p>Thank you for registering. Further information on how to access the trial class will be sent to your email shortly.</p>
+            </div>
+
+            <form id="trial-registration-form" method="POST" action="{% url 'edbritish_trial_registration' %}">
+                {% csrf_token %}
+                
+                <div class="form-grid">
+                    <!-- Parent/Guardian Full Name -->
+                    <div class="form-field">
+                        <label for="parent_name">Parent / Guardian Full Name *</label>
+                        <input type="text" id="parent_name" name="parent_name" required placeholder="Enter your full name">
+                    </div>
+
+                    <!-- Parent Email Address -->
+                    <div class="form-field">
+                        <label for="parent_email">Parent Email Address *</label>
+                        <input type="email" id="parent_email" name="parent_email" required placeholder="your.email@example.com">
+                    </div>
+
+                    <!-- Parent Phone Number -->
+                    <div class="form-field">
+                        <label for="parent_phone">Parent Phone Number (WhatsApp preferred) *</label>
+                        <input type="tel" id="parent_phone" name="parent_phone" required placeholder="+1 234 567 8900">
+                    </div>
+
+                    <!-- Country of Residence -->
+                    <div class="form-field">
+                        <label for="country">Country of Residence *</label>
+                        <select id="country" name="country" required>
+                            <option value="">Select your country</option>
+                            <option value="United States">United States</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Germany">Germany</option>
+                            <option value="France">France</option>
+                            <option value="Netherlands">Netherlands</option>
+                            <option value="Spain">Spain</option>
+                            <option value="Italy">Italy</option>
+                            <option value="Belgium">Belgium</option>
+                            <option value="Ireland">Ireland</option>
+                            <option value="Australia">Australia</option>
+                            <option value="New Zealand">New Zealand</option>
+                            <option value="South Africa">South Africa</option>
+                            <option value="Nigeria">Nigeria</option>
+                            <option value="Ghana">Ghana</option>
+                            <option value="Kenya">Kenya</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Child's Name -->
+                    <div class="form-field">
+                        <label for="child_name">Child's Name *</label>
+                        <input type="text" id="child_name" name="child_name" required placeholder="Enter child's full name">
+                    </div>
+
+                    <!-- Child's Age -->
+                    <div class="form-field">
+                        <label for="child_age">Child's Age *</label>
+                        <select id="child_age" name="child_age" required>
+                            <option value="">Select age</option>
+                            {% for age in "123456789101112131415"|make_list %}
+                            <option value="{{ forloop.counter }}">{{ forloop.counter }} years old</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Subject of Interest -->
+                    <div class="form-field full-width">
+                        <label>Subject of Interest *</label>
+                        <div class="subject-options">
+                            <div class="subject-option">
+                                <input type="radio" id="subject_english" name="subject" value="English" required>
+                                <label for="subject_english">English</label>
+                            </div>
+                            <div class="subject-option">
+                                <input type="radio" id="subject_mathematics" name="subject" value="Mathematics">
+                                <label for="subject_mathematics">Mathematics</label>
+                            </div>
+                            <div class="subject-option">
+                                <input type="radio" id="subject_music" name="subject" value="Music">
+                                <label for="subject_music">Music</label>
+                            </div>
+                            <div class="subject-option">
+                                <input type="radio" id="subject_arts" name="subject" value="Arts">
+                                <label for="subject_arts">Arts</label>
+                            </div>
+                            <div class="subject-option">
+                                <input type="radio" id="subject_other" name="subject" value="Other">
+                                <label for="subject_other">Other</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Register for Trial Class</button>
+            </form>
+        </div>
+
+        <!-- Trust Line -->
+        <div class="trust-line">
+            <p>This opportunity is made available through the Unwind Africa community in partnership with EdBritish Consult.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('trial-registration-form');
+    const successMessage = document.getElementById('success-message');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Collect form data
+        const formData = new FormData(form);
+        
+        // Send form data via fetch
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Hide form, show success message
+                form.style.display = 'none';
+                successMessage.classList.add('show');
+                // Scroll to success message
+                successMessage.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert('There was an error submitting your registration. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('There was an error submitting your registration. Please try again.');
+        });
+    });
+});
+</script>
+{% endblock %}

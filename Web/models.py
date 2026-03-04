@@ -634,3 +634,27 @@ class TokenTransaction(models.Model):
     def __str__(self):
         return f"{self.transaction_type} - {self.amount} tokens - {self.wallet.member_name}"
 
+
+class EdBritishTrialRegistration(models.Model):
+    """Trial class registrations for EdBritish Consult partnership"""
+    
+    # Parent/Guardian Information
+    parent_name = models.CharField(max_length=200)
+    parent_email = models.EmailField()
+    parent_phone = models.CharField(max_length=50)
+    country = models.CharField(max_length=100)
+    
+    # Child Information
+    child_name = models.CharField(max_length=200)
+    child_age = models.IntegerField()
+    subject = models.CharField(max_length=50)
+    
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.child_name} - {self.subject} - {self.parent_email}"
+

@@ -3,8 +3,36 @@
 
 {% block title %}Nominate to Unwind — Students & Youth Edition | Unwind Africa{% endblock %}
 
+{% block navbar %}
+{% include './partials/header/navbar.html' with theme='dark' %}
+{% include './partials/header/hamburger-menu.html' with faq_link="/about#faq" %}
+{% endblock %}
+
 {% block extra_css %}
 <style>
+    /* Fixed navbar styling */
+    body {
+        padding-top: 80px;
+    }
+    
+    header.absolute {
+        position: fixed !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    header.absolute a,
+    header.absolute button,
+    header.absolute span {
+        color: #0A0B10 !important;
+    }
+    
+    header.absolute svg {
+        stroke: #0A0B10 !important;
+        fill: #0A0B10 !important;
+    }
+    
     .nomination-form {
         max-width: 900px;
         margin: 0 auto;
@@ -311,8 +339,6 @@
     }
 </style>
 {% endblock %}
-
-{% include './partials/header/navbar.html' with theme='dark'%}
 
 
 {% block content %}

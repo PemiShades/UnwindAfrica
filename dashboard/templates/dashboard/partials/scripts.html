@@ -58,11 +58,12 @@ document.addEventListener('alpine:init', () => {
          this.bindShortcuts();
          this.$nextTick(() => {
            this.setupFormResetListener();
-           // Only initialize charts if the elements exist (overview chart is visible)
+           // Only initialize overview chart - charts tab charts initialize on tab switch
+           // Use setTimeout to ensure Alpine has fully rendered x-if template content
            if (this.tab === 'overview' && document.getElementById('chart-overview')) {
-             this.paintCharts();
-           } else if (this.tab === 'charts') {
-             this.hydrateCharts();
+             setTimeout(() => {
+               this.paintCharts();
+             }, 100);
            }
          });
          this.loadNotifications();
@@ -91,196 +92,121 @@ document.addEventListener('alpine:init', () => {
       },
 
       // ===== CHART HYDRATION =====
-       hydrateCharts(refresh=false) {
-         // Check if any chart elements exist before proceeding
+       hydrateCharts(refresh = false) {
          const cat = document.getElementById('categoryChart');
          const mon = document.getElementById('monthlyChart');
          const nom = document.getElementById('nomineeChart');
          const cam = document.getElementById('campaignVotesChart');
          const vtr = document.getElementById('voteTrendsChart');
-         
+
          if (!cat && !mon && !nom && !cam && !vtr) {
            console.warn('No chart elements found in DOM');
            return;
          }
 
-         const categoryLabels = {{ category_chart_labels|default:"[]"|safe }};
-         const categoryData   = {{ category_chart_counts|default:"[]"|safe }};
-         const hydrateMonthlyLabels  = {{ monthly_chart_labels|default:"[]"|safe }};
-         const hydrateMonthlyData    = {{ monthly_chart_counts|default:"[]"|safe }};
-         
-         // Voting charts data
-         const nomineeLabels = {{ nominee_chart_labels|default:"[]"|safe }};
-         const nomineeData = {{ nominee_chart_counts|default:"[]"|safe }};
-         const campaignLabels = {{ campaign_vote_chart_labels|default:"[]"|safe }};
-         const campaignData = {{ campaign_vote_chart_counts|default:"[]"|safe }};
-         const votesMonthlyLabels = {{ votes_monthly_labels|default:"[]"|safe }};
-         const votesMonthlyData = {{ votes_monthly_counts|default:"[]"|safe }};
+         const categoryLabels      = {{ category_chart_labels|default:"[]"|safe }};
+         const categoryData        = {{ category_chart_counts|default:"[]"|safe }};
+         const hydrateMonthlyLabels = {{ monthly_chart_labels|default:"[]"|safe }};
+         const hydrateMonthlyData   = {{ monthly_chart_counts|default:"[]"|safe }};
+         const nomineeLabels       = {{ nominee_chart_labels|default:"[]"|safe }};
+         const nomineeData         = {{ nominee_chart_counts|default:"[]"|safe }};
+         const campaignLabels      = {{ campaign_vote_chart_labels|default:"[]"|safe }};
+         const campaignData        = {{ campaign_vote_chart_counts|default:"[]"|safe }};
+         const votesMonthlyLabels  = {{ votes_monthly_labels|default:"[]"|safe }};
+         const votesMonthlyData    = {{ votes_monthly_counts|default:"[]"|safe }};
 
-         if (cat) {
-           try {
-             if (this.charts.category) {
-               if (refresh) {
-                 this.charts.category.destroy();
-               } else {
-                 return; // Chart already exists and no refresh needed
-               }
+         const tickColor = this.theme === 'dark' ? '#9ca3af' : '#6b7280';
+         const gridColor = this.theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+         const legendColor = this.theme === 'dark' ? '#e5e7eb' : '#374151';
+         const borderColor = this.theme === 'dark' ? '#1f2937' : '#fff';
+
+         // Helper: destroy if exists and refresh requested, skip if exists and no refresh
+         const shouldInit = (key) => {
+           if (this.charts[key]) {
+             if (refresh) {
+               this.charts[key].destroy();
+               this.charts[key] = null;
+               return true;
              }
+             return false; // already exists, no refresh — skip only this chart
+           }
+           return true; // doesn't exist yet — init it
+         };
+
+         if (cat && shouldInit('category')) {
+           try {
              this.charts.category = new Chart(cat.getContext('2d'), {
                type: 'pie',
-               data: { 
-                 labels: categoryLabels, 
-                 datasets: [{ 
+               data: {
+                 labels: categoryLabels,
+                 datasets: [{
                    data: categoryData,
                    backgroundColor: [
-                     'rgba(255, 99, 132, 0.8)',
-                     'rgba(54, 162, 235, 0.8)',
-                     'rgba(255, 206, 86, 0.8)',
-                     'rgba(75, 192, 192, 0.8)',
-                     'rgba(153, 102, 255, 0.8)',
-                     'rgba(255, 159, 64, 0.8)'
+                     'rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)',
+                     'rgba(255, 206, 86, 0.8)', 'rgba(75, 192, 192, 0.8)',
+                     'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)'
                    ],
                    borderWidth: 2,
-                   borderColor: this.theme === 'dark' ? '#1f2937' : '#fff'
-                 }] 
+                   borderColor
+                 }]
                },
-               options: { 
-                 maintainAspectRatio: false, 
-                 plugins: { 
-                   legend: { 
-                     position: 'bottom',
-                     labels: {
-                       color: this.theme === 'dark' ? '#e5e7eb' : '#374151',
-                       font: { size: 12 }
-                     }
-                   } 
-                 } 
+               options: {
+                 maintainAspectRatio: false,
+                 plugins: { legend: { position: 'bottom', labels: { color: legendColor, font: { size: 12 } } } }
                }
              });
-           } catch (e) {
-             console.error('Error initializing category chart:', e);
-           }
+           } catch (e) { console.error('Category chart error:', e); }
          }
 
-         if (mon) {
+         if (mon && shouldInit('monthly')) {
            try {
-             if (this.charts.monthly) {
-               if (refresh) {
-                 this.charts.monthly.destroy();
-               } else {
-                 return; // Chart already exists and no refresh needed
-               }
-             }
              this.charts.monthly = new Chart(mon.getContext('2d'), {
                type: 'line',
-               data: { 
-                 labels: hydrateMonthlyLabels, 
-                 datasets: [{ 
-                   label: 'Posts', 
-                   data: hydrateMonthlyData, 
-                   tension: 0.35, 
-                   fill: false,
-                   borderColor: 'rgba(99, 102, 241, 1)',
-                   backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                   borderWidth: 2,
-                   pointRadius: 4,
-                   pointBackgroundColor: 'rgba(99, 102, 241, 1)'
-                 }] 
+               data: {
+                 labels: hydrateMonthlyLabels,
+                 datasets: [{
+                   label: 'Posts', data: hydrateMonthlyData, tension: 0.35, fill: false,
+                   borderColor: 'rgba(99, 102, 241, 1)', backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                   borderWidth: 2, pointRadius: 4, pointBackgroundColor: 'rgba(99, 102, 241, 1)'
+                 }]
                },
-               options: { 
-                 maintainAspectRatio: false, 
-                 plugins: { 
-                   legend: { display: false } 
-                 }, 
-                 scales: { 
-                   y: { 
-                     beginAtZero: true, 
-                     ticks: { 
-                       stepSize: 1,
-                       color: this.theme === 'dark' ? '#9ca3af' : '#6b7280'
-                     },
-                     grid: {
-                       color: this.theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
-                     }
-                   },
-                   x: {
-                     ticks: {
-                       color: this.theme === 'dark' ? '#9ca3af' : '#6b7280'
-                     },
-                     grid: {
-                       color: this.theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
-                     }
-                   }
-                 } 
+               options: {
+                 maintainAspectRatio: false,
+                 plugins: { legend: { display: false } },
+                 scales: {
+                   y: { beginAtZero: true, ticks: { stepSize: 1, color: tickColor }, grid: { color: gridColor } },
+                   x: { ticks: { color: tickColor }, grid: { color: gridColor } }
+                 }
                }
              });
-           } catch (e) {
-             console.error('Error initializing monthly chart:', e);
-           }
+           } catch (e) { console.error('Monthly chart error:', e); }
          }
 
-         // Nominee votes chart
-         if (nom) {
+         if (nom && shouldInit('nominee')) {
            try {
-             if (this.charts.nominee) {
-               if (refresh) {
-                 this.charts.nominee.destroy();
-               } else {
-                 return; // Chart already exists and no refresh needed
-               }
-             }
              this.charts.nominee = new Chart(nom.getContext('2d'), {
                type: 'bar',
                data: {
                  labels: nomineeLabels,
                  datasets: [{
-                   label: 'Votes',
-                   data: nomineeData,
-                   backgroundColor: 'rgba(51, 195, 141, 0.8)',
-                   borderColor: 'rgba(51, 195, 141, 1)',
-                   borderWidth: 2
+                   label: 'Votes', data: nomineeData,
+                   backgroundColor: 'rgba(51, 195, 141, 0.8)', borderColor: 'rgba(51, 195, 141, 1)', borderWidth: 2
                  }]
                },
                options: {
-                 maintainAspectRatio: false,
-                 indexAxis: 'y',
-                 plugins: {
-                   legend: { display: false }
-                 },
+                 maintainAspectRatio: false, indexAxis: 'y',
+                 plugins: { legend: { display: false } },
                  scales: {
-                   x: {
-                     beginAtZero: true,
-                     ticks: {
-                       color: this.theme === 'dark' ? '#9ca3af' : '#6b7280'
-                     },
-                     grid: {
-                       color: this.theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
-                     }
-                   },
-                   y: {
-                     ticks: {
-                       color: this.theme === 'dark' ? '#9ca3af' : '#6b7280',
-                       font: { size: 11 }
-                     }
-                   }
+                   x: { beginAtZero: true, ticks: { color: tickColor }, grid: { color: gridColor } },
+                   y: { ticks: { color: tickColor, font: { size: 11 } } }
                  }
                }
              });
-           } catch (e) {
-             console.error('Error initializing nominee chart:', e);
-           }
+           } catch (e) { console.error('Nominee chart error:', e); }
          }
 
-         // Campaign votes chart
-         if (cam) {
+         if (cam && shouldInit('campaign')) {
            try {
-             if (this.charts.campaign) {
-               if (refresh) {
-                 this.charts.campaign.destroy();
-               } else {
-                 return; // Chart already exists and no refresh needed
-               }
-             }
              this.charts.campaign = new Chart(cam.getContext('2d'), {
                type: 'doughnut',
                data: {
@@ -288,91 +214,43 @@ document.addEventListener('alpine:init', () => {
                  datasets: [{
                    data: campaignData,
                    backgroundColor: [
-                     'rgba(102, 126, 234, 0.8)',
-                     'rgba(240, 114, 250, 0.8)',
-                     'rgba(74, 222, 128, 0.8)',
-                     'rgba(251, 146, 60, 0.8)',
-                     'rgba(59, 130, 246, 0.8)'
+                     'rgba(102, 126, 234, 0.8)', 'rgba(240, 114, 250, 0.8)',
+                     'rgba(74, 222, 128, 0.8)', 'rgba(251, 146, 60, 0.8)', 'rgba(59, 130, 246, 0.8)'
                    ],
-                   borderWidth: 2,
-                   borderColor: this.theme === 'dark' ? '#1f2937' : '#fff'
+                   borderWidth: 2, borderColor
                  }]
                },
                options: {
                  maintainAspectRatio: false,
-                 plugins: {
-                   legend: {
-                     position: 'bottom',
-                     labels: {
-                       color: this.theme === 'dark' ? '#e5e7eb' : '#374151',
-                       font: { size: 12 }
-                     }
-                   }
-                 }
+                 plugins: { legend: { position: 'bottom', labels: { color: legendColor, font: { size: 12 } } } }
                }
              });
-           } catch (e) {
-             console.error('Error initializing campaign chart:', e);
-           }
+           } catch (e) { console.error('Campaign chart error:', e); }
          }
 
-         // Vote trends chart
-         if (vtr) {
+         if (vtr && shouldInit('trends')) {
            try {
-             if (this.charts.trends) {
-               if (refresh) {
-                 this.charts.trends.destroy();
-               } else {
-                 return; // Chart already exists and no refresh needed
-               }
-             }
              this.charts.trends = new Chart(vtr.getContext('2d'), {
                type: 'line',
                data: {
                  labels: votesMonthlyLabels,
                  datasets: [{
-                   label: 'Monthly Votes',
-                   data: votesMonthlyData,
-                   tension: 0.4,
-                   fill: true,
-                   borderColor: 'rgba(14, 165, 233, 1)',
-                   backgroundColor: 'rgba(14, 165, 233, 0.1)',
-                   borderWidth: 2,
-                   pointRadius: 5,
-                   pointBackgroundColor: 'rgba(14, 165, 233, 1)',
-                   pointBorderColor: '#fff',
-                   pointBorderWidth: 2
+                   label: 'Monthly Votes', data: votesMonthlyData, tension: 0.4, fill: true,
+                   borderColor: 'rgba(14, 165, 233, 1)', backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                   borderWidth: 2, pointRadius: 5,
+                   pointBackgroundColor: 'rgba(14, 165, 233, 1)', pointBorderColor: '#fff', pointBorderWidth: 2
                  }]
                },
                options: {
                  maintainAspectRatio: false,
-                 plugins: {
-                   legend: { display: false }
-                 },
+                 plugins: { legend: { display: false } },
                  scales: {
-                   y: {
-                     beginAtZero: true,
-                     ticks: {
-                       color: this.theme === 'dark' ? '#9ca3af' : '#6b7280'
-                     },
-                     grid: {
-                       color: this.theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
-                     }
-                   },
-                   x: {
-                     ticks: {
-                       color: this.theme === 'dark' ? '#9ca3af' : '#6b7280'
-                     },
-                     grid: {
-                       color: this.theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
-                     }
-                   }
+                   y: { beginAtZero: true, ticks: { color: tickColor }, grid: { color: gridColor } },
+                   x: { ticks: { color: tickColor }, grid: { color: gridColor } }
                  }
                }
              });
-           } catch (e) {
-             console.error('Error initializing trends chart:', e);
-           }
+           } catch (e) { console.error('Trends chart error:', e); }
          }
        },
 
@@ -559,10 +437,20 @@ document.addEventListener('alpine:init', () => {
           });
         }
         
-        // Initialize charts when switching to charts tab or overview tab
-        if (t === 'charts' || t === 'overview') {
+        // Initialize charts when switching tabs - use setTimeout to wait for x-if rendering
+        if (t === 'overview') {
           this.$nextTick(() => {
-            this.hydrateCharts(true);
+            setTimeout(() => {
+              if (document.getElementById('chart-overview')) {
+                this.paintCharts(true);
+              }
+            }, 100);
+          });
+        } else if (t === 'charts') {
+          this.$nextTick(() => {
+            setTimeout(() => {
+              this.hydrateCharts(true);
+            }, 100);
           });
         }
       },

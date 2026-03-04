@@ -102,20 +102,20 @@ def dashboard_home(request):
     category_chart_labels = sorted(set(cats))
     category_chart_counts = [cats.count(c) for c in category_chart_labels]
 
-    # Monthly chart (last 12 months)
+    # Monthly chart (last 12 months) - Posts
     def add_months(d, n):
         y = d.year + (d.month - 1 + n) // 12
         m = (d.month - 1 + n) % 12 + 1
         return d.replace(year=y, month=m)
 
-    by_month = Counter(p.created_at.strftime("%Y-%m") for p in posts_qs)
+    posts_by_month = Counter(p.created_at.strftime("%Y-%m") for p in posts_qs)
     first_of_this_month = date.today().replace(day=1)
     monthly_chart_labels, monthly_chart_counts = [], []
     for i in range(-11, 1):
         d = add_months(first_of_this_month, i)
         key = d.strftime("%Y-%m")
         monthly_chart_labels.append(d.strftime("%b %Y"))
-        monthly_chart_counts.append(by_month.get(key, 0))
+        monthly_chart_counts.append(posts_by_month.get(key, 0))
 
     # Voting data
     from Web.models import VotingCampaign, Nominee, Vote, Transaction
@@ -127,16 +127,19 @@ def dashboard_home(request):
     # Calculate total revenue from successful transactions
     total_revenue = Transaction.objects.filter(status='success').aggregate(total=Sum('amount'))['total'] or 0
     
+    # EdBritish Trial Registrations
+    from Web.models import EdBritishTrialRegistration
+    trial_registrations = EdBritishTrialRegistration.objects.all().order_by('-created_at')[:50]
+    
     # Engagement chart data: monthly vote counts
-    from collections import Counter
-    by_month = Counter(v.created_at.strftime("%Y-%m") for v in votes)
+    votes_by_month = Counter(v.created_at.strftime("%Y-%m") for v in votes)
     first_of_this_month = date.today().replace(day=1)
-    monthly_chart_labels, monthly_chart_counts = [], []
+    votes_monthly_labels, votes_monthly_counts = [], []
     for i in range(-11, 1):
         d = add_months(first_of_this_month, i)
         key = d.strftime("%Y-%m")
-        monthly_chart_labels.append(d.strftime("%b %Y"))
-        monthly_chart_counts.append(by_month.get(key, 0))
+        votes_monthly_labels.append(d.strftime("%b %Y"))
+        votes_monthly_counts.append(votes_by_month.get(key, 0))
     
     # Rest Cards data
     from Web.models import RestCard
@@ -201,6 +204,7 @@ def dashboard_home(request):
         "pending_cards": pending_cards,
         "total_rest_points": total_rest_points,
         "avg_votes_per_nominee": avg_votes_per_nominee,
+        "trial_registrations": trial_registrations,
     }
     return render(request, "dashboard/index.html", ctx)
 

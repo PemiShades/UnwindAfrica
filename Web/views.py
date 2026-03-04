@@ -485,6 +485,7 @@ def unwind_and_win(request):
 def vote(request):
     """Voting page for users - displays nominees with search and filter"""
     from .models import VotingCampaign, Nominee
+    from django.utils.timezone import now as get_now
     
     # Get active campaign
     campaign = VotingCampaign.objects.filter(is_active=True).order_by('-start_date').first()
@@ -495,9 +496,21 @@ def vote(request):
     # Get all nominees for the campaign
     nominees = Nominee.objects.filter(campaign=campaign).order_by('number')
     
+    # Get leaderboard (top 3)
+    leaderboard = nominees.order_by('-vote_count')[:3]
+    
+    # Determine if campaign is ongoing
+    current_time = get_now()
+    is_ongoing = campaign.is_active and campaign.start_date <= current_time <= campaign.end_date
+    
     context = {
         'campaign': campaign,
-        'nominees': nominees
+        'nominees': nominees,
+        'leaderboard': leaderboard,
+        'vote_price': campaign.vote_price,
+        'rest_points_per_vote': campaign.rest_points_per_vote,
+        'is_ongoing': is_ongoing,
+        'is_test_mode': False,  # Use real Paystack
     }
     
     return render(request, 'Web/vote.html', context)
@@ -647,6 +660,279 @@ def generate_rest_card(request, card_id):
         draw.rectangle([10, 10, width-10, height-10], fill='#f8f9fa', width=2)
         
          # Card header
+        draw.rectangle([10, 10, width-10, 100], fill='#667eea')
+        
+        # Add card details
+        # ... (rest of the card generation code would be here)
+        
+        # Save image to buffer
+        buffer = BytesIO()
+        image.save(buffer, format='PNG')
+        buffer.seek(0)
+        
+        return HttpResponse(buffer, content_type='image/png')
+        
+    except RestCard.DoesNotExist:
+        return HttpResponse("Rest Card not found", status=404)
+    except Exception as e:
+        return HttpResponse(f"Error generating card: {str(e)}", status=500)
+
+
+# Add the view functions for EdBritish Trial
+from django.views.decorators.csrf import csrf_protect
+from django.core.mail import send_mail
+from django.conf import settings
+
+
+def edbritish_trial(request):
+    """Display the EdBritish trial class registration page"""
+    return render(request, 'Web/edbritish_trial.html', {})
+
+
+@csrf_protect
+def edbritish_trial_registration(request):
+    """Handle the EdBritish trial class registration form submission"""
+    from django.http import JsonResponse
+    
+    if request.method == 'POST':
+        try:
+            # Get form data
+            parent_name = request.POST.get('parent_name', '').strip()
+            parent_email = request.POST.get('parent_email', '').strip()
+            parent_phone = request.POST.get('parent_phone', '').strip()
+            country = request.POST.get('country', '').strip()
+            child_name = request.POST.get('child_name', '').strip()
+            child_age = request.POST.get('child_age', '').strip()
+            subject = request.POST.get('subject', '').strip()
+            
+            # Validate required fields
+            if not all([parent_name, parent_email, parent_phone, country, child_name, child_age, subject]):
+                return JsonResponse({'success': False, 'error': 'All fields are required'})
+            
+            # Save to database
+            from .models import EdBritishTrialRegistration
+            registration = EdBritishTrialRegistration.objects.create(
+                parent_name=parent_name,
+                parent_email=parent_email,
+                parent_phone=parent_phone,
+                country=country,
+                child_name=child_name,
+                child_age=int(child_age),
+                subject=subject
+            )
+            
+            # Prepare email content
+            email_subject = f"New Trial Class Registration - {child_name} (EdBritish Consult × Unwind Africa)"
+            
+            email_message = f"""
+New Trial Class Registration
+============================
+
+PARENT/GUARDIAN INFORMATION:
+- Full Name: {parent_name}
+- Email Address: {parent_email}
+- Phone Number: {parent_phone}
+- Country of Residence: {country}
+
+CHILD INFORMATION:
+- Child's Name: {child_name}
+- Child's Age: {child_age} years old
+- Subject of Interest: {subject}
+
+---
+This registration was submitted through the Unwind Africa website partnership with EdBritish Consult.
+"""
+            
+            # Send email notification
+            try:
+                send_mail(
+                    email_subject,
+                    email_message,
+                    settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@unwindafrica.com',
+                    ['unwindafrica24@gmail.com', 'info@unwindafrica.com'],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                # Log error but don't fail the submission
+                print(f"Email sending error: {e}")
+            
+            # Also send confirmation email to parent (HTML)
+            try:
+                from django.core.mail import EmailMultiAlternatives
+                from django.template.loader import render_to_string
+                
+                confirmation_subject = "Registration Confirmed - EdBritish Consult × Unwind Africa Trial Class"
+                
+                # HTML email content
+                html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Confirmed</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f5f7fa; color: #333333;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f7fa; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #00B2FF 0%, #00C2FF 100%); padding: 40px 40px 30px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">Registration Confirmed!</h1>
+                            <p style="margin: 10px 0 0; color: rgba(255,255,255,0.9); font-size: 16px;">EdBritish Consult × Unwind Africa</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6;">
+                                Dear <strong>{parent_name}</strong>,
+                            </p>
+                            <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6;">
+                                Thank you for registering your child, <strong>{child_name}</strong>, for the free trial class! We're excited to offer this learning opportunity to diaspora children.
+                            </p>
+                            
+                            <!-- Registration Details Box -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f7fa; border-radius: 12px; margin: 30px 0;">
+                                <tr>
+                                    <td style="padding: 25px;">
+                                        <h3 style="margin: 0 0 20px; font-size: 16px; color: #0A0B10; text-transform: uppercase; letter-spacing: 1px;">Registration Details</h3>
+                                        <table width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td style="padding: 8px 0; border-bottom: 1px solid #eef0f6;">
+                                                    <span style="color: #666; font-size: 14px;">Child's Name</span><br>
+                                                    <strong style="font-size: 16px; color: #0A0B10;">{child_name}</strong>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; border-bottom: 1px solid #eef0f6;">
+                                                    <span style="color: #666; font-size: 14px;">Age</span><br>
+                                                    <strong style="font-size: 16px; color: #0A0B10;">{child_age} years old</strong>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; border-bottom: 1px solid #eef0f6;">
+                                                    <span style="color: #666; font-size: 14px;">Subject of Interest</span><br>
+                                                    <strong style="font-size: 16px; color: #00B2FF;">{subject}</strong>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0;">
+                                                    <span style="color: #666; font-size: 14px;">Country</span><br>
+                                                    <strong style="font-size: 16px; color: #0A0B10;">{country}</strong>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- What's Next -->
+                            <div style="background-color: #E8F8FF; border-left: 4px solid #00B2FF; padding: 20px; border-radius: 0 12px 12px 0; margin: 30px 0;">
+                                <h4 style="margin: 0 0 10px; font-size: 16px; color: #0A0B10;">📋 What's Next?</h4>
+                                <p style="margin: 0; font-size: 14px; color: #333; line-height: 1.6;">
+                                    Further information on how to access the trial class will be sent to your email shortly. Please keep an eye on your inbox for detailed instructions.
+                                </p>
+                            </div>
+                            
+                            <p style="margin: 30px 0 0; font-size: 14px; color: #666; line-height: 1.6;">
+                                This opportunity is brought to you by <strong>Unwind Africa</strong> in partnership with <strong>EdBritish Consult</strong>.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #0A0B10; padding: 30px 40px; text-align: center;">
+                            <p style="margin: 0; color: #ffffff; font-size: 18px; font-weight: 700;">Unwind Africa</p>
+                            <p style="margin: 10px 0 0; color: rgba(255,255,255,0.6); font-size: 12px;">
+                                Premium Wellness Experiences Across Africa<br>
+                                <a href="https://unwindafrica.com" style="color: #00B2FF; text-decoration: none;">unwindafrica.com</a>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+"""
+                
+                # Plain text version
+                text_content = f"""
+Dear {parent_name},
+
+Thank you for registering your child, {child_name}, for the free trial class!
+
+REGISTRATION DETAILS:
+- Child's Name: {child_name}
+- Age: {child_age} years old
+- Subject of Interest: {subject}
+- Country: {country}
+
+WHAT'S NEXT:
+Further information on how to access the trial class will be sent to your email shortly.
+
+This opportunity is brought to you by Unwind Africa in partnership with EdBritish Consult.
+
+Best regards,
+Unwind Africa Team
+"""
+                
+                msg = EmailMultiAlternatives(
+                    confirmation_subject,
+                    text_content,
+                    settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@unwindafrica.com',
+                    [parent_email]
+                )
+                msg.attach_alternative(html_content, "text/html")
+                msg.send(fail_silently=False)
+            except Exception as e:
+                print(f"Confirmation email error: {e}")
+            
+            return JsonResponse({'success': True})
+            
+        except Exception as e:
+            print(f"Registration error: {e}")
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+def generate_rest_card(request, card_id):
+    """Generate a digital Rest Card as PNG image"""
+    from django.http import HttpResponse
+    from io import BytesIO
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except ImportError:
+        return HttpResponse("PIL library not available", status=500)
+    
+    from .models import RestCard, TokenWallet
+    
+    try:
+        card = RestCard.objects.get(id=card_id)
+        
+        # Get token wallet
+        try:
+            wallet = TokenWallet.objects.get(member_email=card.member_email)
+        except TokenWallet.DoesNotExist:
+            wallet = None
+            
+        # Create card image
+        width, height = 800, 500
+        image = Image.new('RGB', (width, height), color='#ffffff')
+        draw = ImageDraw.Draw(image)
+        
+        # Card background
+        draw.rectangle([0, 0, width, height], fill='#ffffff')
+        draw.rectangle([10, 10, width-10, height-10], fill='#f8f9fa', width=2)
+        
+        # Card header
         draw.rectangle([10, 10, width-10, 100], fill='#667eea')
         try:
             draw.text((width//2, 55), 'UNWIND AFRICA', fill='#ffffff', font=ImageFont.truetype('arial.ttf', 36), anchor='mm')

@@ -3,7 +3,36 @@
 
 {% block title %}Vote - Nominate to Unwind{% endblock %}
 
+{% block navbar %}
+{% include './partials/header/navbar.html' with theme='dark' %}
+{% include './partials/header/hamburger-menu.html' with faq_link="/about#faq" %}
+{% endblock %}
+
 {% block extra_css %}
+    <!-- Fixed navbar styling -->
+    <style>
+        body {
+            padding-top: 80px;
+        }
+        
+        header.absolute {
+            position: fixed !important;
+            background: rgba(255, 255, 255, 0.98) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        header.absolute a,
+        header.absolute button,
+        header.absolute span {
+            color: #0A0B10 !important;
+        }
+        
+        header.absolute svg {
+            stroke: #0A0B10 !important;
+            fill: #0A0B10 !important;
+        }
+    </style>
     <!-- Paystack Payment SDK -->
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
@@ -279,6 +308,33 @@
                 <p>Bonus votes are automatically added during verification.</p>
             </div>
             
+            <!-- Leaderboard -->
+            {% if leaderboard %}
+            <div class="leaderboard" style="background: linear-gradient(135deg, #ff6b9d, #ff8a65); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; color: white;">
+                <h2 style="text-align: center; margin-bottom: 1.25rem;">🏆 Top Nominees</h2>
+                <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                    {% for nominee in leaderboard %}
+                    <div style="text-align: center;">
+                        <div style="position: relative; width: 80px; height: 80px; margin: 0 auto 0.5rem;">
+                            {% if nominee.photo %}
+                            <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid white;">
+                            {% else %}
+                            <div style="width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, #ff6b9d, #ff8a65); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; border: 4px solid white;">
+                                {{ nominee.name|first|upper }}
+                            </div>
+                            {% endif %}
+                            <div style="position: absolute; bottom: -10px; right: -10px; background: #f39c12; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid white;">
+                                {{ forloop.counter }}
+                            </div>
+                        </div>
+                        <div style="font-weight: 600;">{{ nominee.name }}</div>
+                        <div style="opacity: 0.9; font-weight: bold;">{{ nominee.vote_count }} votes</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
             <!-- Payment Information -->
             <!-- <div class="payment-details">
                 <h3>🏦 PAYMENT DETAILS</h3>
@@ -370,6 +426,9 @@
         }
         
         // Payment options
+        const VOTE_PRICE = {{ vote_price|default:500|safe }};
+        const REST_POINTS_PER_VOTE = {{ rest_points_per_vote|default:100|safe }};
+        
         const paymentOptions = [
             { votes: 1, price: 500, bonus: 0, label: '1 vote = ₦500' },
             { votes: 2, price: 1000, bonus: 0, label: '2 votes = ₦1,000' },
@@ -382,16 +441,17 @@
         // Dynamically generate payment options
         function generatePaymentOptions() {
             const container = document.getElementById('paymentOptionsContainer');
+            if (!container) return;
             container.innerHTML = '';
             
             paymentOptions.forEach((option, index) => {
                 const div = document.createElement('div');
-                div.className = 'payment-option border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors';
+                div.className = 'payment-option border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-pink-500 hover:bg-pink-50 transition-all';
                 div.onclick = () => selectPaymentOption(index);
                 div.innerHTML = `
                     <div class="flex justify-between items-center">
                         <span class="font-medium text-gray-900">${option.label}</span>
-                        <i class="fa-solid fa-circle-check text-green-500" style="display: none;"></i>
+                        <i class="fa-solid fa-circle-check text-pink-500" style="display: none;"></i>
                     </div>
                 `;
                 container.appendChild(div);

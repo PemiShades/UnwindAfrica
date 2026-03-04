@@ -178,6 +178,12 @@
               <i class="fa-solid fa-id-card w-5 text-purple-600 dark:text-purple-300"></i><span class="leading-none">Rest Cards</span>
             </button>
 
+            <button @click="setTab('trial_registrations')" :class="tab==='trial_registrations' ? 'side-link active' : 'side-link'">
+              <i class="fa-solid fa-graduation-cap w-5 text-cyan-600 dark:text-cyan-300"></i><span class="leading-none">Trial Registrations</span>
+              <span class="ml-auto badge-soft border border-black/10 text-[10px] px-2 py-[2px] rounded-full
+                           dark:border-white/20">{{ trial_registrations|length }}</span>
+            </button>
+
             <div class="mt-4 h-px bg-black/10 dark:bg-white/10"></div>
             <a href="/" class="side-link"><i class="fa-solid fa-globe w-5"></i><span class="leading-none">View site</span></a>
           </nav>
@@ -338,7 +344,7 @@
         <!-- Content Switcher -->
         <main class="grid gap-6">
           <!-- OVERVIEW -->
-          <template x-if="tab==='overview'">
+          <div x-show="tab==='overview'">
             <section class="grid gap-6">
               <!-- KPIs -->
               <div class="grid md:grid-cols-4 sm:grid-cols-2 gap-4">
@@ -413,7 +419,7 @@
                 {% include 'dashboard/partials/overview.html' %}
               </div>
             </section>
-          </template>
+          </div>
 
           <!-- NOMINATION & VOTES -->
           <template x-if="tab==='voting'">
@@ -738,6 +744,89 @@
             </section>
           </template>
 
+          <!-- TRIAL REGISTRATIONS (EdBritish Consult) -->
+          <template x-if="tab==='trial_registrations'">
+            <section class="grid gap-6">
+              <div class="grid md:grid-cols-3 sm:grid-cols-2 gap-4">
+                <div class="kpi">
+                  <div class="text-xs opacity-70">Total Registrations</div>
+                  <div class="text-2xl font-extrabold">{{ trial_registrations|length }}</div>
+                  <div class="text-xs opacity-70">EdBritish Trial Class</div>
+                </div>
+                <div class="kpi">
+                  <div class="text-xs opacity-70">English</div>
+                  <div class="text-2xl font-extrabold">{{ trial_registrations|length }}</div>
+                  <div class="text-xs opacity-70">Subject</div>
+                </div>
+                <div class="kpi">
+                  <div class="text-xs opacity-70">This Month</div>
+                  <div class="text-2xl font-extrabold">{{ trial_registrations|length }}</div>
+                  <div class="text-xs opacity-70">Registrations</div>
+                </div>
+              </div>
+
+              <!-- Registrations Table -->
+              <div class="rounded-2xl p-6 shadow-soft bg-white/5 border border-white/10">
+                <div class="flex justify-between items-center mb-6">
+                  <h3 class="text-xl font-bold">EdBritish Trial Class Registrations</h3>
+                  <a href="/edbritish-trial/" target="_blank" class="btn-ghost border border-blue-400/30 hover:border-blue-400/60">
+                    <i class="fa-solid fa-external-link-alt mr-2"></i>View Registration Page
+                  </a>
+                </div>
+                
+                {% if trial_registrations %}
+                <div class="overflow-x-auto">
+                  <table class="w-full text-sm">
+                    <thead>
+                      <tr class="border-b border-white/10">
+                        <th class="text-left py-3 font-semibold">Date</th>
+                        <th class="text-left py-3 font-semibold">Parent Name</th>
+                        <th class="text-left py-3 font-semibold">Email</th>
+                        <th class="text-left py-3 font-semibold">Phone</th>
+                        <th class="text-left py-3 font-semibold">Country</th>
+                        <th class="text-left py-3 font-semibold">Child Name</th>
+                        <th class="text-left py-3 font-semibold">Age</th>
+                        <th class="text-left py-3 font-semibold">Subject</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for registration in trial_registrations %}
+                      <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="py-3">{{ registration.created_at|date:"M d, Y" }}</td>
+                        <td class="py-3 font-medium">{{ registration.parent_name }}</td>
+                        <td class="py-3">{{ registration.parent_email }}</td>
+                        <td class="py-3">{{ registration.parent_phone }}</td>
+                        <td class="py-3">{{ registration.country }}</td>
+                        <td class="py-3">{{ registration.child_name }}</td>
+                        <td class="py-3">{{ registration.child_age }}</td>
+                        <td class="py-3">
+                          <span class="px-2 py-1 rounded-full text-xs font-medium
+                            {% if registration.subject == 'English' %}bg-blue-500/20 text-blue-400
+                            {% elif registration.subject == 'Mathematics' %}bg-green-500/20 text-green-400
+                            {% elif registration.subject == 'Music' %}bg-purple-500/20 text-purple-400
+                            {% elif registration.subject == 'Arts' %}bg-pink-500/20 text-pink-400
+                            {% else %}bg-gray-500/20 text-gray-400{% endif %}">
+                            {{ registration.subject }}
+                          </span>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                {% else %}
+                <div class="text-center py-12">
+                  <i class="fa-solid fa-user-graduate text-4xl mb-2 opacity-50"></i>
+                  <p class="text-sm opacity-70">No trial registrations yet</p>
+                  <a href="/edbritish-trial/" target="_blank" class="mt-4 inline-block btn-primary text-sm">
+                    View Registration Page
+                  </a>
+                </div>
+                {% endif %}
+              </div>
+            </section>
+          </template>
+
           <!-- NOTIFICATIONS -->
           <template x-if="tab==='notifications'">
             <section class="grid gap-6">
@@ -776,13 +865,13 @@
           </template>
 
           <!-- CHARTS -->
-          <template x-if="tab==='charts'">
+          <div x-show="tab==='charts'">
             <section class="grid gap-6">
               <div class=" rounded-2xl p-4 shadow-soft">
                 {% include 'dashboard/partials/charts.html' %}
               </div>
             </section>
-          </template>
+          </div>
 
           <!-- CREATE BLOG -->
           <template x-if="tab==='create_blog'">
@@ -1095,3 +1184,4 @@
   {% include 'dashboard/partials/scripts.html' %}
   </body>
 </html>
+
