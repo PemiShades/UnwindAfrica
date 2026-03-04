@@ -52,8 +52,13 @@ LOGOUT_REDIRECT_URL = 'dashboard_login'
 INSTALLED_APPS = [
     'django.contrib.admin', 'django.contrib.auth', 'django.contrib.contenttypes',
     'django.contrib.sessions', 'django.contrib.messages', 'django.contrib.staticfiles',
+    'django.contrib.sites',  # Required for sitemaps
+    'django.contrib.sitemaps',  # Sitemap framework
     'Web', 'dashboard', 'widget_tweaks',
 ]
+
+# Site ID for Django contrib sites
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

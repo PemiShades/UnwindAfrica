@@ -16,13 +16,27 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.contrib.sitemaps.views import sitemap
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic.base import RedirectView
+from django.views.generic.base import RedirectView, TemplateView
+
+from Web.sitemaps import StaticViewSitemap, BlogSitemap, EventSitemap, CampaignSitemap
+
+sitemaps = {
+    'static': StaticViewSitemap,
+    'blog': BlogSitemap,
+    'events': EventSitemap,
+    'campaigns': CampaignSitemap,
+}
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Sitemap
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    # Robots.txt
+    path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
     # Auth
     path("accounts/login/", auth_views.LoginView.as_view(
         template_name="dashboard/login.html"
