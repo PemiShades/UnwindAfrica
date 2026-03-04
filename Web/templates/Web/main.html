@@ -5,7 +5,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="referrer" content="same-origin" />
-
+  <meta name="description" content="Unwind Africa designs restorative luxury experiences across Africa — wellness retreats, solo resets, and milestone celebrations that feel like coming home to yourself." />
+  <link rel="canonical" href="https://unwindafrica.com{{ request.path }}" />
+  <meta name="google-site-verification" content="ijwEXZ6-NGAmKCXUC7Njs03CBRbuU3eW42eMHWYLlKk" />
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://unwindafrica.com/">
@@ -65,6 +67,45 @@
 
   {% block extra_css %}{% endblock %}
   <title>{% block title %}Unwind Africa{% endblock %}</title>
+  
+  <!-- Organization Schema for SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Unwind Africa",
+    "alternateName": "Unwind Africa Ltd",
+    "url": "https://unwindafrica.com",
+    "logo": "https://unwindafrica.com/static/assets/LOGO.png",
+    "description": "Unwind Africa designs restorative luxury experiences across Africa — solo resets, kinship gatherings, wellness retreats, and milestone celebrations that feel like coming home to yourself.",
+    "foundingDate": "2023",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "No 8, Providence Street, Lekki Phase 1",
+      "addressLocality": "Lagos",
+      "addressCountry": "NG"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+2348062067832",
+      "contactType": "customer service",
+      "areaServed": ["NG", "GH", "KE", "ZA", "CV"],
+      "availableLanguage": "English"
+    },
+    "sameAs": [
+      "https://instagram.com/unwindafrica",
+      "https://twitter.com/unwindafrica",
+      "https://facebook.com/unwindafrica"
+    ],
+    "areaServed": [
+      { "@type": "Country", "name": "Nigeria" },
+      { "@type": "Country", "name": "Ghana" },
+      { "@type": "Country", "name": "Kenya" },
+      { "@type": "Country", "name": "South Africa" },
+      { "@type": "Country", "name": "Cape Verde" }
+    ]
+  }
+  </script>
 </head>
 <body>
   <!-- Navigation - can be overridden in child templates -->
