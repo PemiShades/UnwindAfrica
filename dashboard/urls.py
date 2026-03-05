@@ -48,4 +48,12 @@ urlpatterns = [
     path("nominees/data/", views.get_nominees_data, name="nominees_data"),
     path("votes/<int:vote_id>/delete/", views.delete_vote, name="delete_vote"),
     path("votes/add/", views.add_vote, name="add_vote"),
+    
+    # Raising Readers - Books Management
+    path("books/", views.books_dashboard, name="books_dashboard"),
+    path("books/create/", views.create_book, name="create_book"),
+    path("books/<int:book_id>/", views.get_book, name="get_book"),
+    path("books/<int:book_id>/edit/", views.edit_book, name="edit_book"),
+    path("books/<int:book_id>/delete/", views.delete_book, name="delete_book"),
+    path("books/<int:book_id>/toggle-status/", views.toggle_book_status, name="toggle_book_status"),
 ]

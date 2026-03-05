@@ -13,7 +13,7 @@ from django.utils.timezone import now
 
 from .models import Post, Event
 from .forms import PostForm, EventForm, AdminAuthenticationForm, VotingCampaignForm
-from Web.models import PageView, Session, VotingCampaign, Nominee, Vote, Transaction
+from Web.models import PageView, Session, VotingCampaign, Nominee, Vote, Transaction, Book
 
 
 def _ensure_unique_slug(instance, base_text: str):
@@ -148,6 +148,11 @@ def dashboard_home(request):
     pending_cards = rest_cards.filter(status='pending')
     total_rest_points = RestCard.objects.aggregate(total=Sum('total_rest_points'))['total'] or 0
     
+    # Books data
+    books = Book.objects.all().order_by('-created_at')
+    books_available = books.filter(status='available').count()
+    books_on_loan = books.filter(status='on_loan').count()
+    
     # Calculate average votes per nominee
     avg_votes_per_nominee = 0
     if nominees.count() > 0:
@@ -203,6 +208,9 @@ def dashboard_home(request):
         "active_cards": active_cards,
         "pending_cards": pending_cards,
         "total_rest_points": total_rest_points,
+        "books": books,
+        "books_available": books_available,
+        "books_on_loan": books_on_loan,
         "avg_votes_per_nominee": avg_votes_per_nominee,
         "trial_registrations": trial_registrations,
     }
@@ -1302,3 +1310,125 @@ def export_nominees(request):
 #         ).count(),
 #     }
 #     return JsonResponse(data)
+
+
+# ========== Raising Readers - Books Management ==========
+from Web.models import Book
+from .forms import BookForm
+
+@login_required
+def books_dashboard(request):
+    """Books dashboard - view and manage all books"""
+    books = Book.objects.all().order_by('-created_at')
+    
+    # Stats
+    total_books = books.count()
+    available_books = books.filter(status='available').count()
+    on_loan_books = books.filter(status='on_loan').count()
+    
+    # Form for adding new book
+    if request.method == 'POST' and 'create_book' in request.POST:
+        form = BookForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('books_dashboard')
+    else:
+        form = BookForm()
+    
+    context = {
+        'books': books,
+        'book_form': form,
+        'total_books': total_books,
+        'available_books': available_books,
+        'on_loan_books': on_loan_books,
+    }
+    
+    return render(request, 'dashboard/books.html', context)
+
+
+@require_POST
+@login_required
+def create_book(request):
+    """Create a new book via AJAX"""
+    try:
+        form = BookForm(request.POST, request.FILES)
+        if form.is_valid():
+            book = form.save()
+            return JsonResponse({"ok": True, "book_id": book.id})
+        
+        errors = {field: error[0] for field, error in form.errors.items()}
+        return JsonResponse({"ok": False, "error": "Invalid form", "errors": errors}, status=400)
+    
+    except Exception as e:
+        print(f"Error creating book: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@login_required
+def edit_book(request, book_id):
+    """Edit an existing book via AJAX"""
+    try:
+        book = get_object_or_404(Book, id=book_id)
+        
+        if request.method == "POST":
+            form = BookForm(request.POST, request.FILES, instance=book)
+            if form.is_valid():
+                form.save()
+                return JsonResponse({"ok": True})
+            
+            errors = {field: error[0] for field, error in form.errors.items()}
+            return JsonResponse({"ok": False, "error": "Invalid form", "errors": errors}, status=400)
+    
+    except Exception as e:
+        print(f"Error editing book: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@require_POST
+@login_required
+def delete_book(request, book_id):
+    """Delete a book via AJAX"""
+    try:
+        book = get_object_or_404(Book, id=book_id)
+        book.delete()
+        return JsonResponse({"ok": True})
+    except Exception as e:
+        print(f"Error deleting book: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@require_POST
+@login_required
+def toggle_book_status(request, book_id):
+    """Toggle book availability status"""
+    try:
+        book = get_object_or_404(Book, id=book_id)
+        # Cycle through status: available -> unavailable -> available
+        if book.status == 'available':
+            book.status = 'unavailable'
+        else:
+            book.status = 'available'
+        book.save()
+        return JsonResponse({"ok": True, "new_status": book.status})
+    except Exception as e:
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@login_required
+def get_book(request, book_id):
+    """Get book details for editing"""
+    try:
+        book = get_object_or_404(Book, id=book_id)
+        return JsonResponse({
+            'id': book.id,
+            'title': book.title,
+            'author': book.author,
+            'description': book.description,
+            'age_category': book.age_category,
+            'genre': book.genre,
+            'status': book.status,
+            'cover_image': book.cover_image.url if book.cover_image else None,
+            'times_borrowed': book.times_borrowed,
+        })
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

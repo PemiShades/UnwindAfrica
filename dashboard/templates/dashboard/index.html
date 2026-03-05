@@ -341,6 +341,93 @@
           </div>
         </div>
 
+        <!-- Book Modal -->
+        <div x-show="showBookModal" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-800">
+              <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold" x-text="bookModal.id ? 'Edit Book' : 'Add New Book'"></h3>
+                <button @click="closeBookModal()" class="btn-ghost text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                  <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="p-6">
+              <form id="bookForm" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" x-model="bookModal.id" name="book_id">
+                
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title *</label>
+                    <input type="text" x-model="bookModal.title" name="title" required class="field ring-brand w-full">
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Author *</label>
+                    <input type="text" x-model="bookModal.author" name="author" required class="field ring-brand w-full">
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                    <textarea x-model="bookModal.description" name="description" rows="3" class="field ring-brand w-full"></textarea>
+                  </div>
+                  
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Age Category</label>
+                      <select x-model="bookModal.age_category" name="age_category" class="field ring-brand w-full">
+                        <option value="0-3">0-3 years</option>
+                        <option value="4-6">4-6 years</option>
+                        <option value="7-10">7-10 years</option>
+                        <option value="11-14">11-14 years</option>
+                        <option value="15+">15+ years</option>
+                        <option value="adult">Adult</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Genre</label>
+                      <select x-model="bookModal.genre" name="genre" class="field ring-brand w-full">
+                        <option value="fiction">Fiction</option>
+                        <option value="non-fiction">Non-Fiction</option>
+                        <option value="mystery">Mystery</option>
+                        <option value="adventure">Adventure</option>
+                        <option value="fantasy">Fantasy</option>
+                        <option value="science-fiction">Science Fiction</option>
+                        <option value="biography">Biography</option>
+                        <option value="history">History</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                    <select x-model="bookModal.status" name="status" class="field ring-brand w-full">
+                      <option value="available">Available</option>
+                      <option value="on_loan">On Loan</option>
+                      <option value="high_demand">High Demand</option>
+                      <option value="unavailable">Unavailable</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cover Image</label>
+                    <input type="file" name="cover_image" accept="image/*" class="field ring-brand w-full">
+                  </div>
+                </div>
+                
+                <div class="flex gap-3 mt-6">
+                  <button type="button" @click="saveBook()" class="flex-1 btn-primary">Save Book</button>
+                  <button type="button" @click="closeBookModal()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
         <!-- Content Switcher -->
         <main class="grid gap-6">
           <!-- OVERVIEW -->
@@ -740,6 +827,98 @@
                     </tbody>
                   </table>
                 </div>
+              </div>
+            </section>
+          </template>
+
+          <!-- BOOKS (Raising Readers) -->
+          <template x-if="tab==='rest_cards'">
+            <section class="grid gap-6">
+              <!-- Books Stats -->
+              <div class="grid md:grid-cols-3 sm:grid-cols-2 gap-4">
+                <div class="kpi">
+                  <div class="text-xs opacity-70">Total Books</div>
+                  <div class="text-2xl font-extrabold">{{ books.count }}</div>
+                  <div class="text-xs opacity-70">In collection</div>
+                </div>
+                <div class="kpi">
+                  <div class="text-xs opacity-70">Available</div>
+                  <div class="text-2xl font-extrabold text-green-400">{{ books_available }}</div>
+                  <div class="text-xs opacity-70">Ready to borrow</div>
+                </div>
+                <div class="kpi">
+                  <div class="text-xs opacity-70">On Loan</div>
+                  <div class="text-2xl font-extrabold text-orange-400">{{ books_on_loan }}</div>
+                  <div class="text-xs opacity-70">Currently borrowed</div>
+                </div>
+              </div>
+
+              <!-- Books Management -->
+              <div class="rounded-2xl p-6 shadow-soft bg-white/5 border border-white/10">
+                <div class="flex justify-between items-center mb-6">
+                  <h3 class="text-xl font-bold">📚 Raising Readers - Books</h3>
+                  <button @click="openBookModal()" class="btn-primary text-sm">
+                    <i class="fa-solid fa-plus mr-2"></i>Add Book
+                  </button>
+                </div>
+                
+                {% if books %}
+                <div class="overflow-x-auto">
+                  <table class="w-full text-sm">
+                    <thead>
+                      <tr class="border-b border-white/10">
+                        <th class="text-left py-3 font-semibold">Cover</th>
+                        <th class="text-left py-3 font-semibold">Title</th>
+                        <th class="text-left py-3 font-semibold">Author</th>
+                        <th class="text-left py-3 font-semibold">Category</th>
+                        <th class="text-left py-3 font-semibold">Status</th>
+                        <th class="text-left py-3 font-semibold">Borrowed</th>
+                        <th class="text-left py-3 font-semibold">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for book in books %}
+                      <tr class="border-b border-white/5 hover:bg-white/5 transition-colors" data-book-id="{{ book.id }}">
+                        <td class="py-3">
+                          {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="w-10 h-14 object-cover rounded">
+                          {% else %}
+                            <div class="w-10 h-14 bg-gray-600 rounded flex items-center justify-center text-lg">📖</div>
+                          {% endif %}
+                        </td>
+                        <td class="py-3 font-medium">{{ book.title }}</td>
+                        <td class="py-3">{{ book.author }}</td>
+                        <td class="py-3">
+                          <span class="px-2 py-1 text-xs rounded-full bg-gray-500/20">{{ book.get_age_category_display }}</span>
+                        </td>
+                        <td class="py-3">
+                          {% if book.status == 'available' %}
+                            <span class="px-2 py-1 text-xs rounded-full bg-green-500/20 text-green-400 border border-green-500/30">Available</span>
+                          {% elif book.status == 'on_loan' %}
+                            <span class="px-2 py-1 text-xs rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30">On Loan</span>
+                          {% elif book.status == 'high_demand' %}
+                            <span class="px-2 py-1 text-xs rounded-full bg-red-500/20 text-red-400 border border-red-500/30">High Demand</span>
+                          {% else %}
+                            <span class="px-2 py-1 text-xs rounded-full bg-gray-500/20 text-gray-400 border border-gray-500/30">Unavailable</span>
+                          {% endif %}
+                        </td>
+                        <td class="py-3">{{ book.times_borrowed }}</td>
+                        <td class="py-3">
+                          <div class="flex gap-2">
+                            <button @click="editBook({{ book.id }})" class="text-xs btn-ghost border border-blue-400/30 hover:border-blue-400/60">Edit</button>
+                            <button @click="deleteBook({{ book.id }}, $event)" class="text-xs btn-ghost border border-red-400/30 hover:border-red-400/60">Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                {% else %}
+                <div class="text-center py-8 text-gray-400">
+                  <p>No books yet. Click "Add Book" to get started!</p>
+                </div>
+                {% endif %}
               </div>
             </section>
           </template>

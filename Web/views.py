@@ -138,7 +138,9 @@ def about(request):
 
 
 def raising_readers(request):
-    return render(request, 'Web/raising_readers.html', context={})
+    from .models import Book
+    books = Book.objects.all().order_by('-created_at')
+    return render(request, 'Web/raising_readers.html', context={'books': books})
 
 
 def packages(request):

@@ -354,3 +354,58 @@ class VotingCampaignForm(forms.ModelForm):
 # Back-compat alias so existing imports like `from dashboard.forms import BlogPostForm`
 # continue to work without refactoring other files.
 BlogPostForm = PostForm
+
+# Book Form for Raising Readers
+from Web.models import Book
+
+class BookForm(forms.ModelForm):
+    """
+    Form for adding/editing books in Raising Readers
+    """
+    class Meta:
+        model = Book
+        fields = [
+            'title', 'author', 'cover_image', 'description', 
+            'age_category', 'genre', 'status', 'isbn'
+        ]
+        widgets = {
+            'title': TextInput(attrs={
+                "class": "field ring-brand",
+                "placeholder": "Book title",
+                "maxlength": 255,
+            }),
+            'author': TextInput(attrs={
+                "class": "field ring-brand",
+                "placeholder": "Author name",
+                "maxlength": 255,
+            }),
+            'description': Textarea(attrs={
+                "class": "field ring-brand",
+                "rows": 4,
+                "placeholder": "Book description or summary...",
+            }),
+            'age_category': Select(attrs={
+                "class": "field ring-brand",
+            }),
+            'genre': Select(attrs={
+                "class": "field ring-brand",
+            }),
+            'status': Select(attrs={
+                "class": "field ring-brand",
+            }),
+            'isbn': TextInput(attrs={
+                "class": "field ring-brand",
+                "placeholder": "ISBN (optional)",
+                "maxlength": 20,
+            }),
+            'cover_image': ClearableFileInput(attrs={
+                "class": "field ring-brand",
+                "accept": "image/*",
+            }),
+        }
+
+    def clean_title(self):
+        title = self.cleaned_data.get("title", "").strip()
+        if not title:
+            raise forms.ValidationError("Title is required.")
+        return title

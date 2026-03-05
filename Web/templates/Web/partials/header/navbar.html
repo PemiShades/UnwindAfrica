@@ -6,13 +6,13 @@
     <div class="flex items-center justify-between h-20">
       
       <!-- Left: Explore -->
-      <a href="/explore/" class="flex items-center space-x-2 
+      <a href="/explore/" class="flex items-center space-x-2" aria-label="Explore packages and experiences"
         {% if theme == 'dark' %}
           text-black
         {% else %}
           text-white
         {% endif %}
-        hover:opacity-80 transition drop-shadow">
+        hover:opacity-80 transition drop-shadow>
         
         <!-- Compass Icon -->
         <svg class="w-7 h-7 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -29,7 +29,7 @@
       </a>
 
       <!-- Right: Menu Button -->
-      <button onclick="toggleMenu()" class="flex items-center space-x-2 hover:opacity-80 transition drop-shadow 
+      <button onclick="toggleMenu()" class="flex items-center space-x-2 hover:opacity-80 transition drop-shadow" aria-label="Open menu"
         {% if theme == 'dark' %}
           text-black
         {% else %}

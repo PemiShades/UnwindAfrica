@@ -1,0 +1,299 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Books - Raising Readers | Unwind Africa Admin</title>
+
+  <script>
+    window.tailwind = { 
+      config: { darkMode: 'class' },
+      disablePreflight: true
+    };
+  </script>
+  <meta name="tailwindConfig" content='{"disablePreflight":true}'>
+  <script>
+    const originalWarn = console.warn;
+    console.warn = function(...args) {
+      if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
+        return;
+      }
+      originalWarn.apply(console, args);
+    };
+  </script>
+  <script defer src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="icon" href="{% static 'favicon.ico' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --brand: #00B2FF;
+      --brand-dark: #0099DD;
+    }
+    body { font-family: 'Inter', sans-serif; }
+    .bg-brand { background-color: var(--brand); }
+    .text-brand { color: var(--brand); }
+    .ring-brand { --tw-ring-color: var(--brand); }
+    .btn-primary {
+      @apply px-4 py-2 bg-brand text-white rounded-lg hover:opacity-90 transition-opacity;
+    }
+    .field {
+      @apply w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-offset-2;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen">
+  <!-- Header -->
+  <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center gap-4">
+          <a href="{% url 'dashboard_home' %}" class="flex items-center gap-2 text-gray-700 dark:text-gray-200 hover:text-brand">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Back to Dashboard</span>
+          </a>
+          <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+          <h1 class="text-xl font-bold text-gray-800 dark:text-white">📚 Raising Readers - Books</h1>
+        </div>
+        <button onclick="openBookModal()" class="bg-brand text-white px-4 py-2 rounded-lg hover:opacity-90 flex items-center gap-2">
+          <span>➕</span> Add Book
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div class="text-gray-500 dark:text-gray-400 text-sm">Total Books</div>
+        <div class="text-3xl font-bold text-gray-800 dark:text-white">{{ total_books }}</div>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div class="text-gray-500 dark:text-gray-400 text-sm">Available</div>
+        <div class="text-3xl font-bold text-green-600">{{ available_books }}</div>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div class="text-gray-500 dark:text-gray-400 text-sm">On Loan</div>
+        <div class="text-3xl font-bold text-orange-600">{{ on_loan_books }}</div>
+      </div>
+    </div>
+
+    <!-- Books Table -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <table class="w-full">
+        <thead class="bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Cover</th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Title</th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Author</th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Category</th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Status</th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Borrowed</th>
+            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+          {% for book in books %}
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+            <td class="px-4 py-3">
+              {% if book.cover_image %}
+              <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="w-12 h-16 object-cover rounded">
+              {% else %}
+              <div class="w-12 h-16 bg-gray-200 dark:bg-gray-600 rounded flex items-center justify-center text-2xl">📖</div>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3 font-medium text-gray-800 dark:text-white">{{ book.title }}</td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ book.author }}</td>
+            <td class="px-4 py-3">
+              <span class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-600 rounded-full text-gray-700 dark:text-gray-300">{{ book.get_age_category_display }}</span>
+            </td>
+            <td class="px-4 py-3">
+              {% if book.status == 'available' %}
+              <span class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">Available</span>
+              {% elif book.status == 'on_loan' %}
+              <span class="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded-full">On Loan</span>
+              {% elif book.status == 'high_demand' %}
+              <span class="text-xs px-2 py-1 bg-red-100 text-red-700 rounded-full">High Demand</span>
+              {% else %}
+              <span class="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded-full">Unavailable</span>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ book.times_borrowed }}</td>
+            <td class="px-4 py-3">
+              <div class="flex gap-2">
+                <button onclick="viewBook({{ book.id }})" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm">View</button>
+                <button onclick="editBook({{ book.id }})" class="text-yellow-600 hover:text-yellow-800 dark:text-yellow-400 dark:hover:text-yellow-300 text-sm">Edit</button>
+                <button onclick="deleteBook({{ book.id }})" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm">Delete</button>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+              No books yet. Click "Add Book" to get started!
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Book Modal -->
+  <div id="bookModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 id="modalTitle" class="text-xl font-bold text-gray-800 dark:text-white">Add New Book</h2>
+        <button onclick="closeBookModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl">&times;</button>
+      </div>
+      
+      <form id="bookForm" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" id="bookId" name="book_id">
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title *</label>
+            <input type="text" id="bookTitle" name="title" required class="field ring-brand w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Author *</label>
+            <input type="text" id="bookAuthor" name="author" required class="field ring-brand w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+            <textarea id="bookDescription" name="description" rows="3" class="field ring-brand w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"></textarea>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Age Category</label>
+              <select id="bookAgeCategory" name="age_category" class="field ring-brand w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+                <option value="0-3">0-3 years</option>
+                <option value="4-6">4-6 years</option>
+                <option value="7-10">7-10 years</option>
+                <option value="11-14">11-14 years</option>
+                <option value="15+">15+ years</option>
+                <option value="adult" selected>Adult</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Genre</label>
+              <select id="bookGenre" name="genre" class="field ring-brand w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+                <option value="fiction">Fiction</option>
+                <option value="non-fiction">Non-Fiction</option>
+                <option value="mystery">Mystery</option>
+                <option value="adventure">Adventure</option>
+                <option value="fantasy">Fantasy</option>
+                <option value="science-fiction">Science Fiction</option>
+                <option value="biography">Biography</option>
+                <option value="history">History</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+            <select id="bookStatus" name="status" class="field ring-brand w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+              <option value="available">Available</option>
+              <option value="on_loan">On Loan</option>
+              <option value="high_demand">High Demand</option>
+              <option value="unavailable">Unavailable</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cover Image</label>
+            <input type="file" id="bookCover" name="cover_image" accept="image/*" class="field ring-brand w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+          </div>
+        </div>
+        
+        <div class="flex gap-3 mt-6">
+          <button type="submit" class="flex-1 bg-brand text-white py-2 rounded-lg hover:opacity-90">Save Book</button>
+          <button type="button" onclick="closeBookModal()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Book Modal Functions
+    function openBookModal() {
+      document.getElementById('modalTitle').textContent = 'Add New Book';
+      document.getElementById('bookForm').reset();
+      document.getElementById('bookId').value = '';
+      document.getElementById('bookModal').classList.remove('hidden');
+    }
+
+    function closeBookModal() {
+      document.getElementById('bookModal').classList.add('hidden');
+    }
+
+    function viewBook(id) {
+      fetch(`/dashboard/books/${id}/`)
+        .then(r => r.json())
+        .then(data => {
+          document.getElementById('modalTitle').textContent = data.title;
+          document.getElementById('bookTitle').value = data.title;
+          document.getElementById('bookAuthor').value = data.author;
+          document.getElementById('bookDescription').value = data.description || '';
+          document.getElementById('bookAgeCategory').value = data.age_category;
+          document.getElementById('bookGenre').value = data.genre;
+          document.getElementById('bookStatus').value = data.status;
+          document.getElementById('bookId').value = data.id;
+          document.getElementById('bookModal').classList.remove('hidden');
+        });
+    }
+
+    function editBook(id) {
+      viewBook(id);
+    }
+
+    function deleteBook(id) {
+      if (confirm('Are you sure you want to delete this book?')) {
+        fetch(`/dashboard/books/${id}/delete/`, {
+          method: 'POST',
+          headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+        }).then(r => r.json()).then(data => {
+          if (data.ok) location.reload();
+          else alert(data.error || 'Error deleting book');
+        });
+      }
+    }
+
+    // Form submission
+    document.getElementById('bookForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const bookId = formData.get('book_id');
+      const url = bookId ? `/dashboard/books/${bookId}/edit/` : '/dashboard/books/create/';
+      
+      fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+      }).then(r => r.json()).then(data => {
+        if (data.ok) {
+          closeBookModal();
+          location.reload();
+        } else {
+          alert(data.error || 'Error saving book');
+        }
+      });
+    });
+
+    // Close modal on outside click
+    document.getElementById('bookModal').addEventListener('click', function(e) {
+      if (e.target === this) closeBookModal();
+    });
+  </script>
+</body>
+</html>

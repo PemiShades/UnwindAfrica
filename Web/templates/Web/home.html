@@ -405,8 +405,9 @@
   <!-- Hero -->
   <section class="hero">
     <div class="hero-media">
-      <video id="heroVideo" autoplay muted loop playsinline poster="{% static 'assets/home/hero.jpg' %}">
+      <video id="heroVideo" autoplay muted loop playsinline poster="{% static 'assets/home/hero.jpg' %}" aria-label="Beautiful sunset over ocean with gentle waves - Unwind Africa welcome video">
         <source src="{% static 'assets/videos/bg1.mp4' %}" type="video/mp4">
+        <track kind="captions" label="English" srclang="en" src="#" default>
         Your browser does not support the video tag.
       </video>
     </div>
@@ -459,7 +460,7 @@
         <span class="badge">✓ Free Nomination</span>
         <span class="badge">✓ Fair Selection</span>
       </div>
-      <div class="muted" style="font-size: .8rem;">
+      <div class="muted" style="font-size: .8rem; color: #ffffff;">
         Nominate a student or young person today
       </div>
     </div>

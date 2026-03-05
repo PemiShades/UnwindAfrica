@@ -63,13 +63,6 @@ header.absolute svg {
             </div>
         </div>
         
-        <!-- Test Mode Banner -->
-        {% if is_test_mode %}
-        <div style="background: #f39c12; color: white; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: clamp(0.85rem, 2vw, 0.9rem); text-align: center; animate: pulse;">
-            <strong>⚙️ TEST MODE:</strong> {{ test_mode_message }} No real charges will be made.
-        </div>
-        {% endif %}
-        
         {% if is_ongoing %}
         <div style="background: #27ae60; color: white; padding: 0.5rem 1rem; border-radius: 20px; display: inline-block; font-size: clamp(0.85rem, 2vw, 0.95rem);">
             ✓ Campaign Active - Voting Open
@@ -81,24 +74,46 @@ header.absolute svg {
         {% endif %}
     </div>
 
+    <!-- Search and Filter Section -->
+    <div class="search-filter-section" style="background: #f8f9fa; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border: 2px solid #e1e8ed;">
+        <div class="search-filter-bar" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+            <div style="flex: 1; min-width: 200px;">
+                <input type="text" id="searchInput" placeholder="Search nominees..." 
+                    style="width: 100%; padding: 0.6rem 0.875rem; border: 1px solid #ddd; border-radius: 5px; font-size: 0.95rem; box-sizing: border-box;">
+            </div>
+            <div style="min-width: 140px;">
+                <select id="filterSelect" 
+                    style="width: 100%; padding: 0.6rem 0.875rem; border: 1px solid #ddd; border-radius: 5px; font-size: 0.95rem; background: white; cursor: pointer;">
+                    <option value="">Sort: Default</option>
+                    <option value="most-votes">Most Votes</option>
+                    <option value="least-votes">Least Votes</option>
+                </select>
+            </div>
+            <button type="button" onclick="filterNominees()" 
+                style="background: #3498db; color: white; border: none; padding: 0.6rem 1rem; border-radius: 5px; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+                Search
+            </button>
+        </div>
+    </div>
+
     <!-- Leaderboard -->
     {% if leaderboard %}
-    <div class="leaderboard" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem 1rem; border-radius: 12px; margin-bottom: 2rem; color: white;">
-        <h2 style="text-align: center; margin-bottom: 1.25rem; font-size: clamp(1.3rem, 4vw, 2rem);">🏆 Top Nominees</h2>
-        <div style="display: flex; justify-content: center; gap: clamp(1rem, 3vw, 2rem); flex-wrap: wrap;">
+    <div class="leaderboard" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; color: white;">
+        <h2 style="text-align: center; margin-bottom: 0.75rem; font-size: clamp(1rem, 2.5vw, 1.25rem);">🏆 Top 3</h2>
+        <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
             {% for nominee in leaderboard %}
-            <div style="text-align: center; {% if forloop.first %}transform: scale(1.05);{% endif %} max-width: 120px;">
-                <div style="position: relative; width: clamp(80px, 15vw, 100px); height: clamp(80px, 15vw, 100px); margin: 0 auto 0.5rem;">
+            <div style="text-align: center; {% if forloop.first %}transform: scale(1.08);{% endif %} max-width: 85px;">
+                <div style="position: relative; width: clamp(50px, 10vw, 60px); height: clamp(50px, 10vw, 60px); margin: 0 auto 0.4rem;">
                     {% if nominee.photo %}
                     <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" 
-                         style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid white;">
+                         style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid white;">
                     {% endif %}
-                    <div style="position: absolute; bottom: -10px; right: -10px; background: #f39c12; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid white; font-size: clamp(0.8rem, 2vw, 0.95rem);">
+                    <div style="position: absolute; bottom: -6px; right: -6px; background: #f39c12; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; font-size: 0.7rem;">
                         {{ forloop.counter }}
                     </div>
                 </div>
-                <div style="font-weight: 600; font-size: clamp(0.9rem, 2vw, 1.1rem); word-wrap: break-word;">{{ nominee.name }}</div>
-                <div style="opacity: 0.9; font-size: clamp(1rem, 2.5vw, 1.3rem); font-weight: bold;">{{ nominee.vote_count }} votes</div>
+                <div style="font-weight: 600; font-size: clamp(0.75rem, 1.5vw, 0.85rem); word-wrap: break-word;">{{ nominee.name }}</div>
+                <div style="opacity: 0.9; font-size: clamp(0.7rem, 1.3vw, 0.8rem); font-weight: bold;">{{ nominee.vote_count }} votes</div>
             </div>
             {% endfor %}
         </div>
@@ -153,9 +168,9 @@ header.absolute svg {
         </div>
         {% endif %}
 
-        <div class="nominees-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 1.5rem;">
+        <div class="nominees-grid" id="nomineesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 1.5rem;">
             {% for nominee in nominees %}
-            <div class="nominee-card" data-nominee-id="{{ nominee.id }}" 
+            <div class="nominee-card" data-nominee-id="{{ nominee.id }}" data-name="{{ nominee.name|lower }}" 
                  style="border: 2px solid #e1e8ed; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3;">
                 
                 {% if nominee.photo %}
@@ -179,11 +194,11 @@ header.absolute svg {
                     
                     <div style="background: #f8f9fa; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; text-align: center;">
                         <div style="color: #7f8c8d; font-size: clamp(0.8rem, 2vw, 0.85rem);">Current Votes</div>
-                        <div style="font-size: clamp(1.8rem, 5vw, 2rem); font-weight: bold; color: #3498db;">{{ nominee.vote_count }}</div>
+                        <div class="vote-count" style="font-size: clamp(1.8rem, 5vw, 2rem); font-weight: bold; color: #3498db;">{{ nominee.vote_count }}</div>
                     </div>
                     
                     {% if is_ongoing %}
-                    <button onclick="openVoteModal({{ nominee.id }}, '{{ nominee.name }}', '{{ campaign.vote_price }}')" 
+                    <button onclick="openVoteModal({{ nominee.id }}, '{{ nominee.name|escapejs }}', '{{ campaign.vote_price }}')" 
                             style="width: 100%; background: #3498db; color: white; border: none; padding: 0.875rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.3s; font-size: clamp(0.9rem, 2vw, 1rem);">
                         Vote Now →
                     </button>
@@ -298,9 +313,48 @@ header.absolute svg {
 </div>
 
 <script>
-const VOTE_PRICE = {{ vote_price }};
-const REST_POINTS_PER_VOTE = {{ rest_points_per_vote }};
+const VOTE_PRICE = {{ vote_price|safe }};
+const REST_POINTS_PER_VOTE = {{ rest_points_per_vote|safe }};
 let ballot = {};
+
+// Filter nominees function (client-side search and sort)
+function filterNominees() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const filterBy = document.getElementById('filterSelect').value;
+    const cards = document.querySelectorAll('.nominee-card');
+    
+    // First filter by search term
+    cards.forEach(card => {
+        const name = card.dataset.name || '';
+        const shouldShow = name.includes(searchTerm);
+        card.style.display = shouldShow ? 'block' : 'none';
+    });
+    
+    // Then sort if needed
+    if (filterBy === 'most-votes' || filterBy === 'least-votes') {
+        const container = document.getElementById('nomineesGrid');
+        const visibleCards = Array.from(cards).filter(c => c.style.display !== 'none');
+        
+        visibleCards.sort((a, b) => {
+            const votesA = parseInt(a.querySelector('.vote-count').textContent) || 0;
+            const votesB = parseInt(b.querySelector('.vote-count').textContent) || 0;
+            return filterBy === 'most-votes' ? votesB - votesA : votesA - votesB;
+        });
+        
+        visibleCards.forEach(card => container.appendChild(card));
+    }
+}
+
+// Add data-name attribute to nominee cards for filtering
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.nominee-card');
+    cards.forEach(card => {
+        const nameElement = card.querySelector('h3');
+        if (nameElement) {
+            card.dataset.name = nameElement.textContent.toLowerCase();
+        }
+    });
+});
 
 let voteModalData = { nomineeId: null, nomineeName: null, votePrice: null };
 
@@ -455,75 +509,52 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e) => 
         votes: data.votes
     }));
     
-    // Show loading notification
-    const loading = showLoading('Initializing payment...');
-    
-    // Check if in test mode
-    const isTestMode = "{{ is_test_mode|lower }}" === "false";
-    
-    if (isTestMode) {
-        // PSEUDO PAYMENT MODE - for testing/development
-        try {
-            // Simulate payment with delay
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            // Show success
-            loading.success('Test payment successful! Vote recorded.');
-            
-            // Automatically submit form for voting
-            setTimeout(() => {
-                // Redirect to thank you page
-                window.location.href = '{% url "voting_thank_you" %}?test=true&votes=' + ballotArray.length;
-            }, 1500);
-        } catch (error) {
-            loading.close();
-            showError('Test payment failed. Please try again.');
-            payButton.disabled = false;
-            payButton.textContent = originalText;
+    // Always use real Paystack in production
+    try {
+        // Show loading state
+        const btn = e.submitter;
+        const originalText = btn ? btn.textContent : 'Processing...';
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
         }
-    } else {
-        // REAL PAYSTACK PAYMENT MODE
-        try {
-            const response = await fetch('{% url "initialize_payment" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({
-                    ballot: ballotArray,
-                    campaign_id: {{ campaign.id }},
-                    voter_name: document.getElementById('voterName').value,
-                    voter_email: document.getElementById('voterEmail').value,
-                    voter_phone: document.getElementById('voterPhone').value,
-                    referral_source: document.getElementById('referralSource').value
-                })
-            });
-            console.log('Payment initialization response:', response);
-            const data = await response.json();
-            console.log('Response data:', data);
-            
-            
-            if (data.success) {
-                loading.success('Redirecting to payment gateway...');
-                setTimeout(() => {
-                    window.location.href = data.authorization_url;
-                }, 1000);
-            } else {
-                loading.close();
-                showError(data.message || 'Payment initialization failed. Please try again.');
-                payButton.disabled = false;
-                payButton.textContent = originalText;
+        
+        const response = await fetch('{% url "initialize_payment" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                ballot: ballotArray,
+                campaign_id: {{ campaign.id }},
+                voter_name: document.getElementById('voterName').value,
+                voter_email: document.getElementById('voterEmail').value,
+                voter_phone: document.getElementById('voterPhone').value,
+                referral_source: document.getElementById('referralSource').value
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Redirect to Paystack
+            window.location.href = data.authorization_url;
+        } else {
+            alert(data.message || 'Payment initialization failed. Please try again.');
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = originalText;
             }
-        } catch (error) {
-            loading.close();
-            showError('Network error. Please check your connection and try again.');
-            console.error('Payment error:', error);
-            payButton.disabled = false;
-            payButton.textContent = originalText;
+        }
+    } catch (error) {
+        console.error('Payment error:', error);
+        alert('Network error. Please check your connection and try again.');
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = originalText;
         }
     }
-    
 });
 
 // Close modal on outside click

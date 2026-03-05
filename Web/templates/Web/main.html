@@ -108,6 +108,9 @@
   </script>
 </head>
 <body>
+  <!-- Skip to main content for accessibility -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:text-black focus:px-4 focus:py-2">Skip to main content</a>
+
   <!-- Navigation - can be overridden in child templates -->
   {% block navbar %}
   {% include './partials/header/navbar.html' %}
@@ -115,6 +118,10 @@
   {% endblock %}
   
   {% block content %}{% endblock %}
+
+<main>
+{% block main_content %}{% endblock %}
+</main>
 
 <!-- Footer - FINAL VERSION (Paystack-ready) -->
 <footer class="bg-[#0A0B10] text-white pt-24 pb-12 px-6 md:px-12">
@@ -143,19 +150,19 @@
           <p>Lekki, Ibeju-Lekki, Lagos</p>
           <div class="mt-4 space-y-2">
             <div>
-              <span class="text-xs uppercase tracking-widest text-gray-600 block mb-0.5">Primary</span>
+              <span class="text-xs uppercase tracking-widest text-gray-400 block mb-0.5">Primary</span>
               <a href="tel:+2348051411198" class="hover:text-white transition-colors">+234 805 141 1198</a>
             </div>
             <div>
-              <span class="text-xs uppercase tracking-widest text-gray-600 block mb-0.5">Support</span>
+              <span class="text-xs uppercase tracking-widest text-gray-400 block mb-0.5">Support</span>
               <a href="tel:+2348062067832" class="hover:text-white transition-colors">+234 806 206 7832</a>
             </div>
             <div class="pt-1">
-              <span class="text-xs uppercase tracking-widest text-gray-600 block mb-0.5">Business</span>
+              <span class="text-xs uppercase tracking-widest text-gray-400 block mb-0.5">Business</span>
               <a href="mailto:unwindafrica24@gmail.com" class="hover:text-white transition-colors">unwindafrica24@gmail.com</a>
             </div>
             <div>
-              <span class="text-xs uppercase tracking-widest text-gray-600 block mb-0.5">Support</span>
+              <span class="text-xs uppercase tracking-widest text-gray-400 block mb-0.5">Support</span>
               <a href="mailto:info@unwindafrica.com" class="hover:text-white transition-colors">info@unwindafrica.com</a>
             </div>
           </div>
@@ -196,16 +203,16 @@
       </div>
     </div>
 
-    <div class="flex flex-col md:flex-row justify-between items-center border-t border-white/10 pt-12 text-xs uppercase tracking-widest text-gray-500">
+    <div class="flex flex-col md:flex-row justify-between items-center border-t border-white/10 pt-12 text-xs uppercase tracking-widest text-gray-400">
       <div class="mb-6 md:mb-0">
         <span class="font-display text-2xl text-white">UNWIND AFRICA</span>
       </div>
       <div class="flex flex-col md:flex-row md:space-x-8 text-center md:text-left">
         <span>&copy; <span id="year"></span> Unwind Africa</span>
-        <a href="{% url 'privacy_policy' %}" class="hover:text-white transition-colors">Privacy Policy</a>
-        <a href="{% url 'terms' %}" class="hover:text-white transition-colors">Terms of Service</a>
-        <a href="{% url 'refund_policy' %}" class="hover:text-white transition-colors">Refund Policy</a>
-        <a href="{% url 'faq' %}" class="hover:text-white transition-colors">FAQ</a>
+        <a href="{% url 'privacy_policy' %}" class="hover:text-white transition-colors" aria-label="Privacy Policy">Privacy Policy</a>
+        <a href="{% url 'terms' %}" class="hover:text-white transition-colors" aria-label="Terms of Service">Terms of Service</a>
+        <a href="{% url 'refund_policy' %}" class="hover:text-white transition-colors" aria-label="Refund Policy">Refund Policy</a>
+        <a href="{% url 'faq' %}" class="hover:text-white transition-colors" aria-label="Frequently Asked Questions">FAQ</a>
       </div>
     </div>
   </div>
@@ -217,13 +224,13 @@ document.getElementById('year').textContent = new Date().getFullYear();
 </script> -->
 
   <!-- Vendor JS (place BEFORE closing body) -->
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js" defer></script>
 
   <!-- Your JS -->
-  <script src="{% static 'javascript/main.js' %}"></script>
+  <script src="{% static 'javascript/main.js' %}" defer></script>
 
   <script>
     // one-time year stamp

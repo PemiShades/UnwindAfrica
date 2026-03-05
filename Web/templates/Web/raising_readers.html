@@ -1,618 +1,277 @@
 {% extends 'Web/main.html' %}
 {% load static %}
 
-{% block title %}Raising Readers — Reading and Rest for Families | Unwind Africa{% endblock %}
+{% block title %}Raising Readers – Community Book Circle | Unwind Africa{% endblock %}
 
 {% block extra_css %}
 <style>
 :root{
   --ua-sky:#00B2FF;--ua-sea:#00C2FF;--ua-sun:#FFB648;--ua-ink:#0A0B10;--ua-paper:#FFFFFF;
-  --radius:20px;--shadow:0 26px 58px rgba(10,11,16,.12);--container:min(1180px, 92vw);
+  --radius:16px;--shadow:0 8px 32px rgba(10,11,16,.12);
 }
 
-.raising-readers-page{font-family:Inter,system-ui,sans-serif;color:var(--ua-ink);background:linear-gradient(135deg,#f8fafc 0%,#e0e7ff 100%);line-height:1.7;overflow-x:hidden;}
-.section{padding:clamp(90px,12vw,160px) 0;}
-.container{width:var(--container);margin-inline:auto;padding-inline:clamp(20px,4vw,48px);}
+.rr-page{font-family:Inter,system-ui,sans-serif;color:var(--ua-ink);background:#f8f9fa;}
 
-.ed-kicker{font-size:.78rem;letter-spacing:.26em;text-transform:uppercase;font-weight:900;color:var(--ua-sky);}
-.ed-title{font-family:"Playfair Display",serif;font-weight:900;letter-spacing:-.03em;line-height:1.02;
-          font-size:clamp(3rem,8.5vw,6.2rem);margin:0 0 .35em;}
-.ed-sub{max-width:74ch;font-size:clamp(1.12rem,2.3vw,1.34rem);line-height:1.74;color:#2d3748;}
-.rule{height:4px;width:70px;background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));border-radius:4px;margin:1.2rem 0;}
-
-/* Hero Section - Enhanced */
-.readers-hero{
+/* Hero */
+.rr-hero{
   position:relative;
-  min-height:100vh;
+  min-height:70vh;
   display:flex;
   align-items:center;
   color:#fff;
-  overflow:hidden;
-  padding-top:120px;
+  padding:100px 20px 60px;
 }
-.readers-hero::before{
+.rr-hero::before{
   content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(135deg,rgba(10,11,16,.96) 0%,rgba(8,18,38,.88) 66%);
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(10,11,16,.92) 0%,rgba(8,18,38,.85) 100%);
   z-index:1;
 }
-.readers-hero::after{
+.rr-hero::after{
   content:"";
-  position:absolute;
-  inset:0;
+  position:absolute;inset:0;
   background:url("{% static 'assets/home/family.jpg' %}") center/cover no-repeat;
-  filter:brightness(.62) contrast(1.12);
-  transform:scale(1.05);
+  filter:brightness(.5) contrast(1.1);
 }
-.readers-hero .hero-content{
-  position:relative;
-  z-index:2;
-  text-align:center;
-}
-.hero-badge{
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  padding:.6rem 1.2rem;
-  border-radius:999px;
-  background:rgba(255,255,255,.15);
-  backdrop-filter:blur(10px);
-  border:2px solid rgba(255,255,255,.3);
-  font-weight:900;
-  font-size:.8rem;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  margin-bottom:24px;
-  box-shadow:0 8px 24px rgba(255,107,157,.3);
-}
-.hero-title{
-  font-size:clamp(1.5rem,2vw,2.5rem);
-  max-width:60ch;
-  font-weight:900;
-  line-height:.95;
-  letter-spacing:-.02em;
-  margin-bottom:clamp(20px,3vw,32px);
-  text-transform:uppercase;
-}
-.hero-subtitle{
-  font-size:clamp(1.1rem,1vw,1.5rem);
-  max-width:62ch;
-  margin:0 auto clamp(32px,5vw,48px);
-  line-height:1.5;
-  color:rgba(255,255,255,.9);
-}
-.hero-actions{
-  display:flex;
-  gap:.6rem;
-  justify-content:center;
-  flex-wrap:wrap;
-  margin:.8rem 0 1.6rem;
-}
-.btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  padding:.9rem 1.2rem;
-  border-radius:999px;
-  font-weight:900;
-  border:1px solid transparent;
-  transition:all .3s ease;
-  cursor:pointer;
-  text-align:center;
-  white-space:nowrap;
-  position:relative;
-  overflow:hidden;
-}
-.btn:hover{transform:translateY(-3px);box-shadow:0 15px 35px rgba(0,0,0,0.2);}
-.primary-solid{
-  background:linear-gradient(90deg,#FF6B9D,var(--ua-sky));
-  color:#fff;
-  border-color:color-mix(in oklab,#FF6B9D 40%,transparent);
-  box-shadow:0 8px 24px rgba(255,107,157,0.3);
-}
-.primary-solid::before{
-  content:"";
-  position:absolute;
-  top:0;
-  left:-100%;
-  width:100%;
-  height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);
-  transition:left .5s;
-}
-.primary-solid:hover::before{left:100%;}
+.rr-hero .hero-content{position:relative;z-index:2;text-align:center;max-width:800px;margin:0 auto;}
+.rr-hero h1{font-size:clamp(2rem,6vw,3.5rem);font-weight:900;margin-bottom:1rem;letter-spacing:-.02em;}
+.rr-hero p{font-size:clamp(1rem,2vw,1.25rem);opacity:.9;margin-bottom:2rem;line-height:1.6;}
+.rr-hero .cta-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:1rem 2rem;border-radius:999px;font-weight:700;cursor:pointer;transition:all .3s;border:none;text-decoration:none;}
+.btn-primary{background:linear-gradient(90deg,#FF6B9D,var(--ua-sky));color:#fff;box-shadow:0 4px 20px rgba(255,107,157,.4);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,107,157,.5);}
+.btn-outline{background:transparent;border:2px solid #fff;color:#fff;}
+.btn-outline:hover{background:#fff;color:var(--ua-ink);}
+.btn-green{background:#27ae60;color:#fff;}
+.btn-blue{background:#3498db;color:#fff;}
 
-/* Content Sections - Enhanced */
-.section-content{
-  max-width:900px;
-  margin:0 auto;
-}
-.section-title{
-  font-family:"Playfair Display",serif;
-  font-size:clamp(2rem,5vw,3.5rem);
-  font-weight:900;
-  margin-bottom:1.5rem;
-  text-align:center;
-  background:linear-gradient(135deg,#FF6B9D,var(--ua-sky));
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-}
-.section-text{
-  font-size:clamp(1rem,1.5vw,1.2rem);
-  line-height:1.8;
-  color:#4a5568;
-  margin-bottom:1.5rem;
-}
-.feature-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-  gap:2rem;
-  margin:3rem 0;
-}
-.feature-card{
-  background:white;
-  border-radius:16px;
-  padding:2rem;
-  box-shadow:0 10px 30px rgba(0,0,0,0.08);
-  transition:all .3s ease;
-  border:2px solid rgba(255,107,157,0.1);
-  position:relative;
-  overflow:hidden;
-}
-.feature-card::before{
-  content:"";
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:linear-gradient(135deg,rgba(255,107,157,0.1),rgba(0,178,255,0.05));
-  opacity:0;
-  transition:opacity .3s ease;
-}
-.feature-card:hover::before{opacity:1;}
-.feature-card:hover{
-  transform:translateY(-8px);
-  box-shadow:0 20px 50px rgba(0,0,0,0.15);
-  border-color:rgba(255,107,157,0.3);
-}
-.feature-icon{
-  font-size:2.5rem;
-  color:#FF6B9D;
-  margin-bottom:1rem;
-  position:relative;
-  z-index:1;
-}
-.feature-title{
-  font-family:"Playfair Display",serif;
-  font-size:1.5rem;
-  font-weight:700;
-  margin-bottom:.75rem;
-  position:relative;
-  z-index:1;
-}
-.feature-text{
-  font-size:1rem;
-  line-height:1.7;
-  color:#4a5568;
-  position:relative;
-  z-index:1;
-}
-.values-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:1.5rem;
-  margin:3rem 0;
-}
-.value-item{
-  text-align:center;
-  padding:1.5rem;
-  background:linear-gradient(135deg,rgba(255,107,157,0.08),rgba(0,178,255,0.06));
-  border-radius:16px;
-  border:2px solid rgba(255,107,157,0.2);
-  transition:all .3s ease;
-  position:relative;
-  overflow:hidden;
-}
-.value-item::before{
-  content:"";
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:linear-gradient(135deg,rgba(255,107,157,0.15),rgba(0,178,255,0.1));
-  opacity:0;
-  transition:opacity .3s ease;
-}
-.value-item:hover::before{opacity:1;}
-.value-item:hover{
-  transform:translateY(-5px);
-  box-shadow:0 15px 40px rgba(0,0,0,0.12);
-  border-color:rgba(255,107,157,0.4);
-}
-.value-icon{
-  font-size:2rem;
-  color:#FF6B9D;
-  margin-bottom:.75rem;
-  position:relative;
-  z-index:1;
-}
-.value-title{
-  font-family:"Playfair Display",serif;
-  font-size:1.25rem;
-  font-weight:700;
-  margin-bottom:.5rem;
-  position:relative;
-  z-index:1;
-}
-.value-text{
-  font-size:.9rem;
-  color:#4a5568;
-  position:relative;
-  z-index:1;
-}
-.how-it-works{
-  background:linear-gradient(135deg,rgba(255,107,157,0.05),rgba(0,178,255,0.03));
-  border-radius:24px;
-  padding:3rem;
-  margin:3rem 0;
-  position:relative;
-  overflow:hidden;
-}
-.how-it-works::before{
-  content:"";
-  position:absolute;
-  top:-50%;
-  right:-20%;
-  width:400px;
-  height:400px;
-  background:radial-gradient(circle,rgba(255,107,157,0.15),transparent 70%);
-  animation:float 20s ease-in-out infinite;
-}
-.how-it-works::after{
-  content:"";
-  position:absolute;
-  bottom:-30%;
-  left:-15%;
-  width:350px;
-  height:350px;
-  background:radial-gradient(circle,rgba(0,178,255,0.12),transparent 70%);
-  animation:float 25s ease-in-out infinite reverse;
-}
-@keyframes float{
-  0%,100%{transform:translate(0,0) scale(1);}
-  50%{transform:translate(-30px,-40px) scale(1.05);}
-}
-.step{
-  display:flex;
-  gap:2rem;
-  margin-bottom:2rem;
-  align-items:flex-start;
-  position:relative;
-  z-index:2;
-}
-.step-number{
-  font-family:"Playfair Display",serif;
-  font-size:2.5rem;
-  font-weight:900;
-  color:#FF6B9D;
-  min-width:60px;
-  position:relative;
-}
-.step-content{
-  flex:1;
-}
-.step-title{
-  font-family:"Playfair Display",serif;
-  font-size:1.5rem;
-  font-weight:700;
-  margin-bottom:.75rem;
-}
-.step-text{
-  font-size:1rem;
-  line-height:1.7;
-  color:#4a5568;
-}
-.join-section{
-  text-align:center;
-  background:linear-gradient(135deg,#FF6B9D,var(--ua-sky));
-  color:white;
-  border-radius:24px;
-  padding:3rem;
-  margin:3rem 0;
-  position:relative;
-  overflow:hidden;
-  box-shadow:0 20px 60px rgba(255,107,157,0.4);
-}
-.join-section::before{
-  content:"";
-  position:absolute;
-  top:-50%;
-  left:-50%;
-  width:200%;
-  height:200%;
-  background:linear-gradient(45deg,transparent, rgba(255,255,255,.1), transparent);
-  animation:shimmer 3s infinite;
-}
-@keyframes shimmer{
-  0%{transform:rotate(0deg);}
-  100%{transform:rotate(360deg);}
-}
-.join-title{
-  font-family:"Playfair Display",serif;
-  font-size:clamp(2rem,5vw,3rem);
-  font-weight:900;
-  margin-bottom:1rem;
-  position:relative;
-  z-index:1;
-}
-.join-text{
-  font-size:clamp(1rem,1.5vw,1.2rem);
-  line-height:1.7;
-  margin-bottom:2rem;
-  position:relative;
-  z-index:1;
-}
-.join-btn{
-  background:white;
-  color:#FF6B9D;
-  padding:1rem 2rem;
-  font-size:1.1rem;
-  border:none;
-  position:relative;
-  z-index:1;
-}
-.join-btn:hover{
-  transform:translateY(-3px);
-  box-shadow:0 10px 25px rgba(0,0,0,0.2);
-}
+/* Section */
+.rr-section{padding:4rem 20px;max-width:1200px;margin:0 auto;}
+.section-title{font-size:clamp(1.5rem,4vw,2.25rem);font-weight:800;text-align:center;margin-bottom:2rem;}
+
+/* Rest Card Required Banner */
+.rest-banner{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:1.5rem;border-radius:var(--radius);text-align:center;margin-bottom:2rem;}
+.rest-banner h3{margin:0 0 .5rem;font-size:1.25rem;}
+.rest-banner p{margin:0 0 1rem;opacity:.9;}
+.rest-banner .btn{background:#fff;color:#667eea;padding:.75rem 1.5rem;font-size:.9rem;}
+
+/* Action Cards Grid */
+.actions-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-bottom:3rem;}
+.action-card{background:#fff;border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow);text-align:center;transition:transform .3s;}
+.action-card:hover{transform:translateY(-5px);}
+.action-card .icon{font-size:3rem;margin-bottom:1rem;}
+.action-card h3{font-size:1.25rem;margin-bottom:.75rem;}
+.action-card p{color:#666;font-size:.95rem;margin-bottom:1.25rem;line-height:1.5;}
+.action-card .btn{width:100%;justify-content:center;}
+
+/* Books Grid */
+.books-section{background:#fff;padding:3rem 20px;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:3rem;}
+.books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.5rem;margin-top:1.5rem;}
+.book-card{background:#f8f9fa;border-radius:12px;overflow:hidden;transition:all .3s;}
+.book-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.12);}
+.book-cover{height:250px;background:#e9ecef;display:flex;align-items:center;justify-content:center;font-size:4rem;color:#adb5bd;}
+.book-cover img{width:100%;height:100%;object-fit:cover;}
+.book-info{padding:1rem;}
+.book-title{font-weight:700;font-size:1rem;margin-bottom:.25rem;line-height:1.3;}
+.book-author{color:#666;font-size:.85rem;margin-bottom:.5rem;}
+.book-status{ display:inline-block;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;font-weight:600;}
+.status-available{background:#d4edda;color:#155724;}
+.status-borrowed{background:#fff3cd;color:#856404;}
+.book-actions{display:flex;gap:.5rem;margin-top:.75rem;}
+.book-actions .btn{flex:1;padding:.5rem;font-size:.85rem;}
+
+/* Quick Info */
+.quick-info{background:#fff;padding:2rem;border-radius:var(--radius);box-shadow:var(--shadow);}
+.quick-info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem;}
+.info-item{text-align:center;}
+.info-item .icon{font-size:2rem;margin-bottom:.5rem;}
+.info-item h4{font-size:1rem;margin-bottom:.25rem;}
+.info-item p{color:#666;font-size:.9rem;}
+
+/* Footer CTA */
+.rr-cta{background:linear-gradient(135deg,#FF6B9D,var(--ua-sky));color:#fff;padding:3rem 20px;border-radius:var(--radius);text-align:center;}
+.rr-cta h2{font-size:clamp(1.5rem,4vw,2rem);margin-bottom:1rem;}
+.rr-cta p{margin-bottom:1.5rem;opacity:.95;}
+.rr-cta .btn{background:#fff;color:#FF6B9D;}
 
 /* Responsive */
-@media (max-width:768px){
-  .section{padding:clamp(60px,10vw,100px) 0;}
-  .readers-hero{padding-top:80px;}
-  .how-it-works{padding:2rem;}
-  .step{flex-direction:column;gap:1rem;}
-  .join-section{padding:2rem;}
+@media(max-width:768px){
+  .rr-hero{min-height:60vh;padding:80px 20px 40px;}
+  .actions-grid{grid-template-columns:1fr;}
+  .books-grid{grid-template-columns:repeat(2,1fr);}
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="raising-readers-page">
+<div class="rr-page">
   <!-- Hero Section -->
-  <section class="readers-hero">
-    <div class="container hero-content">
-      <div class="hero-badge">
-        <span class="hero-emoji">📚</span>
-        <span>Literacy Initiative</span>
-      </div>
-      <h1 class="hero-title">Raising Readers:<br>Reading and Rest for Families</h1>
-      <p class="hero-subtitle">A structured, adult-led reading community designed to strengthen literacy within families. Powered by REST, accessible to verified REST Card members.</p>
-      <div class="hero-actions">
-        <a href="#what-is" class="btn primary-solid">Learn More</a>
-        <a href="#join" class="btn primary-solid">Join Now</a>
+  <section class="rr-hero">
+    <div class="hero-content">
+      <h1>📚 Raising Readers</h1>
+      <p>Community Book Circle. Lend. Borrow. Read. Repeat.<br>Join families building a reading culture together.</p>
+      <div class="cta-btns">
+        <a href="#get-started" class="btn btn-primary">Get Started</a>
+        <a href="#browse" class="btn btn-outline">Browse Books</a>
       </div>
     </div>
   </section>
 
-  <!-- What Is Raising Readers -->
-  <section id="what-is" class="section">
-    <div class="container section-content">
-      <h2 class="section-title">What Is Raising Readers?</h2>
-      <div class="rule"></div>
-      <p class="section-text">Raising Readers is a family-centered literacy initiative that allows REST members to lend books responsibly, borrow books within structured cycles, encourage consistent reading habits, submit reflections and reviews, and participate in community literacy engagement.</p>
-      <p class="section-text">REST provides the registration and verification structure. Raising Readers activates reading culture within that structure.</p>
+  <div class="rr-section">
+    <!-- REST Card Required -->
+    <div class="rest-banner" id="get-started">
+      <h3>🔐 REST Card Required</h3>
+      <p>You need a REST Card to lend or borrow books. It's free to join!</p>
+      <a href="{% url 'rest_card_info' %}" class="btn">Get REST Card →</a>
+    </div>
 
-      <div class="feature-grid">
-        <div class="feature-card">
-          <div class="feature-icon">📖</div>
-          <h3 class="feature-title">Responsible Lending</h3>
-          <p class="feature-text">Lend books through our structured system with clear guidelines and accountability measures.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">📚</div>
-          <h3 class="feature-title">Structured Borrowing</h3>
-          <p class="feature-text">Borrow books within scheduled cycles with clear due dates and return processes.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">✨</div>
-          <h3 class="feature-title">Consistent Habits</h3>
-          <p class="feature-text">Build and maintain regular reading habits through our structured program.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">💬</div>
-          <h3 class="feature-title">Community Engagement</h3>
-          <p class="feature-text">Share reflections, reviews, and engage with other families in our reading community.</p>
-        </div>
+    <!-- Action Cards -->
+    <h2 class="section-title">What Would You Like To Do?</h2>
+    <div class="actions-grid">
+      <div class="action-card">
+        <div class="icon">📤</div>
+        <h3>Lend a Book</h3>
+        <p>Share your books with the community. Help others discover great reads.</p>
+        <a href="#" class="btn btn-primary" onclick="alert('Login with REST Card to lend books')">Lend Now</a>
+      </div>
+      <div class="action-card">
+        <div class="icon">📥</div>
+        <h3>Borrow a Book</h3>
+        <p>Find your next read from our community collection.</p>
+        <a href="#browse" class="btn btn-green">Browse Books</a>
+      </div>
+      <div class="action-card">
+        <div class="icon">✅</div>
+        <h3>Return a Book</h3>
+        <p>Already borrowed? Confirm your return here.</p>
+        <a href="#" class="btn btn-blue" onclick="alert('Login to confirm return')">Confirm Return</a>
+      </div>
+      <div class="action-card">
+        <div class="icon">💬</div>
+        <h3>Share a Review</h3>
+        <p>Tell others about what you read. Inspire the community!</p>
+        <a href="#" class="btn btn-outline" style="border-color:#FF6B9D;color:#FF6B9D;">Write Review</a>
       </div>
     </div>
-  </section>
 
-  <!-- Who Can Participate -->
-  <section class="section">
-    <div class="container section-content">
-      <h2 class="section-title">Who Can Participate?</h2>
-      <div class="rule"></div>
-      <p class="section-text">Raising Readers is open to parents, guardians, and adult readers (18+). All borrowing and book listings must be done through an adult.</p>
-
-      <div class="feature-grid">
-        <div class="feature-card">
-          <div class="feature-icon">👨‍👩‍👧‍👦</div>
-          <h3 class="feature-title">Parents & Guardians</h3>
-          <p class="feature-text">Register and manage book borrowing for your children and family.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🧑</div>
-          <h3 class="feature-title">Adult Readers</h3>
-          <p class="feature-text">Individual adult readers aged 18+ can participate directly.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">👶</div>
-          <h3 class="feature-title">Children & Teens</h3>
-          <p class="feature-text">Participate through your parent or guardian who manages the process.</p>
-        </div>
-      </div>
-
-      <div class="how-it-works">
-        <h3 class="section-title" style="font-size:2rem;">Adult Responsibilities</h3>
-        <p class="section-text">Adults are responsible for:</p>
-        <ul class="section-text">
-          <li>Maintaining the condition of borrowed books</li>
-          <li>Ensuring timely return of books</li>
-          <li>Replacing lost or damaged books</li>
-          <li>Overseeing children's participation</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- How It Works -->
-  <section class="section">
-    <div class="container section-content">
-      <h2 class="section-title">How It Works</h2>
-      <div class="rule"></div>
+    <!-- Browse Books -->
+    <div class="books-section" id="browse">
+      <h2 class="section-title">📖 Available Books</h2>
+      <p style="text-align:center;color:#666;margin-bottom:1rem;">Browse our community collection</p>
       
-      <div class="how-it-works">
-        <div class="step">
-          <div class="step-number">1</div>
-          <div class="step-content">
-            <h3 class="step-title">REST Card Registration</h3>
-            <p class="step-text">All participants must complete the REST Card Registration Form for identity verification and accountability.</p>
+      <div class="books-grid">
+        {% if books %}
+          {% for book in books %}
+          <div class="book-card">
+            <div class="book-cover">
+              {% if book.cover_image %}
+                <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+              {% else %}
+                📖
+              {% endif %}
+            </div>
+            <div class="book-info">
+              <div class="book-title">{{ book.title }}</div>
+              <div class="book-author">{{ book.author }}</div>
+              {% if book.status == 'available' %}
+                <span class="book-status status-available">Available</span>
+              {% elif book.status == 'on_loan' %}
+                <span class="book-status status-borrowed">On Loan</span>
+              {% else %}
+                <span class="book-status" style="background:#e2e6ea;color:#6c757d;">Unavailable</span>
+              {% endif %}
+              <div class="book-actions">
+                <button class="btn btn-green" data-book-id="{{ book.id }}" data-title="{{ book.title|escapejs }}" data-author="{{ book.author|escapejs }}" data-description="{{ book.description|escapejs }}" data-age="{{ book.age_category|escapejs }}" data-genre="{{ book.genre|escapejs }}" data-status="{% if book.status == 'available' %}Available{% elif book.status == 'on_loan' %}On Loan{% else %}{{ book.status|title }}{% endif %}" onclick="showBookModal(this)">Details</button>
+              </div>
+            </div>
           </div>
-        </div>
-        
-        <div class="step">
-          <div class="step-number">2</div>
-          <div class="step-content">
-            <h3 class="step-title">Request Access</h3>
-            <p class="step-text">After registration, interested members may request to join the Raising Readers coordination platform.</p>
-          </div>
-        </div>
-        
-        <div class="step">
-          <div class="step-number">3</div>
-          <div class="step-content">
-            <h3 class="step-title">Verification</h3>
-            <p class="step-text">REST registration is confirmed before access is granted.</p>
-          </div>
-        </div>
-        
-        <div class="step">
-          <div class="step-number">4</div>
-          <div class="step-content">
-            <h3 class="step-title">Lend or Borrow</h3>
-            <p class="step-text">Verified members may submit books to lend, request books to borrow, and participate in reading engagement activities.</p>
-          </div>
-        </div>
+          {% endfor %}
+        {% else %}
+          <p style="grid-column:1/-1;text-align:center;color:#666;">No books available yet. Check back soon!</p>
+        {% endif %}
       </div>
+    </div>
 
-      <div class="feature-grid">
-        <div class="feature-card">
-          <div class="feature-icon">📅</div>
-          <h3 class="feature-title">Twice Monthly Cycles</h3>
-          <p class="feature-text">Borrowing cycles take place twice monthly with 3-week borrowing periods.</p>
+    <!-- Quick Info -->
+    <div class="quick-info">
+      <div class="quick-info-grid">
+        <div class="info-item">
+          <div class="icon">📅</div>
+          <h4>Twice Monthly Cycles</h4>
+          <p>Borrow for 2 weeks, return on schedule</p>
         </div>
-        <div class="feature-card">
-          <div class="feature-icon">📊</div>
-          <h3 class="feature-title">Limited Books per Cycle</h3>
-          <p class="feature-text">Members can borrow a limited number of books per cycle to ensure fair access for all.</p>
+        <div class="info-item">
+          <div class="icon">📚</div>
+          <h4>3-5 Books Max</h4>
+          <p>Fair access for all members</p>
         </div>
-        <div class="feature-card">
-          <div class="feature-icon">✅</div>
-          <h3 class="feature-title">Good Condition Return</h3>
-          <p class="feature-text">Books must be returned in good condition. Lost or damaged books must be replaced.</p>
+        <div class="info-item">
+          <div class="icon">✅</div>
+          <h4>Care for Books</h4>
+          <p>Return in good condition</p>
+        </div>
+        <div class="info-item">
+          <div class="icon">🤝</div>
+          <h4>Community Trust</h4>
+          <p>Built on respect & responsibility</p>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- Community Engagement -->
-  <section class="section">
-    <div class="container section-content">
-      <h2 class="section-title">Community Engagement</h2>
-      <div class="rule"></div>
-      <p class="section-text">Raising Readers encourages active participation in literacy. Members may submit written reviews, audio reflections (submitted through parents), and optional reading photos. Selected submissions may be featured on REST platforms to celebrate reading culture within families.</p>
-
-      <div class="feature-grid">
-        <div class="feature-card">
-          <div class="feature-icon">✍️</div>
-          <h3 class="feature-title">Written Reviews</h3>
-          <p class="feature-text">Share your thoughts on the books you've read with the community.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🎤</div>
-          <h3 class="feature-title">Audio Reflections</h3>
-          <p class="feature-text">Record and submit audio reflections, especially great for younger readers.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">📸</div>
-          <h3 class="feature-title">Reading Photos</h3>
-          <p class="feature-text">Share optional photos of your reading moments to inspire others.</p>
-        </div>
-      </div>
+    <!-- Footer CTA -->
+    <div class="rr-cta">
+      <h2>Ready to Join the Reading Circle?</h2>
+      <p>Get your REST Card today and start sharing the joy of reading!</p>
+      <a href="{% url 'rest_card_info' %}" class="btn">Get REST Card →</a>
     </div>
-  </section>
-
-  <!-- Our Values -->
-  <section class="section">
-    <div class="container section-content">
-      <h2 class="section-title">Our Values</h2>
-      <div class="rule"></div>
-      <p class="section-text">Raising Readers operates on core values that guide our community and mission.</p>
-
-      <div class="values-grid">
-        <div class="value-item">
-          <div class="value-icon">🏗️</div>
-          <h3 class="value-title">Structure</h3>
-          <p class="value-text">Clear guidelines and processes for consistent reading habits</p>
-        </div>
-        <div class="value-item">
-          <div class="value-icon">🤝</div>
-          <h3 class="value-title">Responsibility</h3>
-          <p class="value-text">Accountability for book care and timely returns</p>
-        </div>
-        <div class="value-item">
-          <div class="value-icon">❤️</div>
-          <h3 class="value-title">Respect</h3>
-          <p class="value-text">For books, readers, and the reading community</p>
-        </div>
-        <div class="value-item">
-          <div class="value-icon">📈</div>
-          <h3 class="value-title">Literacy Growth</h3>
-          <p class="value-text">Supporting reading development for all ages</p>
-        </div>
-        <div class="value-item">
-          <div class="value-icon">👥</div>
-          <h3 class="value-title">Community Trust</h3>
-          <p class="value-text">Building trust through transparency and reliability</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Join Section -->
-  <section id="join" class="section">
-    <div class="container section-content">
-      <div class="join-section">
-        <h2 class="join-title">Join Raising Readers</h2>
-        <p class="join-text">Be part of a structured reading community that strengthens families through intentional reading habits.</p>
-        <a href="{% url 'rest_card_info' %}" class="btn join-btn">Get Started</a>
-      </div>
-
-      <div class="how-it-works">
-        <h3 class="section-title" style="font-size:2rem;">How to Participate</h3>
-        <ol class="section-text">
-          <li>Complete your REST Card registration</li>
-          <li>Indicate your interest in Raising Readers</li>
-          <li>Await verification and onboarding instructions</li>
-        </ol>
-      </div>
-    </div>
-  </section>
+  </div>
 </div>
+
+<!-- Book Details Modal -->
+<div id="bookModal" class="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+  <div class="modal-content" style="background:#fff;border-radius:16px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;position:relative;">
+    <button onclick="closeBookModal()" style="position:absolute;top:15px;right:15px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#666;">✕</button>
+    <div id="modalBody" style="padding:2rem;">
+      <h2 id="modalTitle" style="margin:0 0 .5rem;font-size:1.5rem;"></h2>
+      <p id="modalAuthor" style="color:#666;margin-bottom:1rem;"></p>
+      <div id="modalStatus" style="margin-bottom:1rem;"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div><strong>Age Category:</strong> <span id="modalAge"></span></div>
+        <div><strong>Genre:</strong> <span id="modalGenre"></span></div>
+      </div>
+      <p id="modalDescription" style="color:#444;line-height:1.6;"></p>
+      <button class="btn btn-primary" style="width:100%;margin-top:1rem;" onclick="alert('Please login with REST Card to borrow this book')">Request to Borrow</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showBookModal(btn) {
+  document.getElementById('modalTitle').textContent = btn.dataset.title;
+  document.getElementById('modalAuthor').textContent = 'by ' + btn.dataset.author;
+  document.getElementById('modalAge').textContent = btn.dataset.age || 'N/A';
+  document.getElementById('modalGenre').textContent = btn.dataset.genre || 'N/A';
+  document.getElementById('modalDescription').textContent = btn.dataset.description || 'No description available.';
+  
+  const statusEl = document.getElementById('modalStatus');
+  const status = btn.dataset.status;
+  if (status === 'Available') {
+    statusEl.innerHTML = '<span style="background:#d4edda;color:#155724;padding:.25rem .75rem;border-radius:20px;font-size:.85rem;">✓ Available</span>';
+  } else if (status === 'On Loan') {
+    statusEl.innerHTML = '<span style="background:#fff3cd;color:#856404;padding:.25rem .75rem;border-radius:20px;font-size:.85rem;">� currently on loan</span>';
+  } else {
+    statusEl.innerHTML = '<span style="background:#e2e6ea;color:#6c757d;padding:.25rem .75rem;border-radius:20px;font-size:.85rem;">Unavailable</span>';
+  }
+  
+  document.getElementById('bookModal').style.display = 'flex';
+}
+
+function closeBookModal() {
+  document.getElementById('bookModal').style.display = 'none';
+}
+
+document.getElementById('bookModal').addEventListener('click', function(e) {
+  if (e.target === this) closeBookModal();
+});
+</script>
 {% endblock %}

@@ -34,6 +34,28 @@ def voting_campaign_detail(request, slug):
     campaign = get_object_or_404(VotingCampaign, slug=slug, is_active=True)
     nominees = campaign.nominees.all().order_by('order', '-vote_count')
     
+    # Get search query
+    search_query = request.GET.get('search', '').strip()
+    
+    # Get filter query (by vote count range)
+    vote_filter = request.GET.get('filter', '')
+    
+    # Apply search filter
+    if search_query:
+        nominees = nominees.filter(name__icontains=search_query)
+    
+    # Apply vote count filters
+    if vote_filter == 'top_rated':
+        nominees = nominees.order_by('-vote_count')
+    elif vote_filter == 'lowest':
+        nominees = nominees.order_by('vote_count')
+    elif vote_filter == 'newest':
+        nominees = nominees.order_by('-created_at')
+    elif vote_filter == 'oldest':
+        nominees = nominees.order_by('created_at')
+    else:
+        nominees = nominees.order_by('order', '-vote_count')
+    
     # Get leaderboard (top 3)
     leaderboard = campaign.nominees.all().order_by('-vote_count')[:3]
     
@@ -49,8 +71,8 @@ def voting_campaign_detail(request, slug):
         'vote_price': campaign.vote_price,
         'rest_points_per_vote': campaign.rest_points_per_vote,
         'is_ongoing': is_ongoing,  # Explicitly pass
-        'is_test_mode': True,  # Add test mode flag
-        'test_mode_message': 'TEST MODE: Pseudo voting enabled. Real Paystack integration coming soon.',
+        'search_query': search_query,
+        'vote_filter': vote_filter,
     }
     return render(request, 'Web/voting/campaign_detail.html', context)
 
