@@ -74,6 +74,27 @@ header.absolute svg {
         {% endif %}
     </div>
 
+    <!-- Payment Info & Bonus Votes - Clean, Non-intrusive -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+        <!-- Payment Notice -->
+        <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+            <div style="font-weight: 600; margin-bottom: 0.5rem; color: #856404;">💡 Voting Information</div>
+            <p style="margin: 0; color: #856404; font-size: 0.85rem; line-height: 1.5;">
+                Each vote costs <strong>₦{{ vote_price|floatformat:0 }}</strong>. Votes represent community support for nominees.
+            </p>
+        </div>
+        
+        <!-- Bonus Votes -->
+        <div style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border: 1px solid #4caf50; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+            <div style="font-weight: 600; margin-bottom: 0.5rem; color: #2e7d32;">🎁 Bonus Votes</div>
+            <div style="color: #2e7d32; font-size: 0.85rem; line-height: 1.5;">
+                <span>₦5,000 → 10+2</span> · 
+                <span>₦10,000 → 20+5</span> · 
+                <span>₦30,000 → 60+10</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Search and Filter Section -->
     <div class="search-filter-section" style="background: #f8f9fa; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border: 2px solid #e1e8ed;">
         <div class="search-filter-bar" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
@@ -131,6 +152,10 @@ header.absolute svg {
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: clamp(0.85rem, 2vw, 0.95rem);">
                 <strong>Total Votes:</strong>
                 <span id="totalVotes">0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: clamp(0.85rem, 2vw, 0.95rem); color: #28a745;">
+                <strong>Bonus Votes:</strong>
+                <span id="totalBonus">+0</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: clamp(1rem, 2.5vw, 1.2rem); color: #27ae60;">
                 <strong>Amount:</strong>
@@ -218,10 +243,26 @@ header.absolute svg {
             <button onclick="closeVoteModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0.25rem;">×</button>
         </div>
         
+        <!-- Voting Information -->
+        <div style="background: #fff9e6; border-left: 4px solid #ffc107; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: clamp(0.8rem, 2vw, 0.9rem); color: #5d4805;">
+            <strong>💡 Voting Information</strong><br>
+            Each vote costs ₦500. Votes represent community support for nominees.
+        </div>
+        
         <div style="margin-bottom: 1.25rem;">
             <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: clamp(0.9rem, 2vw, 1rem);">Number of Votes *</label>
             <input type="number" id="voteVotesInput" value="1" min="1" max="1000" onchange="updateVotePrice()" oninput="updateVotePrice()"
                    style="width: 100%; padding: 0.875rem; border: 2px solid #3498db; border-radius: 8px; font-size: clamp(1rem, 2vw, 1.1rem); box-sizing: border-box; text-align: center;">
+        </div>
+        
+        <!-- Bonus Votes Info -->
+        <div style="background: linear-gradient(135deg, #d4edda, #c3e6cb); border: 1px solid #28a745; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; font-size: clamp(0.75rem, 2vw, 0.85rem); color: #155724;">
+            <strong style="display: block; margin-bottom: 0.5rem;">🎁 Bonus Votes</strong>
+            <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.25rem;">
+                <span>₦5,000 → 10+2</span>
+                <span>₦10,000 → 20+5</span>
+                <span>₦30,000 → 60+10</span>
+            </div>
         </div>
         
         <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1.25rem;">
@@ -236,6 +277,10 @@ header.absolute svg {
             <div style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 0.75rem; display: flex; justify-content: space-between; font-size: clamp(0.85rem, 2vw, 0.95rem);">
                 <span>Rest Points Earned:</span>
                 <span id="voteRestPoints">100 points</span>
+            </div>
+            <div style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 0.75rem; display: flex; justify-content: space-between; font-size: clamp(0.85rem, 2vw, 0.95rem); font-weight: 600;">
+                <span>Bonus Votes:</span>
+                <span id="voteBonusVotes">+0</span>
             </div>
         </div>
         
@@ -378,8 +423,20 @@ function updateVotePrice() {
     const totalPrice = votes * pricePerVote;
     const restPoints = votes * REST_POINTS_PER_VOTE;
     
+    // Calculate bonus votes based on amount tiers
+    let bonusVotes = 0;
+    const totalAmount = totalPrice;
+    if (totalAmount >= 30000) {
+        bonusVotes = 10;
+    } else if (totalAmount >= 10000) {
+        bonusVotes = 5;
+    } else if (totalAmount >= 5000) {
+        bonusVotes = 2;
+    }
+    
     document.getElementById('voteTotalPrice').textContent = `₦${totalPrice.toLocaleString()}`;
     document.getElementById('voteRestPoints').textContent = `${Math.floor(restPoints).toLocaleString()} points`;
+    document.getElementById('voteBonusVotes').textContent = bonusVotes > 0 ? `+${bonusVotes}` : '+0';
 }
 
 function confirmVote() {
@@ -389,14 +446,28 @@ function confirmVote() {
         return;
     }
     
+    // Calculate bonus votes
+    const pricePerVote = voteModalData.votePrice;
+    const totalAmount = votes * pricePerVote;
+    let bonusVotes = 0;
+    if (totalAmount >= 30000) {
+        bonusVotes = 10;
+    } else if (totalAmount >= 10000) {
+        bonusVotes = 5;
+    } else if (totalAmount >= 5000) {
+        bonusVotes = 2;
+    }
+    
     ballot[voteModalData.nomineeId] = {
         name: voteModalData.nomineeName,
-        votes: votes
+        votes: votes,
+        bonus: bonusVotes
     };
     
     updateBallot();
     closeVoteModal();
-    showSuccess(`Added ${votes} vote(s) for ${voteModalData.nomineeName} to your ballot!`);
+    const bonusText = bonusVotes > 0 ? ` (+${bonusVotes} bonus votes)` : '';
+    showSuccess(`Added ${votes} vote(s)${bonusText} for ${voteModalData.nomineeName} to your ballot!`);
 }
 
 function incrementVote(nomineeId) {
@@ -434,17 +505,20 @@ function updateBallot() {
     const summaryDiv = document.getElementById('ballotSummary');
     
     let totalVotes = 0;
+    let totalBonus = 0;
     let totalAmount = 0;
     let html = '';
     
     for (const [nomineeId, data] of Object.entries(ballot)) {
         if (data.votes > 0) {
             totalVotes += data.votes;
+            totalBonus += data.bonus || 0;
             totalAmount += data.votes * VOTE_PRICE;
+            const bonusDisplay = data.bonus && data.bonus > 0 ? ` <span style="color: #28a745; font-size: 0.8rem;">(+${data.bonus} bonus)</span>` : '';
             html += `
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding: 0.5rem; background: #f8f9fa; border-radius: 4px;">
                     <span style="font-size: 0.9rem;">${data.name}</span>
-                    <span style="font-weight: 600;">${data.votes} × ₦${VOTE_PRICE}</span>
+                    <span style="font-weight: 600;">${data.votes} × ₦${VOTE_PRICE}${bonusDisplay}</span>
                 </div>
             `;
         }
@@ -454,6 +528,7 @@ function updateBallot() {
         summaryDiv.style.display = 'block';
         ballotDiv.innerHTML = html;
         document.getElementById('totalVotes').textContent = totalVotes;
+        document.getElementById('totalBonus').textContent = totalBonus > 0 ? `+${totalBonus} bonus` : '+0';
         document.getElementById('totalAmount').textContent = `₦${totalAmount.toLocaleString()}`;
         document.getElementById('totalRestPoints').textContent = `${(totalVotes * REST_POINTS_PER_VOTE).toLocaleString()} points`;
     } else {
@@ -476,6 +551,7 @@ function clearBallot() {
 
 function proceedToCheckout() {
     const totalVotes = Object.values(ballot).reduce((sum, data) => sum + data.votes, 0);
+    const totalBonus = Object.values(ballot).reduce((sum, data) => sum + (data.bonus || 0), 0);
     
     if (totalVotes === 0) {
         showWarning('Please add at least one vote to your ballot before proceeding');
@@ -485,7 +561,7 @@ function proceedToCheckout() {
     const totalAmount = totalVotes * VOTE_PRICE;
     const totalRestPoints = totalVotes * REST_POINTS_PER_VOTE;
     
-    document.getElementById('checkoutTotalVotes').textContent = totalVotes;
+    document.getElementById('checkoutTotalVotes').textContent = `${totalVotes} (+${totalBonus} bonus)`;
     document.getElementById('checkoutTotalAmount').textContent = `₦${totalAmount.toLocaleString()}`;
     document.getElementById('checkoutRestPoints').textContent = `${totalRestPoints.toLocaleString()} points`;
     
@@ -506,7 +582,8 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e) => 
     
     const ballotArray = Object.entries(ballot).map(([nomineeId, data]) => ({
         nominee_id: nomineeId,
-        votes: data.votes
+        votes: data.votes,
+        bonus: data.bonus || 0
     }));
     
     // Always use real Paystack in production
