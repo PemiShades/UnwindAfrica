@@ -497,9 +497,9 @@ document.addEventListener('alpine:init', () => {
         this.showCampaignModal = true;
       },
 
-      editCampaign(id, name, tagline, description, start_date, end_date, vote_price, rest_points_per_vote, grand_prize, grand_prize_description, second_prize, second_prize_description, third_prize, third_prize_description, prize_description, banner_image, is_active) {
+      editCampaign(id, name, tagline, description, start_date, end_date, vote_price, rest_points_per_vote, grand_prize, grand_prize_description, second_prize, second_prize_description, third_prize, third_prize_description, prize_description, banner_image, is_active, slug) {
         this.editingCampaign = true;
-        this.campaignFormAction = `/cms/campaign/${id}/edit/`;
+        this.campaignFormAction = `/cms/voting/${slug}/edit/`;
         this.campaignForm = { id, name, tagline, description, start_date, end_date, vote_price, rest_points_per_vote, grand_prize, grand_prize_description, second_prize, second_prize_description, third_prize, third_prize_description, prize_description, banner_image, is_active };
         this.showCampaignModal = true;
       },

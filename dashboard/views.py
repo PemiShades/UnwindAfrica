@@ -508,7 +508,13 @@ def edit_campaign(request, slug):
                 if not campaign.slug or form.has_changed() and 'name' in form.changed_data:
                     _ensure_unique_slug(campaign, campaign.name or "campaign")
                 campaign.save()
-                return JsonResponse({"ok": True})
+                
+                # Check if it's an AJAX request
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({"ok": True})
+                else:
+                    # Regular form submission - redirect back to dashboard
+                    return redirect('voting_dashboard')
             
             errors = {field: error[0] for field, error in form.errors.items()}
             return JsonResponse({"ok": False, "error": "Invalid form", "errors": errors}, status=400)

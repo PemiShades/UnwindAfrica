@@ -26,7 +26,7 @@ urlpatterns = [
     path("voting/", views.voting_dashboard, name="voting_dashboard"),
     path("voting/create/", views.create_campaign, name="create_campaign"),
     path("voting/<slug:slug>/edit/", views.edit_campaign, name="edit_campaign"),
-    path("voting/<slug:slug>/delete/", views.delete_campaign, name="edit_campaign"),
+    path("voting/<slug:slug>/delete/", views.delete_campaign, name="delete_campaign"),
     path("voting/<slug:slug>/voters/", views.view_campaign_voters, name="view_campaign_voters"),
     
     # Nominee management - edit stories
