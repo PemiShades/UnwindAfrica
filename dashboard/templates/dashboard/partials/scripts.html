@@ -497,11 +497,46 @@ document.addEventListener('alpine:init', () => {
         this.showCampaignModal = true;
       },
 
-      editCampaign(id, name, tagline, description, start_date, end_date, vote_price, rest_points_per_vote, grand_prize, grand_prize_description, second_prize, second_prize_description, third_prize, third_prize_description, prize_description, banner_image, is_active, slug) {
-        this.editingCampaign = true;
-        this.campaignFormAction = `/cms/voting/${slug}/edit/`;
-        this.campaignForm = { id, name, tagline, description, start_date, end_date, vote_price, rest_points_per_vote, grand_prize, grand_prize_description, second_prize, second_prize_description, third_prize, third_prize_description, prize_description, banner_image, is_active };
-        this.showCampaignModal = true;
+      openEditCampaign(slug) {
+        // Fetch campaign data via AJAX and populate the form
+        fetch(`/cms/voting/${slug}/edit/`, {
+          method: 'GET',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.campaign) {
+            const c = data.campaign;
+            this.editingCampaign = true;
+            this.campaignFormAction = `/cms/voting/${slug}/edit/`;
+            this.campaignForm = {
+              id: c.id,
+              name: c.name || '',
+              tagline: c.tagline || '',
+              description: c.description || '',
+              start_date: c.start_date || '',
+              end_date: c.end_date || '',
+              vote_price: c.vote_price || '',
+              rest_points_per_vote: c.rest_points_per_vote || '',
+              grand_prize: c.grand_prize || '',
+              grand_prize_description: c.grand_prize_description || '',
+              second_prize: c.second_prize || '',
+              second_prize_description: c.second_prize_description || '',
+              third_prize: c.third_prize || '',
+              third_prize_description: c.third_prize_description || '',
+              prize_description: c.prize_description || '',
+              banner_image: '',
+              is_active: c.is_active || false
+            };
+            this.showCampaignModal = true;
+          }
+        })
+        .catch(error => {
+          console.error('Error loading campaign:', error);
+          alert('Failed to load campaign data');
+        });
       },
 
       closeCampaignModal() { this.showCampaignModal = false; },

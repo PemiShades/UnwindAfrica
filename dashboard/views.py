@@ -501,6 +501,37 @@ def edit_campaign(request, slug):
     try:
         campaign = get_object_or_404(VotingCampaign, slug=slug)
         
+        # Handle GET request - return campaign data for editing
+        if request.method == "GET":
+            # Check if it's an AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    "ok": True,
+                    "campaign": {
+                        "id": campaign.id,
+                        "name": campaign.name,
+                        "tagline": campaign.tagline or "",
+                        "description": campaign.description or "",
+                        "start_date": campaign.start_date.strftime('%Y-%m-%d') if campaign.start_date else "",
+                        "end_date": campaign.end_date.strftime('%Y-%m-%d') if campaign.end_date else "",
+                        "vote_price": str(campaign.vote_price) if campaign.vote_price else "",
+                        "rest_points_per_vote": str(campaign.rest_points_per_vote) if campaign.rest_points_per_vote else "",
+                        "grand_prize": campaign.grand_prize or "",
+                        "grand_prize_description": campaign.grand_prize_description or "",
+                        "second_prize": campaign.second_prize or "",
+                        "second_prize_description": campaign.second_prize_description or "",
+                        "third_prize": campaign.third_prize or "",
+                        "third_prize_description": campaign.third_prize_description or "",
+                        "prize_description": campaign.prize_description or "",
+                        "banner_image": campaign.banner_image.url if campaign.banner_image else "",
+                        "is_active": campaign.is_active,
+                    }
+                })
+            else:
+                # Regular GET - render the form page (not implemented, redirect to voting dashboard)
+                return redirect('voting_dashboard')
+        
+        # Handle POST request - save campaign changes
         if request.method == "POST":
             form = VotingCampaignForm(request.POST, request.FILES, instance=campaign)
             if form.is_valid():

@@ -694,7 +694,7 @@
                         </div>
                       </div>
                       <div class="mt-4 flex gap-3">
-                        <button @click="editCampaign('{{ campaign.id }}', '{{ campaign.name|escapejs }}', '{{ campaign.tagline|escapejs }}', '{{ campaign.description|escapejs }}', '{{ campaign.start_date|date:"Y-m-d" }}', '{{ campaign.end_date|date:"Y-m-d" }}', '{{ campaign.vote_price }}', '{{ campaign.rest_points_per_vote }}', '{{ campaign.grand_prize|escapejs }}', '{{ campaign.grand_prize_description|escapejs }}', '{{ campaign.second_prize|escapejs }}', '{{ campaign.second_prize_description|escapejs }}', '{{ campaign.third_prize|escapejs }}', '{{ campaign.third_prize_description|escapejs }}', '{{ campaign.prize_description|escapejs }}', '{% if campaign.banner_image %}{{ campaign.banner_image.url }}{% else %}{% endif %}', '{% if campaign.is_active %}true{% else %}false{% endif %}', '{{ campaign.slug }}')" class="text-sm btn-ghost border border-blue-400/30 hover:border-blue-400/60">Edit</button>
+                        <button @click="openEditCampaign('{{ campaign.slug }}')" class="text-sm btn-ghost border border-blue-400/30 hover:border-blue-400/60">Edit</button>
                         <a href="{% url 'view_campaign_voters' campaign.slug %}" class="text-sm btn-ghost border border-green-400/30 hover:border-green-400/60">View Voters</a>
                         <button @click.stop="deleteCampaign('{{ campaign.slug }}')" class="text-sm btn-ghost border border-red-400/30 hover:border-red-400/60">Delete</button>
                       </div>
