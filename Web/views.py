@@ -88,12 +88,19 @@ def explore(request):
 
 def rest_card_signup(request):
     """Rest Card Early Sign-up page"""
+    from .models import RestCard
+    
     if request.method == 'POST':
         try:
-            # Create or update RestCard
-            email = request.POST.get('email')
-            name = request.POST.get('name')
-            phone = request.POST.get('phone')
+            # Debug: print all POST data
+            print("DEBUG: POST data received:", dict(request.POST))
+            
+            # Get form data
+            email = request.POST.get('email', '').strip()
+            name = request.POST.get('name', '').strip()
+            phone = request.POST.get('phone', '').strip()
+            
+            print(f"DEBUG: email={email}, name={name}, phone={phone}")
             
             if not email or not name or not phone:
                 return JsonResponse({
@@ -102,14 +109,23 @@ def rest_card_signup(request):
                 }, status=400)
             
             # Check if already exists
-            rest_card, created = RestCard.objects.get_or_create(
-                member_email=email,
-                defaults={
-                    'member_name': name,
-                    'member_phone': phone,
-                    'status': 'waitlist'
-                }
-            )
+            try:
+                rest_card, created = RestCard.objects.get_or_create(
+                    member_email=email,
+                    defaults={
+                        'member_name': name,
+                        'member_phone': phone,
+                        'status': 'waitlist'
+                    }
+                )
+                
+                print(f"DEBUG: RestCard created={created}, card={rest_card}")
+            except Exception as db_error:
+                print(f"DEBUG: Database error: {db_error}")
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Database error: {str(db_error)}'
+                }, status=500)
             
             if not created:
                 # Update existing record
@@ -117,20 +133,56 @@ def rest_card_signup(request):
                 rest_card.member_phone = phone
                 rest_card.save()
             
+            # Send confirmation email
+            try:
+                from django.core.mail import send_mail
+                subject = 'Rest Card Sign-up Confirmation - Unwind Africa'
+                message = f"""Dear {name},
+
+Thank you for signing up for the Unwind Africa Rest Card!
+
+We've received your application and you're now on our waitlist. We'll be in touch soon with updates about your Rest Card.
+
+Your Details:
+- Name: {name}
+- Email: {email}
+- Phone: {phone}
+
+What happens next?
+We'll review your application and send you updates about your Rest Card status.
+
+Best regards,
+The Unwind Africa Team
+Phone: +234 806 206 7832
+Email: info@unwindafrica.com"""
+                from django.conf import settings
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=True
+                )
+            except Exception as email_err:
+                # Log email error but don't fail the signup
+                print(f"Email sending error: {email_err}")
+            
             return JsonResponse({
                 'success': True,
                 'message': 'Thank you for signing up! We will contact you soon with updates about your Rest Card.',
-                'waitlist_position': rest_card.waitlist_position
+                'waitlist_position': getattr(rest_card, 'waitlist_position', None)
             })
         
         except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
             logger.error(f"Error processing rest card signup: {str(e)}")
             return JsonResponse({
                 'success': False,
                 'message': 'Something went wrong. Please try again.'
             }, status=500)
     
-    return render(request, 'Web/rest_card_signup.html')
+    return render(request, 'Web/rest_card_signup.html', {})
 
 
 def about(request):
@@ -278,8 +330,9 @@ def quote_request(request):
         f"Notes:\n{notes}\n\n"
         f"Page: {page}\nReferrer: {utm}\n"
     )
+    from django.conf import settings
     try:
-        send_mail(subject, body, "no-reply@unwindafrica.com", ["hello@unwindafrica.com"], fail_silently=True)
+        send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, ["info@unwindafrica.com"], fail_silently=True)
     except Exception:
         pass
 
@@ -326,7 +379,8 @@ def card_request(request):
             f"Message: {message}\n"
             f"Waitlist Position: #{card.waitlist_position}\n"
         )
-        send_mail(subject_admin, body_admin, "no-reply@unwindafrica.com", ["clientservicesunwindafrica@gmail.com"], fail_silently=False)
+        from django.conf import settings
+        send_mail(subject_admin, body_admin, settings.DEFAULT_FROM_EMAIL, ["clientservicesunwindafrica@gmail.com"], fail_silently=False)
 
         # Send confirmation email to user
         subject_user = "Thank you for your Rest Card request!"
@@ -338,10 +392,10 @@ def card_request(request):
             f"We will contact you as soon as more spots become available.\n\n"
             f"Best regards,\n"
             f"The Unwind Africa Team\n"
-            f"Phone: +234 123 456 7890\n"
-            f"Email: hello@unwindafrica.com"
+            f"Phone: +234 806 206 7832\n"
+            f"Email: info@unwindafrica.com"
         )
-        send_mail(subject_user, body_user, "no-reply@unwindafrica.com", [email], fail_silently=False)
+        send_mail(subject_user, body_user, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
 
     except Exception as e:
         print(f"Error processing card request: {e}")
@@ -750,7 +804,7 @@ This registration was submitted through the Unwind Africa website partnership wi
                 send_mail(
                     email_subject,
                     email_message,
-                    settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@unwindafrica.com',
+                    settings.DEFAULT_FROM_EMAIL,
                     ['unwindafrica24@gmail.com', 'info@unwindafrica.com'],
                     fail_silently=False,
                 )
@@ -1004,4 +1058,229 @@ def generate_rest_card(request, card_id):
         return HttpResponse("Rest Card not found", status=404)
     except Exception as e:
         return HttpResponse(f"Error generating card: {str(e)}", status=500)
+
+
+# ============================================
+# USER DASHBOARD VIEWS
+# ============================================
+import secrets
+import random
+from django.core.mail import send_mail
+from django.conf import settings
+
+
+def user_dashboard_login(request):
+    """
+    User dashboard login - request OTP to be sent to email
+    """
+    from django.http import JsonResponse
+    
+    if request.method == 'POST':
+        import json
+        try:
+            data = json.loads(request.body)
+            email = data.get('email', '').strip().lower()
+            
+            if not email:
+                return JsonResponse({'success': False, 'error': 'Email is required'})
+            
+            # Check if user has any records (RestCard, FrozenPoints, or TokenWallet)
+            from .models import RestCard, FrozenRestPoints, TokenWallet
+            
+            has_rest_card = RestCard.objects.filter(member_email=email).exists()
+            has_frozen_points = FrozenRestPoints.objects.filter(member_email=email, frozen_points__gt=0).exists()
+            has_token_wallet = TokenWallet.objects.filter(member_email=email).exists()
+            
+            if not (has_rest_card or has_frozen_points or has_token_wallet):
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'No account found for this email. Vote in our campaigns or join our waitlist to get started!'
+                })
+            
+            # Generate OTP
+            otp = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+            
+            # Store OTP in session (for demo - in production use Redis or DB)
+            request.session['dashboard_otp'] = otp
+            request.session['dashboard_email'] = email
+            request.session['dashboard_otp_expires'] = str(timezone.now() + timezone.timedelta(minutes=10))
+            
+            # Send OTP email
+            try:
+                send_mail(
+                    'Your Unwind Africa Dashboard Login Code',
+                    f'Your verification code is: {otp}\n\nThis code expires in 10 minutes.\n\nIf you did not request this, please ignore this email.',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=True,
+                )
+            except Exception as e:
+                print(f"OTP email error: {e}")
+            
+            return JsonResponse({'success': True, 'message': 'OTP sent to your email'})
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+def user_dashboard_verify_otp(request):
+    """
+    Verify OTP and log user into dashboard
+    """
+    from django.http import JsonResponse
+    from django.utils import timezone
+    
+    if request.method == 'POST':
+        import json
+        try:
+            data = json.loads(request.body)
+            otp = data.get('otp', '').strip()
+            email = data.get('email', '').strip().lower()
+            
+            # Get stored OTP
+            stored_otp = request.session.get('dashboard_otp')
+            stored_email = request.session.get('dashboard_email')
+            expires_str = request.session.get('dashboard_otp_expires')
+            
+            if not stored_otp or not expires_str:
+                return JsonResponse({'success': False, 'error': 'Session expired. Please request a new code.'})
+            
+            # Check expiration
+            expires = timezone.datetime.fromisoformat(expires_str.replace('Z', '+00:00'))
+            if timezone.now() > expires:
+                # Clear session
+                request.session.flush()
+                return JsonResponse({'success': False, 'error': 'Code expired. Please request a new one.'})
+            
+            # Verify OTP and email match
+            if otp != stored_otp or email != stored_email:
+                return JsonResponse({'success': False, 'error': 'Invalid verification code.'})
+            
+            # OTP verified - set dashboard session
+            request.session['dashboard_authenticated'] = True
+            request.session['dashboard_user_email'] = email
+            
+            # Clear OTP from session
+            del request.session['dashboard_otp']
+            del request.session['dashboard_email']
+            del request.session['dashboard_otp_expires']
+            
+            return JsonResponse({'success': True})
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+def user_dashboard(request):
+    """
+    Main user dashboard - shows rest points, frozen points, token wallet
+    Requires email authentication via session
+    """
+    from .models import RestCard, FrozenRestPoints, TokenWallet, Vote
+    
+    # Check authentication
+    email = request.session.get('dashboard_user_email')
+    if not email:
+        return render(request, 'Web/community/user_dashboard_login.html', {})
+    
+    # Get user data
+    try:
+        rest_card = RestCard.objects.filter(member_email=email).first()
+    except RestCard.DoesNotExist:
+        rest_card = None
+    
+    # Get frozen points total
+    frozen_entries = FrozenRestPoints.objects.filter(member_email=email)
+    total_frozen_points = sum(entry.frozen_points for entry in frozen_entries)
+    
+    # Get token wallet
+    try:
+        token_wallet = TokenWallet.objects.get(member_email=email)
+    except TokenWallet.DoesNotExist:
+        token_wallet = None
+    
+    # Get recent votes
+    recent_votes = Vote.objects.filter(voter_email=email).order_by('-created_at')[:10]
+    
+    context = {
+        'email': email,
+        'rest_card': rest_card,
+        'frozen_points': total_frozen_points,
+        'frozen_entries': frozen_entries,
+        'token_wallet': token_wallet,
+        'recent_votes': recent_votes,
+    }
+    
+    return render(request, 'Web/community/user_dashboard.html', context)
+
+
+def user_dashboard_logout(request):
+    """Log out from user dashboard"""
+    if 'dashboard_user_email' in request.session:
+        del request.session['dashboard_user_email']
+    if 'dashboard_authenticated' in request.session:
+        del request.session['dashboard_authenticated']
+    return redirect('home')
+
+
+def claim_frozen_points(request):
+    """
+    Transfer frozen points to user's Rest Card when they apply
+    """
+    from django.http import JsonResponse
+    from django.db import transaction
+    from .models import RestCard, FrozenRestPoints
+    
+    email = request.session.get('dashboard_user_email')
+    if not email:
+        return JsonResponse({'success': False, 'error': 'Not authenticated'})
+    
+    if request.method == 'POST':
+        import json
+        try:
+            data = json.loads(request.body)
+            rest_card_id = data.get('rest_card_id')
+            
+            with transaction.atomic():
+                # Get the rest card
+                rest_card = RestCard.objects.get(id=rest_card_id, member_email=email)
+                
+                # Get all unclaimed frozen points
+                frozen_entries = FrozenRestPoints.objects.filter(
+                    member_email=email,
+                    points_claimed=False,
+                    frozen_points__gt=0
+                )
+                
+                total_points = sum(entry.frozen_points for entry in frozen_entries)
+                
+                if total_points > 0:
+                    # Transfer points to rest card
+                    rest_card.total_rest_points += total_points
+                    rest_card.save()
+                    
+                    # Mark entries as claimed
+                    from django.utils.timezone import now
+                    for entry in frozen_entries:
+                        entry.points_claimed = True
+                        entry.claimed_at = now()
+                        entry.rest_card = rest_card
+                        entry.save()
+                
+                return JsonResponse({
+                    'success': True, 
+                    'message': f'{total_points} points transferred to your Rest Card!',
+                    'new_balance': float(rest_card.total_rest_points)
+                })
+                
+        except RestCard.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Rest Card not found'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 

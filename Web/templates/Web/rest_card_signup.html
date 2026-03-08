@@ -364,6 +364,7 @@
         </div>
 
         <form id="signupForm">
+        {% csrf_token %}
         <!-- Step 1: Personal Information -->
         <div class="form-step" :class="{ 'active': currentStep === 1 }">
             <h2 class="text-2xl font-bold mb-6">Personal Information</h2>
@@ -531,70 +532,62 @@
             </div>
 
             <div class="form-field mt-4">
-                <label>Where would you most likely want to Unwind? (Choose all that apply)</label>
-                <div class="flex flex-col gap-3 mt-2">
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="unwind_1" 
-                               name="unwindPlaces" value="Spa or wellness center"
-                               x-model="formData.unwindPlaces">
-                        <label for="unwind_1">Spa or wellness center</label>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="unwind_2" 
-                               name="unwindPlaces" value="Beach resort"
-                               x-model="formData.unwindPlaces">
-                        <label for="unwind_2">Beach resort</label>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="unwind_3" 
-                               name="unwindPlaces" value="Countryside retreat or cabin"
-                               x-model="formData.unwindPlaces">
-                        <label for="unwind_3">Countryside retreat or cabin</label>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="unwind_4" 
-                               name="unwindPlaces" value="Private villa or short-stay apartment"
-                               x-model="formData.unwindPlaces">
-                        <label for="unwind_4">Private villa or short-stay apartment</label>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="unwind_5" 
-                               name="unwindPlaces" value="Boat cruise"
-                               x-model="formData.unwindPlaces">
-                        <label for="unwind_5">Boat cruise</label>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="unwind_6" 
-                               name="unwindPlaces" value="Cinema or theatre"
-                               x-model="formData.unwindPlaces">
-                        <label for="unwind_6">Cinema or theatre</label>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="unwind_7" 
-                               name="unwindPlaces" value="Restaurant or rooftop lounge"
-                               x-model="formData.unwindPlaces">
-                        <label for="unwind_7">Restaurant or rooftop lounge</label>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="unwind_8" 
-                               name="unwindPlaces" value="Adventure getaway (hiking, nature park, etc.)"
-                               x-model="formData.unwindPlaces">
-                        <label for="unwind_8">Adventure getaway (hiking, nature park, etc.)</label>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="unwind_9" 
-                               name="unwindPlaces" value="Talking to a therapist or counselor"
-                               x-model="formData.unwindPlaces">
-                        <label for="unwind_9">Talking to a therapist or counselor</label>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="unwind_other" name="unwindPlaces" value="other">
-                        <label for="unwind_other">Other:</label>
+                <label class="block text-sm font-medium text-gray-700 mb-3">Where would you most likely want to Unwind? <span class="text-gray-400">(Choose all that apply)</span></label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all group">
+                        <input type="checkbox" class="mt-1 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" 
+                               name="unwindPlaces" value="Spa or wellness center" x-model="formData.unwindPlaces">
+                        <span class="text-sm text-gray-700 group-hover:text-indigo-700">Spa or wellness center</span>
+                    </label>
+                    <label class="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all group">
+                        <input type="checkbox" class="mt-1 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" 
+                               name="unwindPlaces" value="Beach resort" x-model="formData.unwindPlaces">
+                        <span class="text-sm text-gray-700 group-hover:text-indigo-700">Beach resort</span>
+                    </label>
+                    <label class="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all group">
+                        <input type="checkbox" class="mt-1 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" 
+                               name="unwindPlaces" value="Countryside retreat or cabin" x-model="formData.unwindPlaces">
+                        <span class="text-sm text-gray-700 group-hover:text-indigo-700">Countryside retreat or cabin</span>
+                    </label>
+                    <label class="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all group">
+                        <input type="checkbox" class="mt-1 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" 
+                               name="unwindPlaces" value="Private villa or short-stay apartment" x-model="formData.unwindPlaces">
+                        <span class="text-sm text-gray-700 group-hover:text-indigo-700">Private villa or short-stay apartment</span>
+                    </label>
+                    <label class="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all group">
+                        <input type="checkbox" class="mt-1 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" 
+                               name="unwindPlaces" value="Boat cruise" x-model="formData.unwindPlaces">
+                        <span class="text-sm text-gray-700 group-hover:text-indigo-700">Boat cruise</span>
+                    </label>
+                    <label class="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all group">
+                        <input type="checkbox" class="mt-1 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" 
+                               name="unwindPlaces" value="Cinema or theatre" x-model="formData.unwindPlaces">
+                        <span class="text-sm text-gray-700 group-hover:text-indigo-700">Cinema or theatre</span>
+                    </label>
+                    <label class="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all group">
+                        <input type="checkbox" class="mt-1 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" 
+                               name="unwindPlaces" value="Restaurant or rooftop lounge" x-model="formData.unwindPlaces">
+                        <span class="text-sm text-gray-700 group-hover:text-indigo-700">Restaurant or rooftop lounge</span>
+                    </label>
+                    <label class="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all group">
+                        <input type="checkbox" class="mt-1 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" 
+                               name="unwindPlaces" value="Adventure getaway (hiking, nature park, etc.)" x-model="formData.unwindPlaces">
+                        <span class="text-sm text-gray-700 group-hover:text-indigo-700">Adventure getaway</span>
+                    </label>
+                    <label class="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all group">
+                        <input type="checkbox" class="mt-1 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" 
+                               name="unwindPlaces" value="Talking to a therapist or counselor" x-model="formData.unwindPlaces">
+                        <span class="text-sm text-gray-700 group-hover:text-indigo-700">Therapist or counselor</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all group">
+                        <input type="checkbox" id="unwind_other" class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" 
+                               name="unwindPlaces" value="other" x-model="formData.unwindPlaces">
+                        <span class="text-sm text-gray-700 group-hover:text-indigo-700">Other</span>
                         <input type="text" id="unwind_other_text" name="unwindOther" 
                                x-model="formData.unwindOther" 
-                               placeholder="Specify other place"
-                               class="ml-2">
-                    </div>
+                               placeholder="Specify..."
+                               class="flex-1 text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-indigo-500">
+                    </label>
                 </div>
             </div>
 
@@ -634,6 +627,9 @@
                 <h2>Thank You!</h2>
                 <p>Your rest card application has been submitted successfully! We'll review your information and get back to you soon with updates about your card.</p>
                 <p class="mt-2 text-sm text-gray-500">You will receive a confirmation email at: <strong x-text="formData.email"></strong></p>
+                <a href="/dashboard/" class="inline-block mt-6 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-xl hover:from-indigo-700 hover:to-purple-700 transition">
+                    View My Dashboard
+                </a>
             </div>
         </div>
 
@@ -645,10 +641,12 @@
                 <i class="fas fa-arrow-left mr-2"></i> Previous
             </button>
             <button type="button" class="btn btn-primary" 
-                    @click="nextStep()"
-                    :disabled="!isStepValid()">
-                <span x-text="currentStep === 4 ? 'Submit Application' : 'Next Step'"></span>
-                <i class="fas fa-arrow-right ml-2" x-show="currentStep < 4"></i>
+                    @click="currentStep === 4 ? submitForm() : nextStep()"
+                    :disabled="!isStepValid() || loading">
+                <span x-show="!loading" x-text="currentStep === 4 ? 'Submit Application' : 'Next Step'"></span>
+                <span x-show="loading"><i class="fas fa-spinner fa-spin mr-2"></i>Submitting...</span>
+                <i class="fas fa-arrow-right ml-2" x-show="currentStep < 4 && !loading"></i>
+                <i class="fas fa-check ml-2" x-show="currentStep === 4 && !loading"></i>
             </button>
         </div>
     </form>
@@ -674,6 +672,7 @@
     function signupForm() {
         return {
             currentStep: 1,
+            loading: false,
             formData: {
                 name: '',
                 gender: '',
@@ -735,6 +734,8 @@
             async submitForm() {
                 if (!this.isStepValid()) return;
                 
+                this.loading = true;
+                
                 try {
                     const formData = new FormData();
                     Object.keys(this.formData).forEach(key => {
@@ -756,6 +757,13 @@
                         }
                     });
 
+                    console.log('Response status:', response.status);
+                    console.log('Response ok:', response.ok);
+                    
+                    // Also log the response text
+                    const responseText = await response.text();
+                    console.log('Response text:', responseText);
+                    
                     if (response.ok) {
                         this.currentStep = 5;
                     } else {
@@ -764,6 +772,8 @@
                 } catch (error) {
                     console.error('Error:', error);
                     alert('Network error. Please check your connection and try again.');
+                } finally {
+                    this.loading = false;
                 }
             }
         };

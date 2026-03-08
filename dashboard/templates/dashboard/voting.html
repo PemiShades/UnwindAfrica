@@ -197,9 +197,14 @@
                           </div>
                           <span class="font-bold">{{ nominee.vote_count }} votes</span>
                         </div>
-                        <button type="button" onclick="deleteNominee({{ nominee.id }}, '{{ nominee.name }}')" class="ml-2 px-2 py-1 text-xs bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-100 rounded hover:bg-red-200 dark:hover:bg-red-800 transition-colors">
-                          Delete
-                        </button>
+                        <div class="flex gap-1">
+                          <button type="button" onclick="editNominee({{ nominee.id }}, '{{ nominee.name }}')" class="px-2 py-1 text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-100 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors">
+                            Edit
+                          </button>
+                          <button type="button" onclick="deleteNominee({{ nominee.id }}, '{{ nominee.name }}')" class="px-2 py-1 text-xs bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-100 rounded hover:bg-red-200 dark:hover:bg-red-800 transition-colors">
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
                     {% endfor %}
@@ -281,7 +286,7 @@ function deleteNominee(nomineeId, nomineeName) {
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
                       document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
     
-    fetch(`/dashboard/nominees/${nomineeId}/delete/`, {
+    fetch(`/cms/nominees/${nomineeId}/delete/`, {
       method: 'POST',
       headers: {
         'X-CSRFToken': csrfToken,
@@ -303,5 +308,144 @@ function deleteNominee(nomineeId, nomineeName) {
     });
   }
 }
+
+function editNominee(nomineeId, nomineeName) {
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                    document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+  
+  // Fetch nominee data
+  fetch(`/cms/nominees/${nomineeId}/edit/`, {
+    method: 'GET',
+    headers: {
+      'X-CSRFToken': csrfToken,
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ok) {
+      const nominee = data.nominee;
+      document.getElementById('edit-nominee-id').value = nominee.id;
+      document.getElementById('edit-nominee-name').value = nominee.name;
+      document.getElementById('edit-nominee-number').value = nominee.number || '';
+      document.getElementById('edit-nominee-story').value = nominee.story || '';
+      document.getElementById('edit-nominee-instagram').value = nominee.instagram_handle || '';
+      document.getElementById('edit-nominee-order').value = nominee.order || 0;
+      document.getElementById('edit-nominee-campaign').textContent = nominee.campaign;
+      
+      // Show modal
+      document.getElementById('edit-nominee-modal').classList.remove('hidden');
+    } else {
+      alert('Error loading nominee: ' + data.error);
+    }
+  })
+  .catch(error => {
+    alert('Error: ' + error);
+  });
+}
+
+function closeEditModal() {
+  document.getElementById('edit-nominee-modal').classList.add('hidden');
+}
+
+function saveNomineeStory() {
+  const nomineeId = document.getElementById('edit-nominee-id').value;
+  const story = document.getElementById('edit-nominee-story').value;
+  const name = document.getElementById('edit-nominee-name').value;
+  const number = document.getElementById('edit-nominee-number').value;
+  const instagram_handle = document.getElementById('edit-nominee-instagram').value;
+  const order = document.getElementById('edit-nominee-order').value;
+  
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                    document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+  
+  fetch(`/cms/nominees/${nomineeId}/edit/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': csrfToken,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      name: name,
+      number: number,
+      story: story,
+      instagram_handle: instagram_handle,
+      order: order
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ok) {
+      alert('Nominee story updated successfully!');
+      closeEditModal();
+      location.reload();
+    } else {
+      alert('Error updating nominee: ' + (data.error || JSON.stringify(data.errors)));
+    }
+  })
+  .catch(error => {
+    alert('Error: ' + error);
+  });
+}
 </script>
+
+<!-- Edit Nominee Modal -->
+<div id="edit-nominee-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeEditModal()"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    <div class="inline-block align-bottom bg-white dark:bg-gray-900 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+      <div class="bg-white dark:bg-gray-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="sm:flex sm:items-start">
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
+              Edit Nominee Story
+            </h3>
+            <div class="mt-4 space-y-4">
+              <input type="hidden" id="edit-nominee-id" />
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Campaign</label>
+                <p id="edit-nominee-campaign" class="text-sm text-gray-500 dark:text-gray-400"></p>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                <input type="text" id="edit-nominee-name" class="field ring-brand w-full" />
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Number</label>
+                <input type="text" id="edit-nominee-number" class="field ring-brand w-full" placeholder="001" />
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Story *</label>
+                <textarea id="edit-nominee-story" rows="6" class="field ring-brand w-full" placeholder="Tell their story - why they deserve to unwind..."></textarea>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Instagram Handle</label>
+                <input type="text" id="edit-nominee-instagram" class="field ring-brand w-full" placeholder="username (without @)" />
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Display Order</label>
+                <input type="number" id="edit-nominee-order" class="field ring-brand w-full" min="0" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 dark:bg-gray-800 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button type="button" onclick="saveNomineeStory()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+          Save Changes
+        </button>
+        <button type="button" onclick="closeEditModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

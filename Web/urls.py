@@ -53,6 +53,13 @@ urlpatterns = [
     path('my-rest-card/', views.my_rest_card, name='my_rest_card'),
     path('generate-rest-card/<int:card_id>/', views.generate_rest_card, name='generate_rest_card'),
     path('explore/', views.explore, name='explore'),
+    
+    # User Dashboard URLs
+    path('dashboard/login/', views.user_dashboard_login, name='user_dashboard_login'),
+    path('dashboard/verify-otp/', views.user_dashboard_verify_otp, name='user_dashboard_verify_otp'),
+    path('dashboard/', views.user_dashboard, name='user_dashboard'),
+    path('dashboard/logout/', views.user_dashboard_logout, name='user_dashboard_logout'),
+    path('dashboard/claim-points/', views.claim_frozen_points, name='claim_frozen_points'),
 ]
 
 

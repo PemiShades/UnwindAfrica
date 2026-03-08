@@ -65,7 +65,7 @@
       font-size: clamp(2.2rem, 9vw, 6.2rem);
       margin:0 0 clamp(8px, 1.2vw, 12px);
     }
-    .ed-sub{ max-width: 72ch; font-size: clamp(1rem, 1.6vw, 1.125rem);, text-align: center; }
+    .ed-sub{ max-width: 72ch; font-size: clamp(1rem, 1.6vw, 1.125rem); text-align: center; }
 
     /* Buttons */
     .btn{
@@ -86,8 +86,147 @@
       background:#0A0B10; color:#fff; border:1px solid #10131a;
     }
 
-    /* Hero */
-    .hero{ position:relative; color:#fff; overflow:clip; min-height: 100vh; display: flex; align-items: center; }
+    /* Hero - Clean Asymmetrical Layout */
+    .hero{ 
+      position:relative; color:#fff; overflow:clip; min-height: 100vh; display: flex; align-items: center; 
+    }
+    .hero-wrapper {
+      position: relative;
+      z-index: 2;
+      width: var(--container);
+      margin-inline: auto;
+      padding: clamp(80px, 15vh, 140px) 0;
+      display: flex;
+      align-items: center;
+      gap: clamp(3rem, 8vw, 8rem);
+    }
+    @media (max-width: 1024px) {
+      .hero-wrapper {
+        flex-direction: column;
+        text-align: center;
+        padding-top: clamp(100px, 20vh, 180px);
+      }
+    }
+    .hero-content {
+      flex: 1;
+      max-width: 720px;
+    }
+    .hero-visual {
+      flex: 0 0 auto;
+      width: 380px;
+    }
+    @media (max-width: 1024px) {
+      .hero-visual {
+        width: 100%;
+        max-width: 420px;
+      }
+    }
+    .hero-visual-card {
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 24px;
+      padding: 2rem;
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+    .hero-stat {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.25rem;
+      background: rgba(255,255,255,0.1);
+      border-radius: 14px;
+      margin-bottom: 1rem;
+      transition: transform 0.3s ease;
+    }
+    .hero-stat:hover {
+      transform: translateX(8px);
+    }
+    .hero-stat:last-child {
+      margin-bottom: 0;
+    }
+    .hero-stat-icon {
+      font-size: 2.25rem;
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.15);
+      border-radius: 14px;
+    }
+    .hero-stat-text {
+      flex: 1;
+    }
+    .hero-stat-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .hero-stat-label {
+      font-size: 0.9rem;
+      opacity: 0.85;
+      font-weight: 500;
+    }
+    .hero-chips{
+      display:flex; gap:0.75rem; flex-wrap:wrap;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 1024px) {
+      .hero-chips {
+        justify-content: center;
+      }
+    }
+    .hero-chips span{
+      border:1px solid rgba(255,255,255,.3);
+      background:rgba(255,255,255,.1);
+      padding:0.6rem 1.25rem; border-radius:999px; font-size:.85rem;
+      text-transform:uppercase; font-weight:800; letter-spacing:.05em;
+      backdrop-filter: blur(10px);
+    }
+    .hero-title{
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin: 0 0 1.25rem;
+      text-align: left;
+    }
+    @media (max-width: 1024px) {
+      .hero-title {
+        text-align: center;
+      }
+    }
+    .hero-sub{
+      font-size: clamp(1rem, 1.5vw, 1.25rem);
+      line-height: 1.65;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 2rem;
+      max-width: 560px;
+    }
+    @media (max-width: 1024px) {
+      .hero-sub {
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+    .hero-actions{ 
+      display:flex; gap:1rem; flex-wrap:wrap; 
+    }
+    @media (max-width: 1024px) {
+      .hero-actions { 
+        justify-content: center; 
+      }
+    }
+    .hero .btn{
+      padding: 1rem 2rem;
+      font-size: 1rem;
+    }
     .hero-media{ position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden }
 
     .hero-media::after{
@@ -108,12 +247,6 @@
       height:100%;
       object-fit:cover;
     }
-
-    .hero-inner{
-      position:relative; z-index:2; width:var(--container); margin-inline:auto;
-      padding: clamp(72px, 12vw, 160px) 0 clamp(48px, 10vw, 120px);
-      text-align:center;
-    }
     .hero-actions{ display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; margin:.8rem 0 1.1rem }
     .hero-chips{
       display:flex; gap:.5rem; justify-content:center; flex-wrap:wrap;
@@ -125,8 +258,10 @@
       padding:.45rem .8rem; border-radius:999px; font-size:.78rem;
       text-transform:uppercase; font-weight:900; letter-spacing:.04em;
     }
-
-    /* Trust strip */
+    .hero-actions{ display:flex; gap:.6rem; flex-wrap:wrap; margin:.8rem 0 1.1rem }
+    @media (min-width: 768px) {
+      .hero-actions { justify-content: flex-start; }
+    }
     .strip{ background:#0A0B10; color:#fff; border-block:1px solid rgba(255,255,255,.08) }
     .strip-inner{
       width:var(--container); margin-inline:auto; padding:10px 0;
@@ -305,12 +440,24 @@
       background: rgba(0, 178, 255, 0.05);
     }
 
-    /* Features grid */
-    .features-grid{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
+    /* Features grid - horizontal auto-scroll */
+    .features-scroll-container {
+      position: relative;
+      overflow: hidden;
       margin-top: 3rem;
+    }
+    .features-track {
+      display: flex;
+      gap: 1.5rem;
+      width: max-content;
+      animation: scroll-left 30s linear infinite;
+    }
+    .features-track:hover {
+      animation-play-state: paused;
+    }
+    @keyframes scroll-left {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(calc(-50% - 0.75rem)); }
     }
     .feature-card{
       background: white;
@@ -320,6 +467,7 @@
       border: 1px solid #eef0f6;
       text-align: center;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
+      flex: 0 0 300px;
     }
     .feature-card:hover{
       transform: translateY(-5px);
@@ -387,6 +535,10 @@
       line-height: 1.6;
     }
 
+    .nominee-card:hover .story-overlay {
+      opacity: 1 !important;
+    }
+    
     /* Responsive adjustments */
     @media (max-width: 768px){
       .hero-actions{
@@ -429,16 +581,17 @@
         });
       });
     </script>
-    <div class="hero-inner">
-      <div class="hero-chips">
-        <li>🎓 Students & Youth Edition</li>
-        <li>🌟 Recognizing Resilience</li>
-      </div>
-      <h1 class="ed-title">
+    <div class="hero-wrapper">
+      <div class="hero-content">
+        <div class="hero-chips">
+          <span>🎓 Students & Youth Edition</span>
+          <span>🌟 Recognizing Resilience</span>
+        </div>
+      <h1 class="hero-title">
         Nominate to Unwind
-      </h1>
-      <p class="ed-sub" style="color: rgba(255,255,255,.9);">
-        Honour students and young people who are navigating responsibility, pressure, leadership, and growth beyond their age. This edition recognises resilience, quiet strength, and young individuals who continue to show up despite challenges.
+        </h1>
+        <p class="hero-sub">
+          Nominate to Unwind is Unwind Africa’s community recognition program that celebrates resilience, honours inspiring stories, and gives deserving individuals a moment to rest and be restored.
       </p>
       <div class="hero-actions">
         <a href="{% url 'nominate' %}" class="btn primary-solid">
@@ -448,6 +601,18 @@
         <a href="{% url 'rest_card_signup' %}" class="btn secondary-ink">
           Request Rest Card
         </a>
+      </div>
+      </div>
+      
+      <div class="hero-visual">
+        <div class="hero-visual-card" style="text-align: center; padding: 2rem;">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">🌟</div>
+          <h3 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; color: white;">Help Us Celebrate Resilience</h3>
+          <p style="color: rgba(255,255,255,0.85); font-size: 0.95rem; line-height: 1.5;">Nominate a student or young person who deserves a moment to rest.</p>
+          <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.2);">
+            <p style="font-size: 0.85rem; color: rgba(255,255,255,0.75);">Every vote makes a difference</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -460,13 +625,58 @@
         <span class="badge">✓ Free Nomination</span>
         <span class="badge">✓ Fair Selection</span>
       </div>
-      <div class="muted" style="font-size: .8rem; color: #ffffff;">
+      <div class="muted" style="font-size: .8rem; color: rgba(255,255,255,0.7);">
         Nominate a student or young person today
       </div>
     </div>
   </section>
 
-  <!-- Nominate Section -->
+  <!-- Top Nominees - Shown before Why Nominate -->
+  {% if top_nominees %}
+  <section style="background: white; padding: 4rem 0; border-bottom: 1px solid #e9eef4;">
+    <div class="container">
+      <div class="section-head" style="margin-bottom: 2rem;">
+        <div style="width: 100%;">
+          <div class="rule" style="margin: 0 0 1rem; background: linear-gradient(90deg, #fff, rgba(255,255,255,0.5));"></div>
+          <h2 class="ed-title" style="text-transform: uppercase; font-size: clamp(1.8rem, 5vw, 2.5rem); color: #0A0B10;">Meet Our Nominees</h2>
+          <p class="ed-sub" style="max-width: 600px; color: #666;">
+            These inspiring students and young people have been nominated for their resilience. Click to read their stories and vote!
+          </p>
+        </div>
+      </div>
+
+      <div style="display: flex; overflow-x: auto; scroll-behavior: smooth; gap: 1.5rem; padding: 0.5rem 0; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
+        {% for nominee in top_nominees|slice:':6' %}
+        <a href="{% url 'voting_campaign' nominee.campaign.slug %}#nominee-{{ nominee.id }}" style="flex: 0 0 280px; scroll-snap-align: start; text-decoration: none; color: inherit;">
+          <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.2); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-8px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div style="position: relative; height: 180px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+              {% if nominee.photo %}
+                <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+              {% else %}
+                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 2.5rem;">👤</div>
+              {% endif %}
+              <div style="position: absolute; top: 10px; right: 10px; background: #FFB648; color: #0A0B10; padding: 4px 10px; border-radius: 12px; font-weight: 700; font-size: 0.8rem;">
+                {{ nominee.vote_count }} votes
+              </div>
+            </div>
+            <div style="padding: 1rem;">
+              <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; color: #0A0B10;">{{ nominee.name }}</h3>
+              <p style="font-size: 0.8rem; color: #667eea; margin-bottom: 0.5rem;">{{ nominee.story|truncatewords:12 }}</p>
+              <span style="display: block; text-align: center; background: linear-gradient(90deg, #667eea, #764ba2); color: white; padding: 0.5rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600;">View & Vote →</span>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+
+      <div style="text-align: center; margin-top: 2rem;">
+        <a href="{% url 'voting_campaigns_list' %}" style="display: inline-block; background: white; color: #667eea; padding: 0.75rem 2rem; border-radius: 30px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          View All Nominees →
+        </a>
+      </div>
+    </div>
+  </section>
+  {% endif %}
   <section class="students-section section">
     <div class="container">
       <div class="section-head">
@@ -479,37 +689,73 @@
         </div>
       </div>
 
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">🎓</div>
-          <h3 class="feature-title">Recognize Excellence</h3>
-          <p class="feature-description">
-            Celebrate young people who are navigating responsibility and growth beyond their age
-          </p>
-        </div>
+      <div class="features-scroll-container">
+        <div class="features-track">
+          <!-- Original cards -->
+          <div class="feature-card">
+            <div class="feature-icon">🎓</div>
+            <h3 class="feature-title">Recognize Excellence</h3>
+            <p class="feature-description">
+              Celebrate young people who are navigating responsibility and growth beyond their age
+            </p>
+          </div>
 
-        <div class="feature-card">
-          <div class="feature-icon">💪</div>
-          <h3 class="feature-title">Highlight Resilience</h3>
-          <p class="feature-description">
-            Recognize quiet strength and perseverance in the face of challenges
-          </p>
-        </div>
+          <div class="feature-card">
+            <div class="feature-icon">💪</div>
+            <h3 class="feature-title">Highlight Resilience</h3>
+            <p class="feature-description">
+              Recognize quiet strength and perseverance in the face of challenges
+            </p>
+          </div>
 
-        <div class="feature-card">
-          <div class="feature-icon">🌟</div>
-          <h3 class="feature-title">Community Support</h3>
-          <p class="feature-description">
-            Show young people that their efforts are seen and appreciated
-          </p>
-        </div>
+          <div class="feature-card">
+            <div class="feature-icon">🌟</div>
+            <h3 class="feature-title">Community Support</h3>
+            <p class="feature-description">
+              Show young people that their efforts are seen and appreciated
+            </p>
+          </div>
 
-        <div class="feature-card">
-          <div class="feature-icon">🎁</div>
-          <h3 class="feature-title">Amazing Prizes</h3>
-          <p class="feature-description">
-            Winners receive fantastic relaxation experiences and wellness packages
-          </p>
+          <div class="feature-card">
+            <div class="feature-icon">🎁</div>
+            <h3 class="feature-title">Amazing Prizes</h3>
+            <p class="feature-description">
+              Winners receive fantastic relaxation experiences and wellness packages
+            </p>
+          </div>
+
+          <!-- Duplicated cards for infinite scroll -->
+          <div class="feature-card">
+            <div class="feature-icon">🎓</div>
+            <h3 class="feature-title">Recognize Excellence</h3>
+            <p class="feature-description">
+              Celebrate young people who are navigating responsibility and growth beyond their age
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">💪</div>
+            <h3 class="feature-title">Highlight Resilience</h3>
+            <p class="feature-description">
+              Recognize quiet strength and perseverance in the face of challenges
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">🌟</div>
+            <h3 class="feature-title">Community Support</h3>
+            <p class="feature-description">
+              Show young people that their efforts are seen and appreciated
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">🎁</div>
+            <h3 class="feature-title">Amazing Prizes</h3>
+            <p class="feature-description">
+              Winners receive fantastic relaxation experiences and wellness packages
+            </p>
+          </div>
         </div>
       </div>
 
@@ -527,68 +773,86 @@
     </div>
   </section>
 
-  <!-- Rest Card Information Section -->
-  <section id="card-request" class="section">
-    <div class="container">
-      <div class="section-head">
-        <div>
-          <div class="rule"></div>
-          <h2 class="ed-title">Get Your Rest Card</h2>
-          <p class="ed-sub muted">
-            Join the Unwind Africa community and enjoy exclusive wellness benefits
-          </p>
+  <!-- Rest Card Information Section - Redesigned -->
+  <section id="card-request" class="section" style="background: #0A0B10; padding: 5rem 0; position: relative; overflow: hidden;">
+    <!-- Decorative elements -->
+    <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(0,178,255,0.15) 0%, transparent 70%); pointer-events: none;"></div>
+    <div style="position: absolute; bottom: -150px; left: -100px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(255,182,72,0.1) 0%, transparent 70%); pointer-events: none;"></div>
+    
+    <div class="container" style="position: relative; z-index: 1;">
+      <!-- Header -->
+      <div style="text-align: center; margin-bottom: 3.5rem;">
+        <div style="display: inline-block; background: linear-gradient(135deg, #00B2FF, #FFB648); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 0.9rem; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.75rem;">
+          Exclusive Offer
         </div>
+        <h2 style="font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; color: white; margin: 0 0 1rem; line-height: 1.2;">
+          Get Your <span style="background: linear-gradient(135deg, #00B2FF, #FFB648); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Rest Card</span> Today
+        </h2>
+        <p style="color: rgba(255,255,255,0.7); font-size: 1.1rem; max-width: 500px; margin: 0 auto; line-height: 1.6;">
+          Join thousands who have already registered for exclusive wellness benefits and partner rewards.
+        </p>
       </div>
 
-      <div style="display: grid; md:grid-cols-2 gap-8 items-center">
-        <div style="text-align: center;">
-          <div style="font-size: 4rem; margin-bottom: 1rem;">🎁</div>
-          <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem;">Unlock Exclusive Benefits</h3>
-          <p style="color: #666; line-height: 1.6;">
-            The Unwind Africa Rest Card gives you access to exclusive rest experiences, partner rewards, 
-            and community wellness offers beginning January 2026.
-          </p>
-          <div style="margin-top: 2rem; background: linear-gradient(135deg, rgba(0, 178, 255, 0.1), rgba(255, 182, 72, 0.1)); padding: 1.5rem; border-radius: 12px;">
-            <p style="font-weight: 700; margin-bottom: 0.5rem;">🎯 First 1,000 registrants get a FREE single-user account!</p>
-            <p style="font-size: 0.9rem; color: #666;">Limited spots available - Register now to secure your place</p>
+      <!-- Main Card -->
+      <div style="max-width: 420px; margin: 0 auto; background: linear-gradient(145deg, #1a1d24, #12151a); border-radius: 24px; padding: 2.5rem; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+        <!-- Card Header Icon -->
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+          <div style="width: 80px; height: 80px; margin: 0 auto 1rem; background: linear-gradient(135deg, #00B2FF, #FFB648); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; box-shadow: 0 10px 30px rgba(0,178,255,0.3);">
+            <span style="color: #0A0B10;">🎴</span>
+          </div>
+          <h3 style="color: white; font-size: 1.5rem; font-weight: 700; margin: 0; font-family: 'Playfair Display', serif;">Free Rest Card</h3>
+          <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin: 0.5rem 0 0;">Limited to first 1,000 registrants</p>
+        </div>
+        
+        <!-- Price -->
+        <div style="text-align: center; margin-bottom: 1.5rem; padding: 1rem; background: rgba(0,178,255,0.1); border-radius: 12px; border: 1px solid rgba(0,178,255,0.3);">
+          <span style="color: #00B2FF; font-size: 2.5rem; font-weight: 800;">FREE</span>
+        </div>
+        
+        <!-- Features -->
+        <div style="margin-bottom: 2rem;">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <span style="color: #00B2FF; font-size: 1.2rem;">✓</span>
+            <span style="color: rgba(255,255,255,0.9);">Partner discounts & rewards</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <span style="color: #00B2FF; font-size: 1.2rem;">✓</span>
+            <span style="color: rgba(255,255,255,0.9);">Wellness experiences access</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <span style="color: #00B2FF; font-size: 1.2rem;">✓</span>
+            <span style="color: rgba(255,255,255,0.9);">Community events</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 0.75rem 0;">
+            <span style="color: #00B2FF; font-size: 1.2rem;">✓</span>
+            <span style="color: rgba(255,255,255,0.9);">Exclusive member offers</span>
           </div>
         </div>
-
-        <div style="background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,.08); border: 1px solid #eef0f6;">
-          <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center;">
-            Rest Card Pricing
-          </h3>
-          
-          <div style="margin-bottom: 1.5rem; padding: 1rem; background: linear-gradient(135deg, rgba(0, 178, 255, 0.1), rgba(255, 182, 72, 0.1)); border-radius: 12px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 600;">Free (First 1,000)</span>
-              <span style="font-size: 1.5rem; font-weight: 700; color: #00B2FF;">₦0</span>
-            </div>
-            <p style="font-size: 0.9rem; color: #666;">Single-user account with basic benefits</p>
-          </div>
-
-          <!-- <div style="margin-bottom: 1.5rem; padding: 1rem; background: linear-gradient(135deg, rgba(0, 178, 255, 0.05), rgba(255, 182, 72, 0.05)); border-radius: 12px; border: 2px dashed #eef0f6;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 600;">Premium</span>
-              <span style="font-size: 1.5rem; font-weight: 700; color: #FFB648;">₦5,000/year</span>
-            </div>
-            <p style="font-size: 0.9rem; color: #666;">Family account with premium benefits</p>
-          </div> -->
-
-          <div style="margin-bottom: 2rem; padding: 1rem; background: #f8fafc; border-radius: 12px;">
-            <p style="font-size: 0.85rem; color: #666;">
-              ✨ All accounts include: Partner discounts, wellness experiences, community events, and more!
-            </p>
-          </div>
-
-          <div style="text-align: center;">
-            <a href="{% url 'rest_card_signup' %}" class="btn-primary" style="width: 100%;">
-              Get Your Free Rest Card Now
-            </a>
-            <p style="font-size: 0.85rem; color: #666; margin-top: 1rem;">
-              Join the waitlist today - Limited slots available
-            </p>
-          </div>
+        
+        <!-- CTA Button -->
+        <a href="{% url 'rest_card_signup' %}" style="display: block; width: 100%; padding: 1.25rem; background: linear-gradient(135deg, #00B2FF, #FFB648); color: #0A0B10; text-align: center; border-radius: 12px; font-weight: 700; font-size: 1.1rem; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,178,255,0.4);">
+          Register Now - It is Free
+        </a>
+        
+        <!-- Trust -->
+        <p style="text-align: center; color: rgba(255,255,255,0.5); font-size: 0.8rem; margin: 1rem 0 0;">
+          🔒 No payment required - Takes 2 minutes
+        </p>
+      </div>
+      
+      <!-- Stats -->
+      <div style="display: flex; justify-content: center; gap: 3rem; margin-top: 3rem; flex-wrap: wrap;">
+        <div style="text-align: center;">
+          <div style="color: #00B2FF; font-size: 2rem; font-weight: 800;">500+</div>
+          <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Already Registered</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="color: #FFB648; font-size: 2rem; font-weight: 800;">500</div>
+          <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Spots Left</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="color: white; font-size: 2rem; font-weight: 800;">4.9</div>
+          <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Rating</div>
         </div>
       </div>
     </div>
@@ -607,164 +871,114 @@
         </div>
       </div>
 
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">🏨</div>
-          <h3 class="feature-title">Spa Treatment</h3>
-          <p class="feature-description">
-            A luxurious spa day with full body massage, facial, and aromatherapy session
-          </p>
-        </div>
-        
-        <div class="feature-card">
-          <div class="feature-icon">🏖️</div>
-          <h3 class="feature-title">Weekend Getaway</h3>
-          <p class="feature-description">
-            All-expenses paid weekend retreat at a premium resort in Lagos
-          </p>
-        </div>
-        
-        <div class="feature-card">
-          <div class="feature-icon">🎁</div>
-          <h3 class="feature-title">Wellness Package</h3>
-          <p class="feature-description">
-            Comprehensive wellness package including yoga classes, meditation sessions, and healthy meal plans
-          </p>
-        </div>
-        
-        <div class="feature-card">
-          <div class="feature-icon">📚</div>
-          <h3 class="feature-title">Personal Development</h3>
-          <p class="feature-description">
-            Online courses and workshops on leadership, resilience, and personal growth
-          </p>
-        </div>
-        
-        <div class="feature-card">
-          <div class="feature-icon">💆</div>
-          <h3 class="feature-title">Self-Care Kit</h3>
-          <p class="feature-description">
-            Premium self-care kit with organic skincare products, essential oils, and relaxation tools
-          </p>
-        </div>
-        
-        <div class="feature-card">
-          <div class="feature-icon">🎉</div>
-          <h3 class="feature-title">Recognition Award</h3>
-          <p class="feature-description">
-            Custom trophy and certificate of recognition at our annual awards ceremony
-          </p>
+      <div class="features-scroll-container">
+        <div class="features-track">
+          <!-- Original cards -->
+          <div class="feature-card">
+            <div class="feature-icon">🏨</div>
+            <h3 class="feature-title">Spa Treatment</h3>
+            <p class="feature-description">
+              A luxurious spa day with full body massage, facial, and aromatherapy session
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">🏖️</div>
+            <h3 class="feature-title">Weekend Getaway</h3>
+            <p class="feature-description">
+              All-expenses paid weekend retreat at a premium resort in Lagos
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">🎁</div>
+            <h3 class="feature-title">Wellness Package</h3>
+            <p class="feature-description">
+              Comprehensive wellness package including yoga classes, meditation sessions, and healthy meal plans
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">📚</div>
+            <h3 class="feature-title">Personal Development</h3>
+            <p class="feature-description">
+              Online courses and workshops on leadership, resilience, and personal growth
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">💆</div>
+            <h3 class="feature-title">Self-Care Kit</h3>
+            <p class="feature-description">
+              Premium self-care kit with organic skincare products, essential oils, and relaxation tools
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">🎉</div>
+            <h3 class="feature-title">Recognition Award</h3>
+            <p class="feature-description">
+              Custom trophy and certificate of recognition at our annual awards ceremony
+            </p>
+          </div>
+          
+          <!-- Duplicated cards for infinite scroll -->
+          <div class="feature-card">
+            <div class="feature-icon">🏨</div>
+            <h3 class="feature-title">Spa Treatment</h3>
+            <p class="feature-description">
+              A luxurious spa day with full body massage, facial, and aromatherapy session
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">🏖️</div>
+            <h3 class="feature-title">Weekend Getaway</h3>
+            <p class="feature-description">
+              All-expenses paid weekend retreat at a premium resort in Lagos
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">🎁</div>
+            <h3 class="feature-title">Wellness Package</h3>
+            <p class="feature-description">
+              Comprehensive wellness package including yoga classes, meditation sessions, and healthy meal plans
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">📚</div>
+            <h3 class="feature-title">Personal Development</h3>
+            <p class="feature-description">
+              Online courses and workshops on leadership, resilience, and personal growth
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">💆</div>
+            <h3 class="feature-title">Self-Care Kit</h3>
+            <p class="feature-description">
+              Premium self-care kit with organic skincare products, essential oils, and relaxation tools
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">🎉</div>
+            <h3 class="feature-title">Recognition Award</h3>
+            <p class="feature-description">
+              Custom trophy and certificate of recognition at our annual awards ceremony
+            </p>
+          </div>
         </div>
       </div>
 
-      <div class="cta-section" style="margin-top: 4rem;">
-        <div class="cta-content">
-          <h2 class="cta-title">Nominate Someone Today!</h2>
-          <p class="cta-description">
-            Help us recognize exceptional students and young people who deserve to be celebrated with these amazing prizes
-          </p>
-          <a href="{% url 'nominate' %}" class="btn-primary">
-            Submit Your Nomination
-          </a>
-        </div>
-      </div>
+  
     </div>
   </section>
 
-  <!-- Voting Section -->
-  <section style="background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%); padding: 4rem 0; border-block: 1px solid #e0f2fe;">
-    <div class="container">
-      <div class="section-head" style="margin-bottom: 2rem;">
-        <div style="width: 100%;">
-          <div class="rule" style="margin: 0 0 1rem;"></div>
-          <h2 class="ed-title" style="text-transform: uppercase; font-size: clamp(1.8rem, 5vw, 2.5rem);">Top Nominees</h2>
-          <p class="ed-sub muted" style="max-width: 600px;">
-            Vote for the students and young people you believe deserve to win an unforgettable wellness experience.
-          </p>
-        </div>
-      </div>
+  <!-- Testimonial Section -->
 
-      {% if top_nominees %}
-      <!-- Top Nominees Carousel -->
-      <div style="position: relative; margin-bottom: 3rem;">
-        <div style="display: flex; overflow-x: auto; scroll-behavior: smooth; gap: 1.5rem; padding: 0.5rem 0; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;" id="nominees-carousel">
-          {% for nominee in top_nominees %}
-          <div style="flex: 0 0 calc(min(100%, 350px)); scroll-snap-align: start; transition: transform 0.3s ease;" class="nominee-card">
-            <!-- Card Container -->
-            <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.1); transition: all 0.3s ease; height: 100%; display: flex; flex-direction: column; hover: {transform: translateY(-8px); box-shadow: 0 12px 32px rgba(0,0,0,0.15);}" >
-              
-              <!-- Nominee Image -->
-              <div style="position: relative; width: 100%; height: 280px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); overflow: hidden;">
-                {% if nominee.photo %}
-                  <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" style="width: 100%; height: 100%; object-fit: cover;">
-                {% else %}
-                  <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">👤</div>
-                {% endif %}
-                
-                <!-- Vote Count Badge -->
-                <div style="position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #FFB648 0%, #FF8C42 100%); color: white; padding: 8px 12px; border-radius: 20px; font-weight: 700; font-size: 0.9rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
-                  {{ nominee.vote_count }} votes
-                </div>
-                
-                <!-- Rank Badge -->
-                <div style="position: absolute; top: 12px; left: 12px; background: rgba(0, 0, 0, 0.6); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; backdrop-filter: blur(4px);">
-                  #{{ forloop.counter }}
-                </div>
-              </div>
-              
-              <!-- Nominee Info -->
-              <div style="padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column;">
-                <h3 style="font-size: clamp(1.1rem, 3vw, 1.3rem); margin-bottom: 0.5rem; color: #0A0B10; font-family: 'Playfair Display', serif; font-weight: 700; line-height: 1.3;">{{ nominee.name }}</h3>
-                
-                {% if nominee.instagram_handle %}
-                <p style="color: #667eea; font-size: 0.85rem; margin-bottom: 0.75rem; font-weight: 500;">@{{ nominee.instagram_handle }}</p>
-                {% endif %}
-                
-                {% if nominee.story %}
-                <p style="color: #666; font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem; flex-grow: 1;">{{ nominee.story|truncatewords:25 }}</p>
-                {% endif %}
-                
-                <!-- Stats Row -->
-                <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; font-size: 0.85rem;">
-                  <div style="background: #f0f9ff; padding: 0.5rem 0.75rem; border-radius: 6px; border-left: 3px solid #0ea5e9;">
-                    <div style="color: #666; font-size: 0.75rem; margin-bottom: 0.25rem;">Campaign</div>
-                    <div style="color: #0a0b10; font-weight: 600;">{{ nominee.campaign.name }}</div>
-                  </div>
-                </div>
-                
-                <!-- Vote Button -->
-                <a href="{% url 'voting_campaign' nominee.campaign.slug %}" class="vote-now" data-start="{{ nominee.campaign.start_date|date:'Y-m-d H:i:s' }}" data-active="{{ nominee.campaign.is_active|yesno:'1,0' }}" style="display: block; text-align: center; background: linear-gradient(90deg, #FFB648, #00B2FF); color: #0A0B10; padding: 0.875rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; cursor: pointer; border: none;">
-                  Vote Now →
-                </a>
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-
-        <!-- Carousel Navigation (Mobile/Tablet) -->
-        <div style="display: flex; justify-content: center; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap;">
-          <button onclick="document.getElementById('nominees-carousel').scrollBy({left: -400, behavior: 'smooth'})" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; transition: all 0.3s ease; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-            ←
-          </button>
-          
-          <div style="display: flex; gap: 0.5rem; align-items: center;">
-            <span style="color: #666; font-size: 0.9rem; font-weight: 500;" id="carousel-count">1 - {{ top_nominees|length }}</span>
-          </div>
-          
-          <button onclick="document.getElementById('nominees-carousel').scrollBy({left: 400, behavior: 'smooth'})" style="background: linear-gradient(90deg, #FFB648, #00B2FF); color: #0A0B10; border: none; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; transition: all 0.3s ease; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-            →
-          </button>
-        </div>
-      </div>
-
-      <!-- View All Button -->
-      <div style="text-align: center; margin-bottom: 2rem;">
-        <a href="{% url 'voting_campaigns_list' %}" style="display: inline-flex; align-items: center; justify-content: center; padding: 0.9rem 1.5rem; background: linear-gradient(90deg, #FFB648, #00B2FF); color: #0A0B10; border-radius: 999px; font-weight: 900; text-decoration: none; transition: transform 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-          View All Campaigns & Vote
-          <span style="margin-left: 0.5rem;">→</span>
-        </a>
-      </div>
 
       <style>
         .nominee-card:hover {
@@ -803,12 +1017,6 @@
           }
         }
       </style>
-
-      {% else %}
-      <div style="text-align: center; padding: 3rem 1rem; background: white; border-radius: 12px; border: 2px dashed #e0f2fe;">
-        <p style="color: #7f8c8d; font-size: clamp(1rem, 2vw, 1.1rem);">No active campaigns or nominees yet. Check back soon!</p>
-      </div>
-      {% endif %}
     </div>
   </section>
 
@@ -866,22 +1074,15 @@
   </section>
 
   <!-- CTA Section -->
-  <section class="cta-section">
-    <div class="container">
-      <div class="cta-content">
-        <h2 class="cta-title">Let's Make a Difference</h2>
-        <p class="cta-description">
-          Every nomination helps recognize and celebrate the incredible resilience of students and young people
-        </p>
-        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+    <div class="cta-section" style="margin-top: 4rem;">
+        <div class="cta-content">
+          <h2 class="cta-title">Nominate Someone Today!</h2>
+          <p class="cta-description">
+            Help us recognize exceptional students and young people who deserve to be celebrated with these amazing prizes
+          </p>
           <a href="{% url 'nominate' %}" class="btn-primary">
-            Nominate Someone Special
-          </a>
-          <a href="#card-request" class="btn-secondary">
-            Request Your Rest Card
+            Submit Your Nomination
           </a>
         </div>
       </div>
-    </div>
-  </section>
 {% endblock %}

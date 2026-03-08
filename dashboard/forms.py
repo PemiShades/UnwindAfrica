@@ -48,7 +48,7 @@ from django.forms import (
 # IMPORTANT: import the PROXY models from dashboard.models
 # (These point to the same DB tables defined in web.models)
 from .models import Post, Event
-from Web.models import VotingCampaign
+from Web.models import VotingCampaign, Nominee
 
 
 
@@ -409,3 +409,57 @@ class BookForm(forms.ModelForm):
         if not title:
             raise forms.ValidationError("Title is required.")
         return title
+
+
+# Nominee Form for editing nominee stories
+class NomineeForm(forms.ModelForm):
+    """
+    Form for editing nominee details including their story.
+    """
+    class Meta:
+        model = Nominee
+        fields = [
+            "name",
+            "number",
+            "photo",
+            "story",
+            "instagram_handle",
+            "order",
+        ]
+        widgets = {
+            "name": TextInput(attrs={
+                "class": "field ring-brand",
+                "placeholder": "Nominee name",
+                "maxlength": 255,
+            }),
+            "number": TextInput(attrs={
+                "class": "field ring-brand",
+                "placeholder": "Nominee number (e.g., 001)",
+                "maxlength": 50,
+            }),
+            "photo": ClearableFileInput(attrs={
+                "class": "field ring-brand",
+                "accept": "image/*",
+            }),
+            "story": Textarea(attrs={
+                "class": "field ring-brand",
+                "rows": 8,
+                "placeholder": "Tell their story - why they deserve to unwind...",
+            }),
+            "instagram_handle": TextInput(attrs={
+                "class": "field ring-brand",
+                "placeholder": "Instagram handle (without @)",
+                "maxlength": 100,
+            }),
+            "order": TextInput(attrs={
+                "class": "field ring-brand",
+                "type": "number",
+                "min": "0",
+            }),
+        }
+
+    def clean_name(self):
+        name = self.cleaned_data.get("name", "").strip()
+        if not name:
+            raise forms.ValidationError("Name is required.")
+        return name

@@ -1,0 +1,218 @@
+{% extends 'Web/main.html' %}
+
+{% block content %}
+{% load static %}
+
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <!-- Logo and Title -->
+        <div class="text-center">
+            <div class="mx-auto h-16 w-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <svg class="h-10 w-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+            </div>
+            <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+                Unwind Africa Dashboard
+            </h2>
+            <p class="mt-2 text-sm text-gray-600">
+                Sign in with your email to view your rewards
+            </p>
+        </div>
+
+        <!-- Login Form -->
+        <div class="mt-8 bg-white py-8 px-6 shadow-xl rounded-2xl" id="login-section">
+            <div id="step-1">
+                <div class="mb-6">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        Email Address
+                    </label>
+                    <input type="email" id="email" name="email" required
+                        class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
+                        placeholder="you@example.com">
+                </div>
+                <button type="button" id="send-otp-btn"
+                    class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <svg class="h-5 w-5 text-indigo-300 group-hover:text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                    </span>
+                    Send Verification Code
+                </button>
+            </div>
+
+            <!-- OTP Step (hidden initially) -->
+            <div id="step-2" class="hidden">
+                <div class="mb-4 p-4 bg-indigo-50 rounded-lg">
+                    <p class="text-sm text-indigo-700">
+                        We've sent a verification code to <span id="display-email" class="font-semibold"></span>
+                    </p>
+                </div>
+                <div class="mb-6">
+                    <label for="otp" class="block text-sm font-medium text-gray-700 mb-2">
+                        Verification Code
+                    </label>
+                    <input type="text" id="otp" name="otp" maxlength="6" required
+                        class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 text-center text-2xl tracking-widest"
+                        placeholder="000000">
+                </div>
+                <button type="button" id="verify-otp-btn"
+                    class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <svg class="h-5 w-5 text-indigo-300 group-hover:text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </span>
+                    Verify & Sign In
+                </button>
+                <button type="button" id="resend-otp-btn" class="mt-3 w-full text-sm text-indigo-600 hover:text-indigo-500">
+                    Didn't receive code? Resend
+                </button>
+            </div>
+
+            <!-- Error/Success Messages -->
+            <div id="message-area" class="mt-4 p-4 rounded-lg hidden"></div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="mt-6 bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-900 mb-2">What's this for?</h3>
+            <p class="text-sm text-gray-600">
+                Use the email you used while voting in our campaigns to access your dashboard. 
+                You'll see your frozen rest points, token wallet, and rest card status.
+            </p>
+        </div>
+
+        <!-- Back Link -->
+        <div class="text-center">
+            <a href="{% url 'home' %}" class="text-sm text-indigo-600 hover:text-indigo-500">
+                ← Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const emailInput = document.getElementById('email');
+    const sendOtpBtn = document.getElementById('send-otp-btn');
+    const verifyOtpBtn = document.getElementById('verify-otp-btn');
+    const resendOtpBtn = document.getElementById('resend-otp-btn');
+    const step1 = document.getElementById('step-1');
+    const step2 = document.getElementById('step-2');
+    const displayEmail = document.getElementById('display-email');
+    const messageArea = document.getElementById('message-area');
+    let currentEmail = '';
+
+    function showMessage(message, isError = true) {
+        messageArea.textContent = message;
+        messageArea.className = isError 
+            ? 'mt-4 p-4 rounded-lg bg-red-50 text-red-700 text-sm'
+            : 'mt-4 p-4 rounded-lg bg-green-50 text-green-700 text-sm';
+        messageArea.classList.remove('hidden');
+    }
+
+    function hideMessage() {
+        messageArea.classList.add('hidden');
+    }
+
+    // Send OTP
+    sendOtpBtn.addEventListener('click', async function() {
+        const email = emailInput.value.trim().toLowerCase();
+        if (!email) {
+            showMessage('Please enter your email address');
+            return;
+        }
+
+        sendOtpBtn.disabled = true;
+        sendOtpBtn.textContent = 'Sending...';
+
+        try {
+            const response = await fetch('{% url "user_dashboard_login" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ email: email })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                currentEmail = email;
+                displayEmail.textContent = email;
+                step1.classList.add('hidden');
+                step2.classList.remove('hidden');
+                hideMessage();
+            } else {
+                showMessage(data.error || 'Failed to send code');
+            }
+        } catch (error) {
+            showMessage('An error occurred. Please try again.');
+        } finally {
+            sendOtpBtn.disabled = false;
+            sendOtpBtn.textContent = 'Send Verification Code';
+        }
+    });
+
+    // Verify OTP
+    verifyOtpBtn.addEventListener('click', async function() {
+        const otp = document.getElementById('otp').value.trim();
+
+        if (!otp || otp.length !== 6) {
+            showMessage('Please enter the 6-digit code');
+            return;
+        }
+
+        verifyOtpBtn.disabled = true;
+        verifyOtpBtn.textContent = 'Verifying...';
+
+        try {
+            const response = await fetch('{% url "user_dashboard_verify_otp" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ email: currentEmail, otp: otp })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                window.location.href = '{% url "user_dashboard" %}';
+            } else {
+                showMessage(data.error || 'Invalid code');
+            }
+        } catch (error) {
+            showMessage('An error occurred. Please try again.');
+        } finally {
+            verifyOtpBtn.disabled = false;
+            verifyOtpBtn.textContent = 'Verify & Sign In';
+        }
+    });
+
+    // Resend OTP
+    resendOtpBtn.addEventListener('click', async function() {
+        step2.classList.add('hidden');
+        step1.classList.remove('hidden');
+        hideMessage();
+    });
+
+    // Allow Enter key to submit
+    emailInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendOtpBtn.click();
+        }
+    });
+
+    document.getElementById('otp').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            verifyOtpBtn.click();
+        }
+    });
+});
+</script>
+{% endblock %}

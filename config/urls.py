@@ -33,6 +33,8 @@ sitemaps = {
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Admin Dashboard (CMS) - moved from /dashboard/ to avoid conflict with user dashboard
+    path('cms/', include('dashboard.urls')),
     # Sitemap
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     # Robots.txt
@@ -42,10 +44,10 @@ urlpatterns = [
         template_name="dashboard/login.html"
     ), name="login"),
     path("accounts/logout/", auth_views.LogoutView.as_view(next_page="login"), name="logout"),
-    path('dashboard/', include('dashboard.urls')),
-        # Safety: if anything still tries to go here, bounce to dashboard
+    # User dashboard is in Web.urls at /dashboard/
+    # Safety: if anything still tries to go here, bounce to user dashboard
     path('accounts/profile/',
-         RedirectView.as_view(pattern_name='dashboard_home', permanent=False)),
+         RedirectView.as_view(pattern_name='user_dashboard', permanent=False)),
     path('', include('Web.urls')),
 ]
 

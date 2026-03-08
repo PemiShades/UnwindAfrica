@@ -4,7 +4,7 @@ from django.db.models import Sum
 from django.http import HttpResponse
 import csv
 from .models import (Event, Post, BlogCategory, VotingCampaign, Nominee, Vote, Transaction,
-                     CommunityMember, RestCard, TokenWallet, TokenTransaction)
+                     CommunityMember, RestCard, TokenWallet, TokenTransaction, FrozenRestPoints)
 
 
 # ============= Existing Models =============
@@ -417,7 +417,33 @@ class TokenTransactionAdmin(admin.ModelAdmin):
     def wallet_member(self, obj):
         return obj.wallet.member_name
     wallet_member.short_description = 'Member'
-    
+
     def description_short(self, obj):
-        return obj.description[:50] + '...' if len(obj.description) > 50 else obj.description
+        desc = obj.description or ''
+        return desc[:50] + '...' if len(desc) > 50 else desc
     description_short.short_description = 'Description'
+
+
+@admin.register(FrozenRestPoints)
+class FrozenRestPointsAdmin(admin.ModelAdmin):
+    list_display = ('member_email', 'member_name', 'frozen_points', 'points_claimed', 'created_at')
+    list_filter = ('points_claimed', 'created_at')
+    search_fields = ('member_email', 'member_name', 'member_phone')
+    readonly_fields = ('created_at', 'updated_at', 'claimed_at', 'vote')
+    list_editable = ('points_claimed',)
+    
+    fieldsets = (
+        ('Member Info', {
+            'fields': ('member_email', 'member_name', 'member_phone')
+        }),
+        ('Points', {
+            'fields': ('frozen_points', 'points_claimed')
+        }),
+        ('Rest Card Link', {
+            'fields': ('rest_card', 'claimed_at')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )

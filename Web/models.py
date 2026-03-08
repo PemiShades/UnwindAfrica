@@ -304,7 +304,7 @@ class Vote(models.Model):
     
     # Voter details
     voter_name = models.CharField(max_length=255)
-    voter_email = models.EmailField()
+    voter_email = models.EmailField(db_index=True)  # Added index for user lookups
     voter_phone = models.CharField(max_length=20)
     referral_source = models.CharField(max_length=255, blank=True, 
                                        help_text="Who told you about Unwind Africa?")
@@ -326,10 +326,14 @@ class Vote(models.Model):
     rest_points_earned = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     
     # Timestamps
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)  # Added index
     
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['nominee', 'created_at'], name='vote_nom_date_idx'),
+            models.Index(fields=['payment_status'], name='vote_status_idx'),
+        ]
     
     def __str__(self):
         return f"{self.vote_quantity} vote(s) for {self.nominee.name} by {self.voter_name}"
@@ -365,7 +369,7 @@ class Transaction(models.Model):
     
     # Metadata
     paid_at = models.DateTimeField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)  # Added index
     updated_at = models.DateTimeField(auto_now=True)
     
     # Raw response from Paystack (for debugging)
@@ -373,6 +377,9 @@ class Transaction(models.Model):
     
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status', 'created_at'], name='trans_status_date_idx'),
+        ]
     
     def __str__(self):
         return f"Transaction {self.reference} - {self.status}"
@@ -434,7 +441,7 @@ class RestCard(models.Model):
     # Card details
     card_number = models.CharField(max_length=16, unique=True, blank=True, null=True,
                                    help_text="Auto-generated unique card number")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='waitlist')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='waitlist', db_index=True)  # Added index
     waitlist_position = models.PositiveIntegerField(null=True, blank=True)
     
     # Benefits tracking
@@ -448,6 +455,9 @@ class RestCard(models.Model):
     
     class Meta:
         ordering = ['waitlist_position', '-waitlist_joined_at']
+        indexes = [
+            models.Index(fields=['status', 'waitlist_joined_at'], name='restcard_status_date_idx'),
+        ]
     
     def __str__(self):
         return f"Rest Card - {self.member_name} ({self.status})"
@@ -491,8 +501,8 @@ class RestCard(models.Model):
                 f"Log in to your account to view your card and start exploring.\n\n"
                 f"Best regards,\n"
                 f"The Unwind Africa Team\n"
-                f"Phone: +234 123 456 7890\n"
-                f"Email: hello@unwindafrica.com"
+                f"Phone: +234 806 206 7832\n"
+                f"Email: info@unwindafrica.com"
             )
             try:
                 send_mail(subject, body, "no-reply@unwindafrica.com", [self.member_email], fail_silently=True)
@@ -633,6 +643,42 @@ class TokenTransaction(models.Model):
     
     def __str__(self):
         return f"{self.transaction_type} - {self.amount} tokens - {self.wallet.member_name}"
+
+
+class FrozenRestPoints(models.Model):
+    """
+    Stores rest points earned from voting that are "frozen" until the user
+    applies for and receives a Rest Card.
+    """
+    member_email = models.EmailField(db_index=True)  # Added index
+    member_name = models.CharField(max_length=255, blank=True)
+    member_phone = models.CharField(max_length=20, blank=True)
+    
+    # Frozen points earned from voting
+    frozen_points = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
+    # Link to Rest Card (when user applies and gets a card)
+    rest_card = models.ForeignKey('RestCard', on_delete=models.SET_NULL, null=True, blank=True, related_name='frozen_points_transfers')
+    points_claimed = models.BooleanField(default=False, db_index=True)  # Added index
+    claimed_at = models.DateTimeField(null=True, blank=True)
+    
+    # Vote references
+    vote = models.ForeignKey('Vote', on_delete=models.SET_NULL, null=True, blank=True, related_name='frozen_points_entry')
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)  # Added index
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Frozen Rest Points'
+        verbose_name_plural = 'Frozen Rest Points'
+        indexes = [
+            models.Index(fields=['member_email', 'points_claimed'], name='frozen_email_claimed_idx'),
+        ]
+    
+    def __str__(self):
+        return f"Frozen Points - {self.member_email}: {self.frozen_points}"
 
 
 class EdBritishTrialRegistration(models.Model):

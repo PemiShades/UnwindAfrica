@@ -2,8 +2,8 @@
 <!-- Hamburger Icon -->
 
 <!-- Hamburger Menu Overlay -->
-<div id="hamburgerMenu" class="fixed inset-0 z-40 bg-white overflow-y-auto transition-transform duration-500 transform translate-x-full">
-  <div class="flex h-full">
+<div id="hamburgerMenu" class="fixed inset-0 z-40 bg-white transition-transform duration-500 transform translate-x-full">
+  <div class="flex h-full overflow-hidden">
 
     <!-- Left Side Branding -->
     <div class="w-1/2 hidden md:flex bg-[#111827] text-white justify-center items-center relative">
@@ -16,10 +16,10 @@
     </div>
 
     <!-- Right Side Menu Content -->
-    <div class="w-full md:w-1/2 p-10 flex flex-col justify-between">
+    <div class="w-full md:w-1/2 p-10 flex flex-col h-full overflow-y-auto">
 
       <!-- Close Button -->
-      <div class="flex justify-end">
+      <div class="flex justify-end flex-shrink-0">
         <button onclick="toggleMenu()" class="text-3xl text-gray-700 hover:text-black">
           &times;
         </button>
@@ -44,6 +44,7 @@
           <div class="text-sm text-gray-500 uppercase tracking-wide mb-3">Community</div>
           <a href="/rest-card/signup/" class="block hover:text-blue-600 transition">Rest Card</a>
           <a href="/voting/" class="block hover:text-blue-600 transition mt-3">Vote Now</a>
+          <a href="/dashboard/" class="block hover:text-blue-600 transition mt-3 font-medium">My Dashboard</a>
         </div>
       </div>
 
@@ -71,5 +72,5 @@
   }
 </script>
 
-<!-- Font Awesome -->
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<!-- Font Awesome (using CDN with integrity) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />

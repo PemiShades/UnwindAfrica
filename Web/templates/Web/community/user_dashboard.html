@@ -1,0 +1,344 @@
+{% extends 'Web/main.html' %}
+{% load static %}
+
+{% block navbar %}{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="h-10 w-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center">
+                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">My Dashboard</h1>
+                        <p class="text-sm text-gray-500">{{ email }}</p>
+                    </div>
+                </div>
+                <a href="{% url 'user_dashboard_logout' %}" class="text-sm text-gray-500 hover:text-gray-700 flex items-center">
+                    <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                    Sign Out
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Frozen Points Card -->
+            <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-100 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-3 bg-amber-100 rounded-xl">
+                        <svg class="h-6 w-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <span class="px-2 py-1 text-xs font-medium bg-amber-100 text-amber-700 rounded-full">Frozen</span>
+                </div>
+                <p class="text-sm text-gray-600 mb-1">Frozen Rest Points</p>
+                <p class="text-3xl font-bold text-gray-900">{{ frozen_points|floatformat:0 }}</p>
+                <p class="text-xs text-gray-500 mt-2">Earned from voting</p>
+            </div>
+
+            <!-- Active Points Card -->
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-3 bg-green-100 rounded-xl">
+                        <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    {% if rest_card %}
+                        <span class="px-2 py-1 text-xs font-medium 
+                            {% if rest_card.status == 'active' %}bg-green-100 text-green-700
+                            {% elif rest_card.status == 'pending' %}bg-yellow-100 text-yellow-700
+                            {% else %}bg-gray-100 text-gray-700{% endif %} rounded-full">
+                            {{ rest_card.get_status_display }}
+                        </span>
+                    {% else %}
+                        <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">No Card</span>
+                    {% endif %}
+                </div>
+                <p class="text-sm text-gray-600 mb-1">Rest Card Points</p>
+                <p class="text-3xl font-bold text-gray-900">
+                    {% if rest_card %}{{ rest_card.total_rest_points|floatformat:0 }}{% else %}0{% endif %}
+                </p>
+                {% if rest_card and rest_card.card_number %}
+                    <p class="text-xs text-gray-500 mt-2">Card: ****{{ rest_card.card_number|slice:"-4:" }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Token Wallet Card -->
+            <div class="bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl p-6 border border-purple-100 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-3 bg-purple-100 rounded-xl">
+                        <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-600 mb-1">Token Wallet</p>
+                <p class="text-3xl font-bold text-gray-900">
+                    {% if token_wallet %}{{ token_wallet.tokens_earned|floatformat:0 }}{% else %}0{% endif %}
+                </p>
+                {% if token_wallet %}
+                    <p class="text-xs text-gray-500 mt-2">{{ token_wallet.available_tokens|floatformat:0 }} available to spend</p>
+                {% else %}
+                    <p class="text-xs text-gray-500 mt-2">Start voting to earn tokens!</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Frozen Points Section -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-gray-900">Frozen Points</h2>
+                        {% if rest_card and frozen_points > 0 %}
+                        <button id="claim-points-btn" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-indigo-700 hover:to-purple-700 transition">
+                            Claim Points
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="p-6">
+                    {% if frozen_points > 0 %}
+                        <div class="text-center py-8">
+                            <div class="mx-auto h-16 w-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
+                                <svg class="h-8 w-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <p class="text-gray-600 mb-2">You have <span class="font-bold text-amber-600">{{ frozen_points|floatformat:0 }}</span> frozen points!</p>
+                            <p class="text-sm text-gray-500 mb-4">
+                                {% if rest_card %}
+                                    Click "Claim Points" to transfer them to your Rest Card
+                                {% else %}
+                                    Apply for a Rest Card to unlock your frozen points
+                                {% endif %}
+                            </p>
+                            {% if not rest_card %}
+                            <a href="{% url 'rest_card_signup' %}" class="inline-block px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-xl hover:from-indigo-700 hover:to-purple-700 transition">
+                                Apply for Rest Card
+                            </a>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <div class="mx-auto h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                                </svg>
+                            </div>
+                            <p class="text-gray-500">No frozen points yet</p>
+                            <p class="text-sm text-gray-400 mt-1">Vote in our campaigns to earn rest points</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Rest Card Section -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-lg font-semibold text-gray-900">My Rest Card</h2>
+                </div>
+                <div class="p-6">
+                    {% if rest_card %}
+                        <!-- Card Display -->
+                        <div class="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-6 text-white shadow-lg mb-6">
+                            <div class="flex justify-between items-start mb-8">
+                                <div>
+                                    <p class="text-xs text-indigo-200 uppercase tracking-wider">Unwind Africa</p>
+                                    <p class="text-lg font-bold mt-1">REST CARD</p>
+                                </div>
+                                <svg class="h-8 w-8 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                            </div>
+                            <p class="text-2xl font-mono tracking-widest mb-2">**** **** **** {{ rest_card.card_number|slice:"-4:" }}</p>
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <p class="text-xs text-indigo-200 uppercase">Member</p>
+                                    <p class="font-medium">{{ rest_card.member_name }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-indigo-200 uppercase">Points</p>
+                                    <p class="font-bold text-xl">{{ rest_card.total_rest_points|floatformat:0 }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Details -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-4 bg-gray-50 rounded-xl">
+                                <p class="text-xs text-gray-500 uppercase">Status</p>
+                                <p class="font-semibold 
+                                    {% if rest_card.status == 'active' %}text-green-600
+                                    {% elif rest_card.status == 'pending' %}text-yellow-600
+                                    {% else %}text-gray-600{% endif %}">
+                                    {{ rest_card.get_status_display }}
+                                </p>
+                            </div>
+                            <div class="p-4 bg-gray-50 rounded-xl">
+                                <p class="text-xs text-gray-500 uppercase">Waitlist #</p>
+                                <p class="font-semibold text-gray-900">
+                                    {% if rest_card.waitlist_position %}{{ rest_card.waitlist_position }}{% else %}N/A{% endif %}
+                                </p>
+                            </div>
+                            <div class="p-4 bg-gray-50 rounded-xl">
+                                <p class="text-xs text-gray-500 uppercase">Joined</p>
+                                <p class="font-semibold text-gray-900">{{ rest_card.waitlist_joined_at|date:"M d, Y" }}</p>
+                            </div>
+                            <div class="p-4 bg-gray-50 rounded-xl">
+                                <p class="text-xs text-gray-500 uppercase">Expires</p>
+                                <p class="font-semibold text-gray-900">
+                                    {% if rest_card.expires_at %}{{ rest_card.expires_at|date:"M d, Y" }}{% else %}N/A{% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <div class="mx-auto h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                                </svg>
+                            </div>
+                            <p class="text-gray-500 mb-4">You don't have a Rest Card yet</p>
+                            <a href="{% url 'rest_card_signup' %}" class="inline-block px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-xl hover:from-indigo-700 hover:to-purple-700 transition">
+                                Apply for Rest Card
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-6 border-b border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-900">Recent Voting Activity</h2>
+            </div>
+            <div class="divide-y divide-gray-100">
+                {% if recent_votes %}
+                    {% for vote in recent_votes %}
+                    <div class="p-4 flex items-center justify-between hover:bg-gray-50">
+                        <div class="flex items-center space-x-4">
+                            <div class="h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                                <svg class="h-5 w-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">Voted for {{ vote.nominee.name }}</p>
+                                <p class="text-sm text-gray-500">{{ vote.nominee.campaign.name }}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-gray-900">+{{ vote.rest_points_earned|floatformat:0 }} pts</p>
+                            <p class="text-xs text-gray-500">{{ vote.created_at|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="p-8 text-center">
+                        <p class="text-gray-500">No voting activity yet</p>
+                        <a href="{% url 'voting_campaigns_list' %}" class="mt-2 inline-block text-indigo-600 hover:text-indigo-700">Browse Campaigns →</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Claim Points Modal -->
+<div id="claim-modal" class="fixed inset-0 bg-gray-900/50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Claim Frozen Points?</h3>
+        <p class="text-gray-600 mb-6">
+            This will transfer <span class="font-bold text-amber-600">{{ frozen_points|floatformat:0 }}</span> frozen points 
+            to your Rest Card.
+        </p>
+        <div class="flex space-x-4">
+            <button id="confirm-claim-btn" class="flex-1 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-xl hover:from-indigo-700 hover:to-purple-700 transition">
+                Yes, Claim Points
+            </button>
+            <button id="cancel-claim-btn" class="flex-1 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const claimBtn = document.getElementById('claim-points-btn');
+    const claimModal = document.getElementById('claim-modal');
+    const confirmClaimBtn = document.getElementById('confirm-claim-btn');
+    const cancelClaimBtn = document.getElementById('cancel-claim-btn');
+
+    if (claimBtn && claimModal) {
+        claimBtn.addEventListener('click', function() {
+            claimModal.classList.remove('hidden');
+            claimModal.classList.add('flex');
+        });
+
+        cancelClaimBtn.addEventListener('click', function() {
+            claimModal.classList.add('hidden');
+            claimModal.classList.remove('flex');
+        });
+
+        confirmClaimBtn.addEventListener('click', async function() {
+            confirmClaimBtn.disabled = true;
+            confirmClaimBtn.textContent = 'Processing...';
+
+            try {
+                const response = await fetch('{% url "claim_frozen_points" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        rest_card_id: {{ rest_card.id|default:"null" }}
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(data.message);
+                    window.location.reload();
+                } else {
+                    alert(data.error || 'Failed to claim points');
+                }
+            } catch (error) {
+                alert('An error occurred. Please try again.');
+            } finally {
+                confirmClaimBtn.disabled = false;
+                confirmClaimBtn.textContent = 'Yes, Claim Points';
+            }
+        });
+
+        // Close modal on outside click
+        claimModal.addEventListener('click', function(e) {
+            if (e.target === claimModal) {
+                claimModal.classList.add('hidden');
+                claimModal.classList.remove('flex');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

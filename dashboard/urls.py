@@ -3,9 +3,9 @@ from django.urls import path, re_path
 from . import views
 
 urlpatterns = [
+    # Admin CMS dashboard at /cms/
     path("", views.dashboard_home, name="dashboard_home"),
     path("login/", views.login_view, name="dashboard_login"),
-
 
     # Blog (canonical)
     path("blog/create/", views.create_blog, name="blog_create"),
@@ -26,8 +26,12 @@ urlpatterns = [
     path("voting/", views.voting_dashboard, name="voting_dashboard"),
     path("voting/create/", views.create_campaign, name="create_campaign"),
     path("voting/<slug:slug>/edit/", views.edit_campaign, name="edit_campaign"),
-    path("voting/<slug:slug>/delete/", views.delete_campaign, name="delete_campaign"),
+    path("voting/<slug:slug>/delete/", views.delete_campaign, name="edit_campaign"),
     path("voting/<slug:slug>/voters/", views.view_campaign_voters, name="view_campaign_voters"),
+    
+    # Nominee management - edit stories
+    path("nominees/<int:nominee_id>/edit/", views.edit_nominee, name="edit_nominee"),
+    path("nominees/by-campaign/<slug:campaign_slug>/", views.get_nominees_by_campaign, name="nominees_by_campaign"),
     
     # Rest Card management
     path("rest-cards/<int:card_id>/edit/", views.edit_rest_card, name="edit_rest_card"),

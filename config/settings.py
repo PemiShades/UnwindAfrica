@@ -109,14 +109,19 @@ elif DEBUG:
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
+            'OPTIONS': {
+                'init_command': "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL; PRAGMA cache_size=10000; PRAGMA temp_store=MEMORY;",
+            }
         }
     }
-
 else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
+            'OPTIONS': {
+                'init_command': "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL; PRAGMA cache_size=10000; PRAGMA temp_store=MEMORY;",
+            }
         }
     }
 # else:
@@ -169,12 +174,13 @@ EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
 EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', True)
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'no-reply@unwindafrica.com')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'no-reply@unwindafrica.com')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Unwind Africa <no-reply@unwindafrica.com>')
 SERVER_EMAIL = os.getenv('SERVER_EMAIL', 'no-reply@unwindafrica.com')
 
 # --- Paystack Configuration ---
 PAYSTACK_PUBLIC_KEY = os.getenv("PAYSTACK_PUBLIC_KEY", "")
-# print("PAYSTACK_PUBLIC_KEY:", PAYSTACK_PUBLIC_KEY)   Debug print to verify key loading
+# print("PAYSTACK_PUBLIC_KEY:", PAYSTACK_PUBLIC_KEY)   
+#Debug print to verify key loading
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "")
 
 # --- Extra Security (enable once HTTPS is ready) ---

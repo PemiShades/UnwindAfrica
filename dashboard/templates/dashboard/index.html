@@ -590,6 +590,9 @@
                             <span class="font-mono">#{{ nominee.number }}</span>
                           </div>
                           <div class="bg-blue-500/20 rounded p-2 text-right flex items-center justify-end gap-2">
+                            <button @click.stop="editNominee({{ nominee.id }}, '{{ nominee.name }}')" class="text-blue-400 hover:text-blue-300 transition text-sm" title="Edit story">
+                              <i class="fa-solid fa-pen"></i>
+                            </button>
                             <button @click.stop="if(confirm('Delete nominee: {{ nominee.name }}?')) deleteNominee({{ nominee.id }})" class="text-red-400 hover:text-red-300 transition text-sm" title="Delete nominee">
                               <i class="fa-solid fa-trash"></i>
                             </button>
@@ -1154,7 +1157,7 @@
           <form x-data="{ card: restCardModal, submit() {
             const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
             if (!csrf) return alert('CSRF token missing');
-            fetch(`/dashboard/rest-cards/${this.card.id}/edit/`, {
+            fetch(`/cms/rest-cards/${this.card.id}/edit/`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -1184,7 +1187,7 @@
                 }
 
                 // Refresh KPIs
-                fetch('/dashboard/rest-cards/stats/')
+                fetch('/cms/rest-cards/stats/')
                   .then(r => r.json())
                   .then(s => {
                     if (s.ok) {
@@ -1349,6 +1352,49 @@
             </table>
           </template>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Nominee Story Modal -->
+  <div x-show="showEditNomineeModal" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" x-cloak>
+    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col">
+      <div class="p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center flex-shrink-0">
+        <div>
+          <h2 class="text-lg font-bold">Edit Nominee Story</h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <span x-text="editNomineeForm.campaign"></span>
+          </p>
+        </div>
+        <button @click="closeEditNomineeModal()" class="btn-ghost text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+
+      <div class="p-4 space-y-3 overflow-y-auto flex-1">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+          <input type="text" x-model="editNomineeForm.name" class="field ring-brand w-full" />
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Story *</label>
+          <textarea x-model="editNomineeForm.story" rows="6" class="field ring-brand w-full" placeholder="Tell their story - why they deserve to unwind..."></textarea>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Instagram Handle</label>
+          <input type="text" x-model="editNomineeForm.instagram_handle" class="field ring-brand w-full" placeholder="username (without @)" />
+        </div>
+      </div>
+
+      <div class="p-4 border-t border-gray-200 dark:border-gray-800 flex gap-3 justify-end flex-shrink-0">
+        <button @click="closeEditNomineeModal()" class="btn-ghost text-sm">
+          Cancel
+        </button>
+        <button @click="saveNomineeStory()" class="btn-primary text-sm">
+          <i class="fa-solid fa-save mr-1"></i> Save
+        </button>
       </div>
     </div>
   </div>

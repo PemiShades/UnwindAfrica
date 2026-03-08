@@ -53,6 +53,10 @@ document.addEventListener('alpine:init', () => {
       // ===== NOMINEE DETAIL MODAL STATE =====
       showNomineeModal: false,
       nomineeDetail: { id: null, name: '', votes: [], votes_count: 0, total_raised: 0 },
+      
+      // ===== NOMINEE EDIT MODAL STATE =====
+      showEditNomineeModal: false,
+      editNomineeForm: { id: null, name: '', number: '', story: '', instagram_handle: '', order: 0, campaign: '' },
 
       // ===== CHART STORAGE =====
       charts: {},
@@ -388,7 +392,7 @@ document.addEventListener('alpine:init', () => {
           if (!form) return this.toast("Editor form missing", "error");
 
           // Set form action to edit URL
-          form.action = `/dashboard/blog/${slug}/edit/`;
+          form.action = `/cms/blog/${slug}/edit/`;
 
           // Helper to set form values
           const set = (name, v) => {
@@ -495,7 +499,7 @@ document.addEventListener('alpine:init', () => {
 
       editCampaign(id, name, tagline, description, start_date, end_date, vote_price, rest_points_per_vote, grand_prize, grand_prize_description, second_prize, second_prize_description, third_prize, third_prize_description, prize_description, banner_image, is_active) {
         this.editingCampaign = true;
-        this.campaignFormAction = `/dashboard/campaign/${id}/edit/`;
+        this.campaignFormAction = `/cms/campaign/${id}/edit/`;
         this.campaignForm = { id, name, tagline, description, start_date, end_date, vote_price, rest_points_per_vote, grand_prize, grand_prize_description, second_prize, second_prize_description, third_prize, third_prize_description, prize_description, banner_image, is_active };
         this.showCampaignModal = true;
       },
@@ -504,7 +508,7 @@ document.addEventListener('alpine:init', () => {
 
       // ===== NOMINEE MODAL FUNCTIONS =====
       openNomineeModal(nomineeId) {
-        fetch(`/dashboard/nominees/${nomineeId}/details/`)
+        fetch(`/cms/nominees/${nomineeId}/details/`)
           .then(r => r.json())
           .then(data => {
             if (data.ok) {
@@ -522,7 +526,7 @@ document.addEventListener('alpine:init', () => {
       deleteNominee(nomineeId) {
         if (!confirm('Are you sure you want to delete this nominee? This action cannot be undone.')) return;
         
-        fetch(`/dashboard/nominees/${nomineeId}/delete/`, {
+        fetch(`/cms/nominees/${nomineeId}/delete/`, {
           method: 'POST',
           headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
         })
@@ -540,9 +544,67 @@ document.addEventListener('alpine:init', () => {
           .catch(e => this.toast('Error: ' + e.message, 'error'));
       },
 
+      editNominee(nomineeId, nomineeName) {
+        // Fetch nominee data and open edit modal
+        fetch(`/cms/nominees/${nomineeId}/edit/`, {
+          method: 'GET',
+          headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
+        })
+          .then(r => r.json())
+          .then(data => {
+            if (data.ok) {
+              const nominee = data.nominee;
+              this.editNomineeForm = {
+                id: nominee.id,
+                name: nominee.name,
+                number: nominee.number || '',
+                story: nominee.story || '',
+                instagram_handle: nominee.instagram_handle || '',
+                order: nominee.order || 0,
+                campaign: nominee.campaign
+              };
+              this.showEditNomineeModal = true;
+            } else {
+              this.toast(data.error || 'Error loading nominee', 'error');
+            }
+          })
+          .catch(e => this.toast('Error: ' + e.message, 'error'));
+      },
+
+      saveNomineeStory() {
+        const form = this.editNomineeForm;
+        fetch(`/cms/nominees/${form.id}/edit/`, {
+          method: 'POST',
+          headers: { 
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: form.name,
+            story: form.story,
+            instagram_handle: form.instagram_handle
+          })
+        })
+          .then(r => r.json())
+          .then(data => {
+            if (data.ok) {
+              this.toast('Nominee story updated successfully', 'success');
+              this.showEditNomineeModal = false;
+              setTimeout(() => window.location.reload(), 1000);
+            } else {
+              this.toast(data.error || 'Error updating nominee', 'error');
+            }
+          })
+          .catch(e => this.toast('Error: ' + e.message, 'error'));
+      },
+
+      closeEditNomineeModal() {
+        this.showEditNomineeModal = false;
+      },
+
       deleteCampaign(slug) {
         if (!confirm('Delete this campaign? This will remove all associated nominees and votes.')) return;
-        fetch(`/dashboard/voting/${slug}/delete/`, {
+        fetch(`/cms/voting/${slug}/delete/`, {
           method: 'POST',
           headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
         })
@@ -561,7 +623,7 @@ document.addEventListener('alpine:init', () => {
       deleteVote(voteId) {
         if (!confirm('Delete this vote?')) return;
         
-        fetch(`/dashboard/votes/${voteId}/delete/`, {
+        fetch(`/cms/votes/${voteId}/delete/`, {
           method: 'POST',
           headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
         })
@@ -585,7 +647,7 @@ document.addEventListener('alpine:init', () => {
         const vote_quantity = parseInt(prompt('Number of votes:', '1') || '1');
         if (vote_quantity < 1) return;
 
-        fetch('/dashboard/votes/add/', {
+        fetch('/cms/votes/add/', {
           method: 'POST',
           headers: {
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -684,7 +746,7 @@ document.addEventListener('alpine:init', () => {
           return;
         }
 
-        fetch('/dashboard/engagement-data/')
+        fetch('/cms/engagement-data/')
           .then(r => {
             if (!r.ok) throw new Error('Network error');
             return r.json();
@@ -713,12 +775,12 @@ document.addEventListener('alpine:init', () => {
 
       exportRestCards: function() {
         // Redirect to export endpoint
-        window.location.href = '/dashboard/rest-cards/export/';
+        window.location.href = '/cms/rest-cards/export/';
       },
 
       exportNominees: function() {
         // Redirect to export nominees endpoint
-        window.location.href = '/dashboard/nominees/export/';
+        window.location.href = '/cms/nominees/export/';
       },
       
       importRestCards: function() {
@@ -732,7 +794,7 @@ document.addEventListener('alpine:init', () => {
             const formData = new FormData();
             formData.append('file', file);
             
-            fetch('/dashboard/rest-cards/import/', {
+            fetch('/cms/rest-cards/import/', {
               method: 'POST',
               body: formData,
               headers: {
@@ -765,7 +827,7 @@ document.addEventListener('alpine:init', () => {
       
       editRestCard: function(cardId) {
         // Get the card data from dedicated GET endpoint
-        fetch(`/dashboard/rest-cards/${cardId}/get/`, {
+        fetch(`/cms/rest-cards/${cardId}/get/`, {
           method: 'GET',
         })
         .then(response => {
@@ -787,7 +849,7 @@ document.addEventListener('alpine:init', () => {
       },
 
       generateRestCard: function(cardId) {
-        fetch(`/dashboard/rest-cards/${cardId}/generate/`, {
+        fetch(`/cms/rest-cards/${cardId}/generate/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -816,7 +878,7 @@ document.addEventListener('alpine:init', () => {
         const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || this.getCsrfToken();
         if (!csrf) return this.toast('CSRF token missing', 'error');
 
-        fetch('/dashboard/rest-cards/create/', {
+        fetch('/cms/rest-cards/create/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -858,7 +920,7 @@ document.addEventListener('alpine:init', () => {
             }
 
             // refresh KPIs
-            fetch('/dashboard/rest-cards/stats/').then(r=>r.json()).then(s=>{ if(s.ok){ document.getElementById('restCardsTotal').textContent = s.total; document.getElementById('restCardsActive').textContent = s.active; document.getElementById('restCardsPending').textContent = s.pending; document.getElementById('restCardsPoints').textContent = s.total_points; } }).catch(()=>{});
+            fetch('/cms/rest-cards/stats/').then(r=>r.json()).then(s=>{ if(s.ok){ document.getElementById('restCardsTotal').textContent = s.total; document.getElementById('restCardsActive').textContent = s.active; document.getElementById('restCardsPending').textContent = s.pending; document.getElementById('restCardsPoints').textContent = s.total_points; } }).catch(()=>{});
 
             this.toast('Card created', 'success');
           } else {
@@ -869,7 +931,7 @@ document.addEventListener('alpine:init', () => {
       },
 
       resendRestCard: function(cardId) {
-        fetch(`/dashboard/rest-cards/${cardId}/resend/`, {
+        fetch(`/cms/rest-cards/${cardId}/resend/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -894,7 +956,7 @@ document.addEventListener('alpine:init', () => {
         const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || this.getCsrfToken();
         if (!csrf) return this.toast('CSRF token missing', 'error');
 
-        fetch(`/dashboard/rest-cards/${cardId}/toggle-status/`, {
+        fetch(`/cms/rest-cards/${cardId}/toggle-status/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -937,7 +999,7 @@ document.addEventListener('alpine:init', () => {
             }
 
             // Refresh KPI counts by requesting stats endpoint
-            fetch('/dashboard/rest-cards/stats/')
+            fetch('/cms/rest-cards/stats/')
               .then(r => r.json())
               .then(s => {
                 if (s.ok) {
@@ -975,7 +1037,7 @@ document.addEventListener('alpine:init', () => {
 
       editBook: function(bookId) {
         const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || this.getCsrfToken();
-        fetch(`/dashboard/books/${bookId}/`)
+        fetch(`/cms/books/${bookId}/`)
           .then(response => response.json())
           .then(data => {
             this.bookModal = {
@@ -1005,8 +1067,8 @@ document.addEventListener('alpine:init', () => {
         formData.append('status', this.bookModal.status);
         
         const url = this.bookModal.id 
-          ? `/dashboard/books/${this.bookModal.id}/edit/` 
-          : '/dashboard/books/create/';
+          ? `/cms/books/${this.bookModal.id}/edit/` 
+          : '/cms/books/create/';
         
         fetch(url, {
           method: 'POST',
@@ -1033,7 +1095,7 @@ document.addEventListener('alpine:init', () => {
         if (!confirm('Are you sure you want to delete this book?')) return;
         
         const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || this.getCsrfToken();
-        fetch(`/dashboard/books/${bookId}/delete/`, {
+        fetch(`/cms/books/${bookId}/delete/`, {
           method: 'POST',
           headers: { 'X-CSRFToken': csrf }
         })
@@ -1175,7 +1237,7 @@ function confirmDelete(type, identifier, name) {
     const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || '';
     if (!csrf) return alert('CSRF token missing');
 
-    fetch(`/dashboard/${type}/${identifier}/delete/`, {
+    fetch(`/cms/${type}/${identifier}/delete/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1202,7 +1264,7 @@ function confirmDelete(type, identifier, name) {
 function toggleFeature(slug) {
   const form = document.createElement('form');
   form.method = 'POST';
-  form.action = `/dashboard/blog/${slug}/toggle-feature/`;
+  form.action = `/cms/blog/${slug}/toggle-feature/`;
   
   const csrfInput = document.createElement('input');
   csrfInput.type = 'hidden';

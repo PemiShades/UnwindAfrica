@@ -12,7 +12,7 @@ from django.db.models import Avg, Count, Sum
 from django.utils.timezone import now
 
 from .models import Post, Event
-from .forms import PostForm, EventForm, AdminAuthenticationForm, VotingCampaignForm
+from .forms import PostForm, EventForm, AdminAuthenticationForm, VotingCampaignForm, NomineeForm
 from Web.models import PageView, Session, VotingCampaign, Nominee, Vote, Transaction, Book
 
 
@@ -55,6 +55,13 @@ def _get_top_pages(since_date):
     return list(top_pages)
 
 
+def add_months(d, n):
+    """Add n months to date d"""
+    y = d.year + (d.month - 1 + n) // 12
+    m = (d.month - 1 + n) % 12 + 1
+    return d.replace(year=y, month=m)
+
+
 @login_required
 def dashboard_home(request):
     from collections import Counter
@@ -71,14 +78,15 @@ def dashboard_home(request):
     recent_sessions = Session.objects.filter(start_time__gte=thirty_days_ago)
     total_sessions = recent_sessions.count()
 
-    # Bounce rate: sessions with only 1 page view
+    # Bounce rate: sessions with only 1 page view - optimized with aggregate
+    from django.db.models import Count
     bounce_sessions = recent_sessions.filter(page_views__lte=1).count()
     bounce_rate = (bounce_sessions / total_sessions * 100) if total_sessions > 0 else 0
 
-    # Page views from last 30 days
+    # Page views from last 30 days - optimized with aggregate
     recent_page_views = PageView.objects.filter(timestamp__gte=thirty_days_ago).count()
 
-    # KPIs (align with index.html keys)
+    # KPIs (align with index.html keys) - optimized to avoid multiple queries
     kpis = {
         "total_sessions": total_sessions,
         "events_count": events_qs.count(),
@@ -97,25 +105,25 @@ def dashboard_home(request):
         "top_pages": _get_top_pages(thirty_days_ago),
     }
 
-    # Categories chart
-    cats = [p.category for p in posts_qs]
+    # Categories chart - optimized with values_list
+    cats = list(posts_qs.values_list('category', flat=True))
     category_chart_labels = sorted(set(cats))
     category_chart_counts = [cats.count(c) for c in category_chart_labels]
 
-    # Monthly chart (last 12 months) - Posts
-    def add_months(d, n):
-        y = d.year + (d.month - 1 + n) // 12
-        m = (d.month - 1 + n) % 12 + 1
-        return d.replace(year=y, month=m)
-
-    posts_by_month = Counter(p.created_at.strftime("%Y-%m") for p in posts_qs)
+    # Monthly chart (last 12 months) - Posts - optimized with values and annotate
+    from django.db.models.functions import TruncMonth
+    posts_by_month = posts_qs.annotate(
+        month=TruncMonth('created_at')
+    ).values('month').annotate(count=Count('id'))
+    
     first_of_this_month = date.today().replace(day=1)
     monthly_chart_labels, monthly_chart_counts = [], []
+    posts_by_month_dict = {p['month'].strftime('%Y-%m'): p['count'] for p in posts_by_month if p['month']}
     for i in range(-11, 1):
         d = add_months(first_of_this_month, i)
         key = d.strftime("%Y-%m")
         monthly_chart_labels.append(d.strftime("%b %Y"))
-        monthly_chart_counts.append(posts_by_month.get(key, 0))
+        monthly_chart_counts.append(posts_by_month_dict.get(key, 0))
 
     # Voting data
     from Web.models import VotingCampaign, Nominee, Vote, Transaction
@@ -552,8 +560,85 @@ def delete_nominee(request, nominee_id):
         return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
 
+@login_required
+def edit_nominee(request, nominee_id):
+    """Edit an existing nominee via AJAX - used for updating stories"""
+    try:
+        nominee = get_object_or_404(Nominee, pk=nominee_id)
+        
+        if request.method == "POST":
+            # Check if JSON or form data
+            if request.headers.get('Content-Type') == 'application/json':
+                import json
+                try:
+                    data = json.loads(request.body)
+                except json.JSONDecodeError:
+                    return JsonResponse({"ok": False, "error": "Invalid JSON"}, status=400)
+                
+                # Update fields directly from JSON
+                nominee.name = data.get('name', nominee.name)
+                nominee.number = data.get('number', nominee.number or '')
+                nominee.story = data.get('story', nominee.story or '')
+                nominee.instagram_handle = data.get('instagram_handle', nominee.instagram_handle or '')
+                nominee.order = int(data.get('order', nominee.order))
+                nominee.save()
+                return JsonResponse({"ok": True, "message": "Nominee updated successfully"})
+            else:
+                # Form submission
+                form = NomineeForm(request.POST, request.FILES, instance=nominee)
+                if form.is_valid():
+                    form.save()
+                    return JsonResponse({"ok": True, "message": "Nominee updated successfully"})
+                
+                errors = {field: error[0] for field, error in form.errors.items()}
+                return JsonResponse({"ok": False, "error": "Invalid form", "errors": errors}, status=400)
+        
+        # For GET request, return nominee data as JSON
+        return JsonResponse({
+            "ok": True,
+            "nominee": {
+                "id": nominee.id,
+                "name": nominee.name,
+                "number": nominee.number,
+                "story": nominee.story,
+                "instagram_handle": nominee.instagram_handle,
+                "order": nominee.order,
+                "campaign": nominee.campaign.name,
+            }
+        })
+    
+    except Exception as e:
+        print(f"Error editing nominee: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
 
+@login_required
+def get_nominees_by_campaign(request, campaign_slug):
+    """Get all nominees for a specific campaign"""
+    try:
+        campaign = get_object_or_404(VotingCampaign, slug=campaign_slug)
+        nominees = Nominee.objects.filter(campaign=campaign).order_by('order', 'name')
+        
+        nominees_data = []
+        for n in nominees:
+            nominees_data.append({
+                "id": n.id,
+                "name": n.name,
+                "number": n.number,
+                "story": n.story,
+                "instagram_handle": n.instagram_handle,
+                "order": n.order,
+                "vote_count": n.vote_count,
+            })
+        
+        return JsonResponse({
+            "ok": True,
+            "campaign": {"id": campaign.id, "name": campaign.name},
+            "nominees": nominees_data
+        })
+    except Exception as e:
+        print(f"Error getting nominees: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
 
 # ---------- Rest Card Management ----------

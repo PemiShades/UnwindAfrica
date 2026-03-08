@@ -518,9 +518,17 @@
                         <label for="child_age">Child's Age *</label>
                         <select id="child_age" name="child_age" required>
                             <option value="">Select age</option>
-                            {% for age in "123456789101112131415"|make_list %}
-                            <option value="{{ forloop.counter }}">{{ forloop.counter }} years old</option>
-                            {% endfor %}
+                            <option value="5">5 years old</option>
+                            <option value="6">6 years old</option>
+                            <option value="7">7 years old</option>
+                            <option value="8">8 years old</option>
+                            <option value="9">9 years old</option>
+                            <option value="10">10 years old</option>
+                            <option value="11">11 years old</option>
+                            <option value="12">12 years old</option>
+                            <option value="13">13 years old</option>
+                            <option value="14">14 years old</option>
+                            <option value="15">15 years old</option>
                         </select>
                     </div>
 
@@ -564,7 +572,25 @@
 </div>
 
 <script>
+// Load AOS CSS and JS directly to ensure availability
+var aosCss = document.createElement('link');
+aosCss.rel = 'stylesheet';
+aosCss.href = 'https://unpkg.com/aos@2.3.4/dist/aos.css';
+document.head.appendChild(aosCss);
+
+var aosJs = document.createElement('script');
+aosJs.src = 'https://unpkg.com/aos@2.3.4/dist/aos.js';
+aosJs.onload = function() {
+    AOS.init({ duration: 1000, once: true });
+};
+document.head.appendChild(aosJs);
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Wait for AOS to load if not already initialized
+    if (typeof AOS !== 'undefined' && !AOS.isInitialized) {
+        AOS.init({ duration: 1000, once: true });
+    }
+    
     const form = document.getElementById('trial-registration-form');
     const successMessage = document.getElementById('success-message');
     

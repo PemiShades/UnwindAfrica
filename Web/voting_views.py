@@ -15,7 +15,7 @@ import secrets
 import traceback
 from decimal import Decimal
 
-from .models import VotingCampaign, Nominee, Vote, Transaction, RestCard, TokenWallet, TokenTransaction
+from .models import VotingCampaign, Nominee, Vote, Transaction, RestCard, TokenWallet, TokenTransaction, FrozenRestPoints
 
 
 def voting_campaigns_list(request):
@@ -137,6 +137,9 @@ def initialize_payment(request):
         # Initialize Paystack payment
         paystack_secret = settings.PAYSTACK_SECRET_KEY
         
+        # print(f"DEBUG: PAYSTACK_SECRET_KEY present: {bool(paystack_secret)}")
+        # print(f"DEBUG: PAYSTACK_SECRET_KEY value: {paystack_secret[:10]}..." if paystack_secret else "DEBUG: PAYSTACK_SECRET_KEY is empty")
+        
         if not paystack_secret:
             return JsonResponse({
                 'success': False,
@@ -146,10 +149,12 @@ def initialize_payment(request):
         # Convert to kobo (Paystack uses kobo for Naira)
         amount_in_kobo = int(total_amount * 100)
         
+        print(f"DEBUG: total_amount={total_amount}, amount_in_kobo={amount_in_kobo}")
+        print(f"DEBUG: voter_email={voter_email}, voter_name={voter_name}")
+        
         headers = {
             'Authorization': f'Bearer {paystack_secret}',
             'Content-Type': 'application/json',
-            
         }
         
         
@@ -179,6 +184,9 @@ def initialize_payment(request):
             verify=False,  # Disable SSL verification for local testing (remove in production)
             timeout=10
         )
+        
+        print(f"DEBUG: Paystack response status: {response.status_code}")
+        print(f"DEBUG: Paystack response body: {response.text[:500]}")
         
         response_data = response.json()
         
@@ -235,42 +243,34 @@ def initialize_payment(request):
 
 def update_rest_card_points(vote):
     """
-    Auto-create or update Rest Card with earned points.
-    Called after successful payment verification.
+    Store earned rest points as "frozen" - these will be transferred to 
+    the user's Rest Card when they apply and receive one.
+    
+    Users are NOT automatically added to waitlist anymore. They must apply
+    for a Rest Card to claim their frozen points.
     """
     email = vote.voter_email
     name = vote.voter_name
     phone = vote.voter_phone
     points = vote.rest_points_earned
     
-    # Get or create Rest Card
-    rest_card, created = RestCard.objects.get_or_create(
+    # Create frozen points entry (NOT added to waitlist automatically)
+    frozen_entry, created = FrozenRestPoints.objects.get_or_create(
         member_email=email,
         defaults={
             'member_name': name,
             'member_phone': phone,
-            'status': 'waitlist',
-            'total_rest_points': 0
+            'frozen_points': 0,
+            'vote': vote,
         }
     )
     
-    # Add points
-    rest_card.total_rest_points += points
+    # Add the new points to the frozen balance
+    frozen_entry.frozen_points += points
+    frozen_entry.vote = vote  # Update to latest vote
+    frozen_entry.save()
     
-    # Check for auto-activation at ₦1,000 points
-    if rest_card.status == 'waitlist' and rest_card.total_rest_points >= 1000:
-        rest_card.status = 'active'
-        rest_card.activated_at = now()
-        # Card expires 1 year from activation
-        from datetime import timedelta
-        rest_card.expires_at = now() + timedelta(days=365)
-        
-        # TODO: Send activation email notification
-        # send_activation_email(rest_card)
-    
-    rest_card.save()
-    
-    return rest_card, created
+    return frozen_entry, created
 
 
 def update_token_wallet(vote):
@@ -365,20 +365,17 @@ def verify_payment(request, reference):
                 total_rest_points = sum(t.vote.rest_points_earned for t in transactions)
                 total_tokens = total_votes * 100
                 
-                # Check if Rest Card was activated
+                # Check if user has frozen points
                 first_vote = transactions.first().vote
-                rest_card = RestCard.objects.filter(member_email=first_vote.voter_email).first()
+                frozen_points = FrozenRestPoints.objects.filter(member_email=first_vote.voter_email).first()
                 
                 # Build success message
                 success_msg = f'Your vote has been recorded! 💛 You voted {total_votes} times.'
-                success_msg += f' You earned {total_rest_points:,.0f} Rest Points'
+                success_msg += f' You earned {total_rest_points:,.0f} Rest Points (frozen)'
                 success_msg += f' and {total_tokens:,.0f} Tokens!'
                 
-                if rest_card and rest_card.status == 'active' and rest_card.activated_at:
-                    # Check if just activated (within last minute)
-                    from datetime import timedelta
-                    if rest_card.activated_at > now() - timedelta(minutes=1):
-                        success_msg += ' 🎉 Your Rest Card has been ACTIVATED!'
+                # Show message about applying for rest card
+                success_msg += ' 📋 Apply for a Rest Card to unlock your frozen points!'
                 
                 messages.success(request, success_msg)
                 
@@ -392,8 +389,10 @@ def verify_payment(request, reference):
                     'total_votes': total_votes,
                     'total_rest_points': float(total_rest_points),
                     'total_tokens': total_tokens,
-                    'rest_card_activated': bool(rest_card and rest_card.status == 'active'),
-                    'rest_card_number': rest_card.card_number if rest_card and rest_card.status == 'active' else None
+                    'rest_card_activated': False,  # No longer auto-activated
+                    'rest_card_number': None,
+                    'has_frozen_points': True,  # New: indicates user has frozen points
+                    'frozen_points': float(total_rest_points),
                 }
                 
                 # Redirect to thank you page

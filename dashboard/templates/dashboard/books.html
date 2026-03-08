@@ -238,7 +238,7 @@
     }
 
     function viewBook(id) {
-      fetch(`/dashboard/books/${id}/`)
+      fetch(`/cms/books/${id}/`)
         .then(r => r.json())
         .then(data => {
           document.getElementById('modalTitle').textContent = data.title;
@@ -259,7 +259,7 @@
 
     function deleteBook(id) {
       if (confirm('Are you sure you want to delete this book?')) {
-        fetch(`/dashboard/books/${id}/delete/`, {
+        fetch(`/cms/books/${id}/delete/`, {
           method: 'POST',
           headers: { 'X-CSRFToken': '{{ csrf_token }}' }
         }).then(r => r.json()).then(data => {
@@ -274,7 +274,7 @@
       e.preventDefault();
       const formData = new FormData(this);
       const bookId = formData.get('book_id');
-      const url = bookId ? `/dashboard/books/${bookId}/edit/` : '/dashboard/books/create/';
+      const url = bookId ? `/cms/books/${bookId}/edit/` : '/cms/books/create/';
       
       fetch(url, {
         method: 'POST',
