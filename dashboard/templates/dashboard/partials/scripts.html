@@ -45,6 +45,10 @@ document.addEventListener('alpine:init', () => {
       // ===== REST CARD MODAL STATE =====
       showRestCardModal: false,
       restCardModal: {},
+      
+      // ===== BULK SELECTION STATE =====
+      selectedCards: [],
+      showDeleteModal: false,
 
       // ===== BOOK MODAL STATE =====
       showBookModal: false,
@@ -1056,6 +1060,215 @@ document.addEventListener('alpine:init', () => {
         })
         .catch(error => {
           this.toast('Error toggling card status', 'error');
+          console.error('Error:', error);
+        });
+      },
+
+      // ===== BULK REST CARD FUNCTIONS =====
+      toggleCardSelection: function(cardId, event) {
+        const checkbox = event.target;
+        if (checkbox.checked) {
+          if (!this.selectedCards.includes(cardId)) {
+            this.selectedCards.push(cardId);
+          }
+        } else {
+          this.selectedCards = this.selectedCards.filter(id => id !== cardId);
+        }
+      },
+
+      toggleAllCards: function(event) {
+        const checkboxes = document.querySelectorAll('.card-checkbox');
+        const allChecked = event.target.checked;
+        checkboxes.forEach(cb => {
+          cb.checked = allChecked;
+        });
+        if (allChecked) {
+          // Select all card IDs from the table
+          const allIds = [];
+          document.querySelectorAll('.card-checkbox').forEach(cb => {
+            if (cb.value) allIds.push(parseInt(cb.value));
+          });
+          this.selectedCards = allIds;
+        } else {
+          this.selectedCards = [];
+        }
+      },
+
+      selectAllCards: function() {
+        const checkboxes = document.querySelectorAll('.card-checkbox');
+        const allIds = [];
+        checkboxes.forEach(cb => {
+          cb.checked = true;
+          if (cb.value) allIds.push(parseInt(cb.value));
+        });
+        this.selectedCards = allIds;
+      },
+
+      clearSelection: function() {
+        this.selectedCards = [];
+        const checkboxes = document.querySelectorAll('.card-checkbox');
+        checkboxes.forEach(cb => cb.checked = false);
+      },
+
+      bulkActivateCards: function() {
+        if (this.selectedCards.length === 0) {
+          this.toast('No cards selected', 'error');
+          return;
+        }
+        
+        const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || this.getCsrfToken();
+        if (!csrf) return this.toast('CSRF token missing', 'error');
+
+        fetch('/cms/rest-cards/bulk-activate/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrf
+          },
+          body: JSON.stringify({ card_ids: this.selectedCards })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            this.toast(data.message, 'success');
+            this.clearSelection();
+            location.reload(); // Refresh to show updated status
+          } else {
+            this.toast(data.error, 'error');
+          }
+        })
+        .catch(error => {
+          this.toast('Error activating cards', 'error');
+          console.error('Error:', error);
+        });
+      },
+
+      bulkDeactivateCards: function() {
+        if (this.selectedCards.length === 0) {
+          this.toast('No cards selected', 'error');
+          return;
+        }
+        
+        const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || this.getCsrfToken();
+        if (!csrf) return this.toast('CSRF token missing', 'error');
+
+        fetch('/cms/rest-cards/bulk-deactivate/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrf
+          },
+          body: JSON.stringify({ card_ids: this.selectedCards })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            this.toast(data.message, 'success');
+            this.clearSelection();
+            location.reload();
+          } else {
+            this.toast(data.error, 'error');
+          }
+        })
+        .catch(error => {
+          this.toast('Error deactivating cards', 'error');
+          console.error('Error:', error);
+        });
+      },
+
+      confirmBulkDelete: function() {
+        if (this.selectedCards.length === 0) {
+          this.toast('No cards selected', 'error');
+          return;
+        }
+        this.showDeleteModal = true;
+      },
+
+      bulkDeleteCards: function() {
+        const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || this.getCsrfToken();
+        if (!csrf) return this.toast('CSRF token missing', 'error');
+
+        fetch('/cms/rest-cards/bulk-delete/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrf
+          },
+          body: JSON.stringify({ card_ids: this.selectedCards })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            this.toast(data.message, 'success');
+            this.showDeleteModal = false;
+            this.clearSelection();
+            location.reload();
+          } else {
+            this.toast(data.error, 'error');
+          }
+        })
+        .catch(error => {
+          this.toast('Error deleting cards', 'error');
+          console.error('Error:', error);
+        });
+      },
+
+      activateAllCards: function() {
+        if (!confirm('Are you sure you want to activate ALL pending/rest cards? This will activate all cards that are not currently active.')) {
+          return;
+        }
+        const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || this.getCsrfToken();
+        if (!csrf) return this.toast('CSRF token missing', 'error');
+
+        fetch('/cms/rest-cards/activate-all/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrf
+          },
+          body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            this.toast(data.message, 'success');
+            location.reload();
+          } else {
+            this.toast(data.error, 'error');
+          }
+        })
+        .catch(error => {
+          this.toast('Error activating all cards', 'error');
+          console.error('Error:', error);
+        });
+      },
+
+      deactivateAllCards: function() {
+        if (!confirm('Are you sure you want to deactivate ALL active cards? This will suspend all currently active cards.')) {
+          return;
+        }
+        const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || this.getCsrfToken();
+        if (!csrf) return this.toast('CSRF token missing', 'error');
+
+        fetch('/cms/rest-cards/deactivate-all/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrf
+          },
+          body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            this.toast(data.message, 'success');
+            location.reload();
+          } else {
+            this.toast(data.error, 'error');
+          }
+        })
+        .catch(error => {
+          this.toast('Error deactivating all cards', 'error');
           console.error('Error:', error);
         });
       },

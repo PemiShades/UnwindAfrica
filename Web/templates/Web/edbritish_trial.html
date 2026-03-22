@@ -1,7 +1,7 @@
 {% extends 'Web/main.html' %}
 {% load static %}
 
-{% block title %}Free Trial Classes for Diaspora Children | EdBritish Consult × Unwind Africa{% endblock %}
+{% block title %}Free Trial Classes for Diaspora Children | EdBriTish Consult × Unwind Africa{% endblock %}
 
 {% block navbar %}
 {% include './partials/header/navbar.html' with theme='dark' %}
@@ -228,8 +228,20 @@
     
     .form-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: 1fr;
         gap: 1.5rem;
+    }
+    
+    @media (min-width: 640px) {
+        .form-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (min-width: 1024px) {
+        .form-grid {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
     }
     
     .form-field {
@@ -275,8 +287,20 @@
     
     .subject-options {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 1rem;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    @media (min-width: 480px) {
+        .subject-options {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (min-width: 640px) {
+        .subject-options {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
     }
     
     .subject-option {
@@ -405,7 +429,7 @@
                 <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 1.5rem;">
                     EBC
                 </div>
-                <span class="logo-text">EdBritish Consult</span>
+                <span class="logo-text">EdBriTish Consult</span>
             </div>
         </div>
         <p class="partnership-tagline">Educational Partnership for the Nominate to Unwind – Students & Youth Edition</p>
@@ -413,26 +437,26 @@
 
     <!-- Page Title -->
     <div class="page-title-section">
-        <h1 class="page-title">Free Trial Classes for Diaspora Children</h1>
-        <p class="page-subtitle">EdBritish Consult × Unwind Africa</p>
+        <h1 class="page-title">Free Trial Classes – Students & Youth Edition</h1>
+        <p class="page-subtitle">EdBriTish Consult × Unwind Africa</p>
+        <p style="margin-top: 1rem; color: #666;">Nominations close March 22 • Partnership for Diaspora Families</p>
     </div>
 
     <!-- Content Section -->
     <div class="content-section">
         <!-- Introduction -->
         <div class="intro-text" data-aos="fade-up">
-            <p>Unwind Africa, in collaboration with EdBritish Consult, is offering free trial classes for children aged 5–15 living in diaspora.</p>
-            <p>This initiative allows families abroad to explore structured learning support in subjects such as:</p>
+            <p>Unwind Africa, in collaboration with EdBriTish Consult, is proud to announce an exciting education sponsorship for the <strong>Nominate to Unwind – Students & Youth Edition</strong>.</p>
+            <p>This initiative allows families in the diaspora to access trial classes in the following subjects:</p>
             <ul>
-                <li>English</li>
-                <li>Mathematics</li>
-                <li>Music</li>
-                <li>Arts</li>
+                <li><strong>Academics:</strong> Mathematics, English Language, and Science</li>
+                <li><strong>Skills:</strong> Coding, AI Animation Video, Digital Marketing</li>
+                <li><strong>Language:</strong> Hausa, Igbo, Yoruba, French, Spanish, German, and Chinese</li>
             </ul>
             <p>Members of the Unwind Africa community can share this opportunity with friends and families abroad whose children may benefit from additional learning support.</p>
             <div class="info-box">
-                <h4>⏰ Limited Time Offer</h4>
-                <p style="margin: 0; opacity: 0.95;">This trial opportunity will run from now until May 27 (Children's Day).</p>
+                <h4>🎓 Free Trial Programs Available</h4>
+                <p style="margin: 0; opacity: 0.95;">Mathematics • English Language • AI Animation Video • Digital Marketing</p>
             </div>
         </div>
 
@@ -442,14 +466,15 @@
             <ul class="who-list">
                 <li>Families in diaspora who want structured academic support for their children</li>
                 <li>Parents who want their children to build stronger learning foundations</li>
-                <li>Children aged 5–15 interested in English, Mathematics, Music, or Arts</li>
+                <li>Children and youth interested in Mathematics, English, Science, AI, Digital Marketing, Coding, Music, Art, or Languages</li>
+                <li>Selected nominees for the Students & Youth Edition may also receive access to training, mentorship, and personal development sessions</li>
             </ul>
         </div>
 
         <!-- Limited Trial Note -->
         <div class="limited-trial-box" data-aos="fade-up" data-aos-delay="200">
             <h4><i class="fas fa-exclamation-circle"></i> Limited Trial Access</h4>
-            <p style="margin: 0; color: #666;">To maintain quality learning sessions, a limited number of trial spots are available each month. Early registration is recommended.</p>
+            <p style="margin: 0; color: #666;">This education sponsorship will run during the current Students & Youth Edition of Nominate to Unwind. Early registration is recommended as trial spots are limited.</p>
         </div>
 
         <!-- Registration Form -->
@@ -515,7 +540,7 @@
 
                     <!-- Child's Age -->
                     <div class="form-field">
-                        <label for="child_age">Child's Age *</label>
+                        <label for="child_age">Child's/Youth Age *</label>
                         <select id="child_age" name="child_age" required>
                             <option value="">Select age</option>
                             <option value="5">5 years old</option>
@@ -529,6 +554,16 @@
                             <option value="13">13 years old</option>
                             <option value="14">14 years old</option>
                             <option value="15">15 years old</option>
+                            <option value="16">16 years old</option>
+                            <option value="17">17 years old</option>
+                            <option value="18">18 years old</option>
+                            <option value="19">19 years old</option>
+                            <option value="20">20 years old</option>
+                            <option value="21">21 years old</option>
+                            <option value="22">22 years old</option>
+                            <option value="23">23 years old</option>
+                            <option value="24">24 years old</option>
+                            <option value="25">25 years old</option>
                         </select>
                     </div>
 
@@ -537,12 +572,28 @@
                         <label>Subject of Interest *</label>
                         <div class="subject-options">
                             <div class="subject-option">
-                                <input type="radio" id="subject_english" name="subject" value="English" required>
-                                <label for="subject_english">English</label>
+                                <input type="radio" id="subject_english" name="subject" value="English Language" required>
+                                <label for="subject_english">English Language</label>
                             </div>
                             <div class="subject-option">
                                 <input type="radio" id="subject_mathematics" name="subject" value="Mathematics">
                                 <label for="subject_mathematics">Mathematics</label>
+                            </div>
+                            <div class="subject-option">
+                                <input type="radio" id="subject_science" name="subject" value="Science">
+                                <label for="subject_science">Science</label>
+                            </div>
+                            <div class="subject-option">
+                                <input type="radio" id="subject_ai_animation" name="subject" value="AI Video Animation">
+                                <label for="subject_ai_animation">AI Video Animation</label>
+                            </div>
+                            <div class="subject-option">
+                                <input type="radio" id="subject_digital_marketing" name="subject" value="Digital Marketing">
+                                <label for="subject_digital_marketing">Digital Marketing</label>
+                            </div>
+                            <div class="subject-option">
+                                <input type="radio" id="subject_coding" name="subject" value="Coding">
+                                <label for="subject_coding">Coding</label>
                             </div>
                             <div class="subject-option">
                                 <input type="radio" id="subject_music" name="subject" value="Music">
@@ -553,8 +604,8 @@
                                 <label for="subject_arts">Arts</label>
                             </div>
                             <div class="subject-option">
-                                <input type="radio" id="subject_other" name="subject" value="Other">
-                                <label for="subject_other">Other</label>
+                                <input type="radio" id="subject_language" name="subject" value="Language">
+                                <label for="subject_language">Language</label>
                             </div>
                         </div>
                     </div>
@@ -566,7 +617,7 @@
 
         <!-- Trust Line -->
         <div class="trust-line">
-            <p>This opportunity is made available through the Unwind Africa community in partnership with EdBritish Consult.</p>
+            <p>This opportunity is made available through the Unwind Africa community in partnership with EdBriTish Consult.</p>
         </div>
     </div>
 </div>

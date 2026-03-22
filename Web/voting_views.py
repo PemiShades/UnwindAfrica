@@ -90,6 +90,7 @@ def initialize_payment(request):
         voter_email = data.get('voter_email', '').strip()
         voter_phone = data.get('voter_phone', '').strip()
         referral_source = data.get('referral_source', '').strip()
+        rest_card_number = data.get('rest_card_number', '').strip()  # Rest Card number from checkout form
         
         # Validation
         if not ballot or not voter_name or not voter_email or not voter_phone:
@@ -98,9 +99,36 @@ def initialize_payment(request):
                 'message': 'Missing required fields'
             }, status=400)
         
+        # Check for free votes from Rest Card
+        # Priority: 1. Look up by card number if provided, 2. Look up by email
+        free_votes_available = 0
+        rest_card = None
+        try:
+            # First, try to find by card number (if provided in checkout form)
+            if rest_card_number:
+                rest_card = RestCard.objects.filter(
+                    card_number=rest_card_number, 
+                    status='active',
+                    free_votes_remaining__gt=0
+                ).first()
+            
+            # If not found by card number, try by email
+            if not rest_card:
+                rest_card = RestCard.objects.filter(
+                    member_email=voter_email, 
+                    status='active',
+                    free_votes_remaining__gt=0
+                ).first()
+            
+            if rest_card:
+                free_votes_available = rest_card.free_votes_remaining
+        except Exception:
+            pass  # If check fails, proceed without free votes
+        
         # Process ballot and create votes
         votes_created = []
         total_amount = Decimal('0.00')
+        free_votes_used = 0
         
         # Don't create votes yet - we'll do it after successful payment initialization
         ballot_items = []
@@ -115,13 +143,27 @@ def initialize_payment(request):
             nominee = get_object_or_404(Nominee, id=nominee_id)
             campaign = nominee.campaign
             
-            # Calculate amount
-            amount = campaign.vote_price * vote_quantity
+            # Calculate amount - apply free votes first
+            votes_remaining = vote_quantity
+            amount = Decimal('0.00')
+            
+            # Use free votes first
+            if free_votes_available > 0 and free_votes_used < free_votes_available:
+                free_votes_for_this_item = min(votes_remaining, free_votes_available - free_votes_used)
+                free_votes_used += free_votes_for_this_item
+                votes_remaining -= free_votes_for_this_item
+            
+            # Calculate paid amount for remaining votes
+            if votes_remaining > 0:
+                amount = campaign.vote_price * votes_remaining
+            
             total_amount += amount
             
             ballot_items.append({
                 'nominee': nominee,
                 'vote_quantity': vote_quantity,
+                'free_votes': vote_quantity - votes_remaining,
+                'paid_votes': votes_remaining,
                 'amount': amount
             })
         
@@ -190,6 +232,10 @@ def initialize_payment(request):
         
         response_data = response.json()
         
+        # Collect votes and transactions for processing
+        created_votes = []
+        created_transactions = []
+        
         if response.status_code == 200 and response_data.get('status'):
             # Now create votes and transactions atomically
             with db_transaction.atomic():
@@ -204,9 +250,10 @@ def initialize_payment(request):
                         vote_quantity=item['vote_quantity'],
                         amount=item['amount']
                     )
+                    created_votes.append(vote)
                     
                     # Create transaction for this vote
-                    Transaction.objects.create(
+                    transaction = Transaction.objects.create(
                         vote=vote,
                         reference=reference,  # Same reference for all votes in this payment
                         authorization_url=response_data['data']['authorization_url'],
@@ -215,12 +262,44 @@ def initialize_payment(request):
                         status='pending',
                         paystack_response=response_data
                     )
+                    created_transactions.append(transaction)
             
-            return JsonResponse({
+            # Return success response with free votes info
+            response_payload = {
                 'success': True,
                 'authorization_url': response_data['data']['authorization_url'],
-                'reference': reference
-            })
+                'reference': reference,
+                'free_votes_used': free_votes_used,
+                'free_votes_remaining': rest_card.free_votes_remaining - free_votes_used if rest_card else 0
+            }
+            
+            # If all votes are free (total_amount is 0), skip payment and process directly
+            if total_amount == Decimal('0.00') and free_votes_used > 0:
+                # Mark transactions as paid and process votes
+                for trans in created_transactions:
+                    trans.status = 'paid'
+                    trans.payment_status = 'paid'
+                    trans.save()
+                    
+                    # Update vote status
+                    vote = trans.vote
+                    vote.payment_status = 'paid'
+                    vote.save()
+                    
+                    # Update nominee vote count
+                    nominee = vote.nominee
+                    nominee.vote_count += vote.vote_quantity
+                    nominee.save()
+                
+                # Decrement free votes on rest card
+                if rest_card:
+                    rest_card.free_votes_remaining = max(0, rest_card.free_votes_remaining - free_votes_used)
+                    rest_card.save()
+                
+                response_payload['free_votes_processed'] = True
+                response_payload['message'] = f'Your {free_votes_used} free vote(s) have been applied!'
+            
+            return JsonResponse(response_payload)
         else:
             # Payment initialization failed - no cleanup needed since votes weren't created yet
             return JsonResponse({

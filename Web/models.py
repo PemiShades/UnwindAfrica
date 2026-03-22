@@ -447,6 +447,8 @@ class RestCard(models.Model):
     # Benefits tracking
     total_rest_points = models.DecimalField(max_digits=10, decimal_places=2, default=0,
                                            help_text="Total rest points accumulated")
+    free_votes_remaining = models.PositiveIntegerField(default=1,
+                                           help_text="Free votes remaining for rest card registrants")
     
     # Timestamps
     waitlist_joined_at = models.DateTimeField(auto_now_add=True)

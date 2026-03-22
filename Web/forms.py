@@ -240,6 +240,14 @@ class VotingForm(forms.ModelForm):
             'required': True
         })
     )
+    REST_CARD_NUMBER = forms.CharField(
+        label='Rest Card Number (Optional)',
+        required=False,
+        widget=TextInput(attrs={
+            'class': 'field ring-brand',
+            'placeholder': 'Enter your Rest Card number if you have one'
+        })
+    )
     NUMBER_OF_VOTES = forms.ChoiceField(
         label='Number of Votes',
         choices=[

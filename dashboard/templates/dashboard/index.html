@@ -779,6 +779,12 @@
                   <h3 class="text-xl font-bold">Rest Cards Management</h3>
                     <div class="flex gap-2">
                     <button @click="createRestCard()" class="btn-primary">Generate New Card</button>
+                    <button @click="activateAllCards()" class="btn-ghost border border-green-400/30 hover:border-green-400/60">
+                      <i class="fa-solid fa-check-double mr-2"></i>Activate All
+                    </button>
+                    <button @click="deactivateAllCards()" class="btn-ghost border border-yellow-400/30 hover:border-yellow-400/60">
+                      <i class="fa-solid fa-ban mr-2"></i>Deactivate All
+                    </button>
                     <button class="btn-ghost border border-emerald-400/30 hover:border-emerald-400/60" @click="exportRestCards()">
                       <i class="fa-solid fa-file-export mr-2"></i>Export List
                     </button>
@@ -787,16 +793,60 @@
                     </button>
                   </div>
                 </div>
+                
+                <!-- Bulk Actions Bar -->
+                <div class="mb-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg" x-show="selectedCards.length > 0" x-transition>
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                      <span class="text-sm font-semibold"><span x-text="selectedCards.length"></span> selected</span>
+                      <button @click="selectAllCards()" class="text-xs text-blue-400 hover:text-blue-300" x-show="selectedCards.length !== {{ rest_cards.count }}">Select All</button>
+                      <button @click="clearSelection()" class="text-xs text-gray-400 hover:text-gray-300" x-show="selectedCards.length > 0">Clear</button>
+                    </div>
+                    <div class="flex gap-2">
+                      <button @click="bulkActivateCards()" class="btn-ghost border border-green-400/30 hover:border-green-400/60 text-sm">
+                        <i class="fa-solid fa-check-circle mr-1"></i>Activate Selected
+                      </button>
+                      <button @click="bulkDeactivateCards()" class="btn-ghost border border-yellow-400/30 hover:border-yellow-400/60 text-sm">
+                        <i class="fa-solid fa-pause-circle mr-1"></i>Deactivate Selected
+                      </button>
+                      <button @click="confirmBulkDelete()" class="btn-ghost border border-red-400/30 hover:border-red-400/60 text-sm text-red-400">
+                        <i class="fa-solid fa-trash mr-1"></i>Delete Selected
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Delete Confirmation Modal -->
+                <div x-show="showDeleteModal" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" style="display: none;">
+                  <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6">
+                    <div class="text-center">
+                      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/20 flex items-center justify-center">
+                        <i class="fa-solid fa-triangle-exclamation text-3xl text-red-400"></i>
+                      </div>
+                      <h3 class="text-xl font-bold mb-2">Delete Rest Cards?</h3>
+                      <p class="text-gray-400 mb-6">Are you sure you want to delete <span x-text="selectedCards.length"></span> rest card(s)? This action cannot be undone.</p>
+                      <div class="flex justify-center gap-3">
+                        <button @click="showDeleteModal = false" class="px-4 py-2 border border-gray-500 rounded-lg hover:bg-gray-700">Cancel</button>
+                        <button @click="bulkDeleteCards()" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg">Yes, Delete</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
                 <div class="overflow-x-auto">
                   <table class="w-full text-sm">
                     <thead>
                       <tr class="border-b border-white/10">
+                        <th class="text-left py-3 font-semibold w-10">
+                          <input type="checkbox" @change="toggleAllCards($event)" class="w-4 h-4 rounded border-gray-500 bg-gray-700 text-blue-500">
+                        </th>
                         <th class="text-left py-3 font-semibold">Card Number</th>
                         <th class="text-left py-3 font-semibold">Member Name</th>
                         <th class="text-left py-3 font-semibold">Email</th>
                         <th class="text-left py-3 font-semibold">Phone</th>
                         <th class="text-left py-3 font-semibold">Status</th>
                         <th class="text-left py-3 font-semibold">Rest Points</th>
+                        <th class="text-left py-3 font-semibold">Free Votes</th>
                         <th class="text-left py-3 font-semibold">Issue Date</th>
                         <th class="text-left py-3 font-semibold">Actions</th>
                       </tr>
@@ -804,7 +854,10 @@
                     <tbody>
                       {% for card in rest_cards %}
                       <tr class="border-b border-white/5 hover:bg-white/5 transition-colors" data-card-id="{{ card.id }}">
-                        <td class="py-3 font-mono">{{ card.card_number }}</td>
+                        <td class="py-3">
+                          <input type="checkbox" value="{{ card.id }}" @change="toggleCardSelection({{ card.id }}, $event)" class="card-checkbox w-4 h-4 rounded border-gray-500 bg-gray-700 text-blue-500">
+                        </td>
+                        <td class="py-3 font-mono">{{ card.card_number|default:"-" }}</td>
                         <td class="py-3">{{ card.member_name }}</td>
                         <td class="py-3">{{ card.member_email }}</td>
                         <td class="py-3">{{ card.member_phone }}</td>
@@ -814,6 +867,7 @@
                           </span>
                         </td>
                         <td class="py-3">{{ card.total_rest_points }}</td>
+                        <td class="py-3">{{ card.free_votes_remaining }}</td>
                         <td class="py-3">{{ card.activated_at|date:"M d, Y"|default:"-" }}</td>
                         <td class="py-3">
                             <div class="flex gap-2">
@@ -926,14 +980,14 @@
             </section>
           </template>
 
-          <!-- TRIAL REGISTRATIONS (EdBritish Consult) -->
+          <!-- TRIAL REGISTRATIONS (EdBriTish Consult) -->
           <template x-if="tab==='trial_registrations'">
             <section class="grid gap-6">
               <div class="grid md:grid-cols-3 sm:grid-cols-2 gap-4">
                 <div class="kpi">
                   <div class="text-xs opacity-70">Total Registrations</div>
                   <div class="text-2xl font-extrabold">{{ trial_registrations|length }}</div>
-                  <div class="text-xs opacity-70">EdBritish Trial Class</div>
+                  <div class="text-xs opacity-70">EdBriTish Trial Class</div>
                 </div>
                 <div class="kpi">
                   <div class="text-xs opacity-70">English</div>
@@ -950,7 +1004,7 @@
               <!-- Registrations Table -->
               <div class="rounded-2xl p-6 shadow-soft bg-white/5 border border-white/10">
                 <div class="flex justify-between items-center mb-6">
-                  <h3 class="text-xl font-bold">EdBritish Trial Class Registrations</h3>
+                  <h3 class="text-xl font-bold">EdBriTish Trial Class Registrations</h3>
                   <a href="/edbritish-trial/" target="_blank" class="btn-ghost border border-blue-400/30 hover:border-blue-400/60">
                     <i class="fa-solid fa-external-link-alt mr-2"></i>View Registration Page
                   </a>

@@ -903,27 +903,49 @@ def import_rest_cards(request):
         
         reader = csv.DictReader(TextIOWrapper(file, encoding='UTF-8'))
         imported_count = 0
+        skipped_count = 0
         errors = []
         
         for row in reader:
             try:
-                # Create or update rest card
-                card, created = RestCard.objects.update_or_create(
-                    pk=row.get('Card ID') if row.get('Card ID') else None,
+                # Get email - required for unique lookup
+                email = row.get('Member Email', '').strip()
+                if not email:
+                    skipped_count += 1
+                    continue
+                
+                # Get other fields (with fallbacks for different column naming)
+                member_name = row.get('Member Name', row.get('Name', '')).strip()
+                member_phone = row.get('Member Phone', row.get('Phone number(Whatsapp Preferred)', '')).strip()
+                status = row.get('Status', 'waitlist').lower()
+                
+                if not member_name:
+                    member_name = email.split('@')[0]  # Use email prefix as name fallback
+                
+                # Try to find existing card by email, or create new one
+                card, created = RestCard.objects.get_or_create(
+                    member_email=email,
                     defaults={
-                        'member_name': row.get('Member Name', '').strip(),
-                        'member_email': row.get('Member Email', '').strip(),
-                        'member_phone': row.get('Member Phone', '').strip(),
-                        'status': row.get('Status', 'pending').lower()
+                        'member_name': member_name,
+                        'member_phone': member_phone,
+                        'status': status
                     }
                 )
+                
+                # Update fields if card already exists
+                if not created:
+                    card.member_name = member_name
+                    if member_phone:
+                        card.member_phone = member_phone
+                    card.save()
+                
                 imported_count += 1
             except Exception as e:
                 errors.append(f"Error processing row: {str(e)}")
         
         return JsonResponse({
             "ok": True, 
-            "message": f"Imported {imported_count} cards", 
+            "message": f"Imported {imported_count} cards, skipped {skipped_count} rows without email", 
             "errors": errors
         })
     except Exception as e:
@@ -942,6 +964,211 @@ def rest_cards_stats(request):
         return JsonResponse({"ok": True, "total": total, "active": active, "pending": pending, "total_points": total_points})
     except Exception as e:
         print(f"Error fetching rest cards stats: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@require_http_methods(["POST"])
+@login_required
+def bulk_activate_cards(request):
+    """Bulk activate rest cards"""
+    try:
+        import json
+        from django.utils import timezone
+        from django.core.mail import send_mail
+        
+        data = json.loads(request.body)
+        card_ids = data.get('card_ids', [])
+        
+        if not card_ids:
+            return JsonResponse({"ok": False, "error": "No cards selected"}, status=400)
+        
+        cards = RestCard.objects.filter(id__in=card_ids)
+        activated_count = 0
+        
+        for card in cards:
+            if card.status != 'active':
+                old_status = card.status
+                card.status = 'active'
+                card.activated_at = timezone.now()
+                # Set expiration to 1 year from now
+                card.expires_at = timezone.now() + timezone.timedelta(days=365)
+                
+                # Generate card number if not exists
+                if not card.card_number:
+                    import random
+                    while True:
+                        card_num = ''.join([str(random.randint(0, 9)) for _ in range(16)])
+                        if not RestCard.objects.filter(card_number=card_num).exists():
+                            card.card_number = card_num
+                            break
+                
+                card.save()
+                activated_count += 1
+                
+                # Send activation email
+                try:
+                    # Check if this is an existing member (has been waiting for a while)
+                    waitlist_duration = None
+                    if card.waitlist_joined_at:
+                        waitlist_duration = (timezone.now() - card.waitlist_joined_at).days
+                    
+                    if waitlist_duration and waitlist_duration > 7:
+                        # Existing member - use the "we didnt forget about you" message
+                        subject = "Good News! Your Rest Card is Finally Active"
+                        body = f"""Hello {card.member_name},
+
+Thank you once again for taking the time to fill the Rest Card Form. We didnt forget about you!
+
+Were excited to let you know that your Free Rest Points have now been activated
+
+You can now use your points to vote for any nominee of your choice in the ongoing Nominate to Unwind campaign.
+
+This is your opportunity to support someone who truly deserves rest, care, and a beautiful experience.
+
+Your Rest Card Details:
+- Card Number: {card.card_number}
+- Status: Active
+- Free Votes Remaining: {card.free_votes_remaining}
+
+What to do next:
+- Visit the voting platform
+- Select your preferred nominee  
+- Use your Rest Points to cast your vote
+
+Every vote brings someone closer to a well-deserved moment of rest.
+
+Thank you for being part of this movement
+Together, we are helping people pause, breathe, and unwind.
+
+Warm regards,
+Unwind Africa Team
+Rest. Renew. Thrive.
+
+Phone: +234 806 206 7832
+Email: info@unwindafrica.com"""
+                    else:
+                        # New member - standard welcome message
+                        subject = "Your Rest Card is Active!"
+                        body = f"""Hello {card.member_name},
+
+Thank you for signing up for the Unwind Africa Rest Card!
+
+Great news! Your Rest Card has been activated.
+
+Your Card Details:
+- Card Number: {card.card_number}
+- Status: Active
+- Free Votes Remaining: {card.free_votes_remaining}
+
+You now have access to exclusive rest experiences, discounts at partner locations, and more!
+
+Visit the voting platform to use your free vote and support a nominee.
+
+Warm regards,
+Unwind Africa Team
+Rest. Renew. Thrive.
+
+Phone: +234 806 206 7832
+Email: info@unwindafrica.com"""
+                    
+                    send_mail(subject, body, "no-reply@unwindafrica.com", [card.member_email], fail_silently=True)
+                except Exception as e:
+                    print(f"Error sending activation email: {e}")
+        
+        return JsonResponse({
+            "ok": True, 
+            "message": f"Successfully activated {activated_count} card(s)"
+        })
+    except Exception as e:
+        print(f"Error activating cards: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@require_http_methods(["POST"])
+@login_required
+def bulk_deactivate_cards(request):
+    """Bulk deactivate rest cards"""
+    try:
+        import json
+        
+        data = json.loads(request.body)
+        card_ids = data.get('card_ids', [])
+        
+        if not card_ids:
+            return JsonResponse({"ok": False, "error": "No cards selected"}, status=400)
+        
+        cards = RestCard.objects.filter(id__in=card_ids)
+        deactivated_count = cards.update(status='pending')
+        
+        return JsonResponse({
+            "ok": True, 
+            "message": f"Successfully deactivated {deactivated_count} card(s)"
+        })
+    except Exception as e:
+        print(f"Error deactivating cards: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@require_http_methods(["POST"])
+@login_required
+def bulk_delete_cards(request):
+    """Bulk delete rest cards"""
+    try:
+        import json
+        
+        data = json.loads(request.body)
+        card_ids = data.get('card_ids', [])
+        
+        if not card_ids:
+            return JsonResponse({"ok": False, "error": "No cards selected"}, status=400)
+        
+        deleted_count = RestCard.objects.filter(id__in=card_ids).delete()[0]
+        
+        return JsonResponse({
+            "ok": True, 
+            "message": f"Successfully deleted {deleted_count} card(s)"
+        })
+    except Exception as e:
+        print(f"Error deleting cards: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@require_http_methods(["POST"])
+@login_required
+def activate_all_cards(request):
+    """Activate all pending/rest cards"""
+    try:
+        # Activate all cards that are not already active
+        updated_count = RestCard.objects.exclude(status='active').update(
+            status='active',
+            activated_at=timezone.now()
+        )
+        
+        return JsonResponse({
+            "ok": True, 
+            "message": f"Successfully activated {updated_count} card(s)"
+        })
+    except Exception as e:
+        print(f"Error activating all cards: {e}")
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@require_http_methods(["POST"])
+@login_required
+def deactivate_all_cards(request):
+    """Deactivate all active cards"""
+    try:
+        # Deactivate all active cards
+        updated_count = RestCard.objects.filter(status='active').update(
+            status='suspended'
+        )
+        
+        return JsonResponse({
+            "ok": True, 
+            "message": f"Successfully deactivated {updated_count} card(s)"
+        })
+    except Exception as e:
+        print(f"Error deactivating all cards: {e}")
         return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
 

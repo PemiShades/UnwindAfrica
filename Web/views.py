@@ -132,6 +132,10 @@ def rest_card_signup(request):
                 rest_card.member_name = name
                 rest_card.member_phone = phone
                 rest_card.save()
+            else:
+                # New rest card registration gets 1 free vote
+                # (free_votes_remaining is already set to 1 by default in the model)
+                pass
             
             # Send confirmation email
             try:
@@ -167,10 +171,16 @@ Email: info@unwindafrica.com"""
                 # Log email error but don't fail the signup
                 print(f"Email sending error: {email_err}")
             
+            # Include free vote info in response
+            free_vote_message = ''
+            if created:
+                free_vote_message = ' You also have 1 free vote to use in the current voting campaign!'
+            
             return JsonResponse({
                 'success': True,
-                'message': 'Thank you for signing up! We will contact you soon with updates about your Rest Card.',
-                'waitlist_position': getattr(rest_card, 'waitlist_position', None)
+                'message': f'Thank you for signing up! We will contact you soon with updates about your Rest Card.{free_vote_message}',
+                'waitlist_position': getattr(rest_card, 'waitlist_position', None),
+                'free_votes_remaining': rest_card.free_votes_remaining
             })
         
         except Exception as e:
