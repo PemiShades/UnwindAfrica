@@ -34,6 +34,9 @@ urlpatterns = [
     path('voting/payment/thank-you/', voting_views.voting_thank_you, name='voting_thank_you'),
     path('voting/webhook/paystack/', voting_views.paystack_webhook, name='paystack_webhook'),
     
+    # API: Verify Rest Card
+    path('api/verify-rest-card/', voting_views.verify_rest_card, name='verify_rest_card'),
+    
     # Community & Rest Card URLs
     path('community/', views.community_stats, name='community_stats'),
     path('rest-card/', views.rest_card_info, name='rest_card_info'),

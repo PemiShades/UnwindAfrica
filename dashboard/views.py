@@ -1172,6 +1172,104 @@ def deactivate_all_cards(request):
         return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
 
+@require_http_methods(["POST"])
+@login_required
+def generate_card_for_all(request):
+    """Generate card numbers for all RestCards without card numbers and send emails"""
+    try:
+        from django.core.mail import send_mail
+        from django.conf import settings
+        from django.utils import timezone
+        import secrets
+        
+        # Get all RestCards without card numbers
+        cards_without_numbers = RestCard.objects.filter(card_number__isnull=True).order_by('id')
+        
+        if not cards_without_numbers.exists():
+            return JsonResponse({
+                "ok": False, 
+                "error": "No cards without card numbers found"
+            }, status=400)
+        
+        # Generate card numbers starting from 000
+        # First, get the highest existing card number to continue from
+        existing_cards = RestCard.objects.exclude(card_number__isnull=True).exclude(card_number='')
+        start_num = 0
+        if existing_cards.exists():
+            # Extract numbers from existing cards and find the max
+            max_num = 0
+            for card in existing_cards:
+                try:
+                    # Extract numeric part from card number (last 3 digits)
+                    num_part = int(card.card_number[-3:])
+                    if num_part > max_num:
+                        max_num = num_part
+                except:
+                    pass
+            start_num = max_num + 1
+        
+        # Generate card numbers for all cards without one
+        generated_count = 0
+        emails_sent = 0
+        
+        for i, card in enumerate(cards_without_numbers):
+            # Generate card number: RA-{number:03d}
+            card_number = f"RA-{start_num + i:03d}"
+            card.card_number = card_number
+            card.status = 'active'
+            card.activated_at = timezone.now()
+            card.save()
+            generated_count += 1
+            
+            # Send email to the candidate
+            try:
+                subject = "🎉 Your Rest Card is Ready! - Unwind Africa"
+                
+                message = f"""Dear {card.member_name},
+
+Congratulations! Your Rest Card has been generated and activated!
+
+Your Rest Card Number: {card_number}
+
+With your Rest Card, you get:
+🎫 1 FREE Vote - No payment required!
+⭐ Earn Rest Points from every vote
+🎉 Exclusive Access to rest experiences
+💝 Priority Support and special rewards
+
+You can use your FREE vote by entering your card number when voting on our platform.
+
+Visit your dashboard to see your card details: https://unwind.africa/dashboard/
+
+Thank you for being part of Unwind Africa!
+
+Best regards,
+The Unwind Africa Team
+"""
+                
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [card.member_email],
+                    fail_silently=False,
+                )
+                emails_sent += 1
+                print(f"Email sent to {card.member_email} for card {card_number}")
+            except Exception as email_error:
+                print(f"Error sending email to {card.member_email}: {email_error}")
+        
+        return JsonResponse({
+            "ok": True, 
+            "message": f"Successfully generated {generated_count} card(s) and sent {emails_sent} email(s)"
+        })
+    except Exception as e:
+        print(f"Error generating cards: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
 @login_required
 def engagement_data(request):
     """Return monthly engagement (votes) labels and counts for chart polling"""

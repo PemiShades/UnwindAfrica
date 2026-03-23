@@ -779,6 +779,9 @@
                   <h3 class="text-xl font-bold">Rest Cards Management</h3>
                     <div class="flex gap-2">
                     <button @click="createRestCard()" class="btn-primary">Generate New Card</button>
+                    <button @click="generateCardForAll()" class="btn-ghost border border-blue-400/30 hover:border-blue-400/60">
+                      <i class="fa-solid fa-magic mr-2"></i>Generate Card for All
+                    </button>
                     <button @click="activateAllCards()" class="btn-ghost border border-green-400/30 hover:border-green-400/60">
                       <i class="fa-solid fa-check-double mr-2"></i>Activate All
                     </button>

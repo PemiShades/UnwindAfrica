@@ -411,6 +411,89 @@
         .partnership-symbol {
             font-size: 1.5rem;
         }
+        
+        .content-section {
+            padding: 1rem;
+            max-width: 100%;
+        }
+        
+        .intro-text {
+            padding: 1.5rem;
+        }
+        
+        .who-section {
+            padding: 1.5rem;
+        }
+        
+        .registration-form {
+            padding: 1.5rem;
+        }
+        
+        .form-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1rem;
+        }
+        
+        .form-field input,
+        .form-field select,
+        .form-field textarea {
+            padding: 0.875rem;
+            font-size: 16px; /* Prevents iOS zoom on focus */
+        }
+        
+        .subject-options {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .subject-option label {
+            padding: 0.875rem;
+            font-size: 0.9rem;
+        }
+        
+        .submit-btn {
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+        }
+        
+        .limited-trial-box {
+            padding: 1rem 1.25rem;
+        }
+        
+        .info-box {
+            padding: 1rem 1.25rem;
+        }
+    }
+    
+    /* Extra small devices */
+    @media (max-width: 480px) {
+        .page-title {
+            font-size: 1.75rem;
+        }
+        
+        .page-title-section {
+            padding: 2rem 1rem 1.5rem;
+        }
+        
+        .logos-container {
+            gap: 1rem;
+        }
+        
+        .logo-item img {
+            max-height: 50px !important;
+        }
+        
+        .partnership-header {
+            padding: 2rem 1rem;
+        }
+        
+        .registration-form {
+            padding: 1.25rem;
+            border-radius: 16px;
+        }
+        
+        .form-field label {
+            font-size: 0.875rem;
+        }
     }
 </style>
 {% endblock %}

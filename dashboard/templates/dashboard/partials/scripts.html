@@ -1273,6 +1273,41 @@ document.addEventListener('alpine:init', () => {
         });
       },
 
+      generateCardForAll: function() {
+        if (!confirm('Are you sure you want to generate card numbers for ALL Rest Cards without numbers and send emails to all candidates?')) {
+          return;
+        }
+        if (!confirm('This will activate all cards and send emails to all candidates. Continue?')) {
+          return;
+        }
+        const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || this.getCsrfToken();
+        if (!csrf) return this.toast('CSRF token missing', 'error');
+
+        this.toast('Generating cards and sending emails...', 'info');
+        
+        fetch('/cms/rest-cards/generate-all/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrf
+          },
+          body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            this.toast(data.message, 'success');
+            location.reload();
+          } else {
+            this.toast(data.error || 'Failed to generate cards', 'error');
+          }
+        })
+        .catch(error => {
+          this.toast('Error generating cards', 'error');
+          console.error('Error:', error);
+        });
+      },
+
       // ===== BOOK FUNCTIONS =====
       openBookModal: function() {
         this.bookModal = { id: null, title: '', author: '', description: '', age_category: 'adult', genre: 'fiction', status: 'available' };

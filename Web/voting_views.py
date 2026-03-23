@@ -18,6 +18,54 @@ from decimal import Decimal
 from .models import VotingCampaign, Nominee, Vote, Transaction, RestCard, TokenWallet, TokenTransaction, FrozenRestPoints
 
 
+@require_http_methods(["POST"])
+def verify_rest_card(request):
+    """API endpoint to verify Rest Card number and check for free vote eligibility"""
+    try:
+        data = json.loads(request.body)
+        card_number = data.get('card_number', '').strip()
+        
+        if not card_number:
+            return JsonResponse({
+                'valid': False,
+                'message': 'Please enter your Rest Card number'
+            }, status=400)
+        
+        # Look up the Rest Card
+        rest_card = RestCard.objects.filter(
+            card_number=card_number,
+            status='active'
+        ).first()
+        
+        if not rest_card:
+            return JsonResponse({
+                'valid': False,
+                'message': 'Card not found. Please check your card number or apply for a Rest Card.'
+            }, status=400)
+        
+        # Check if they have free votes remaining
+        if rest_card.free_votes_remaining <= 0:
+            return JsonResponse({
+                'valid': False,
+                'message': 'You have already used your free vote. You can still vote by paying ₦500 per vote.'
+            }, status=400)
+        
+        # Card is valid and has free votes
+        return JsonResponse({
+            'valid': True,
+            'message': 'Card verified! You have 1 free vote available.',
+            'free_votes': rest_card.free_votes_remaining,
+            'member_name': rest_card.member_name
+        })
+        
+    except Exception as e:
+        print(f"Error verifying rest card: {e}")
+        return JsonResponse({
+            'valid': False,
+            'message': 'Something went wrong. Please try again.'
+        }, status=500)
+
+
 def voting_campaigns_list(request):
     """List all active voting campaigns"""
     campaigns = VotingCampaign.objects.filter(is_active=True).order_by('-start_date')
@@ -270,7 +318,8 @@ def initialize_payment(request):
                 'authorization_url': response_data['data']['authorization_url'],
                 'reference': reference,
                 'free_votes_used': free_votes_used,
-                'free_votes_remaining': rest_card.free_votes_remaining - free_votes_used if rest_card else 0
+                'free_votes_remaining': rest_card.free_votes_remaining - free_votes_used if rest_card else 0,
+                'total_amount': float(total_amount)
             }
             
             # If all votes are free (total_amount is 0), skip payment and process directly
@@ -298,6 +347,8 @@ def initialize_payment(request):
                 
                 response_payload['free_votes_processed'] = True
                 response_payload['message'] = f'Your {free_votes_used} free vote(s) have been applied!'
+                # Add thank you URL for redirect
+                response_payload['thank_you_url'] = '/voting/payment/thank-you/'
             
             return JsonResponse(response_payload)
         else:
