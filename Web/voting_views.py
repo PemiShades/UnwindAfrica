@@ -20,28 +20,50 @@ from .models import VotingCampaign, Nominee, Vote, Transaction, RestCard, TokenW
 
 @require_http_methods(["POST"])
 def verify_rest_card(request):
-    """API endpoint to verify Rest Card number and check for free vote eligibility"""
+    """API endpoint to verify Rest Card number or email and check for free vote eligibility"""
     try:
         data = json.loads(request.body)
-        card_number = data.get('card_number', '').strip()
+        # Accept either card_number or email as input
+        identifier = data.get('card_number', '').strip()
         
-        if not card_number:
+        if not identifier:
             return JsonResponse({
                 'valid': False,
-                'message': 'Please enter your Rest Card number'
+                'message': 'Please enter your Rest Card number or email address'
             }, status=400)
         
-        # Look up the Rest Card
-        rest_card = RestCard.objects.filter(
-            card_number=card_number,
-            status='active'
-        ).first()
+        # Determine if input is email or card number
+        is_email = '@' in identifier and '.' in identifier
+        
+        # Look up the Rest Card by card number or email
+        if is_email:
+            rest_card = RestCard.objects.filter(
+                member_email__iexact=identifier,
+                status='active'
+            ).first()
+        else:
+            rest_card = RestCard.objects.filter(
+                card_number__iexact=identifier,
+                status='active'
+            ).first()
         
         if not rest_card:
-            return JsonResponse({
-                'valid': False,
-                'message': 'Card not found. Please check your card number or apply for a Rest Card.'
-            }, status=400)
+            # Check if they exist but are not active
+            if is_email:
+                exists_inactive = RestCard.objects.filter(member_email__iexact=identifier).exists()
+            else:
+                exists_inactive = RestCard.objects.filter(card_number__iexact=identifier).exists()
+            
+            if exists_inactive:
+                return JsonResponse({
+                    'valid': False,
+                    'message': 'Your Rest Card is not active. Please contact support or apply for a new card.'
+                }, status=400)
+            else:
+                return JsonResponse({
+                    'valid': False,
+                    'message': 'No Rest Card found. Please check your details or apply for a Rest Card.'
+                }, status=400)
         
         # Check if they have free votes remaining
         if rest_card.free_votes_remaining <= 0:
@@ -55,7 +77,8 @@ def verify_rest_card(request):
             'valid': True,
             'message': 'Card verified! You have 1 free vote available.',
             'free_votes': rest_card.free_votes_remaining,
-            'member_name': rest_card.member_name
+            'member_name': rest_card.member_name,
+            'card_number': rest_card.card_number
         })
         
     except Exception as e:
