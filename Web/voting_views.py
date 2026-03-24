@@ -35,6 +35,20 @@ def verify_rest_card(request):
         # Determine if input is email or card number
         is_email = '@' in identifier and '.' in identifier
         
+        # Normalize card number input - remove dashes and spaces for flexible matching
+        # Users can type: UA-0001-ABCD, UA 0001 ABCD, UA0001ABCD, or 0001ABCD
+        if not is_email:
+            # Remove all non-alphanumeric characters except letters
+            normalized_input = ''.join(c for c in identifier.upper() if c.isalnum())
+            # If it starts with UA, keep it, otherwise check if it's just the numeric part
+            if normalized_input.startswith('UA'):
+                search_value = normalized_input
+            else:
+                # User might just type the numeric part like 0001ABCD - search both patterns
+                search_value = normalized_input
+        else:
+            search_value = identifier
+        
         # Look up the Rest Card by card number or email
         if is_email:
             rest_card = RestCard.objects.filter(
@@ -42,17 +56,39 @@ def verify_rest_card(request):
                 status='active'
             ).first()
         else:
+            # Try exact match first, then try normalized match
             rest_card = RestCard.objects.filter(
                 card_number__iexact=identifier,
                 status='active'
             ).first()
+            
+            # If not found, try normalized search
+            if not rest_card:
+                # Get all active cards and find match manually (since we need to normalize stored values too)
+                active_cards = RestCard.objects.filter(status='active')
+                for card in active_cards:
+                    if card.card_number:
+                        # Normalize stored card number
+                        stored_normalized = ''.join(c for c in card.card_number.upper() if c.isalnum())
+                        if stored_normalized == search_value:
+                            rest_card = card
+                            break
         
         if not rest_card:
             # Check if they exist but are not active
             if is_email:
                 exists_inactive = RestCard.objects.filter(member_email__iexact=identifier).exists()
             else:
-                exists_inactive = RestCard.objects.filter(card_number__iexact=identifier).exists()
+                # For card number, check using normalized comparison
+                active_cards = RestCard.objects.all()
+                exists_inactive = False
+                for card in active_cards:
+                    if card.card_number:
+                        stored_normalized = ''.join(c for c in card.card_number.upper() if c.isalnum())
+                        if stored_normalized == search_value:
+                            if card.status != 'active':
+                                exists_inactive = True
+                            break
             
             if exists_inactive:
                 return JsonResponse({

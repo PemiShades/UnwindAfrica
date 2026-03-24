@@ -1280,16 +1280,13 @@ document.addEventListener('alpine:init', () => {
       },
 
       generateCardForAll: function() {
-        if (!confirm('Are you sure you want to generate card numbers for ALL Rest Cards without numbers and send emails to all candidates?')) {
-          return;
-        }
-        if (!confirm('This will activate all cards and send emails to all candidates. Continue?')) {
+        if (!confirm('This will update ALL Rest Cards to the new format (UA-XXXX-XXXX) and send emails to ALL card holders about their new card number and benefits. Continue?')) {
           return;
         }
         const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || this.getCsrfToken();
         if (!csrf) return this.toast('CSRF token missing', 'error');
 
-        this.toast('Generating cards and sending emails...', 'info');
+        this.toast('Updating all cards to new format and sending emails...', 'info');
         
         fetch('/cms/rest-cards/generate-all/', {
           method: 'POST',

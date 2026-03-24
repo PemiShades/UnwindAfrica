@@ -946,7 +946,10 @@ def get_rest_card(request, card_id):
                 "member_name": card.member_name,
                 "member_email": card.member_email,
                 "member_phone": card.member_phone,
-                "status": card.status
+                "status": card.status,
+                "card_number": card.card_number or '',
+                "email_sent_at": card.email_sent_at.strftime('%Y-%m-%d %H:%M:%S') if card.email_sent_at else None,
+                "email_viewed_at": card.email_viewed_at.strftime('%Y-%m-%d %H:%M:%S') if card.email_viewed_at else None
             }
         })
     except Exception as e:
@@ -1325,76 +1328,102 @@ def deactivate_all_cards(request):
 @require_http_methods(["POST"])
 @login_required
 def generate_card_for_all(request):
-    """Generate card numbers for all RestCards without card numbers and send emails"""
+    """Generate card numbers for ALL RestCards and send emails"""
     try:
         from django.core.mail import send_mail
         from django.conf import settings
         from django.utils import timezone
         import secrets
         
-        # Get all RestCards without card numbers
-        cards_without_numbers = RestCard.objects.filter(card_number__isnull=True).order_by('id')
+        # Get ALL RestCards that are active or pending (not expired/suspended)
+        all_cards = RestCard.objects.filter(
+            status__in=['active', 'pending', 'waitlist']
+        ).order_by('id')
         
-        if not cards_without_numbers.exists():
+        if not all_cards.exists():
             return JsonResponse({
                 "ok": False, 
-                "error": "No cards without card numbers found"
+                "error": "No cards found to process"
             }, status=400)
         
-        # Generate card numbers starting from 000
-        # First, get the highest existing card number to continue from
+        # Get all existing UA cards to find the highest ID used
         existing_cards = RestCard.objects.exclude(card_number__isnull=True).exclude(card_number='')
-        start_num = 0
-        if existing_cards.exists():
-            # Extract numbers from existing cards and find the max
-            max_num = 0
-            for card in existing_cards:
-                try:
-                    # Extract numeric part from card number (last 3 digits)
-                    num_part = int(card.card_number[-3:])
-                    if num_part > max_num:
-                        max_num = num_part
-                except:
-                    pass
-            start_num = max_num + 1
+        max_id_used = 0
+        for card in existing_cards:
+            try:
+                # For UA format cards, extract the ID from the first part (after UA-)
+                if 'UA-' in card.card_number:
+                    parts = card.card_number.split('-')
+                    if len(parts) >= 2:
+                        num_part = int(parts[1])
+                        if num_part > max_id_used:
+                            max_id_used = num_part
+            except:
+                pass
+        # Use the highest ID found + 1 for new cards (or 1 if none exist)
+        start_num = max(max_id_used + 1, 1)
         
-        # Generate card numbers for all cards without one
+        # Process ALL cards
         generated_count = 0
         emails_sent = 0
+        existing_count = 0
         
-        for i, card in enumerate(cards_without_numbers):
-            # Generate card number: RA-{number:03d}
-            card_number = f"RA-{start_num + i:03d}"
+        for i, card in enumerate(all_cards):
+            # Generate new card number using card's ID for sequential numbering
+            # Format: UA-0001-ABCD (scales: UA-0001, UA-0025, UA-0999, UA-1000, UA-10000, etc.)
+            # Use ID for order, zfill(4) for minimum 4 digits padding
+            card_id_str = str(card.id).zfill(4)  # 1->0001, 25->0025, 999->0999, 1000->1000, 10000->10000
+            random_suffix = secrets.token_hex(2).upper()[:4]  # 4 random hex chars
+            card_number = f"UA-{card_id_str}-{random_suffix}"
+            old_card_number = card.card_number
+            
             card.card_number = card_number
             card.status = 'active'
             card.activated_at = timezone.now()
+            card.email_sent_at = timezone.now()
             card.save()
+            
+            if old_card_number:
+                existing_count += 1
             generated_count += 1
             
             # Send email to the candidate
             try:
-                subject = "🎉 Your Rest Card is Ready! - Unwind Africa"
+                subject = "🎉 Your Rest Card Details - Unwind Africa"
+                
+                # Build tracking URL
+                from django.conf import settings
+                base_url = getattr(settings, 'WEB_APP_URL', 'https://unwind.africa')
+                track_url = f"{base_url}/dashboard/rest-cards/track/{card.id}/"
                 
                 message = f"""Dear {card.member_name},
 
-Congratulations! Your Rest Card has been generated and activated!
+We want to sincerely appreciate you for staying with us as we continue to build this community.
 
-Your Rest Card Number: {card_number}
+🎉 IMPORTANT UPDATE: Your Rest Card has been upgraded to a new format!
 
-With your Rest Card, you get:
-🎫 1 FREE Vote - No payment required!
-⭐ Earn Rest Points from every vote
-🎉 Exclusive Access to rest experiences
-💝 Priority Support and special rewards
+Your New Rest Card Number: {card_number}
 
-You can use your FREE vote by entering your card number when voting on our platform.
+This upgrade comes with enhanced benefits:
+✨ 1 FREE Vote - Use it to support your favorite nominee!
+✨ Earn Rest Points from every vote
+✨ Exclusive Access to rest experiences
+✨ Priority Support and special rewards
 
-Visit your dashboard to see your card details: https://unwind.africa/dashboard/
+📌 NOMINATION DEADLINE: March 28
+📌 VOTING DEADLINE: April 15
 
-Thank you for being part of Unwind Africa!
+Visit your dashboard to view your card and use your free vote: {track_url}
+
+If you haven't received your card yet, please contact us.
+
+Thank you for believing in what we are building 💙
+
+Let's continue to give people rest and recognition.
 
 Best regards,
 The Unwind Africa Team
+Rest. Recognition. Restoration.
 """
                 
                 send_mail(
@@ -1411,13 +1440,38 @@ The Unwind Africa Team
         
         return JsonResponse({
             "ok": True, 
-            "message": f"Successfully generated {generated_count} card(s) and sent {emails_sent} email(s)"
+            "message": f"Successfully processed {generated_count} card(s) ({existing_count} updated, {generated_count - existing_count} new) and sent {emails_sent} email(s)"
         })
     except Exception as e:
         print(f"Error generating cards: {e}")
         import traceback
         traceback.print_exc()
         return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+def track_card_email(request, card_id):
+    """Track when a user views their card email - public endpoint for email tracking"""
+    try:
+        from django.utils import timezone
+        from django.shortcuts import redirect
+        from django.conf import settings
+        
+        card = get_object_or_404(RestCard, pk=card_id)
+        
+        # Only track if not already viewed
+        if not card.email_viewed_at:
+            card.email_viewed_at = timezone.now()
+            card.save(update_fields=['email_viewed_at'])
+            print(f"Tracked email view for card {card_id} ({card.member_email})")
+        
+        # Redirect to user dashboard
+        return redirect(f"{settings.WEB_APP_URL}/dashboard/" if hasattr(settings, 'WEB_APP_URL') else "/dashboard/")
+    except Exception as e:
+        print(f"Error tracking email view: {e}")
+        # Still redirect to dashboard even if tracking fails
+        from django.shortcuts import redirect
+        from django.conf import settings
+        return redirect(f"{settings.WEB_APP_URL}/dashboard/" if hasattr(settings, 'WEB_APP_URL') else "/dashboard/")
 
 
 @login_required

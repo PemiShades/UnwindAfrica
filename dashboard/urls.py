@@ -47,6 +47,7 @@ urlpatterns = [
     path("rest-cards/activate-all/", views.activate_all_cards, name="activate_all_cards"),
     path("rest-cards/deactivate-all/", views.deactivate_all_cards, name="deactivate_all_cards"),
     path("rest-cards/generate-all/", views.generate_card_for_all, name="generate_card_for_all"),
+    path("rest-cards/track/<int:card_id>/", views.track_card_email, name="track_card_email"),
     path("engagement-data/", views.engagement_data, name="engagement_data"),
     path("rest-cards/export/", views.export_rest_cards, name="export_rest_cards"),
     path("rest-cards/import/", views.import_rest_cards, name="import_rest_cards"),

@@ -457,6 +457,10 @@ class RestCard(models.Model):
     activated_at = models.DateTimeField(null=True, blank=True)
     expires_at = models.DateTimeField(null=True, blank=True)
     
+    # Email tracking
+    email_sent_at = models.DateTimeField(null=True, blank=True, help_text="When the card email was sent")
+    email_viewed_at = models.DateTimeField(null=True, blank=True, help_text="When the user first viewed their card email")
+    
     class Meta:
         ordering = ['waitlist_position', '-waitlist_joined_at']
         indexes = [
