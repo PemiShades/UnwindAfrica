@@ -888,12 +888,15 @@ document.addEventListener('alpine:init', () => {
       },
 
       generateRestCard: function(cardId) {
+        const formData = new FormData();
+        formData.append('card_id', cardId);
+        
         fetch(`/cms/rest-cards/${cardId}/generate/`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-          }
+          },
+          body: formData
         })
         .then(response => response.json())
         .then(data => {
@@ -970,12 +973,15 @@ document.addEventListener('alpine:init', () => {
       },
 
       resendRestCard: function(cardId) {
+        const formData = new FormData();
+        formData.append('card_id', cardId);
+        
         fetch(`/cms/rest-cards/${cardId}/resend/`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-          }
+          },
+          body: formData
         })
         .then(response => response.json())
         .then(data => {

@@ -548,6 +548,19 @@ let hasRestCard = false; // Track if user has rest card
 // Rest Card Prompt Functions
 function openRestCardPrompt(nomineeId, nomineeName, votePrice) {
     voteModalData = { nomineeId, nomineeName, votePrice: parseFloat(votePrice) };
+    hasRestCard = false;
+    verifiedCardNumber = null;
+
+    const errorEl = document.getElementById('restCardError');
+    const inputEl = document.getElementById('restCardNumberInput');
+    const btn = document.getElementById('verifyRestCardBtn');
+
+    errorEl.style.display = 'none';
+    errorEl.textContent = '';
+    inputEl.value = '';
+    btn.disabled = false;
+    btn.textContent = 'Get My FREE Vote!';
+
     // Reset to initial view
     document.getElementById('restCardInitialView').style.display = 'block';
     document.getElementById('restCardInputView').style.display = 'none';
@@ -570,13 +583,49 @@ function showRestCardInitial() {
     document.getElementById('restCardError').style.display = 'none';
 }
 
+function notifyInfo(message) {
+    if (typeof showInfo === 'function') {
+        showInfo(message);
+        return;
+    }
+
+    alert(message);
+}
+
+function resetVoteModalState() {
+    const votesInput = document.getElementById('voteVotesInput');
+    const totalPriceEl = document.getElementById('voteTotalPrice');
+    const bonusVotesEl = document.getElementById('voteBonusVotes');
+
+    votesInput.disabled = false;
+    votesInput.value = '1';
+    totalPriceEl.style.color = '';
+    totalPriceEl.style.fontWeight = '';
+    bonusVotesEl.textContent = '+0';
+}
+
+function populatePaidVoteModal() {
+    if (!voteModalData.nomineeId || !voteModalData.nomineeName || Number.isNaN(voteModalData.votePrice)) {
+        showWarning('Unable to load the vote details. Please select the nominee again.');
+        return false;
+    }
+
+    resetVoteModalState();
+    document.getElementById('voteModalTitle').textContent = `Vote for ${voteModalData.nomineeName}`;
+    document.getElementById('votePricePerVote').textContent = `₦${voteModalData.votePrice.toLocaleString()}`;
+    document.getElementById('voteTotalPrice').textContent = `₦${voteModalData.votePrice.toLocaleString()}`;
+    document.getElementById('voteRestPoints').textContent = `${Math.floor(REST_POINTS_PER_VOTE).toLocaleString()} points`;
+
+    return true;
+}
+
 function verifyRestCardAndProceed() {
-    const cardNumber = document.getElementById('restCardNumberInput').value.trim();
+    const identifier = document.getElementById('restCardNumberInput').value.trim();
     const errorEl = document.getElementById('restCardError');
     const btn = document.getElementById('verifyRestCardBtn');
     
-    if (!cardNumber) {
-        errorEl.textContent = 'Please enter your Rest Card number';
+    if (!identifier) {
+        errorEl.textContent = 'Please enter your Rest Card number or email address';
         errorEl.style.display = 'block';
         return;
     }
@@ -592,19 +641,25 @@ function verifyRestCardAndProceed() {
             'Content-Type': 'application/json',
             'X-CSRFToken': '{{ csrf_token }}'
         },
-        body: JSON.stringify({ card_number: cardNumber })
+        body: JSON.stringify({ card_number: identifier })
     })
     .then(response => response.json())
     .then(data => {
         if (data.valid) {
             // Card is valid - proceed with free vote
             hasRestCard = true;
-            verifiedCardNumber = cardNumber;
+            verifiedCardNumber = data.card_number || identifier;
             closeRestCardPrompt();
             openVoteModalWithFreeVote();
+        } else if (data.exhausted_free_vote) {
+            hasRestCard = true;
+            verifiedCardNumber = data.card_number || identifier;
+            closeRestCardPrompt();
+            openVoteModal();
+            notifyInfo('Your free vote has already been used. You can continue with paid voting at ₦500 per vote.');
         } else {
             // Card not found or not active
-            errorEl.textContent = data.message || 'Invalid card number. Please check and try again.';
+            errorEl.textContent = data.message || 'Invalid Rest Card details. Please check and try again.';
             errorEl.style.display = 'block';
             btn.disabled = false;
             btn.textContent = '🎫 Get My FREE Vote!';
@@ -698,8 +753,9 @@ function proceedWithoutRestCard() {
 function openVoteModalWithRestCard() {
     // Open vote modal with Rest Card option
     voteModalData = { ...voteModalData }; // Keep the data
-    document.getElementById('voteModalTitle').textContent = `Vote for ${voteModalData.nomineeName}`;
-    document.getElementById('voteVotesInput').value = '1';
+    if (!populatePaidVoteModal()) {
+        return;
+    }
     document.getElementById('votePricePerVote').textContent = `₦${voteModalData.votePrice.toLocaleString()}`;
     document.getElementById('voteTotalPrice').textContent = `₦${voteModalData.votePrice.toLocaleString()}`;
     document.getElementById('voteRestPoints').textContent = `${Math.floor(REST_POINTS_PER_VOTE).toLocaleString()} points`;
@@ -716,6 +772,7 @@ function openVoteModalWithRestCard() {
 function openVoteModalWithFreeVote() {
     // Open vote modal with FREE vote - no payment required
     voteModalData = { ...voteModalData };
+    resetVoteModalState();
     
     // Set to 1 vote (free)
     document.getElementById('voteModalTitle').textContent = `Vote for ${voteModalData.nomineeName} - FREE! 🎉`;
@@ -736,17 +793,22 @@ function openVoteModalWithFreeVote() {
 }
 
 function openVoteModal(nomineeId, nomineeName, votePrice) {
-    voteModalData = { nomineeId, nomineeName, votePrice: parseFloat(votePrice) };
-    document.getElementById('voteModalTitle').textContent = `Vote for ${nomineeName}`;
-    document.getElementById('voteVotesInput').value = '1';
-    document.getElementById('votePricePerVote').textContent = `₦${parseFloat(votePrice).toLocaleString()}`;
-    document.getElementById('voteTotalPrice').textContent = `₦${parseFloat(votePrice).toLocaleString()}`;
-    document.getElementById('voteRestPoints').textContent = `${Math.floor(REST_POINTS_PER_VOTE).toLocaleString()} points`;
+    if (typeof nomineeId !== 'undefined') {
+        voteModalData = { nomineeId, nomineeName, votePrice: parseFloat(votePrice) };
+    }
+
+    if (!populatePaidVoteModal()) {
+        return;
+    }
     
     // Hide Rest Card section if user doesn't have rest card
     const restCardSection = document.getElementById('restCardVoteSection');
     if (restCardSection) {
         restCardSection.style.display = 'none';
+    }
+
+    if (verifiedCardNumber) {
+        document.getElementById('restCardNumber').value = verifiedCardNumber;
     }
     
     document.getElementById('voteModal').style.display = 'flex';
@@ -782,6 +844,12 @@ function confirmVote() {
     const votes = parseInt(document.getElementById('voteVotesInput').value) || 1;
     if (votes < 1) {
         alert('Please enter a valid number of votes');
+        return;
+    }
+    
+    // Validate before adding
+    if (!voteModalData.nomineeId || voteModalData.nomineeId === 'undefined' || voteModalData.nomineeId === 'null') {
+        showWarning('Unable to add votes. Please try selecting the nominee again.');
         return;
     }
     
@@ -824,7 +892,19 @@ function decrementVote(nomineeId) {
 }
 
 function addVotes(nomineeId, nomineeName) {
+    // Validate inputs
+    if (!nomineeId || nomineeId === 'undefined' || nomineeId === 'null') {
+        console.error('Invalid nomineeId:', nomineeId);
+        showWarning('Unable to add votes. Please try selecting the nominee again.');
+        return;
+    }
+    
     const input = document.getElementById(`votes-${nomineeId}`);
+    if (!input) {
+        showWarning('Unable to find vote input. Please refresh and try again.');
+        return;
+    }
+    
     const votes = parseInt(input.value);
     
     if (votes > 0) {

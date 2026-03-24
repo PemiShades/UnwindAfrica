@@ -196,6 +196,8 @@ class VotingCampaign(models.Model):
     # Campaign period
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
+    nomination_deadline = models.DateTimeField(null=True, blank=True,
+        help_text="Deadline for submitting nominations (if different from voting end)")
     
     # Settings
     vote_price = models.DecimalField(max_digits=10, decimal_places=2, default=500.00, 

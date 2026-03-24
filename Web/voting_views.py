@@ -30,7 +30,7 @@ def verify_rest_card(request):
             return JsonResponse({
                 'valid': False,
                 'message': 'Please enter your Rest Card number or email address'
-            }, status=400)
+            })
         
         # Determine if input is email or card number
         is_email = '@' in identifier and '.' in identifier
@@ -70,7 +70,11 @@ def verify_rest_card(request):
             return JsonResponse({
                 'valid': False,
                 'message': 'You have already used your free vote. You can still vote by paying ₦500 per vote.'
-            }, status=400)
+                ,
+                'exhausted_free_vote': True,
+                'member_name': rest_card.member_name,
+                'card_number': rest_card.card_number
+            })
         
         # Card is valid and has free votes
         return JsonResponse({
@@ -178,7 +182,7 @@ def initialize_payment(request):
             # First, try to find by card number (if provided in checkout form)
             if rest_card_number:
                 rest_card = RestCard.objects.filter(
-                    card_number=rest_card_number, 
+                    card_number__iexact=rest_card_number,
                     status='active',
                     free_votes_remaining__gt=0
                 ).first()
@@ -186,7 +190,7 @@ def initialize_payment(request):
             # If not found by card number, try by email
             if not rest_card:
                 rest_card = RestCard.objects.filter(
-                    member_email=voter_email, 
+                    member_email__iexact=voter_email,
                     status='active',
                     free_votes_remaining__gt=0
                 ).first()
@@ -207,6 +211,17 @@ def initialize_payment(request):
         for item in ballot:
             nominee_id = item.get('nominee_id')
             vote_quantity = int(item.get('votes', 0))
+            
+            # Validate nominee_id
+            if not nominee_id or nominee_id == 'undefined' or nominee_id == 'null':
+                print(f"ERROR: Invalid nominee_id: {nominee_id}")
+                continue
+            
+            try:
+                nominee_id = int(nominee_id)
+            except (ValueError, TypeError):
+                print(f"ERROR: Could not convert nominee_id to int: {nominee_id}")
+                continue
             
             if vote_quantity <= 0:
                 continue
@@ -239,20 +254,76 @@ def initialize_payment(request):
             })
         
         if not ballot_items:
+            # Log the ballot for debugging
+            print(f"DEBUG: Empty ballot_items. Original ballot: {ballot}")
             return JsonResponse({
                 'success': False,
-                'message': 'No valid votes in ballot'
+                'message': 'No valid votes in ballot. Please select at least one nominee and vote amount.'
             }, status=400)
         
         # Generate unique reference for the entire payment
         reference = f"NTU-{secrets.token_urlsafe(16)}"
         
-        # Initialize Paystack payment
+        # Initialize Paystack payment (only if there are paid votes)
         paystack_secret = settings.PAYSTACK_SECRET_KEY
         
-        # print(f"DEBUG: PAYSTACK_SECRET_KEY present: {bool(paystack_secret)}")
-        # print(f"DEBUG: PAYSTACK_SECRET_KEY value: {paystack_secret[:10]}..." if paystack_secret else "DEBUG: PAYSTACK_SECRET_KEY is empty")
+        # If total amount is 0 and we have free votes, skip Paystack entirely
+        if total_amount == Decimal('0.00') and free_votes_used > 0:
+            # Process free votes directly - no payment needed
+            reference = f"NTU-FREE-{secrets.token_urlsafe(16)}"
+            
+            # Create votes and transactions
+            created_votes = []
+            created_transactions = []
+            
+            with db_transaction.atomic():
+                for item in ballot_items:
+                    # Create vote record
+                    vote = Vote.objects.create(
+                        nominee=item['nominee'],
+                        voter_name=voter_name,
+                        voter_email=voter_email,
+                        voter_phone=voter_phone,
+                        referral_source=referral_source,
+                        vote_quantity=item['vote_quantity'],
+                        amount=item['amount'],
+                        payment_status='paid'  # Mark as paid since it's free
+                    )
+                    created_votes.append(vote)
+                    
+                    # Create transaction (marked as paid since it's free)
+                    transaction = Transaction.objects.create(
+                        vote=vote,
+                        reference=reference,
+                        authorization_url='',
+                        access_code='',
+                        amount=item['amount'],
+                        status='success'  # Mark as success since it's free
+                    )
+                    created_transactions.append(transaction)
+                    
+                    # Update nominee vote count
+                    nominee = item['nominee']
+                    nominee.vote_count += item['vote_quantity']
+                    nominee.save()
+                
+                # Decrement free votes on rest card
+                if rest_card:
+                    rest_card.free_votes_remaining = max(0, rest_card.free_votes_remaining - free_votes_used)
+                    rest_card.save()
+            
+            # Return success response for free votes
+            return JsonResponse({
+                'success': True,
+                'free_votes_used': free_votes_used,
+                'free_votes_remaining': rest_card.free_votes_remaining if rest_card else 0,
+                'total_amount': 0,
+                'message': f'Your {free_votes_used} free vote(s) have been applied!',
+                'thank_you_url': '/voting/payment/thank-you/',
+                'free_votes_processed': True
+            })
         
+        # Regular paid payment flow
         if not paystack_secret:
             return JsonResponse({
                 'success': False,

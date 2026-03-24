@@ -735,15 +735,121 @@ def edit_rest_card(request, card_id):
 @login_required
 @require_http_methods(["POST"])
 def generate_rest_card(request, card_id):
-    """Generate a rest card"""
+    """Generate a rest card and send email"""
     try:
+        from django.core.mail import send_mail
+        from django.conf import settings
+        from django.utils import timezone
+        
         card = get_object_or_404(RestCard, pk=card_id)
-        # In a real implementation, this would generate a PDF or image of the card
-        # For now, we'll just return a success message
-        return JsonResponse({"ok": True, "message": "Card generated successfully"})
+        
+        # If card already has a number, just resend the email
+        if card.card_number:
+            try:
+                subject = "Your Rest Card Details - Unwind Africa"
+                message = f"""Dear {card.member_name},
+
+Your Rest Card details are as follows:
+
+Card Number: {card.card_number}
+Name: {card.member_name}
+Email: {card.member_email}
+Phone: {card.member_phone}
+Status: {card.status}
+
+With your Rest Card, you get:
+🎫 1 FREE Vote - No payment required!
+⭐ Earn Rest Points from every vote
+🎉 Exclusive Access to rest experiences
+💝 Priority Support and special rewards
+
+Visit your dashboard to see your card: https://unwind.africa/dashboard/
+
+Thank you for being part of Unwind Africa!
+
+Best regards,
+The Unwind Africa Team
+"""
+                
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [card.member_email],
+                    fail_silently=False,
+                )
+                return JsonResponse({
+                    "ok": True, 
+                    "message": f"Email resent to {card.member_email}"
+                })
+            except Exception as email_err:
+                return JsonResponse({
+                    "ok": False, 
+                    "error": f"Card exists ({card.card_number}) but failed to send email: {str(email_err)}"
+                }, status=500)
+        
+        # Get the highest existing card number to continue from
+        existing_cards = RestCard.objects.exclude(card_number__isnull=True).exclude(card_number='')
+        start_num = 0
+        if existing_cards.exists():
+            max_num = 0
+            for c in existing_cards:
+                try:
+                    num_part = int(c.card_number[-3:])
+                    if num_part > max_num:
+                        max_num = num_part
+                except:
+                    pass
+            start_num = max_num + 1
+        
+        # Generate new card number
+        card_number = f"RA-{start_num:03d}"
+        card.card_number = card_number
+        card.status = 'active'
+        card.activated_at = timezone.now()
+        card.save()
+        
+        # Send email
+        subject = "🎉 Your Rest Card is Ready! - Unwind Africa"
+        message = f"""Dear {card.member_name},
+
+Congratulations! Your Rest Card has been generated and activated!
+
+Your Rest Card Number: {card_number}
+
+With your Rest Card, you get:
+🎫 1 FREE Vote - No payment required!
+⭐ Earn Rest Points from every vote
+🎉 Exclusive Access to rest experiences
+💝 Priority Support and special rewards
+
+You can use your FREE vote by entering your card number when voting on our platform.
+
+Visit your dashboard to see your card details: https://unwind.africa/dashboard/
+
+Thank you for being part of Unwind Africa!
+
+Best regards,
+The Unwind Africa Team
+"""
+        
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [card.member_email],
+            fail_silently=False,
+        )
+        
+        return JsonResponse({
+            "ok": True, 
+            "message": f"Card {card_number} generated and email sent to {card.member_email}"
+        })
     
     except Exception as e:
         print(f"Error generating rest card: {e}")
+        import traceback
+        traceback.print_exc()
         return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
 
@@ -752,13 +858,57 @@ def generate_rest_card(request, card_id):
 def resend_rest_card(request, card_id):
     """Resend rest card details to the member"""
     try:
+        from django.core.mail import send_mail
+        from django.conf import settings
+        
         card = get_object_or_404(RestCard, pk=card_id)
-        # In a real implementation, this would send an email with the card details
-        # For now, we'll just return a success message
-        return JsonResponse({"ok": True, "message": "Card details resent successfully"})
+        
+        if not card.card_number:
+            return JsonResponse({
+                "ok": False, 
+                "error": "Card number not generated yet. Please generate the card first."
+            }, status=400)
+        
+        # Send email with card details
+        subject = "Your Rest Card Details - Unwind Africa"
+        message = f"""Dear {card.member_name},
+
+Your Rest Card details are as follows:
+
+Card Number: {card.card_number}
+Name: {card.member_name}
+Email: {card.member_email}
+Phone: {card.member_phone}
+Status: {card.status}
+
+With your Rest Card, you get:
+🎫 1 FREE Vote - No payment required!
+⭐ Earn Rest Points from every vote
+🎉 Exclusive Access to rest experiences
+💝 Priority Support and special rewards
+
+Visit your dashboard to see your card: https://unwind.africa/dashboard/
+
+Thank you for being part of Unwind Africa!
+
+Best regards,
+The Unwind Africa Team
+"""
+        
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [card.member_email],
+            fail_silently=False,
+        )
+        
+        return JsonResponse({"ok": True, "message": f"Card details resent to {card.member_email}"})
     
     except Exception as e:
         print(f"Error resending rest card: {e}")
+        import traceback
+        traceback.print_exc()
         return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
 

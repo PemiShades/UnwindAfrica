@@ -140,6 +140,10 @@ def rest_card_signup(request):
             # Send confirmation email
             try:
                 from django.core.mail import send_mail
+                from django.conf import settings
+                import logging
+                logger = logging.getLogger(__name__)
+                
                 subject = 'Rest Card Sign-up Confirmation - Unwind Africa'
                 message = f"""Dear {name},
 
@@ -159,17 +163,23 @@ Best regards,
 The Unwind Africa Team
 Phone: +234 806 206 7832
 Email: info@unwindafrica.com"""
-                from django.conf import settings
-                send_mail(
+                
+                logger.info(f"Attempting to send email to {email}")
+                logger.info(f"Email settings - HOST: {settings.EMAIL_HOST}, USER: {settings.EMAIL_HOST_USER}")
+                
+                result = send_mail(
                     subject,
                     message,
                     settings.DEFAULT_FROM_EMAIL,
                     [email],
-                    fail_silently=True
+                    fail_silently=False  # Changed to False to see actual errors
                 )
+                logger.info(f"Email send result: {result}")
             except Exception as email_err:
                 # Log email error but don't fail the signup
-                print(f"Email sending error: {email_err}")
+                import traceback
+                logger.error(f"Email sending error: {email_err}")
+                logger.error(f"Full traceback: {traceback.format_exc()}")
             
             # Include free vote info in response
             free_vote_message = ''
@@ -624,12 +634,21 @@ def nominate(request):
     """Nomination form for couples"""
     from .models import VotingCampaign
     from .forms import NominationForm
+    from django.utils import timezone
     
     # Get active campaign
     campaign = VotingCampaign.objects.filter(is_active=True).order_by('-start_date').first()
     
     if not campaign:
         return render(request, 'Web/nominate.html', {'campaign': None, 'error': 'No active campaign'})
+    
+    # Check if nomination deadline has passed
+    nomination_deadline = campaign.nomination_deadline
+    if nomination_deadline and timezone.now() > nomination_deadline:
+        return render(request, 'Web/nominate.html', {
+            'campaign': campaign, 
+            'error': 'Nomination deadline has passed. You can no longer submit nominations.'
+        })
     
     if request.method == 'POST':
         form = NominationForm(request.POST, request.FILES)
