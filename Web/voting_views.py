@@ -342,6 +342,10 @@ def initialize_payment(request):
                     nominee = item['nominee']
                     nominee.vote_count += item['vote_quantity']
                     nominee.save()
+                    
+                    # Update rest card points for this vote
+                    if vote.rest_points_earned > 0:
+                        update_rest_card_points(vote)
                 
                 # Decrement free votes on rest card
                 if rest_card:
@@ -503,18 +507,27 @@ def initialize_payment(request):
 
 def update_rest_card_points(vote):
     """
-    Store earned rest points as "frozen" - these will be transferred to 
-    the user's Rest Card when they apply and receive one.
-    
-    Users are NOT automatically added to waitlist anymore. They must apply
-    for a Rest Card to claim their frozen points.
+    Store earned rest points - either directly to Rest Card (if user has one)
+    or as "frozen" points (if user doesn't have a card yet).
     """
     email = vote.voter_email
     name = vote.voter_name
     phone = vote.voter_phone
     points = vote.rest_points_earned
     
-    # Create frozen points entry (NOT added to waitlist automatically)
+    # Check if user already has an active Rest Card
+    rest_card = RestCard.objects.filter(
+        member_email__iexact=email,
+        status='active'
+    ).first()
+    
+    if rest_card:
+        # User has a Rest Card - directly add points to their total
+        rest_card.total_rest_points += points
+        rest_card.save()
+        return None, False  # Not frozen, directly credited
+    
+    # No Rest Card - store as frozen points for later claim
     frozen_entry, created = FrozenRestPoints.objects.get_or_create(
         member_email=email,
         defaults={

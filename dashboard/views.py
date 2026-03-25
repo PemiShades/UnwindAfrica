@@ -1019,16 +1019,19 @@ def export_rest_cards(request):
         response['Content-Disposition'] = 'attachment; filename="rest_cards.csv"'
         
         writer = csv.writer(response)
-        writer.writerow(['Card ID', 'Member Name', 'Member Email', 'Member Phone', 'Status', 'Created At', 'Activated At'])
+        writer.writerow(['Card ID', 'Card Number', 'Member Name', 'Member Email', 'Member Phone', 'Status', 'Free Votes', 'Rest Points', 'Joined At', 'Activated At'])
         
         for card in RestCard.objects.all():
             writer.writerow([
                 card.pk,
+                card.card_number or '',
                 card.member_name,
                 card.member_email,
                 card.member_phone,
                 card.status,
-                card.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                card.free_votes_remaining,
+                card.total_rest_points,
+                card.waitlist_joined_at.strftime('%Y-%m-%d %H:%M:%S') if card.waitlist_joined_at else '',
                 card.activated_at.strftime('%Y-%m-%d %H:%M:%S') if card.activated_at else ''
             ])
         
@@ -1352,39 +1355,65 @@ def generate_card_for_all(request):
         for card in existing_cards:
             try:
                 # For UA format cards, extract the ID from the first part (after UA-)
-                if 'UA-' in card.card_number:
+                if 'UA-' in card.card_number and len(card.card_number.split('-')) >= 2:
                     parts = card.card_number.split('-')
-                    if len(parts) >= 2:
-                        num_part = int(parts[1])
-                        if num_part > max_id_used:
-                            max_id_used = num_part
+                    num_part = int(parts[1])
+                    if num_part > max_id_used:
+                        max_id_used = num_part
             except:
                 pass
         # Use the highest ID found + 1 for new cards (or 1 if none exist)
         start_num = max(max_id_used + 1, 1)
         
-        # Process ALL cards
+        # Smart filter: only process cards that don't match the new format (UA-XXXX-XXXX)
+        all_cards = RestCard.objects.filter(
+            status__in=['active', 'pending', 'waitlist']
+        ).order_by('id')
+        
+        cards_to_update = []
+        cards_to_skip = []
+        
+        for card in all_cards:
+            if not card.card_number:
+                # No card number - needs update
+                cards_to_update.append(card)
+            elif card.card_number.startswith('UA-') and len(card.card_number.split('-')) >= 2:
+                # Already has UA- format - check if valid 4-digit format
+                try:
+                    parts = card.card_number.split('-')
+                    if len(parts) >= 2 and len(parts[1]) >= 4 and parts[1][:4].isdigit():
+                        cards_to_skip.append(card)
+                    else:
+                        cards_to_update.append(card)
+                except:
+                    cards_to_update.append(card)
+            else:
+                # Old format (RA-XXX) or other - needs update
+                cards_to_update.append(card)
+        
+        if not cards_to_update:
+            return JsonResponse({
+                "ok": True, 
+                "message": f"All {len(cards_to_skip)} cards already have the correct format (UA-XXXX-XXXX). No updates needed."
+            })
+        
+        # Process cards that need updating
         generated_count = 0
         emails_sent = 0
-        existing_count = 0
         
-        for i, card in enumerate(all_cards):
+        for card in cards_to_update:
             # Generate new card number using card's ID for sequential numbering
             # Format: UA-0001-ABCD (scales: UA-0001, UA-0025, UA-0999, UA-1000, UA-10000, etc.)
             # Use ID for order, zfill(4) for minimum 4 digits padding
             card_id_str = str(card.id).zfill(4)  # 1->0001, 25->0025, 999->0999, 1000->1000, 10000->10000
             random_suffix = secrets.token_hex(2).upper()[:4]  # 4 random hex chars
             card_number = f"UA-{card_id_str}-{random_suffix}"
-            old_card_number = card.card_number
             
             card.card_number = card_number
             card.status = 'active'
             card.activated_at = timezone.now()
             card.email_sent_at = timezone.now()
             card.save()
-            
-            if old_card_number:
-                existing_count += 1
             generated_count += 1
             
             # Send email to the candidate
@@ -1440,7 +1469,7 @@ Rest. Recognition. Restoration.
         
         return JsonResponse({
             "ok": True, 
-            "message": f"Successfully processed {generated_count} card(s) ({existing_count} updated, {generated_count - existing_count} new) and sent {emails_sent} email(s)"
+            "message": f"Successfully updated {generated_count} card(s) and sent {emails_sent} email(s). {len(cards_to_skip)} cards were already in correct format and skipped."
         })
     except Exception as e:
         print(f"Error generating cards: {e}")
