@@ -168,7 +168,7 @@ header.absolute svg {
             <div style="font-size: 0.7rem; color: #7f8c8d; margin-bottom: 1rem; line-height: 1.3;">
                 You earn 100 Rest Points per vote.
             </div>
-            <button onclick="proceedToCheckout()" style="width: 100%; background: #27ae60; color: white; border: none; padding: 0.875rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(0.9rem, 2vw, 1rem);">
+            <button id="ballotSubmitBtn" onclick="proceedToCheckout()" style="width: 100%; background: #27ae60; color: white; border: none; padding: 0.875rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(0.9rem, 2vw, 1rem);">
                 ✔ Proceed to Payment →
             </button>
         </div>
@@ -239,8 +239,6 @@ header.absolute svg {
 <!-- Rest Card Prompt Modal -->
 <div id="restCardPromptModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;">
     <div style="background: white; border-radius: 16px; padding: clamp(1.5rem, 4vw, 2.5rem); max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; margin: auto; text-align: center;">
-        
-        <!-- Initial View: Benefits and Options -->
         <div id="restCardInitialView">
             <div style="margin-bottom: 1.5rem;">
                 <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
@@ -315,6 +313,50 @@ header.absolute svg {
             </div>
         </div>
         
+    </div>
+</div>
+
+<!-- Free Vote Exhausted Modal -->
+<div id="freeVoteExhaustedModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2001; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;">
+    <div style="background: white; border-radius: 20px; padding: clamp(1.5rem, 4vw, 2.5rem); max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; margin: auto; text-align: center;">
+        
+        <!-- Icon -->
+        <div style="width: 90px; height: 90px; background: linear-gradient(135deg, #f39c12, #e67e22); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+            <svg style="width: 45px; height: 45px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        
+        <!-- Title -->
+        <h2 style="font-size: clamp(1.4rem, 4vw, 1.8rem); color: #2c3e50; margin-bottom: 1rem;">
+            You've Used Your Free Vote! 🎉
+        </h2>
+        
+        <!-- Message -->
+        <p style="color: #555; font-size: clamp(0.95rem, 2.5vw, 1.05rem); line-height: 1.7; margin-bottom: 1.5rem;">
+            Great news! You've already used your <strong>FREE vote</strong> from your Rest Card. 
+            Thank you for supporting your favorite nominee!
+        </p>
+        
+        <!-- Options -->
+        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: left;">
+            <h3 style="font-weight: 600; margin-bottom: 0.75rem; font-size: clamp(1rem, 2.5vw, 1.1rem);">💡 Want to vote more?</h3>
+            <ul style="list-style: none; padding: 0; margin: 0; font-size: clamp(0.85rem, 2vw, 0.95rem); line-height: 1.8;">
+                <li style="display: flex; align-items: center; gap: 0.5rem;"><span>💰</span> <strong>Pay ₦500</strong> per additional vote</li>
+                <li style="display: flex; align-items: center; gap: 0.5rem;"><span>⭐</span> <strong>Earn Rest Points</strong> with every paid vote</li>
+                <li style="display: flex; align-items: center; gap: 0.5rem;"><span>🎁</span> <strong>Bonus votes</strong> available on larger orders</li>
+            </ul>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <button onclick="proceedToPaidVotingFromExhaustedModal()" style="width: 100%; background: #27ae60; color: white; border: none; padding: 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(1rem, 2.5vw, 1.1rem); transition: background 0.3s;">
+                Continue with Paid Voting 💳
+            </button>
+            <button onclick="closeFreeVoteExhaustedModal()" style="width: 100%; background: #ecf0f1; color: #2c3e50; border: none; padding: 0.875rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(0.95rem, 2vw, 1rem); transition: background 0.3s;">
+                Maybe Later
+            </button>
+        </div>
     </div>
 </div>
 
@@ -544,6 +586,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 let voteModalData = { nomineeId: null, nomineeName: null, votePrice: null };
 let hasRestCard = false; // Track if user has rest card
+let isFreeVote = false; // Track if current vote is free (from Rest Card)
 
 // Rest Card Prompt Functions
 function openRestCardPrompt(nomineeId, nomineeName, votePrice) {
@@ -648,15 +691,16 @@ function verifyRestCardAndProceed() {
         if (data.valid) {
             // Card is valid - proceed with free vote
             hasRestCard = true;
+            isFreeVote = true;
             verifiedCardNumber = data.card_number || identifier;
             closeRestCardPrompt();
             openVoteModalWithFreeVote();
         } else if (data.exhausted_free_vote) {
+            // Free vote exhausted - show modal to explain and offer paid option
             hasRestCard = true;
+            isFreeVote = false;
             verifiedCardNumber = data.card_number || identifier;
-            closeRestCardPrompt();
-            openVoteModal();
-            notifyInfo('Your free vote has already been used. You can continue with paid voting at ₦500 per vote.');
+            showFreeVoteExhaustedModal();
         } else {
             // Card not found or not active
             errorEl.textContent = data.message || 'Invalid Rest Card details. Please check and try again.';
@@ -672,6 +716,24 @@ function verifyRestCardAndProceed() {
         btn.disabled = false;
         btn.textContent = '🎫 Get My FREE Vote!';
     });
+}
+
+// Free Vote Exhausted Modal Functions
+function showFreeVoteExhaustedModal() {
+    document.getElementById('freeVoteExhaustedModal').style.display = 'flex';
+}
+
+function closeFreeVoteExhaustedModal() {
+    document.getElementById('freeVoteExhaustedModal').style.display = 'none';
+}
+
+function proceedToPaidVotingFromExhaustedModal() {
+    closeFreeVoteExhaustedModal();
+    closeRestCardPrompt();
+    // Open the paid vote modal
+    if (voteModalData.nomineeId) {
+        openVoteModal();
+    }
 }
 
 // Global variable to store verified card number
@@ -984,6 +1046,36 @@ function proceedToCheckout() {
     document.getElementById('checkoutTotalAmount').textContent = `₦${totalAmount.toLocaleString()}`;
     document.getElementById('checkoutRestPoints').textContent = `${totalRestPoints.toLocaleString()} points`;
     
+    // Check if this is a free vote scenario:
+    // - User has verified their Rest Card (verifiedCardNumber is set)
+    // - Total amount is 0 (all votes are free)
+    const isFreeVoteScenario = verifiedCardNumber && totalAmount === 0;
+    
+    // Update ballot button based on whether this is a free vote or paid vote
+    const ballotSubmitBtn = document.getElementById('ballotSubmitBtn');
+    if (isFreeVoteScenario) {
+        // Free vote - change button to "Submit Vote"
+        ballotSubmitBtn.textContent = '✔ Submit My Vote 🎉';
+        ballotSubmitBtn.style.background = '#27ae60';
+    } else {
+        // Paid vote - show "Proceed to Payment"
+        ballotSubmitBtn.textContent = '✔ Proceed to Payment →';
+        ballotSubmitBtn.style.background = '#27ae60';
+    }
+    
+    // Update checkout modal button based on whether it's free or paid
+    const payButton = document.getElementById('payButton');
+    if (isFreeVoteScenario) {
+        // Free vote - change button to "Submit Vote"
+        payButton.textContent = 'Submit My Vote 🎉';
+    } else {
+        // Paid vote - show Paystack
+        payButton.textContent = 'Pay with Paystack →';
+    }
+    
+    // Store whether this is a free vote scenario for form submission
+    window.isFreeVoteScenario = isFreeVoteScenario;
+    
     document.getElementById('checkoutModal').style.display = 'flex';
 }
 
@@ -1035,8 +1127,8 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e) => 
         const data = await response.json();
         
         if (data.success) {
-            // Check if this is a free vote (no payment required)
-            if (data.free_votes_used && data.free_votes_used > 0 && data.total_amount == 0) {
+            // Check if this is a free vote scenario (user clicked "Submit My Vote" button)
+            if (window.isFreeVoteScenario || (data.free_votes_used && data.free_votes_used > 0 && data.total_amount == 0)) {
                 // Free vote - redirect to thank you page then dashboard
                 if (data.thank_you_url) {
                     window.location.href = data.thank_you_url + '?redirect_to_dashboard=1';
