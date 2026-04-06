@@ -1210,6 +1210,10 @@ def user_dashboard(request):
     Requires email authentication via session
     """
     from .models import RestCard, FrozenRestPoints, TokenWallet, Vote
+    from django.db.models import Count
+    from django.utils import timezone
+    from datetime import timedelta
+    import math
     
     # Check authentication
     email = request.session.get('dashboard_user_email')
@@ -1235,6 +1239,174 @@ def user_dashboard(request):
     # Get recent votes
     recent_votes = Vote.objects.filter(voter_email=email).order_by('-created_at')[:10]
     
+    # ==== Daily Action Engine ====
+    # Calculate voting streak
+    today = timezone.now().date()
+    votes_by_user = Vote.objects.filter(voter_email=email).order_by('-created_at')
+    
+    streak = 0
+    check_date = today
+    has_voted_today = False
+    
+    if votes_by_user.exists():
+        last_vote = votes_by_user.first()
+        if last_vote.created_at.date() == today:
+            has_voted_today = True
+        # Count consecutive days
+        for i in range(365):
+            day_check = today - timedelta(days=i)
+            day_votes = votes_by_user.filter(created_at__date=day_check)
+            if day_votes.exists():
+                streak += 1
+            elif i > 0:
+                break
+    
+    # Free vote availability
+    free_votes_available = 0
+    if rest_card:
+        free_votes_available = rest_card.free_votes_remaining or 0
+    
+    # Next free vote countdown (24 hours from last vote)
+    next_vote_time = None
+    if not has_voted_today and votes_by_user.exists():
+        last_vote = votes_by_user.first()
+        next_vote_time = last_vote.created_at + timedelta(hours=24)
+    
+    # ==== Referral System ====
+    # Count user's referrals (votes that came from this user)
+    referral_count = Vote.objects.filter(referral_source__icontains=email).count()
+    
+    # Generate unique referral code
+    import hashlib
+    referral_code = hashlib.md5(email.encode()).hexdigest()[:8].upper()
+    referral_link = f"{request.scheme}://{request.get_host()}/dashboard/signup/?ref={referral_code}"
+    
+    # ==== Points System ====
+    total_points = 0
+    if rest_card:
+        total_points = rest_card.total_rest_points or 0
+    
+    # Next reward threshold (every 500 points)
+    next_reward_at = math.ceil(total_points / 500) * 500 if total_points > 0 else 500
+    points_to_next_reward = next_reward_at - total_points
+    progress_to_next = (total_points / next_reward_at * 100) if next_reward_at > 0 else 0
+    
+    # Points breakdown
+    points_from_votes = Vote.objects.filter(voter_email=email).aggregate(
+        total=Count('id')
+    )['total'] or 0
+    
+    # ==== Task System ====
+    # Daily tasks
+    daily_tasks = []
+    
+    # Task 1: Use free vote
+    if free_votes_available > 0:
+        daily_tasks.append({
+            'id': 'free_vote',
+            'title': 'Use your free vote',
+            'description': f'You have {free_votes_available} free vote(s) available',
+            'points': 50,
+            'completed': False,
+            'action_url': '/voting/',
+            'action_label': 'Vote Now'
+        })
+    else:
+        daily_tasks.append({
+            'id': 'free_vote',
+            'title': 'Use your free vote',
+            'description': 'No free votes available',
+            'points': 50,
+            'completed': has_voted_today,
+            'action_url': '/voting/',
+            'action_label': 'Vote Now'
+        })
+    
+    # Task 2: Invite a friend (if no referrals yet)
+    if referral_count == 0:
+        daily_tasks.append({
+            'id': 'invite_friend',
+            'title': 'Invite a friend',
+            'description': 'Share your referral link to earn bonus points',
+            'points': 100,
+            'completed': False,
+            'action_url': '#referral-section',
+            'action_label': 'Invite'
+        })
+    
+    # Task 3: Nominate someone
+    daily_tasks.append({
+        'id': 'nominate',
+        'title': 'Nominate someone',
+        'description': 'Nominate a deserving person for recognition',
+        'points': 75,
+        'completed': False,
+        'action_url': '/#about',
+        'action_label': 'Nominate'
+    })
+    
+    # Completed daily tasks count
+    completed_tasks = sum(1 for t in daily_tasks if t['completed'])
+    
+    # ==== Rewards Marketplace ====
+    # Predefined rewards based on points
+    rewards = [
+        {'threshold': 500, 'name': '10% Discount', 'description': 'Get 10% off any event', 'icon': 'tag'},
+        {'threshold': 1000, 'name': 'Free Entry', 'description': 'Free entry to select events', 'icon': 'ticket'},
+        {'threshold': 2500, 'name': 'Wellness Session', 'description': '1-hour wellness consultation', 'icon': 'spa'},
+        {'threshold': 5000, 'name': 'VIP Experience', 'description': 'VIP access to any event', 'icon': 'star'},
+        {'threshold': 10000, 'name': 'Retreat Package', 'description': 'Full weekend retreat experience', 'icon': 'umbrella-beach'},
+    ]
+    
+    # ==== Leaderboard / Social Proof ====
+    # Top voters this week
+    week_start = today - timedelta(days=today.weekday())
+    top_voters = Vote.objects.filter(
+        created_at__date__gte=week_start
+    ).values('voter_email').annotate(
+        vote_count=Count('id')
+    ).order_by('-vote_count')[:5]
+    
+    # User's ranking
+    user_rank = None
+    for i, voter in enumerate(top_voters, 1):
+        if voter['voter_email'] == email:
+            user_rank = i
+            break
+    
+    # ==== Member Tiers ====
+    member_tier = 'Bronze'
+    if rest_card:
+        points = rest_card.total_rest_points or 0
+        if points >= 5000:
+            member_tier = 'Gold'
+        elif points >= 2500:
+            member_tier = 'Silver'
+    
+    # ==== Activity Feed ====
+    # Build activity feed from recent votes
+    activity_feed = []
+    for vote in recent_votes:
+        activity_feed.append({
+            'type': 'vote',
+            'message': f"Voted for {vote.nominee.name}",
+            'points': vote.rest_points_earned or 0,
+            'date': vote.created_at
+        })
+    
+    # Add frozen points claims
+    for entry in frozen_entries.filter(points_claimed=True):
+        activity_feed.append({
+            'type': 'claim',
+            'message': f"Claimed {entry.frozen_points} frozen points",
+            'points': entry.frozen_points,
+            'date': entry.claimed_at
+        })
+    
+    # Sort by date descending
+    activity_feed.sort(key=lambda x: x['date'], reverse=True)
+    activity_feed = activity_feed[:10]
+    
     context = {
         'email': email,
         'rest_card': rest_card,
@@ -1242,6 +1414,42 @@ def user_dashboard(request):
         'frozen_entries': frozen_entries,
         'token_wallet': token_wallet,
         'recent_votes': recent_votes,
+        
+        # Daily Action Engine
+        'has_voted_today': has_voted_today,
+        'voting_streak': streak,
+        'free_votes_available': free_votes_available,
+        'next_vote_time': next_vote_time,
+        
+        # Referral System
+        'referral_count': referral_count,
+        'referral_code': referral_code,
+        'referral_link': referral_link,
+        
+        # Points System
+        'total_points': total_points,
+        'next_reward_at': next_reward_at,
+        'points_to_next_reward': points_to_next_reward,
+        'progress_to_next': progress_to_next,
+        'points_from_votes': points_from_votes,
+        
+        # Task System
+        'daily_tasks': daily_tasks,
+        'completed_tasks': completed_tasks,
+        'total_tasks': len(daily_tasks),
+        
+        # Rewards
+        'rewards': rewards,
+        
+        # Leaderboard
+        'top_voters': top_voters,
+        'user_rank': user_rank,
+        
+        # Member Tier
+        'member_tier': member_tier,
+        
+        # Activity Feed
+        'activity_feed': activity_feed,
     }
     
     return render(request, 'Web/community/user_dashboard.html', context)

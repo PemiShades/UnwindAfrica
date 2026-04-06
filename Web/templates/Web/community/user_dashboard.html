@@ -22,17 +22,94 @@
                         <p class="text-sm text-gray-500">{{ email }}</p>
                     </div>
                 </div>
-                <a href="{% url 'user_dashboard_logout' %}" class="text-sm text-gray-500 hover:text-gray-700 flex items-center">
-                    <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                    </svg>
-                    Sign Out
-                </a>
+                <div class="flex items-center space-x-3">
+                    <div class="hidden sm:flex items-center px-3 py-1 rounded-full text-xs font-medium
+                        {% if member_tier == 'Gold' %}bg-yellow-100 text-yellow-800
+                        {% elif member_tier == 'Silver' %}bg-gray-100 text-gray-800
+                        {% else %}bg-orange-100 text-orange-800{% endif %}">
+                        <span>{{ member_tier }}</span>
+                    </div>
+                    <a href="{% url 'user_dashboard_logout' %}" class="text-sm text-gray-500 hover:text-gray-700 flex items-center">
+                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        Sign Out
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- DAILY ACTION ENGINE (Top Priority) -->
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-lg mb-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <div class="h-14 w-14 bg-white/20 rounded-xl flex items-center justify-center">
+                        <svg class="h-7 w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        {% if has_voted_today %}
+                            <p class="text-lg font-bold">You've voted today!</p>
+                            <p class="text-sm text-indigo-200">Come back tomorrow for your next free vote</p>
+                        {% else %}
+                            <p class="text-lg font-bold">You have {{ free_votes_available }} free vote{% if free_votes_available > 1 %}s{% endif %} today</p>
+                            <p class="text-sm text-indigo-200">Use it now to support a nominee</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    {% if voting_streak > 0 %}
+                        <div class="text-center">
+                            <p class="text-3xl font-bold">{{ voting_streak }}</p>
+                            <p class="text-xs text-indigo-200">day streak</p>
+                        </div>
+                        <div class="h-10 w-px bg-white/30"></div>
+                    {% endif %}
+                    <a href="/voting/" class="px-6 py-3 bg-white text-indigo-600 font-medium rounded-xl hover:bg-gray-100 transition shadow-md">
+                        Vote Now
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications / Reminders -->
+        {% if not has_voted_today and free_votes_available > 0 %}
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="h-8 w-8 bg-amber-100 rounded-full flex items-center justify-center">
+                    <svg class="h-4 w-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                </div>
+                <p class="text-sm text-amber-800">You haven't voted today — your free vote is waiting!</p>
+            </div>
+            <a href="/voting/" class="text-sm font-medium text-amber-700 hover:text-amber-900">Vote Now →</a>
+        </div>
+        {% endif %}
+
+        <!-- POINTS SYSTEM -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+            <div class="p-6 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-gray-900">My Points</h2>
+                    <p class="text-xs text-gray-500">Next reward at {{ next_reward_at }} points</p>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="flex items-end justify-between mb-2">
+                    <p class="text-4xl font-bold text-gray-900">{{ total_points| floatformat:0 }}</p>
+                    <p class="text-sm text-gray-500 mb-1">points</p>
+                </div>
+                <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden mb-2">
+                    <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all" style="width: {{ progress_to_next|floatformat:0 }}%"></div>
+                </div>
+                <p class="text-xs text-gray-500">{{ points_to_next_reward|floatformat:0 }} points to next reward</p>
+            </div>
+        </div>
+
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <!-- Free Votes Card -->
@@ -53,13 +130,6 @@
                 <p class="text-3xl font-bold text-gray-900">
                     {% if rest_card %}{{ rest_card.free_votes_remaining|default:0|floatformat:0 }}{% else %}0{% endif %}
                 </p>
-                <p class="text-xs text-gray-500 mt-2">
-                    {% if rest_card and rest_card.free_votes_remaining > 0 %}
-                        Use it on your next vote!
-                    {% else %}
-                        Get a Rest Card for 1 FREE vote!
-                    {% endif %}
-                </p>
             </div>
             <!-- Frozen Points Card -->
             <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-100 shadow-sm">
@@ -76,7 +146,7 @@
                 <p class="text-xs text-gray-500 mt-2">Earned from voting</p>
             </div>
 
-            <!-- Active Points Card -->
+            <!-- Card Points -->
             <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
                     <div class="p-3 bg-green-100 rounded-xl">
@@ -104,28 +174,22 @@
                 {% endif %}
             </div>
 
-            <!-- Token Wallet Card -->
-            <div class="bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl p-6 border border-purple-100 shadow-sm">
+            <!-- Referral Count -->
+            <div class="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl p-6 border border-pink-100 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="p-3 bg-purple-100 rounded-xl">
-                        <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+                    <div class="p-3 bg-pink-100 rounded-xl">
+                        <svg class="h-6 w-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                         </svg>
                     </div>
                 </div>
-                <p class="text-sm text-gray-600 mb-1">Token Wallet</p>
-                <p class="text-3xl font-bold text-gray-900">
-                    {% if token_wallet %}{{ token_wallet.tokens_earned|floatformat:0 }}{% else %}0{% endif %}
-                </p>
-                {% if token_wallet %}
-                    <p class="text-xs text-gray-500 mt-2">{{ token_wallet.available_tokens|floatformat:0 }} available to spend</p>
-                {% else %}
-                    <p class="text-xs text-gray-500 mt-2">Start voting to earn tokens!</p>
-                {% endif %}
+                <p class="text-sm text-gray-600 mb-1">Referrals</p>
+                <p class="text-3xl font-bold text-gray-900">{{ referral_count }}</p>
+                <p class="text-xs text-gray-500 mt-2">friends invited</p>
             </div>
         </div>
 
-        <!-- Quick Actions -->
+        <!-- QUICK ACTIONS -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <a href="/voting/" class="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 rounded-xl font-medium hover:from-blue-600 hover:to-blue-700 transition shadow-md">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,71 +205,62 @@
                 Get Rest Card
             </a>
             {% endif %}
-            <a href="/#about" class="flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-4 rounded-xl font-medium hover:from-green-600 hover:to-emerald-700 transition shadow-md">
+            <a href="#referral-section" class="flex items-center justify-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-6 py-4 rounded-xl font-medium hover:from-pink-600 hover:to-rose-600 transition shadow-md">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3.314 3.314 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3.667 3.667 0 017.656 0 3.667 3.667 0 01-7.656 0"></path>
                 </svg>
-                Learn More
+                Invite Friends
             </a>
-            <a href="/#contact" class="flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white px-6 py-4 rounded-xl font-medium hover:from-orange-600 hover:to-amber-700 transition shadow-md">
+            <a href="#rewards-section" class="flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-4 rounded-xl font-medium hover:from-green-600 hover:to-emerald-700 transition shadow-md">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                Contact Us
+                Redeem Points
             </a>
         </div>
 
         <!-- Main Content Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Frozen Points Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- GAMIFIED TASK SYSTEM -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-6 border-b border-gray-100">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-lg font-semibold text-gray-900">Frozen Points</h2>
-                        {% if rest_card and frozen_points > 0 %}
-                        <button id="claim-points-btn" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-indigo-700 hover:to-purple-700 transition">
-                            Claim Points
-                        </button>
-                        {% endif %}
+                        <h2 class="text-lg font-semibold text-gray-900">Daily Tasks</h2>
+                        <span class="text-sm text-gray-500">{{ completed_tasks }}/{{ total_tasks }} completed</span>
                     </div>
                 </div>
-                <div class="p-6">
-                    {% if frozen_points > 0 %}
-                        <div class="text-center py-8">
-                            <div class="mx-auto h-16 w-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
-                                <svg class="h-8 w-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                <div class="p-6 space-y-4">
+                    {% for task in daily_tasks %}
+                    <div class="flex items-center justify-between p-4 rounded-xl {% if task.completed %}bg-green-50 border border-green-200{% else %}bg-gray-50 border border-gray-200{% endif %}">
+                        <div class="flex items-center space-x-3">
+                            <div class="h-8 w-8 rounded-full flex items-center justify-center {% if task.completed %}bg-green-100{% else %}bg-gray-200{% endif %}">
+                                {% if task.completed %}
+                                <svg class="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
-                            </div>
-                            <p class="text-gray-600 mb-2">You have <span class="font-bold text-amber-600">{{ frozen_points|floatformat:0 }}</span> frozen points!</p>
-                            <p class="text-sm text-gray-500 mb-4">
-                                {% if rest_card %}
-                                    Click "Claim Points" to transfer them to your Rest Card
                                 {% else %}
-                                    Apply for a Rest Card to unlock your frozen points
+                                <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
                                 {% endif %}
-                            </p>
-                            {% if not rest_card %}
-                            <a href="{% url 'rest_card_signup' %}" class="inline-block px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-xl hover:from-indigo-700 hover:to-purple-700 transition">
-                                Apply for Rest Card
-                            </a>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900 {% if task.completed %}line-through{% endif %}">{{ task.title }}</p>
+                                <p class="text-xs text-gray-500">{{ task.description }}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-semibold text-indigo-600">+{{ task.points }} pts</p>
+                            {% if not task.completed %}
+                            <a href="{{ task.action_url }}" class="text-xs text-blue-600 hover:text-blue-700">{{ task.action_label }} →</a>
                             {% endif %}
                         </div>
-                    {% else %}
-                        <div class="text-center py-8">
-                            <div class="mx-auto h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                                <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                                </svg>
-                            </div>
-                            <p class="text-gray-500">No frozen points yet</p>
-                            <p class="text-sm text-gray-400 mt-1">Vote in our campaigns to earn rest points</p>
-                        </div>
-                    {% endif %}
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
 
-            <!-- Rest Card Section -->
+            <!-- REST CARD SECTION -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-6 border-b border-gray-100">
                     <h2 class="text-lg font-semibold text-gray-900">My Rest Card</h2>
@@ -248,19 +303,22 @@
                                 </p>
                             </div>
                             <div class="p-4 bg-gray-50 rounded-xl">
-                                <p class="text-xs text-gray-500 uppercase">Waitlist #</p>
-                                <p class="font-semibold text-gray-900">
-                                    {% if rest_card.waitlist_position %}{{ rest_card.waitlist_position }}{% else %}N/A{% endif %}
+                                <p class="text-xs text-gray-500 uppercase">Tier</p>
+                                <p class="font-semibold 
+                                    {% if member_tier == 'Gold' %}text-yellow-600
+                                    {% elif member_tier == 'Silver' %}text-gray-600
+                                    {% else %}text-orange-600{% endif %}">
+                                    {{ member_tier }}
                                 </p>
                             </div>
                             <div class="p-4 bg-gray-50 rounded-xl">
-                                <p class="text-xs text-gray-500 uppercase">Joined</p>
-                                <p class="font-semibold text-gray-900">{{ rest_card.waitlist_joined_at|date:"M d, Y" }}</p>
+                                <p class="text-xs text-gray-500 uppercase">Member ID</p>
+                                <p class="font-semibold text-gray-900">#{{ rest_card.id }}</p>
                             </div>
                             <div class="p-4 bg-gray-50 rounded-xl">
-                                <p class="text-xs text-gray-500 uppercase">Expires</p>
+                                <p class="text-xs text-gray-500 uppercase">Waitlist #</p>
                                 <p class="font-semibold text-gray-900">
-                                    {% if rest_card.expires_at %}{{ rest_card.expires_at|date:"M d, Y" }}{% else %}N/A{% endif %}
+                                    {% if rest_card.waitlist_position %}{{ rest_card.waitlist_position }}{% else %}N/A{% endif %}
                                 </p>
                             </div>
                         </div>
@@ -281,38 +339,247 @@
             </div>
         </div>
 
-        <!-- Recent Activity -->
-        <div class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <!-- REFERRAL & VIRAL LOOP SYSTEM -->
+        <div id="referral-section" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
             <div class="p-6 border-b border-gray-100">
-                <h2 class="text-lg font-semibold text-gray-900">Recent Voting Activity</h2>
+                <h2 class="text-lg font-semibold text-gray-900">Invite Friends & Earn</h2>
             </div>
-            <div class="divide-y divide-gray-100">
-                {% if recent_votes %}
-                    {% for vote in recent_votes %}
-                    <div class="p-4 flex items-center justify-between hover:bg-gray-50">
-                        <div class="flex items-center space-x-4">
-                            <div class="h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center">
-                                <svg class="h-5 w-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+            <div class="p-6">
+                <div class="flex flex-col md:flex-row items-center gap-6">
+                    <div class="flex-1">
+                        <p class="text-sm text-gray-600 mb-4">Share your unique referral link and earn <span class="font-bold text-green-600">+100 bonus points</span> for each friend who signs up!</p>
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="referral-link" readonly value="{{ referral_link }}" class="flex-1 px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 text-sm">
+                            <button onclick="copyReferralLink()" class="px-4 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                 </svg>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Voted for {{ vote.nominee.name }}</p>
-                                <p class="text-sm text-gray-500">{{ vote.nominee.campaign.name }}</p>
-                            </div>
+                            </button>
                         </div>
-                        <div class="text-right">
-                            <p class="font-semibold text-gray-900">+{{ vote.rest_points_earned|floatformat:0 }} pts</p>
-                            <p class="text-xs text-gray-500">{{ vote.created_at|date:"M d, Y" }}</p>
+                        <p class="text-xs text-gray-500 mt-2">Your code: <span class="font-mono font-bold">{{ referral_code }}</span></p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm text-gray-500">Share:</span>
+                        <button onclick="shareOnWhatsApp()" class="p-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.244 3.488 4.232 3.488 8.414 0 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm12.397-11.892c-.235-.002-3.867-.499-6.843 1.225-1.941 1.135-3.318 2.809-3.625 4.469-.315 1.68.049 3.436 1.318 4.77l5.34 3.063 5.34-3.063c1.269-1.334 1.632-3.089 1.317-4.769-.693-1.66-1.924-3.334-3.625-4.469-2.962-.724-5.607-1.227-6.843-1.225z"/>
+                            </svg>
+                        </button>
+                        <button onclick="shareOnTwitter()" class="p-3 bg-black text-white rounded-xl hover:bg-gray-800 transition">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.054 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-6 p-4 bg-pink-50 border border-pink-200 rounded-xl">
+                    <p class="text-sm text-pink-800"><span class="font-bold">{{ referral_count }}</span> friend{% if referral_count != 1 %}s{% endif %} joined through your link</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- REWARDS MARKETPLACE -->
+        <div id="rewards-section" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+            <div class="p-6 border-b border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-900">Redeem Your Points</h2>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {% for reward in rewards %}
+                    <div class="p-4 rounded-xl border-2 {% if total_points >= reward.threshold %}border-green-300 bg-green-50{% else %}border-gray-200 bg-gray-50{% endif %}">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="h-10 w-10 rounded-full flex items-center justify-center {% if total_points >= reward.threshold %}bg-green-100{% else %}bg-gray-200{% endif %}">
+                                {% if reward.icon == 'tag' %}
+                                <svg class="h-5 w-5 {% if total_points >= reward.threshold %}text-green-600{% else %}text-gray-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                </svg>
+                                {% elif reward.icon == 'ticket' %}
+                                <svg class="h-5 w-5 {% if total_points >= reward.threshold %}text-green-600{% else %}text-gray-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+                                </svg>
+                                {% elif reward.icon == 'spa' %}
+                                <svg class="h-5 w-5 {% if total_points >= reward.threshold %}text-green-600{% else %}text-gray-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                </svg>
+                                {% elif reward.icon == 'star' %}
+                                <svg class="h-5 w-5 {% if total_points >= reward.threshold %}text-green-600{% else %}text-gray-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.893 1.69-1.648 1.318l-3.965-2.882a1 1 0 00-1.175 0l-3.965 2.882c-.755.372-1.949-.396-1.648-1.318l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                                </svg>
+                                {% else %}
+                                <svg class="h-5 w-5 {% if total_points >= reward.threshold %}text-green-600{% else %}text-gray-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                                </svg>
+                                {% endif %}
+                            </div>
+                            {% if total_points >= reward.threshold %}
+                            <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">Unlocked</span>
+                            {% else %}
+                            <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-full">{{ reward.threshold }} pts</span>
+                            {% endif %}
                         </div>
+                        <p class="font-semibold text-gray-900">{{ reward.name }}</p>
+                        <p class="text-xs text-gray-500">{{ reward.description }}</p>
                     </div>
                     {% endfor %}
-                {% else %}
-                    <div class="p-8 text-center">
-                        <p class="text-gray-500">No voting activity yet</p>
-                        <a href="{% url 'voting_campaigns_list' %}" class="mt-2 inline-block text-indigo-600 hover:text-indigo-700">Browse Campaigns →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- LEADERBOARD / SOCIAL PROOF -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Weekly Leaderboard -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-lg font-semibold text-gray-900">🏆 Top Voters This Week</h2>
+                </div>
+                <div class="p-6 space-y-3">
+                    {% if top_voters %}
+                        {% for voter in top_voters %}
+                        <div class="flex items-center gap-3 p-3 rounded-lg {% if voter.voter_email == email %}bg-indigo-50 border border-indigo-200{% else %}bg-gray-50{% endif %}">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm {% if forloop.counter == 1 %}bg-yellow-400 text-yellow-900{% elif forloop.counter == 2 %}bg-gray-300 text-gray-900{% elif forloop.counter == 3 %}bg-orange-400 text-orange-900{% else %}bg-gray-200 text-gray-600{% endif %}">
+                                {{ forloop.counter }}
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-900">
+                                    {% if voter.voter_email == email %}You{% else %}{{ voter.voter_email|slice:"4" }}...{% endif %}
+                                </p>
+                            </div>
+                            <span class="font-bold text-gray-900">{{ voter.vote_count }} votes</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-8">
+                            <p class="text-gray-500">No votes this week yet</p>
+                            <a href="/voting/" class="text-sm text-indigo-600 hover:text-indigo-700 mt-2 inline-block">Be the first! →</a>
+                        </div>
+                    {% endif %}
+                    {% if user_rank %}
+                    <div class="mt-4 p-3 bg-indigo-50 border border-indigo-200 rounded-lg text-center">
+                        <p class="text-sm text-indigo-700">You're ranked <span class="font-bold">#{{ user_rank }}</span> this week!</p>
                     </div>
-                {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Activity Feed -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-lg font-semibold text-gray-900">Recent Activity</h2>
+                </div>
+                <div class="divide-y divide-gray-100 max-h-80 overflow-y-auto">
+                    {% if activity_feed %}
+                        {% for activity in activity_feed %}
+                        <div class="p-4 flex items-center justify-between hover:bg-gray-50">
+                            <div class="flex items-center space-x-3">
+                                <div class="h-10 w-10 {% if activity.type == 'vote' %}bg-indigo-100 rounded-full flex items-center justify-center{% else %}bg-green-100 rounded-full flex items-center justify-center{% endif %}">
+                                    {% if activity.type == 'vote' %}
+                                    <svg class="h-5 w-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                    </svg>
+                                    {% else %}
+                                    <svg class="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900 text-sm">{{ activity.message }}</p>
+                                    <p class="text-xs text-gray-500">{{ activity.date|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold text-gray-900">+{{ activity.points|floatformat:0 }} pts</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="p-8 text-center">
+                            <p class="text-gray-500">No activity yet</p>
+                            <p class="text-sm text-gray-400 mt-1">Start by voting or inviting a friend</p>
+                            <div class="mt-4 flex justify-center gap-3">
+                                <a href="/voting/" class="text-sm text-indigo-600 hover:text-indigo-700">Vote Now →</a>
+                                <a href="#referral-section" class="text-sm text-pink-600 hover:text-pink-700">Invite Friend →</a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- FROZEN POINTS (Legacy Section) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-gray-900">Frozen Points</h2>
+                        {% if frozen_points > 0 %}
+                        <button id="claim-points-btn" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-indigo-700 hover:to-purple-700 transition">
+                            Claim Points
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="p-6">
+                    {% if frozen_points > 0 %}
+                        <div class="text-center py-8">
+                            <div class="mx-auto h-16 w-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
+                                <svg class="h-8 w-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <p class="text-gray-600 mb-2">You have <span class="font-bold text-amber-600">{{ frozen_points|floatformat:0 }}</span> frozen points!</p>
+                            <p class="text-sm text-gray-500 mb-4">
+                                {% if rest_card %}
+                                    Click "Claim Points" to transfer them to your Rest Card
+                                {% else %}
+                                    Apply for a Rest Card to unlock your frozen points
+                                {% endif %}
+                            </p>
+                            {% if not rest_card %}
+                            <a href="{% url 'rest_card_signup' %}" class="inline-block px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-xl hover:from-indigo-700 hover:to-purple-700 transition">
+                                Apply for Rest Card
+                            </a>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <div class="mx-auto h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                                </svg>
+                            </div>
+                            <p class="text-gray-500">No frozen points yet</p>
+                            <p class="text-sm text-gray-400 mt-1">Vote in our campaigns to earn rest points</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Token Wallet -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-lg font-semibold text-gray-900">Token Wallet</h2>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="p-4 bg-purple-50 rounded-xl">
+                            <svg class="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+                            </svg>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-3xl font-bold text-gray-900">
+                                {% if token_wallet %}{{ token_wallet.tokens_earned|floatformat:0 }}{% else %}0{% endif %}
+                            </p>
+                            <p class="text-sm text-gray-500">tokens</p>
+                        </div>
+                    </div>
+                    {% if token_wallet %}
+                        <p class="text-sm text-gray-600">{{ token_wallet.available_tokens|floatformat:0 }} available to spend</p>
+                    {% else %}
+                        <p class="text-sm text-gray-500">Start voting to earn tokens!</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -338,6 +605,23 @@
 </div>
 
 <script>
+function copyReferralLink() {
+    const linkInput = document.getElementById('referral-link');
+    linkInput.select();
+    document.execCommand('copy');
+    alert('Referral link copied!');
+}
+
+function shareOnWhatsApp() {
+    const text = "Join me on Unwind Africa! Use my referral link: {{ referral_link }}";
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+}
+
+function shareOnTwitter() {
+    const text = "I just joined Unwind Africa! Sign up with my link: {{ referral_link }} #UnwindAfrica";
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const claimBtn = document.getElementById('claim-points-btn');
     const claimModal = document.getElementById('claim-modal');
@@ -387,7 +671,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Close modal on outside click
         claimModal.addEventListener('click', function(e) {
             if (e.target === claimModal) {
                 claimModal.classList.add('hidden');
