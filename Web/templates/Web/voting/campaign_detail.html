@@ -1,1325 +1,210 @@
 {% extends "Web/main.html" %}
 {% load static %}
 
-{% block title %}{{ campaign.name }} - Vote Now{% endblock %}
+{% block title %}{{ campaign.name }} - Unwind Africa{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}">
 <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
 <style>
-/* Ensure navbar is visible on voting pages */
-body {
-    padding-top: 80px; /* Space for fixed navbar */
-}
-
-header.absolute {
-    position: fixed !important;
-    background: rgba(255, 255, 255, 0.98) !important;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-header.absolute a,
-header.absolute button,
-header.absolute span {
-    color: #0A0B10 !important;
-}
-
-header.absolute svg {
-    stroke: #0A0B10 !important;
-    fill: #0A0B10 !important;
-}
+.ballot-bar { position: sticky; bottom: 0; z-index: 30; background: rgba(245,241,232,.96); border-top: 1px solid var(--ua-border); padding: 1rem 0; backdrop-filter: blur(14px); }
+.ballot-inner { display: flex; gap: 1rem; justify-content: space-between; align-items: center; }
+.nominee-photo { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; margin-bottom: 1.2rem; background: var(--ua-surface-warm); }
+.vote-control { display: grid; grid-template-columns: 42px 1fr 42px; border: 1px solid var(--ua-border); margin-top: 1rem; }
+.vote-control button { border: 0; background: transparent; font-size: 1.3rem; cursor: pointer; }
+.vote-control output { display: grid; place-items: center; border-inline: 1px solid var(--ua-border); min-height: 42px; }
+.checkout-modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 80; background: rgba(10,11,16,.68); padding: 1rem; }
+.checkout-modal.is-open { display: flex; }
+.checkout-card { width: min(720px, 100%); max-height: 92vh; overflow: auto; background: var(--ua-surface); border: 1px solid var(--ua-border); padding: clamp(1.4rem, 4vw, 2.5rem); }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="voting-campaign-page" style="padding: 1.5rem 1rem; max-width: 1400px; margin: 0 auto;">
-    
-    <!-- Campaign Header -->
-    <div class="campaign-header" style="text-align: center; margin-bottom: 2rem;">
-        {% if campaign.banner_image %}
-        <img src="{{ campaign.banner_image.url }}" alt="{{ campaign.name }}" 
-             style="width: 100%; max-height: 250px; object-fit: cover; border-radius: 12px; margin-bottom: 1.5rem;">
-        {% endif %}
-        
-        <h1 style="font-size: clamp(1.5rem, 5vw, 2.5rem); margin-bottom: 1rem; color: #2c3e50; padding: 0 0.5rem; word-wrap: break-word;">{{ campaign.name }}</h1>
-        <p style="font-size: clamp(0.95rem, 2.5vw, 1.1rem); color: #7f8c8d; max-width: 800px; margin: 0 auto 1rem; padding: 0 1rem; line-height: 1.6;">
-            {{ campaign.description }}
-        </p>
-        
-        <div class="campaign-stats" style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
-            <div style="background: #ecf0f1; padding: 0.875rem 1.25rem; border-radius: 8px; min-width: 140px;">
-                <div style="font-size: clamp(0.8rem, 2vw, 0.9rem); color: #7f8c8d;">Campaign Period</div>
-                <div style="font-weight: 600; color: #2c3e50; font-size: clamp(0.85rem, 2vw, 0.95rem);">
-                    {{ campaign.start_date|date:"M d" }} - {{ campaign.end_date|date:"M d, Y" }}
-                </div>
-            </div>
-            <div style="background: #ecf0f1; padding: 0.875rem 1.25rem; border-radius: 8px; min-width: 100px;">
-                <div style="font-size: clamp(0.8rem, 2vw, 0.9rem); color: #7f8c8d;">Total Votes</div>
-                <div style="font-weight: 600; color: #2c3e50; font-size: clamp(1.2rem, 3vw, 1.5rem);">{{ campaign.total_votes }}</div>
-            </div>
-            <div style="background: #ecf0f1; padding: 0.875rem 1.25rem; border-radius: 8px; min-width: 100px;">
-                <div style="font-size: clamp(0.8rem, 2vw, 0.9rem); color: #7f8c8d;">Vote Price</div>
-                <div style="font-weight: 600; color: #27ae60; font-size: clamp(1.2rem, 3vw, 1.5rem);">₦{{ vote_price|floatformat:0 }}</div>
-            </div>
+<main class="ua-page">
+  <section class="ua-hero ua-hero--dark" style="--ua-hero-image: {% if campaign.banner_image %}url('{{ campaign.banner_image.url }}'){% else %}url('{% static 'assets/home/photography/show_5.jpg' %}'){% endif %}">
+    <div class="ua-wrap ua-hero-grid">
+      <div>
+        <p class="ua-kicker">Nominate to Unwind</p>
+        <h1 class="ua-title">{{ campaign.name }}</h1>
+        <p class="ua-copy">{{ campaign.description }}</p>
+        <div class="ua-actions">
+          {% if is_ongoing %}<a class="ua-button ua-button--light" href="#nominees">Choose nominee</a>{% endif %}
+          <a class="ua-button ua-button--ghost" href="{% url 'nominate' %}">Submit nomination</a>
         </div>
-        
-        {% if is_ongoing %}
-        <div style="background: #27ae60; color: white; padding: 0.5rem 1rem; border-radius: 20px; display: inline-block; font-size: clamp(0.85rem, 2vw, 0.95rem);">
-            ✓ Campaign Active - Voting Open
-        </div>
-        {% else %}
-        <div style="background: #e74c3c; color: white; padding: 0.5rem 1rem; border-radius: 20px; display: inline-block; font-size: clamp(0.85rem, 2vw, 0.95rem);">
-            Campaign Ended
-        </div>
-        {% endif %}
+      </div>
+      <aside class="ua-editorial-panel">
+        <strong>{{ campaign.total_votes }} votes recorded</strong>
+        <p>{{ campaign.start_date|date:"M d" }} - {{ campaign.end_date|date:"M d, Y" }} · NGN {{ vote_price|floatformat:0 }} per vote</p>
+        {% if is_ongoing %}<p>Voting is open.</p>{% else %}<p>Voting is currently closed.</p>{% endif %}
+      </aside>
     </div>
+  </section>
 
-    <!-- Payment Info & Bonus Votes - Clean, Non-intrusive -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-        <!-- Payment Notice -->
-        <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
-            <div style="font-weight: 600; margin-bottom: 0.5rem; color: #856404;">💡 Voting Information</div>
-            <p style="margin: 0; color: #856404; font-size: 0.85rem; line-height: 1.5;">
-                Each vote costs <strong>₦{{ vote_price|floatformat:0 }}</strong>. Votes represent community support for nominees.
-            </p>
+  <section class="ua-section" id="nominees">
+    <div class="ua-wrap">
+      <div class="ua-section-head">
+        <p class="ua-kicker">The nominees</p>
+        <h2 class="ua-title">Choose with intention.</h2>
+        <p class="ua-copy">A vote is a public act of support. Add votes for one or more nominees, then complete your details privately.</p>
+      </div>
+
+      <form method="get" class="ua-form-shell" style="margin-bottom: clamp(32px, 5vw, 54px);">
+        <div class="ua-form-grid">
+          <div class="ua-field">
+            <label for="search">Search nominees</label>
+            <input id="search" type="search" name="search" value="{{ search_query }}" placeholder="Name">
+          </div>
+          <div class="ua-field">
+            <label for="filter">Sort</label>
+            <select id="filter" name="filter">
+              <option value="">Campaign order</option>
+              <option value="top_rated" {% if vote_filter == 'top_rated' %}selected{% endif %}>Most votes</option>
+              <option value="lowest" {% if vote_filter == 'lowest' %}selected{% endif %}>Fewest votes</option>
+              <option value="newest" {% if vote_filter == 'newest' %}selected{% endif %}>Newest</option>
+            </select>
+          </div>
         </div>
-        
-        <!-- Bonus Votes -->
-        <div style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border: 1px solid #4caf50; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
-            <div style="font-weight: 600; margin-bottom: 0.5rem; color: #2e7d32;">🎁 Bonus Votes</div>
-            <div style="color: #2e7d32; font-size: 0.85rem; line-height: 1.5;">
-                <span>₦5,000 → 10+2</span> · 
-                <span>₦10,000 → 20+5</span> · 
-                <span>₦30,000 → 60+10</span>
-            </div>
-        </div>
+        <div class="ua-actions"><button class="ua-button" type="submit">Apply</button></div>
+      </form>
+
+      <div class="ua-grid">
+        {% for nominee in nominees %}
+        <article class="ua-card nominee-card" data-id="{{ nominee.id }}" data-name="{{ nominee.name|escape }}">
+          {% if nominee.photo %}
+          <img class="nominee-photo" src="{{ nominee.photo.url }}" alt="{{ nominee.name }}">
+          {% endif %}
+          <h3>{{ nominee.name }}</h3>
+          <p>{{ nominee.story|truncatewords:34 }}</p>
+          <div class="ua-meta"><span>{{ nominee.vote_count }} votes</span>{% if nominee.instagram_handle %}<span>@{{ nominee.instagram_handle }}</span>{% endif %}</div>
+          {% if is_ongoing %}
+          <div class="vote-control">
+            <button type="button" onclick="changeVotes('{{ nominee.id }}', -1)" aria-label="Remove vote">-</button>
+            <output id="votes-{{ nominee.id }}">0</output>
+            <button type="button" onclick="changeVotes('{{ nominee.id }}', 1)" aria-label="Add vote">+</button>
+          </div>
+          {% endif %}
+        </article>
+        {% empty %}
+        <div class="ua-card"><h3>No nominees found.</h3><p>Try adjusting your search.</p></div>
+        {% endfor %}
+      </div>
     </div>
+  </section>
 
-    <!-- Search and Filter Section -->
-    <div class="search-filter-section" style="background: #f8f9fa; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border: 2px solid #e1e8ed;">
-        <div class="search-filter-bar" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
-            <div style="flex: 1; min-width: 200px;">
-                <input type="text" id="searchInput" placeholder="Search nominees..." 
-                    style="width: 100%; padding: 0.6rem 0.875rem; border: 1px solid #ddd; border-radius: 5px; font-size: 0.95rem; box-sizing: border-box;">
-            </div>
-            <div style="min-width: 140px;">
-                <select id="filterSelect" 
-                    style="width: 100%; padding: 0.6rem 0.875rem; border: 1px solid #ddd; border-radius: 5px; font-size: 0.95rem; background: white; cursor: pointer;">
-                    <option value="">Sort: Default</option>
-                    <option value="most-votes">Most Votes</option>
-                    <option value="least-votes">Least Votes</option>
-                </select>
-            </div>
-            <button type="button" onclick="filterNominees()" 
-                style="background: #3498db; color: white; border: none; padding: 0.6rem 1rem; border-radius: 5px; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
-                Search
-            </button>
-        </div>
+  {% if is_ongoing %}
+  <div class="ballot-bar">
+    <div class="ua-wrap ballot-inner">
+      <div>
+        <strong id="ballot-count">No votes selected</strong>
+        <p style="margin:.2rem 0 0; color:var(--ua-muted);">Estimated total: NGN <span id="ballot-total">0</span></p>
+      </div>
+      <button class="ua-button" type="button" onclick="openCheckout()">Continue</button>
     </div>
+  </div>
+  {% endif %}
+</main>
 
-    <!-- Leaderboard -->
-    {% if leaderboard %}
-    <div class="leaderboard" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; color: white;">
-        <h2 style="text-align: center; margin-bottom: 0.75rem; font-size: clamp(1rem, 2.5vw, 1.25rem);">🏆 Top 3</h2>
-        <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
-            {% for nominee in leaderboard %}
-            <div style="text-align: center; {% if forloop.first %}transform: scale(1.08);{% endif %} max-width: 85px;">
-                <div style="position: relative; width: clamp(50px, 10vw, 60px); height: clamp(50px, 10vw, 60px); margin: 0 auto 0.4rem;">
-                    {% if nominee.photo %}
-                    <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" 
-                         style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid white;">
-                    {% endif %}
-                    <div style="position: absolute; bottom: -6px; right: -6px; background: #f39c12; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; font-size: 0.7rem;">
-                        {{ forloop.counter }}
-                    </div>
-                </div>
-                <div style="font-weight: 600; font-size: clamp(0.75rem, 1.5vw, 0.85rem); word-wrap: break-word;">{{ nominee.name }}</div>
-                <div style="opacity: 0.9; font-size: clamp(0.7rem, 1.3vw, 0.8rem); font-weight: bold;">{{ nominee.vote_count }} votes</div>
-            </div>
-            {% endfor %}
-        </div>
+<div class="checkout-modal" id="checkout-modal">
+  <div class="checkout-card">
+    <p class="ua-kicker">Checkout</p>
+    <h2 class="ua-title" style="font-size:clamp(2rem,4vw,3.6rem);">Complete your support.</h2>
+    <p class="ua-copy">Your details are used to process your vote and Rest Points.</p>
+    <form id="checkout-form" class="ua-form-grid" style="margin-top:1.5rem;">
+      <div class="ua-field">
+        <label for="voter_name">Full name</label>
+        <input id="voter_name" name="voter_name" required>
+      </div>
+      <div class="ua-field">
+        <label for="voter_phone">Phone</label>
+        <input id="voter_phone" name="voter_phone" required>
+      </div>
+      <div class="ua-field ua-field--full">
+        <label for="voter_email">Email</label>
+        <input id="voter_email" name="voter_email" type="email" required>
+      </div>
+      <div class="ua-field">
+        <label for="rest_card_number">Rest Card number, if any</label>
+        <input id="rest_card_number" name="rest_card_number">
+      </div>
+      <div class="ua-field">
+        <label for="referral_source">Referral source</label>
+        <input id="referral_source" name="referral_source">
+      </div>
+    </form>
+    <div class="ua-status-note" id="checkout-message" style="display:none; margin-top:1rem;"></div>
+    <div class="ua-actions">
+      <button class="ua-button" type="button" onclick="submitBallot()">Proceed to payment</button>
+      <button class="ua-button ua-button--ghost" type="button" onclick="closeCheckout()">Cancel</button>
     </div>
-    {% endif %}
-
-    <!-- Voting Ballot Sticky Summary -->
-    <div id="ballotSummary" class="ballot-summary" style="position: fixed; bottom: 20px; right: 20px; background: white; border: 2px solid #3498db; border-radius: 12px; padding: 1.25rem; box-shadow: 0 4px 16px rgba(0,0,0,0.2); min-width: 280px; max-width: 90vw; display: none; z-index: 1000;">
-        <h3 style="margin-bottom: 1rem; color: #2c3e50; display: flex; justify-content: space-between; align-items: center; font-size: clamp(1rem, 3vw, 1.2rem);">
-            <span>Your Ballot</span>
-            <button onclick="clearBallot()" style="background: #e74c3c; color: white; border: none; padding: 0.3rem 0.7rem; border-radius: 4px; cursor: pointer; font-size: clamp(0.75rem, 2vw, 0.8rem);">Clear</button>
-        </h3>
-        <div id="ballotItems" style="margin-bottom: 1rem; max-height: 180px; overflow-y: auto;"></div>
-        <div style="border-top: 2px solid #ecf0f1; padding-top: 1rem; margin-top: 1rem;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: clamp(0.85rem, 2vw, 0.95rem);">
-                <strong>Total Votes:</strong>
-                <span id="totalVotes">0</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: clamp(0.85rem, 2vw, 0.95rem); color: #28a745;">
-                <strong>Bonus Votes:</strong>
-                <span id="totalBonus">+0</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: clamp(1rem, 2.5vw, 1.2rem); color: #27ae60;">
-                <strong>Amount:</strong>
-                <strong id="totalAmount">₦0</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: clamp(0.8rem, 2vw, 0.9rem); color: #e74c3c;">
-                <span>Rest Points Earned:</span>
-                <strong id="totalRestPoints">0 points</strong>
-            </div>
-            <div style="font-size: 0.7rem; color: #7f8c8d; margin-bottom: 1rem; line-height: 1.3;">
-                You earn 100 Rest Points per vote.
-            </div>
-            <button id="ballotSubmitBtn" onclick="proceedToCheckout()" style="width: 100%; background: #27ae60; color: white; border: none; padding: 0.875rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(0.9rem, 2vw, 1rem);">
-                ✔ Proceed to Payment →
-            </button>
-        </div>
-    </div>
-
-    <!-- Nominees Grid -->
-    <div class="nominees-section">
-        {% if is_ongoing %}
-        <div id="countdown" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 1rem; border-radius: 12px; text-align: center; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-            <div style="font-size: 0.9rem; opacity: 0.95; margin-bottom: 0.3rem;">⏳ Voting closes in:</div>
-            <div id="countdownTimer" style="font-size: clamp(1.5rem, 5vw, 2rem); font-weight: bold;">
-                Loading...
-            </div>
-        </div>
-        {% endif %}
-        
-        <h2 style="font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: 1.5rem; color: #34495e; text-align: center; padding: 0 0.5rem;">Vote for Your Favorite Nominees</h2>
-        
-        {% if not is_ongoing %}
-        <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center; font-size: clamp(0.9rem, 2vw, 1rem);">
-            ⚠️ This campaign has ended. Voting is closed.
-        </div>
-        {% endif %}
-
-        <div class="nominees-grid" id="nomineesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 1.5rem;">
-            {% for nominee in nominees %}
-            <div class="nominee-card" data-nominee-id="{{ nominee.id }}" data-name="{{ nominee.name|lower }}" 
-                 onclick="openNomineeDetail({{ nominee.id }}, '{{ nominee.name|escapejs }}', '{{ nominee.story|escapejs }}', '{{ nominee.photo.url|default:'' }}', '{{ nominee.instagram_handle|default:'' }}', {{ nominee.vote_count }})"
-                 style="border: 2px solid #e1e8ed; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3; cursor: pointer;">
-                
-                {% if nominee.photo %}
-                <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" 
-                     style="width: 100%; height: 220px; object-fit: cover;">
-                {% endif %}
-                
-                <div style="padding: 1.25rem;">
-                    <h3 style="font-size: clamp(1.2rem, 3vw, 1.4rem); margin-bottom: 0.5rem; color: #2c3e50; word-wrap: break-word;">{{ nominee.name }}</h3>
-                    
-                    {% if nominee.instagram_handle %}
-                    <a href="{{ nominee.instagram_url }}" target="_blank" 
-                       style="color: #e1306c; text-decoration: none; font-size: clamp(0.85rem, 2vw, 0.9rem); display: inline-block; margin-bottom: 0.875rem;">
-                        📷 @{{ nominee.instagram_handle }}
-                    </a>
-                    {% endif %}
-                    
-                    <p style="color: #7f8c8d; line-height: 1.6; margin-bottom: 1rem; font-size: clamp(0.9rem, 2vw, 0.95rem);">
-                        {{ nominee.story|truncatewords:30 }}
-                    </p>
-                    
-                    <div style="background: #f8f9fa; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; text-align: center;">
-                        <div style="color: #7f8c8d; font-size: clamp(0.8rem, 2vw, 0.85rem);">Current Votes</div>
-                        <div class="vote-count" style="font-size: clamp(1.8rem, 5vw, 2rem); font-weight: bold; color: #3498db;">{{ nominee.vote_count }}</div>
-                    </div>
-                    
-                    {% if is_ongoing %}
-                    <button onclick="event.stopPropagation(); openRestCardPrompt({{ nominee.id }}, '{{ nominee.name|escapejs }}', '{{ campaign.vote_price }}')" 
-                            style="width: 100%; background: #3498db; color: white; border: none; padding: 0.875rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.3s; font-size: clamp(0.9rem, 2vw, 1rem);">
-                        Vote Now →
-                    </button>
-                    {% endif %}
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-
-<!-- Rest Card Prompt Modal -->
-<div id="restCardPromptModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;">
-    <div style="background: white; border-radius: 16px; padding: clamp(1.5rem, 4vw, 2.5rem); max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; margin: auto; text-align: center;">
-        <div id="restCardInitialView">
-            <div style="margin-bottom: 1.5rem;">
-                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                    <svg style="width: 40px; height: 40px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-                <h2 style="font-size: clamp(1.3rem, 4vw, 1.7rem); color: #2c3e50; margin-bottom: 0.5rem;">🎫 Get Your FREE Vote!</h2>
-                <p style="color: #7f8c8d; font-size: clamp(0.9rem, 2vw, 1rem); line-height: 1.5;">
-                    Enter your Rest Card number to unlock your <strong>FREE vote</strong>!
-                </p>
-            </div>
-            
-            <!-- Benefits List -->
-            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: left;">
-                <h3 style="font-weight: 600; margin-bottom: 0.75rem; font-size: clamp(1rem, 2.5vw, 1.1rem);">🎁 Rest Card Benefits</h3>
-                <ul style="list-style: none; padding: 0; margin: 0; font-size: clamp(0.85rem, 2vw, 0.95rem); line-height: 1.8;">
-                    <li style="display: flex; align-items: center; gap: 0.5rem;"><span>🎫</span> <strong>1 FREE Vote</strong> - No payment required!</li>
-                    <li style="display: flex; align-items: center; gap: 0.5rem;"><span>⭐</span> <strong>Earn Rest Points</strong> from every vote</li>
-                    <li style="display: flex; align-items: center; gap: 0.5rem;"><span>🎉</span> <strong>Exclusive Access</strong> to rest experiences</li>
-                    <li style="display: flex; align-items: center; gap: 0.5rem;"><span>💝</span> <strong>Priority Support</strong> and special rewards</li>
-                </ul>
-            </div>
-            
-            <!-- Action Buttons -->
-            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                <button onclick="showRestCardInput()" style="width: 100%; background: #27ae60; color: white; border: none; padding: 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(1rem, 2.5vw, 1.1rem); transition: background 0.3s;">
-                    ✓ I Have a Rest Card - Enter My FREE Vote
-                </button>
-                <button onclick="proceedWithoutRestCard()" style="width: 100%; background: #3498db; color: white; border: none; padding: 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(1rem, 2.5vw, 1.1rem); transition: background 0.3s;">
-                    Vote Without Rest Card (₦500/vote)
-                </button>
-                <a href="/rest-card/signup/" onclick="closeRestCardPrompt()" style="display: block; width: 100%; background: transparent; color: #667eea; border: 2px solid #667eea; padding: 0.875rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(0.95rem, 2vw, 1.05rem); text-decoration: none; transition: all 0.3s;">
-                    Apply for Rest Card →
-                </a>
-                <button onclick="closeRestCardPrompt()" style="background: transparent; color: #7f8c8d; border: none; padding: 0.5rem; font-size: clamp(0.85rem, 2vw, 0.9rem); cursor: pointer;">
-                    Maybe Later
-                </button>
-            </div>
-        </div>
-        
-        <!-- Card Number Input View -->
-        <div id="restCardInputView" style="display: none;">
-            <div style="margin-bottom: 1.5rem;">
-                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #27ae60, #2ecc71); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                    <svg style="width: 40px; height: 40px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
-                    </svg>
-                </div>
-                <h2 style="font-size: clamp(1.3rem, 4vw, 1.7rem); color: #2c3e50; margin-bottom: 0.5rem;">Verify Your Rest Card</h2>
-                <p style="color: #7f8c8d; font-size: clamp(0.9rem, 2vw, 1rem); line-height: 1.5;">
-                    Enter your <strong>Rest Card number</strong> OR <strong>email address</strong> to unlock your <strong style="color: #27ae60;">FREE vote</strong>!
-                </p>
-            </div>
-            
-            <div style="margin-bottom: 1.5rem;">
-                <input type="text" id="restCardNumberInput" placeholder="Enter RA-000 or your@email.com"
-                       style="width: 100%; padding: 1rem; border: 2px solid #27ae60; border-radius: 8px; font-size: clamp(1rem, 2.5vw, 1.2rem); box-sizing: border-box; text-align: center;">
-                <p style="color: #7f8c8d; font-size: 0.8rem; margin-top: 0.5rem; text-align: center;">
-                    Examples: RA-000, RA-001, or john@example.com
-                </p>
-                <p id="restCardError" style="color: #e74c3c; font-size: 0.85rem; margin-top: 0.5rem; display: none;"></p>
-            </div>
-            
-            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                <button onclick="verifyRestCardAndProceed()" id="verifyRestCardBtn" style="width: 100%; background: #27ae60; color: white; border: none; padding: 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(1rem, 2.5vw, 1.1rem); transition: background 0.3s;">
-                    🎫 Get My FREE Vote!
-                </button>
-                <button onclick="showRestCardInitial()" style="background: transparent; color: #7f8c8d; border: none; padding: 0.5rem; font-size: clamp(0.85rem, 2vw, 0.9rem); cursor: pointer;">
-                    ← Back
-                </button>
-            </div>
-        </div>
-        
-    </div>
-</div>
-
-<!-- Free Vote Exhausted Modal -->
-<div id="freeVoteExhaustedModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2001; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;">
-    <div style="background: white; border-radius: 20px; padding: clamp(1.5rem, 4vw, 2.5rem); max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; margin: auto; text-align: center;">
-        
-        <!-- Icon -->
-        <div style="width: 90px; height: 90px; background: linear-gradient(135deg, #f39c12, #e67e22); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
-            <svg style="width: 45px; height: 45px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-        </div>
-        
-        <!-- Title -->
-        <h2 style="font-size: clamp(1.4rem, 4vw, 1.8rem); color: #2c3e50; margin-bottom: 1rem;">
-            You've Used Your Free Vote! 🎉
-        </h2>
-        
-        <!-- Message -->
-        <p style="color: #555; font-size: clamp(0.95rem, 2.5vw, 1.05rem); line-height: 1.7; margin-bottom: 1.5rem;">
-            Great news! You've already used your <strong>FREE vote</strong> from your Rest Card. 
-            Thank you for supporting your favorite nominee!
-        </p>
-        
-        <!-- Options -->
-        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: left;">
-            <h3 style="font-weight: 600; margin-bottom: 0.75rem; font-size: clamp(1rem, 2.5vw, 1.1rem);">💡 Want to vote more?</h3>
-            <ul style="list-style: none; padding: 0; margin: 0; font-size: clamp(0.85rem, 2vw, 0.95rem); line-height: 1.8;">
-                <li style="display: flex; align-items: center; gap: 0.5rem;"><span>💰</span> <strong>Pay ₦500</strong> per additional vote</li>
-                <li style="display: flex; align-items: center; gap: 0.5rem;"><span>⭐</span> <strong>Earn Rest Points</strong> with every paid vote</li>
-                <li style="display: flex; align-items: center; gap: 0.5rem;"><span>🎁</span> <strong>Bonus votes</strong> available on larger orders</li>
-            </ul>
-        </div>
-        
-        <!-- Action Buttons -->
-        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-            <button onclick="proceedToPaidVotingFromExhaustedModal()" style="width: 100%; background: #27ae60; color: white; border: none; padding: 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(1rem, 2.5vw, 1.1rem); transition: background 0.3s;">
-                Continue with Paid Voting 💳
-            </button>
-            <button onclick="closeFreeVoteExhaustedModal()" style="width: 100%; background: #ecf0f1; color: #2c3e50; border: none; padding: 0.875rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(0.95rem, 2vw, 1rem); transition: background 0.3s;">
-                Maybe Later
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Nominee Detail Modal -->
-<div id="nomineeDetailModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2001; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;">
-    <div style="background: white; border-radius: 20px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; margin: auto; position: relative;">
-        
-        <!-- Close Button -->
-        <button onclick="closeNomineeDetailModal()" style="position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.9); border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center;">
-            ×
-        </button>
-        
-        <!-- Photo -->
-        <div id="nomineeDetailPhotoContainer" style="width: 100%; height: 300px; overflow: hidden; position: relative;">
-            <img id="nomineeDetailPhoto" src="" alt="" style="width: 100%; height: 100%; object-fit: cover;">
-            <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 2rem 1.5rem 1.5rem;">
-                <h2 id="nomineeDetailName" style="color: white; font-size: clamp(1.5rem, 4vw, 2rem); margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3);"></h2>
-                <a id="nomineeDetailInstagram" href="" target="_blank" style="color: #e1306c; text-decoration: none; font-size: clamp(0.9rem, 2vw, 1rem); display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
-                    📷 <span id="nomineeDetailInstagramHandle"></span>
-                </a>
-            </div>
-        </div>
-        
-        <div style="padding: 1.5rem;">
-            <!-- Stats -->
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
-                <div style="background: linear-gradient(135deg, #3498db, #2980b9); color: white; padding: 1rem; border-radius: 12px; text-align: center;">
-                    <div style="font-size: clamp(0.8rem, 2vw, 0.9rem); opacity: 0.9;">Total Votes</div>
-                    <div id="nomineeDetailVotes" style="font-size: clamp(1.5rem, 4vw, 2rem); font-weight: bold;"></div>
-                </div>
-                <div style="background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; padding: 1rem; border-radius: 12px; text-align: center;">
-                    <div style="font-size: clamp(0.8rem, 2vw, 0.9rem); opacity: 0.9;">Community Rank</div>
-                    <div id="nomineeDetailRank" style="font-size: clamp(1.2rem, 3vw, 1.5rem); font-weight: bold;">#--</div>
-                </div>
-            </div>
-            
-            <!-- Story -->
-            <div style="margin-bottom: 1.5rem;">
-                <h3 style="color: #2c3e50; font-size: clamp(1.1rem, 3vw, 1.3rem); margin-bottom: 0.75rem;">📖 My Story</h3>
-                <p id="nomineeDetailStory" style="color: #555; line-height: 1.8; font-size: clamp(0.95rem, 2.5vw, 1rem);"></p>
-            </div>
-            
-            <!-- Vote Button -->
-            {% if is_ongoing %}
-            <button id="nomineeDetailVoteBtn" onclick="voteFromNomineeDetail()" style="width: 100%; background: #3498db; color: white; border: none; padding: 1rem; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: clamp(1rem, 2.5vw, 1.2rem); transition: all 0.3s; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);">
-                Vote Now →
-            </button>
-            {% endif %}
-        </div>
-    </div>
-</div>
-
-<!-- Vote Modal -->
-<div id="voteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1999; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;">
-    <div style="background: white; border-radius: 12px; padding: clamp(1.25rem, 4vw, 2rem); max-width: 450px; width: 100%; max-height: 90vh; overflow-y: auto; margin: auto;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-            <h2 id="voteModalTitle" style="font-size: clamp(1.3rem, 4vw, 1.8rem); color: #2c3e50; margin: 0;">Vote</h2>
-            <button onclick="closeVoteModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0.25rem;">×</button>
-        </div>
-        
-        <!-- Voting Information -->
-        <div style="background: #fff9e6; border-left: 4px solid #ffc107; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: clamp(0.8rem, 2vw, 0.9rem); color: #5d4805;">
-            <strong>💡 Voting Information</strong><br>
-            Each vote costs ₦500. Votes represent community support for nominees.
-        </div>
-        
-        <div style="margin-bottom: 1.25rem;">
-            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: clamp(0.9rem, 2vw, 1rem);">Number of Votes *</label>
-            <input type="number" id="voteVotesInput" value="1" min="1" max="1000" onchange="updateVotePrice()" oninput="updateVotePrice()"
-                   style="width: 100%; padding: 0.875rem; border: 2px solid #3498db; border-radius: 8px; font-size: clamp(1rem, 2vw, 1.1rem); box-sizing: border-box; text-align: center;">
-        </div>
-        
-        <!-- Bonus Votes Info -->
-        <div style="background: linear-gradient(135deg, #d4edda, #c3e6cb); border: 1px solid #28a745; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; font-size: clamp(0.75rem, 2vw, 0.85rem); color: #155724;">
-            <strong style="display: block; margin-bottom: 0.5rem;">🎁 Bonus Votes</strong>
-            <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.25rem;">
-                <span>₦5,000 → 10+2</span>
-                <span>₦10,000 → 20+5</span>
-                <span>₦30,000 → 60+10</span>
-            </div>
-        </div>
-        
-        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1.25rem;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: clamp(0.9rem, 2vw, 1rem);">
-                <span>Price per vote:</span>
-                <span id="votePricePerVote">₦500</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: clamp(1rem, 2vw, 1.1rem); font-weight: 600;">
-                <span>Total Amount:</span>
-                <span id="voteTotalPrice">₦500</span>
-            </div>
-            <div style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 0.75rem; display: flex; justify-content: space-between; font-size: clamp(0.85rem, 2vw, 0.95rem);">
-                <span>Rest Points Earned:</span>
-                <span id="voteRestPoints">100 points</span>
-            </div>
-            <div style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 0.75rem; display: flex; justify-content: space-between; font-size: clamp(0.85rem, 2vw, 0.95rem); font-weight: 600;">
-                <span>Bonus Votes:</span>
-                <span id="voteBonusVotes">+0</span>
-            </div>
-        </div>
-        
-        <button onclick="confirmVote()" 
-                style="width: 100%; background: #27ae60; color: white; border: none; padding: 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(1rem, 2vw, 1.1rem); margin-bottom: 0.75rem; transition: background 0.3s;">
-            Confirm Vote
-        </button>
-        <button onclick="closeVoteModal()" 
-                style="width: 100%; background: #ecf0f1; color: #2c3e50; border: none; padding: 0.875rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(0.95rem, 2vw, 1rem); transition: background 0.3s;">
-            Cancel
-        </button>
-    </div>
-</div>
-
-<!-- Checkout Modal -->
-<div id="checkoutModal" class="checkout-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;">
-    <div style="background: white; border-radius: 12px; padding: clamp(1.25rem, 4vw, 2rem); max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; margin: auto;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-            <h2 style="font-size: clamp(1.3rem, 4vw, 1.8rem); color: #2c3e50; margin: 0;">Complete Your Vote</h2>
-            <button onclick="closeCheckout()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0.25rem;">×</button>
-        </div>
-        
-        <form id="checkoutForm">
-            <div style="margin-bottom: 1rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: clamp(0.9rem, 2vw, 1rem);">Full Name *</label>
-                <input type="text" id="voterName" required 
-                       style="width: 100%; padding: 0.75rem; border: 2px solid #ecf0f1; border-radius: 6px; font-size: clamp(0.95rem, 2vw, 1rem); box-sizing: border-box;">
-            </div>
-            
-            <div style="margin-bottom: 1rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: clamp(0.9rem, 2vw, 1rem);">Email Address *</label>
-                <input type="email" id="voterEmail" required 
-                       style="width: 100%; padding: 0.75rem; border: 2px solid #ecf0f1; border-radius: 6px; font-size: clamp(0.95rem, 2vw, 1rem); box-sizing: border-box;">
-            </div>
-            
-            <div style="margin-bottom: 1rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: clamp(0.9rem, 2vw, 1rem);">Phone Number *</label>
-                <input type="tel" id="voterPhone" required placeholder="+234..." 
-                       style="width: 100%; padding: 0.75rem; border: 2px solid #ecf0f1; border-radius: 6px; font-size: clamp(0.95rem, 2vw, 1rem); box-sizing: border-box;">
-            </div>
-            
-            <div style="margin-bottom: 1.25rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: clamp(0.9rem, 2vw, 1rem);">Rest Card Number <span style="font-weight: 400; color: #7f8c8d;">(Optional)</span></label>
-                <input type="text" id="restCardNumber" placeholder="Enter your Rest Card number"
-                       style="width: 100%; padding: 0.75rem; border: 2px solid #ecf0f1; border-radius: 6px; font-size: clamp(0.95rem, 2vw, 1rem); box-sizing: border-box;">
-                <div style="font-size: 0.75rem; color: #7f8c8d; margin-top: 0.3rem;">
-                    🎁 Enter your Rest Card to use your FREE vote!
-                </div>
-            </div>
-            
-            <div style="margin-bottom: 1.25rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: clamp(0.9rem, 2vw, 1rem);">Who told you about Unwind Africa? *</label>
-                <input type="text" id="referralSource" required placeholder="e.g., Friend, Instagram, Google, etc."
-                       style="width: 100%; padding: 0.75rem; border: 2px solid #ecf0f1; border-radius: 6px; font-size: clamp(0.95rem, 2vw, 1rem); box-sizing: border-box;">
-                <div style="font-size: 0.75rem; color: #7f8c8d; margin-top: 0.3rem;">
-                    Help us reward those who support us!
-                </div>
-            </div>
-            
-            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.25rem;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: clamp(0.9rem, 2vw, 1rem);">
-                    <span>Total Votes:</span>
-                    <strong id="checkoutTotalVotes">0</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: clamp(1.1rem, 3vw, 1.2rem); color: #27ae60;">
-                    <strong>Amount:</strong>
-                    <strong id="checkoutTotalAmount">₦0</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; color: #e74c3c; font-size: clamp(0.85rem, 2vw, 0.95rem);">
-                    <span>Rest Points Earned:</span>
-                    <strong id="checkoutRestPoints">0 points</strong>
-                </div>
-                <div style="font-size: 0.75rem; color: #7f8c8d; margin-top: 0.5rem; line-height: 1.4;">
-                    💡 You earn 100 Rest Points per vote. Redeemable for rest experiences (spa, cinema, group events, etc.)
-                </div>
-            </div>
-            
-            <button type="submit" id="payButton"
-                    style="width: 100%; background: #27ae60; color: white; border: none; padding: 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: clamp(1rem, 2.5vw, 1.1rem);">
-                Pay with Paystack →
-            </button>
-        </form>
-    </div>
+  </div>
 </div>
 
 <script>
-const VOTE_PRICE = {{ vote_price|safe }};
-const REST_POINTS_PER_VOTE = {{ rest_points_per_vote|safe }};
-let ballot = {};
+const votePrice = Number("{{ vote_price|floatformat:0 }}");
+const ballot = {};
 
-// Filter nominees function (client-side search and sort)
-function filterNominees() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const filterBy = document.getElementById('filterSelect').value;
-    const cards = document.querySelectorAll('.nominee-card');
-    
-    // First filter by search term
-    cards.forEach(card => {
-        const name = card.dataset.name || '';
-        const shouldShow = name.includes(searchTerm);
-        card.style.display = shouldShow ? 'block' : 'none';
-    });
-    
-    // Then sort if needed
-    if (filterBy === 'most-votes' || filterBy === 'least-votes') {
-        const container = document.getElementById('nomineesGrid');
-        const visibleCards = Array.from(cards).filter(c => c.style.display !== 'none');
-        
-        visibleCards.sort((a, b) => {
-            const votesA = parseInt(a.querySelector('.vote-count').textContent) || 0;
-            const votesB = parseInt(b.querySelector('.vote-count').textContent) || 0;
-            return filterBy === 'most-votes' ? votesB - votesA : votesA - votesB;
-        });
-        
-        visibleCards.forEach(card => container.appendChild(card));
-    }
+function changeVotes(id, delta) {
+  ballot[id] = Math.max(0, (ballot[id] || 0) + delta);
+  document.getElementById(`votes-${id}`).textContent = ballot[id];
+  updateBallot();
 }
 
-// Add data-name attribute to nominee cards for filtering
-document.addEventListener('DOMContentLoaded', function() {
-    const cards = document.querySelectorAll('.nominee-card');
-    cards.forEach(card => {
-        const nameElement = card.querySelector('h3');
-        if (nameElement) {
-            card.dataset.name = nameElement.textContent.toLowerCase();
-        }
-    });
-});
-
-let voteModalData = { nomineeId: null, nomineeName: null, votePrice: null };
-let hasRestCard = false; // Track if user has rest card
-let isFreeVote = false; // Track if current vote is free (from Rest Card)
-
-// Rest Card Prompt Functions
-function openRestCardPrompt(nomineeId, nomineeName, votePrice) {
-    voteModalData = { nomineeId, nomineeName, votePrice: parseFloat(votePrice) };
-    hasRestCard = false;
-    verifiedCardNumber = null;
-
-    const errorEl = document.getElementById('restCardError');
-    const inputEl = document.getElementById('restCardNumberInput');
-    const btn = document.getElementById('verifyRestCardBtn');
-
-    errorEl.style.display = 'none';
-    errorEl.textContent = '';
-    inputEl.value = '';
-    btn.disabled = false;
-    btn.textContent = 'Get My FREE Vote!';
-
-    // Reset to initial view
-    document.getElementById('restCardInitialView').style.display = 'block';
-    document.getElementById('restCardInputView').style.display = 'none';
-    document.getElementById('restCardPromptModal').style.display = 'flex';
-}
-
-function closeRestCardPrompt() {
-    document.getElementById('restCardPromptModal').style.display = 'none';
-}
-
-function showRestCardInput() {
-    document.getElementById('restCardInitialView').style.display = 'none';
-    document.getElementById('restCardInputView').style.display = 'block';
-    document.getElementById('restCardNumberInput').focus();
-}
-
-function showRestCardInitial() {
-    document.getElementById('restCardInputView').style.display = 'none';
-    document.getElementById('restCardInitialView').style.display = 'block';
-    document.getElementById('restCardError').style.display = 'none';
-}
-
-function notifyInfo(message) {
-    if (typeof showInfo === 'function') {
-        showInfo(message);
-        return;
-    }
-
-    alert(message);
-}
-
-function resetVoteModalState() {
-    const votesInput = document.getElementById('voteVotesInput');
-    const totalPriceEl = document.getElementById('voteTotalPrice');
-    const bonusVotesEl = document.getElementById('voteBonusVotes');
-
-    votesInput.disabled = false;
-    votesInput.value = '1';
-    totalPriceEl.style.color = '';
-    totalPriceEl.style.fontWeight = '';
-    bonusVotesEl.textContent = '+0';
-}
-
-function populatePaidVoteModal() {
-    if (!voteModalData.nomineeId || !voteModalData.nomineeName || Number.isNaN(voteModalData.votePrice)) {
-        showWarning('Unable to load the vote details. Please select the nominee again.');
-        return false;
-    }
-
-    resetVoteModalState();
-    document.getElementById('voteModalTitle').textContent = `Vote for ${voteModalData.nomineeName}`;
-    document.getElementById('votePricePerVote').textContent = `₦${voteModalData.votePrice.toLocaleString()}`;
-    document.getElementById('voteTotalPrice').textContent = `₦${voteModalData.votePrice.toLocaleString()}`;
-    document.getElementById('voteRestPoints').textContent = `${Math.floor(REST_POINTS_PER_VOTE).toLocaleString()} points`;
-
-    return true;
-}
-
-function verifyRestCardAndProceed() {
-    const identifier = document.getElementById('restCardNumberInput').value.trim();
-    const errorEl = document.getElementById('restCardError');
-    const btn = document.getElementById('verifyRestCardBtn');
-    
-    if (!identifier) {
-        errorEl.textContent = 'Please enter your Rest Card number or email address';
-        errorEl.style.display = 'block';
-        return;
-    }
-    
-    // Show loading state
-    btn.disabled = true;
-    btn.textContent = 'Verifying...';
-    
-    // Verify the card via API
-    fetch('/api/verify-rest-card/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({ card_number: identifier })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.valid) {
-            // Card is valid - proceed with free vote
-            hasRestCard = true;
-            isFreeVote = true;
-            verifiedCardNumber = data.card_number || identifier;
-            closeRestCardPrompt();
-            openVoteModalWithFreeVote();
-        } else if (data.exhausted_free_vote) {
-            // Free vote exhausted - show modal to explain and offer paid option
-            hasRestCard = true;
-            isFreeVote = false;
-            verifiedCardNumber = data.card_number || identifier;
-            showFreeVoteExhaustedModal();
-        } else {
-            // Card not found or not active
-            errorEl.textContent = data.message || 'Invalid Rest Card details. Please check and try again.';
-            errorEl.style.display = 'block';
-            btn.disabled = false;
-            btn.textContent = '🎫 Get My FREE Vote!';
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        errorEl.textContent = 'Something went wrong. Please try again.';
-        errorEl.style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = '🎫 Get My FREE Vote!';
-    });
-}
-
-// Free Vote Exhausted Modal Functions
-function showFreeVoteExhaustedModal() {
-    document.getElementById('freeVoteExhaustedModal').style.display = 'flex';
-}
-
-function closeFreeVoteExhaustedModal() {
-    document.getElementById('freeVoteExhaustedModal').style.display = 'none';
-}
-
-function proceedToPaidVotingFromExhaustedModal() {
-    closeFreeVoteExhaustedModal();
-    closeRestCardPrompt();
-    // Open the paid vote modal
-    if (voteModalData.nomineeId) {
-        openVoteModal();
-    }
-}
-
-// Global variable to store verified card number
-let verifiedCardNumber = null;
-
-// Nominee Detail Modal Functions
-let currentNomineeDetailId = null;
-
-function openNomineeDetail(id, name, story, photoUrl, instagramHandle, votes) {
-    currentNomineeDetailId = id;
-    
-    // Set data
-    document.getElementById('nomineeDetailName').textContent = name;
-    document.getElementById('nomineeDetailStory').textContent = story;
-    document.getElementById('nomineeDetailVotes').textContent = votes;
-    // Display rank based on votes
-    const rank = votes > 0 ? '#' + Math.ceil(votes / 10) : '#--';
-    document.getElementById('nomineeDetailRank').textContent = rank;
-    
-    // Handle photo
-    const photoContainer = document.getElementById('nomineeDetailPhotoContainer');
-    const photoImg = document.getElementById('nomineeDetailPhoto');
-    if (photoUrl) {
-        photoImg.src = photoUrl;
-        photoContainer.style.display = 'block';
-    } else {
-        photoContainer.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
-        photoContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%;"><span style="font-size: 4rem; color: white;">👤</span></div>';
-    }
-    
-    // Handle Instagram
-    const instagramLink = document.getElementById('nomineeDetailInstagram');
-    const instagramHandleSpan = document.getElementById('nomineeDetailInstagramHandle');
-    if (instagramHandle) {
-        instagramHandleSpan.textContent = '@' + instagramHandle;
-        instagramLink.href = 'https://instagram.com/' + instagramHandle;
-        instagramLink.style.display = 'inline-flex';
-    } else {
-        instagramLink.style.display = 'none';
-    }
-    
-    // Show modal
-    document.getElementById('nomineeDetailModal').style.display = 'flex';
-}
-
-function closeNomineeDetailModal() {
-    document.getElementById('nomineeDetailModal').style.display = 'none';
-}
-
-function voteFromNomineeDetail() {
-    if (currentNomineeDetailId) {
-        closeNomineeDetailModal();
-        // Find the nominee name from the card
-        const card = document.querySelector(`[data-nominee-id="${currentNomineeDetailId}"]`);
-        const name = card ? card.querySelector('h3').textContent : 'This Nominee';
-        openRestCardPrompt(currentNomineeDetailId, name, VOTE_PRICE);
-    }
-}
-
-// Close modal on escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeNomineeDetailModal();
-    }
-});
-
-function proceedWithRestCard() {
-    hasRestCard = true;
-    closeRestCardPrompt();
-    openVoteModalWithRestCard();
-}
-
-function proceedWithoutRestCard() {
-    hasRestCard = false;
-    closeRestCardPrompt();
-    openVoteModal();
-}
-
-function openVoteModalWithRestCard() {
-    // Open vote modal with Rest Card option
-    voteModalData = { ...voteModalData }; // Keep the data
-    if (!populatePaidVoteModal()) {
-        return;
-    }
-    document.getElementById('votePricePerVote').textContent = `₦${voteModalData.votePrice.toLocaleString()}`;
-    document.getElementById('voteTotalPrice').textContent = `₦${voteModalData.votePrice.toLocaleString()}`;
-    document.getElementById('voteRestPoints').textContent = `${Math.floor(REST_POINTS_PER_VOTE).toLocaleString()} points`;
-    
-    // Show Rest Card section in vote modal if user has rest card
-    const restCardSection = document.getElementById('restCardVoteSection');
-    if (restCardSection) {
-        restCardSection.style.display = 'block';
-    }
-    
-    document.getElementById('voteModal').style.display = 'flex';
-}
-
-function openVoteModalWithFreeVote() {
-    // Open vote modal with FREE vote - no payment required
-    voteModalData = { ...voteModalData };
-    resetVoteModalState();
-    
-    // Set to 1 vote (free)
-    document.getElementById('voteModalTitle').textContent = `Vote for ${voteModalData.nomineeName} - FREE! 🎉`;
-    document.getElementById('voteVotesInput').value = '1';
-    document.getElementById('voteVotesInput').disabled = true; // Only 1 free vote allowed
-    
-    // Show FREE price
-    document.getElementById('votePricePerVote').textContent = 'FREE';
-    document.getElementById('voteTotalPrice').textContent = 'FREE - No Payment Required!';
-    document.getElementById('voteTotalPrice').style.color = '#27ae60';
-    document.getElementById('voteTotalPrice').style.fontWeight = 'bold';
-    document.getElementById('voteRestPoints').textContent = `${Math.floor(REST_POINTS_PER_VOTE).toLocaleString()} points`;
-    
-    // Store the verified card number for checkout
-    document.getElementById('restCardNumber').value = verifiedCardNumber || '';
-    
-    document.getElementById('voteModal').style.display = 'flex';
-}
-
-function openVoteModal(nomineeId, nomineeName, votePrice) {
-    if (typeof nomineeId !== 'undefined') {
-        voteModalData = { nomineeId, nomineeName, votePrice: parseFloat(votePrice) };
-    }
-
-    if (!populatePaidVoteModal()) {
-        return;
-    }
-    
-    // Hide Rest Card section if user doesn't have rest card
-    const restCardSection = document.getElementById('restCardVoteSection');
-    if (restCardSection) {
-        restCardSection.style.display = 'none';
-    }
-
-    if (verifiedCardNumber) {
-        document.getElementById('restCardNumber').value = verifiedCardNumber;
-    }
-    
-    document.getElementById('voteModal').style.display = 'flex';
-}
-
-function closeVoteModal() {
-    document.getElementById('voteModal').style.display = 'none';
-}
-
-function updateVotePrice() {
-    const votes = parseInt(document.getElementById('voteVotesInput').value) || 1;
-    const pricePerVote = voteModalData.votePrice;
-    const totalPrice = votes * pricePerVote;
-    const restPoints = votes * REST_POINTS_PER_VOTE;
-    
-    // Calculate bonus votes based on amount tiers
-    let bonusVotes = 0;
-    const totalAmount = totalPrice;
-    if (totalAmount >= 30000) {
-        bonusVotes = 10;
-    } else if (totalAmount >= 10000) {
-        bonusVotes = 5;
-    } else if (totalAmount >= 5000) {
-        bonusVotes = 2;
-    }
-    
-    document.getElementById('voteTotalPrice').textContent = `₦${totalPrice.toLocaleString()}`;
-    document.getElementById('voteRestPoints').textContent = `${Math.floor(restPoints).toLocaleString()} points`;
-    document.getElementById('voteBonusVotes').textContent = bonusVotes > 0 ? `+${bonusVotes}` : '+0';
-}
-
-function confirmVote() {
-    const votes = parseInt(document.getElementById('voteVotesInput').value) || 1;
-    if (votes < 1) {
-        alert('Please enter a valid number of votes');
-        return;
-    }
-    
-    // Validate before adding
-    if (!voteModalData.nomineeId || voteModalData.nomineeId === 'undefined' || voteModalData.nomineeId === 'null') {
-        showWarning('Unable to add votes. Please try selecting the nominee again.');
-        return;
-    }
-    
-    // Calculate bonus votes
-    const pricePerVote = voteModalData.votePrice;
-    const totalAmount = votes * pricePerVote;
-    let bonusVotes = 0;
-    if (totalAmount >= 30000) {
-        bonusVotes = 10;
-    } else if (totalAmount >= 10000) {
-        bonusVotes = 5;
-    } else if (totalAmount >= 5000) {
-        bonusVotes = 2;
-    }
-    
-    ballot[voteModalData.nomineeId] = {
-        name: voteModalData.nomineeName,
-        votes: votes,
-        bonus: bonusVotes
-    };
-    
-    updateBallot();
-    closeVoteModal();
-    const bonusText = bonusVotes > 0 ? ` (+${bonusVotes} bonus votes)` : '';
-    showSuccess(`Added ${votes} vote(s)${bonusText} for ${voteModalData.nomineeName} to your ballot!`);
-}
-
-function incrementVote(nomineeId) {
-    const input = document.getElementById(`votes-${nomineeId}`);
-    input.value = parseInt(input.value) + 1;
-    updateBallot();
-}
-
-function decrementVote(nomineeId) {
-    const input = document.getElementById(`votes-${nomineeId}`);
-    if (parseInt(input.value) > 0) {
-        input.value = parseInt(input.value) - 1;
-        updateBallot();
-    }
-}
-
-function addVotes(nomineeId, nomineeName) {
-    // Validate inputs
-    if (!nomineeId || nomineeId === 'undefined' || nomineeId === 'null') {
-        console.error('Invalid nomineeId:', nomineeId);
-        showWarning('Unable to add votes. Please try selecting the nominee again.');
-        return;
-    }
-    
-    const input = document.getElementById(`votes-${nomineeId}`);
-    if (!input) {
-        showWarning('Unable to find vote input. Please refresh and try again.');
-        return;
-    }
-    
-    const votes = parseInt(input.value);
-    
-    if (votes > 0) {
-        ballot[nomineeId] = { name: nomineeName, votes: votes };
-        updateBallot();
-        input.value = 0;
-        
-        // Show success notification
-        showSuccess(`Added ${votes} vote(s) for ${nomineeName} to your ballot!`);
-    } else {
-        showWarning('Please select at least 1 vote');
-    }
+function selectedItems() {
+  return Object.entries(ballot)
+    .filter(([, votes]) => votes > 0)
+    .map(([nominee_id, votes]) => ({ nominee_id, votes }));
 }
 
 function updateBallot() {
-    const ballotDiv = document.getElementById('ballotItems');
-    const summaryDiv = document.getElementById('ballotSummary');
-    
-    let totalVotes = 0;
-    let totalBonus = 0;
-    let totalAmount = 0;
-    let html = '';
-    
-    for (const [nomineeId, data] of Object.entries(ballot)) {
-        if (data.votes > 0) {
-            totalVotes += data.votes;
-            totalBonus += data.bonus || 0;
-            totalAmount += data.votes * VOTE_PRICE;
-            const bonusDisplay = data.bonus && data.bonus > 0 ? ` <span style="color: #28a745; font-size: 0.8rem;">(+${data.bonus} bonus)</span>` : '';
-            html += `
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding: 0.5rem; background: #f8f9fa; border-radius: 4px;">
-                    <span style="font-size: 0.9rem;">${data.name}</span>
-                    <span style="font-weight: 600;">${data.votes} × ₦${VOTE_PRICE}${bonusDisplay}</span>
-                </div>
-            `;
-        }
-    }
-    
-    if (totalVotes > 0) {
-        summaryDiv.style.display = 'block';
-        ballotDiv.innerHTML = html;
-        document.getElementById('totalVotes').textContent = totalVotes;
-        document.getElementById('totalBonus').textContent = totalBonus > 0 ? `+${totalBonus} bonus` : '+0';
-        document.getElementById('totalAmount').textContent = `₦${totalAmount.toLocaleString()}`;
-        document.getElementById('totalRestPoints').textContent = `${(totalVotes * REST_POINTS_PER_VOTE).toLocaleString()} points`;
-    } else {
-        summaryDiv.style.display = 'none';
-    }
+  const votes = selectedItems().reduce((sum, item) => sum + item.votes, 0);
+  document.getElementById('ballot-count').textContent = votes ? `${votes} vote${votes === 1 ? '' : 's'} selected` : 'No votes selected';
+  document.getElementById('ballot-total').textContent = (votes * votePrice).toLocaleString();
 }
 
-function clearBallot() {
-    if (Object.keys(ballot).length === 0) {
-        showInfo('Your ballot is already empty');
-        return;
-    }
-    
-    if (confirm('Are you sure you want to remove all votes from your ballot?')) {
-        ballot = {};
-        updateBallot();
-        showSuccess('Ballot cleared');
-    }
-}
-
-function proceedToCheckout() {
-    const totalVotes = Object.values(ballot).reduce((sum, data) => sum + data.votes, 0);
-    const totalBonus = Object.values(ballot).reduce((sum, data) => sum + (data.bonus || 0), 0);
-    
-    if (totalVotes === 0) {
-        showWarning('Please add at least one vote to your ballot before proceeding');
-        return;
-    }
-    
-    const totalAmount = totalVotes * VOTE_PRICE;
-    const totalRestPoints = totalVotes * REST_POINTS_PER_VOTE;
-    
-    document.getElementById('checkoutTotalVotes').textContent = `${totalVotes} (+${totalBonus} bonus)`;
-    document.getElementById('checkoutTotalAmount').textContent = `₦${totalAmount.toLocaleString()}`;
-    document.getElementById('checkoutRestPoints').textContent = `${totalRestPoints.toLocaleString()} points`;
-    
-    // Check if this is a free vote scenario:
-    // - User has verified their Rest Card (verifiedCardNumber is set)
-    // - Total amount is 0 (all votes are free)
-    const isFreeVoteScenario = verifiedCardNumber && totalAmount === 0;
-    
-    // Update ballot button based on whether this is a free vote or paid vote
-    const ballotSubmitBtn = document.getElementById('ballotSubmitBtn');
-    if (isFreeVoteScenario) {
-        // Free vote - change button to "Submit Vote"
-        ballotSubmitBtn.textContent = '✔ Submit My Vote 🎉';
-        ballotSubmitBtn.style.background = '#27ae60';
-    } else {
-        // Paid vote - show "Proceed to Payment"
-        ballotSubmitBtn.textContent = '✔ Proceed to Payment →';
-        ballotSubmitBtn.style.background = '#27ae60';
-    }
-    
-    // Update checkout modal button based on whether it's free or paid
-    const payButton = document.getElementById('payButton');
-    if (isFreeVoteScenario) {
-        // Free vote - change button to "Submit Vote"
-        payButton.textContent = 'Submit My Vote 🎉';
-    } else {
-        // Paid vote - show Paystack
-        payButton.textContent = 'Pay with Paystack →';
-    }
-    
-    // Store whether this is a free vote scenario for form submission
-    window.isFreeVoteScenario = isFreeVoteScenario;
-    
-    document.getElementById('checkoutModal').style.display = 'flex';
+function openCheckout() {
+  if (!selectedItems().length) return;
+  document.getElementById('checkout-modal').classList.add('is-open');
 }
 
 function closeCheckout() {
-    document.getElementById('checkoutModal').style.display = 'none';
+  document.getElementById('checkout-modal').classList.remove('is-open');
 }
 
-document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const payButton = document.getElementById('payButton');
-    const originalText = payButton.textContent;
-    payButton.disabled = true;
-    payButton.textContent = 'Processing...';
-    
-    const ballotArray = Object.entries(ballot).map(([nomineeId, data]) => ({
-        nominee_id: nomineeId,
-        votes: data.votes,
-        bonus: data.bonus || 0
-    }));
-    
-    // Always use real Paystack in production
-    try {
-        // Show loading state
-        const btn = e.submitter;
-        const originalText = btn ? btn.textContent : 'Processing...';
-        if (btn) {
-            btn.disabled = true;
-            btn.textContent = 'Processing...';
-        }
-        
-        const response = await fetch('{% url "initialize_payment" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({
-                ballot: ballotArray,
-                campaign_id: {{ campaign.id }},
-                voter_name: document.getElementById('voterName').value,
-                voter_email: document.getElementById('voterEmail').value,
-                voter_phone: document.getElementById('voterPhone').value,
-                referral_source: document.getElementById('referralSource').value,
-                rest_card_number: document.getElementById('restCardNumber') ? document.getElementById('restCardNumber').value : ''
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            // Check if this is a free vote scenario (user clicked "Submit My Vote" button)
-            if (window.isFreeVoteScenario || (data.free_votes_used && data.free_votes_used > 0 && data.total_amount == 0)) {
-                // Free vote - redirect to thank you page then dashboard
-                if (data.thank_you_url) {
-                    window.location.href = data.thank_you_url + '?redirect_to_dashboard=1';
-                } else {
-                    // Redirect to dashboard after short delay
-                    alert('🎉 Your FREE vote has been submitted! Redirecting to your dashboard...');
-                    setTimeout(() => {
-                        window.location.href = '/dashboard/';
-                    }, 2000);
-                }
-            } else {
-                // Regular paid vote - redirect to Paystack
-                window.location.href = data.authorization_url;
-            }
-        } else {
-            alert(data.message || 'Payment initialization failed. Please try again.');
-            if (btn) {
-                btn.disabled = false;
-                btn.textContent = originalText;
-            }
-        }
-    } catch (error) {
-        console.error('Payment error:', error);
-        alert('Network error. Please check your connection and try again.');
-        if (btn) {
-            btn.disabled = false;
-            btn.textContent = originalText;
-        }
-    }
-});
+async function submitBallot() {
+  const form = document.getElementById('checkout-form');
+  const message = document.getElementById('checkout-message');
+  if (!form.reportValidity()) return;
 
-// Close modal on outside click
-document.getElementById('checkoutModal').addEventListener('click', (e) => {
-    if (e.target.id === 'checkoutModal') {
-        closeCheckout();
-    }
-});
+  const formData = new FormData(form);
+  message.style.display = 'block';
+  message.textContent = 'Preparing your secure payment...';
 
-// Countdown Timer
-{% if is_ongoing %}
-const endDate = new Date('{{ campaign.end_date|date:"Y-m-d" }}T23:59:59').getTime();
-
-function updateCountdown() {
-    const now = new Date().getTime();
-    const distance = endDate - now;
-    
-    if (distance < 0) {
-        document.getElementById('countdownTimer').textContent = 'Voting has ended';
-        return;
+  try {
+    const response = await fetch("{% url 'initialize_payment' %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({
+        ballot: selectedItems(),
+        voter_name: formData.get('voter_name'),
+        voter_email: formData.get('voter_email'),
+        voter_phone: formData.get('voter_phone'),
+        referral_source: formData.get('referral_source'),
+        rest_card_number: formData.get('rest_card_number')
+      })
+    });
+    const data = await response.json();
+    if (!data.success) {
+      message.textContent = data.message || 'Unable to initialize payment.';
+      return;
     }
-    
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    
-    let countdownText = '';
-    if (days > 0) {
-        countdownText = `${days} days ${hours} hours`;
-    } else if (hours > 0) {
-        countdownText = `${hours} hours ${minutes} minutes`;
-    } else {
-        countdownText = `${minutes} minutes ${seconds} seconds`;
-    }
-    
-    document.getElementById('countdownTimer').textContent = countdownText;
+    if (data.free_votes_processed && data.thank_you_url) window.location.href = data.thank_you_url;
+    else if (data.authorization_url) window.location.href = data.authorization_url;
+  } catch (error) {
+    message.textContent = 'Unable to initialize payment. Please try again.';
+  }
 }
-
-// Update countdown immediately and then every second
-updateCountdown();
-setInterval(updateCountdown, 1000);
-{% endif %}
 </script>
-
-<style>
-.nominee-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    border-color: #3498db;
-}
-
-.nominee-card button:hover {
-    opacity: 0.9;
-}
-
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-    opacity: 1;
-}
-
-/* Mobile Responsive Styles */
-@media (max-width: 768px) {
-    .voting-campaign-page {
-        padding: 1rem 0.75rem !important;
-    }
-    
-    .campaign-header {
-        margin-bottom: 1.5rem !important;
-    }
-    
-    .campaign-stats {
-        gap: 0.75rem !important;
-    }
-    
-    .campaign-stats > div {
-        padding: 0.75rem 1rem !important;
-        min-width: 110px !important;
-    }
-    
-    .leaderboard {
-        padding: 1.25rem 0.75rem !important;
-        margin-bottom: 1.5rem !important;
-    }
-    
-    .nominees-grid {
-        grid-template-columns: 1fr !important;
-        gap: 1.25rem !important;
-    }
-    
-    .ballot-summary {
-        bottom: 10px !important;
-        right: 10px !important;
-        left: 10px !important;
-        min-width: auto !important;
-        max-width: none !important;
-        padding: 1rem !important;
-    }
-    
-    .checkout-modal {
-        padding: 0.5rem !important;
-    }
-    
-    .checkout-modal > div {
-        padding: 1.25rem !important;
-        width: calc(100% - 1rem) !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .voting-campaign-page {
-        padding: 0.75rem 0.5rem !important;
-    }
-    
-    .campaign-stats {
-        flex-direction: column !important;
-        align-items: stretch !important;
-    }
-    
-    .campaign-stats > div {
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-    
-    .leaderboard > div {
-        gap: 1rem !important;
-    }
-    
-    .nominee-card img {
-        height: 180px !important;
-    }
-    
-    .ballot-summary {
-        position: fixed !important;
-        bottom: 0 !important;
-        right: 0 !important;
-        left: 0 !important;
-        border-radius: 12px 12px 0 0 !important;
-        max-height: 60vh !important;
-        overflow-y: auto !important;
-    }
-    
-    #ballotItems {
-        max-height: 150px !important;
-    }
-}
-
-/* Smooth scrolling for modal */
-.checkout-modal {
-    -webkit-overflow-scrolling: touch;
-}
-
-/* Better touch targets on mobile */
-@media (hover: none) and (pointer: coarse) {
-    button {
-        min-height: 44px;
-        min-width: 44px;
-    }
-    
-    input, select, textarea {
-        font-size: 16px !important; /* Prevents zoom on iOS */
-    }
-}
-</style>
 {% endblock %}

@@ -1,262 +1,166 @@
 {% extends 'Web/main.html' %}
 {% load static %}
 
-{% block title %}Contact - Unwind Africa{% endblock %}
+{% block title %}Contact - Unwind Africa Concierge{% endblock %}
 
 {% block extra_css %}
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet" />
-<style>
-:root{
-  --ua-sky:#00B2FF;
-  --ua-sea:#00C2FF;
-  --ua-sun:#FFB648;
-  --ua-ink:#0A0B10;
-  --ua-paper:#FFFFFF;
-  --ua-fog:#F6F8FC;
-  --radius:18px;
-  --shadow:0 22px 48px rgba(10,11,16,.12);
-  --container:min(1120px, 92vw);
-}
-
-body{background:var(--ua-paper);} 
-.contact-page{
-  color:var(--ua-ink);
-  font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing:antialiased;
-  text-rendering:optimizeLegibility;
-  overflow:hidden;
-}
-a{text-decoration:none;color:inherit;}
-img{max-width:100%;height:auto;display:block;border-radius:var(--radius);} 
-.section{padding-block:clamp(72px,10vw,132px);} 
-.container{width:var(--container);margin-inline:auto;padding-inline:clamp(18px,3.5vw,42px);} 
-
-.ed-kicker{text-transform:uppercase;font-weight:900;letter-spacing:.18em;font-size:.72rem;color:var(--ua-sky);} 
-.ed-title{font-family:"Playfair Display", ui-serif, Georgia, serif;font-weight:900;letter-spacing:-.015em;font-size:clamp(2.4rem,6vw,4.8rem);margin:0 0 clamp(12px,2vw,18px);} 
-.ed-sub{max-width:68ch;font-size:clamp(1rem,1.8vw,1.2rem);margin:0;color: color-mix(in oklab, #ffffff 72%, #4b5768);} 
-.rule{width:70px;height:4px;border-radius:3px;background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));margin-block:12px 20px;} 
-
-.contact-hero{position:relative;min-height:74vh;display:flex;align-items:center;color:#fff;background:#040812;overflow:hidden;} 
-.contact-hero::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 15% 20%,rgba(0,194,255,.28),transparent 58%),radial-gradient(circle at 82% 12%,rgba(255,182,72,.24),transparent 62%),linear-gradient(135deg,rgba(4,8,18,.94) 0%,rgba(8,18,38,.82) 100%);z-index:1;} 
-.contact-hero::after{content:"";position:absolute;inset:-14% -18% -12% -18%;background:radial-gradient(circle at 12% 78%,rgba(0,178,255,.18),transparent 60%),radial-gradient(circle at 76% 82%,rgba(255,182,72,.22),transparent 64%);mix-blend-mode:screen;opacity:.6;z-index:1;} 
-.contact-hero .nav-wrapper{position:absolute;top:0;left:0;width:100%;z-index:3;} 
-.hero-content{position:relative;z-index:2;display:grid;gap:clamp(20px,4vw,32px);padding-block:clamp(132px,18vw,198px);} 
-.hero-copy{display:grid;gap:clamp(14px,3vw,20px);max-width: min(720px, 78vw);} 
-.hero-actions{display:flex;flex-wrap:wrap;gap:12px;} 
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:.85rem 1.4rem;border-radius:999px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border:2px solid transparent;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,background .2s ease,color .2s ease;} 
-.btn.primary-solid{background:linear-gradient(90deg,var(--ua-sun),var(--ua-sky));color:#0b172a;box-shadow:0 16px 34px rgba(0,178,255,.28);} 
-.btn.secondary-ink{background:#0A0B10;color:#fff;border-color:#0A0B10;} 
-.btn:hover{transform:translateY(-3px);} 
-.hero-meta{display:flex;flex-wrap:wrap;gap:20px;font-size:.88rem;color:rgba(255,255,255,.78);} 
-.hero-meta span{display:block;font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:.7rem;color:rgba(255,255,255,.5);} 
-
-.contact-body{background:var(--ua-paper);} 
-.contact-grid{display:grid;gap:clamp(26px,4vw,48px);grid-template-columns:repeat(auto-fit,minmax(300px,1fr));align-items:start;} 
-.form-card{background:#fff;border-radius:calc(var(--radius) + 6px);padding:clamp(28px,4vw,42px);box-shadow:0 26px 52px rgba(9,22,44,.12);display:grid;gap:clamp(18px,3vw,24px);border:1px solid rgba(9,22,44,.06);} 
-.form-card h2{margin:0;font-family:"Playfair Display", serif;font-size:clamp(1.8rem,3vw,2.2rem);} 
-.ua-form{display:grid;gap:clamp(18px,2.6vw,24px);} 
-.field-pair{display:grid;gap:clamp(16px,2vw,20px);grid-template-columns:repeat(auto-fit,minmax(180px,1fr));} 
-.ua-label{display:flex;justify-content:space-between;align-items:center;font-size:.82rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in oklab,var(--ua-ink) 78%,#3e4a58);} 
-.ua-label span{font-weight:600;font-size:.72rem;color:color-mix(in oklab,var(--ua-sky) 60%,#0b172a);} 
-.ua-input,.ua-select,.ua-textarea{width:100%;padding:1rem;border-radius:14px;border:1px solid rgba(9,22,44,.14);background:rgba(246,248,252,.72);font-size:.98rem;font-family:inherit;transition:border-color .2s ease,box-shadow .2s ease,background .2s ease;} 
-.ua-input:focus,.ua-select:focus,.ua-textarea:focus{outline:none;border-color:color-mix(in oklab,var(--ua-sky) 58%,#0a1332);box-shadow:0 0 0 4px rgba(0,178,255,.18);background:#fff;} 
-.ua-textarea{min-height:160px;resize:vertical;} 
-.form-footnote{font-size:.82rem;color:color-mix(in oklab,var(--ua-ink) 60%,#737f90);} 
-.form-card .btn{width:max(220px,40%);} 
-
-.info-stack{display:grid;gap:clamp(22px,3.2vw,28px);} 
-.info-card{background:linear-gradient(160deg,#ffffff 0%,#f4f7fb 100%);border-radius:calc(var(--radius) + 4px);padding:clamp(26px,3vw,34px);box-shadow:0 24px 48px rgba(9,22,44,.1);border:1px solid rgba(9,22,44,.06);display:grid;gap:clamp(16px,2.6vw,22px);} 
-.info-card h3{margin:0;font-family:"Playfair Display", serif;font-size:1.5rem;} 
-.info-card p{margin:0;color:color-mix(in oklab,var(--ua-ink) 68%,#525d6c);line-height:1.6;} 
-.info-list{display:grid;gap:18px;padding:0;margin:0;list-style:none;} 
-.info-item{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:flex-start;} 
-.icon-pill{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:color-mix(in oklab,var(--ua-sky) 18%,rgba(9,22,44,.08));color:color-mix(in oklab,var(--ua-sky) 72%,#0a1426);font-size:1.1rem;font-weight:800;} 
-.info-item strong{display:block;font-size:.95rem;color:color-mix(in oklab,var(--ua-ink) 84%,#112239);} 
-.info-item span{display:block;font-size:.9rem;color:color-mix(in oklab,var(--ua-ink) 66%,#4e5b6a);} 
-.direct-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));} 
-.direct-card{display:grid;gap:6px;padding:18px;border-radius:18px;background:#0b172a;color:#f6f8ff;box-shadow:0 18px 36px rgba(0,12,32,.24);transition:transform .2s ease,box-shadow .2s ease;} 
-.direct-card span{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;font-weight:800;color:rgba(255,255,255,.68);} 
-.direct-card strong{font-size:1.1rem;} 
-.direct-card:hover{transform:translateY(-4px);box-shadow:0 24px 44px rgba(0,12,32,.28);} 
-
-.contact-cta{background:linear-gradient(135deg,color-mix(in oklab,var(--ua-sun) 48%,#0b1224) 0%,color-mix(in oklab,var(--ua-sky) 52%,#0b1224) 100%);color:#091020;} 
-.contact-cta-card{background:#fff;border-radius:calc(var(--radius) + 6px);padding:clamp(32px,5vw,48px);box-shadow:var(--shadow);display:grid;gap:clamp(14px,2.4vw,20px);text-align:center;} 
-.contact-cta-card p{margin:0;color:color-mix(in oklab,var(--ua-ink) 68%,#4a5866);} 
-.contact-cta-card .btn{justify-self:center;} 
-
-@media (max-width:720px){
-  .hero-actions .btn{width:100%;justify-content:center;}
-  .direct-grid{grid-template-columns:1fr;}
-  .form-card .btn{width:100%;}
-}
-</style>
+<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}" />
 {% endblock %}
-
-{% block navbar %}{% endblock %}
 
 {% block content %}
-<div class="contact-page">
-  <header class="contact-hero">
-    <div class="nav-wrapper">
-      {% include './partials/header/navbar.html' %}
-      {% include './partials/header/hamburger-menu.html' with faq_link=faq_link %}
+<main id="main-content" class="ua-page">
+  <section class="ua-hero ua-hero--dark" style="--ua-hero-image: url('{% static 'assets/home/rest.jpg' %}');">
+    <div class="ua-wrap ua-hero-grid">
+      <div>
+        <p class="ua-kicker">Private concierge</p>
+        <h1 class="ua-title">Tell us what kind of rest you are looking for.</h1>
+        <p class="ua-copy">
+          Share a few details and our team will respond with a considered direction for your Unwind Africa experience. The more honest the brief, the more personal the escape.
+        </p>
+      </div>
+      <aside class="ua-editorial-panel">
+        <strong>Reply standard</strong>
+        <p>We respond with care, context, and next steps. No pressure. No generic package dump.</p>
+      </aside>
     </div>
-    <div class="hero-content container">
-      <div class="hero-copy">
-        <p class="ed-kicker">Contact</p>
-        <h1 class="ed-title">Let's curate your next escape.</h1>
-        <div class="rule" aria-hidden="true"></div>
-        <p class="ed-sub">Share your desired mood, crew size, and dream location�we'll choreograph the sensory signatures, storytellers, and concierge touches that make it unforgettable.</p>
-        <div class="hero-actions">
-          <a class="btn primary-solid" href="tel:+2348051411198">Call concierge</a>
-          <a class="btn secondary-ink" href="mailto:unwindafrica24@gmail.com">Email our office</a>
-        </div>
-        <div class="hero-meta">
-          <div>
-            <span>Response time</span>
-            Within 24 hours
+  </section>
+
+  <section class="ua-section">
+    <div class="ua-wrap ua-hero-grid">
+      <div>
+        <p class="ua-kicker">Your brief</p>
+        <h2 class="ua-title">Start with the feeling. We will handle the shape.</h2>
+        <p class="ua-copy">Use this for solo resets, romantic escapes, group retreats, celebrations, URS, photography-led moments, and custom travel planning.</p>
+        <div class="ua-list">
+          <div class="ua-list-item">
+            <div>
+              <h3>Email</h3>
+              <p>info@unwindafrica.com</p>
+            </div>
           </div>
-          <div>
-            <span>Service regions</span>
-            Nigeria � Ghana � Remote production
+          <div class="ua-list-item">
+            <div>
+              <h3>Phone</h3>
+              <p>+234 806 206 7832</p>
+            </div>
+          </div>
+          <div class="ua-list-item">
+            <div>
+              <h3>Studio</h3>
+              <p>No 8, Providence Street, Lekki Phase 1, Lagos.</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </header>
 
-  <section id="contact-desk" class="section contact-body">
-    <div class="container contact-grid">
-      <div class="form-card">
-        <h2>Tell us about your vision</h2>
-        <p class="ed-sub">Fill in the details below and our concierge desk will respond with moodboards, budgets, and timelines tailored to you.</p>
-        <form id="ua-contact-form" class="ua-form">
-          <div class="field-pair">
-            <div>
-              <label class="ua-label" for="first-name">First name <span>*</span></label>
-              <input class="ua-input" type="text" id="first-name" name="first_name" required />
-            </div>
-            <div>
-              <label class="ua-label" for="last-name">Last name <span>*</span></label>
-              <input class="ua-input" type="text" id="last-name" name="last_name" required />
-            </div>
+      <form id="ua-quote-form" class="ua-form-shell" method="post" action="{% url 'quote_request' %}">
+        {% csrf_token %}
+        <div class="ua-form-grid">
+          <div class="ua-field">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" autocomplete="name" required>
           </div>
-          <div class="field-pair">
-            <div>
-              <label class="ua-label" for="email">Email <span>*</span></label>
-              <input class="ua-input" type="email" id="email" name="email" required />
-            </div>
-            <div>
-              <label class="ua-label" for="phone">Phone</label>
-              <input class="ua-input" type="tel" id="phone" name="phone" placeholder="Include country code" />
-            </div>
+          <div class="ua-field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required>
           </div>
-          <div>
-            <label class="ua-label" for="occasion">Experience focus</label>
-            <select class="ua-select" id="occasion" name="occasion">
-              <option value="">Choose a highlight</option>
-              <option value="solo">Solo reset</option>
-              <option value="couples">Couples escape</option>
-              <option value="celebration">Celebration production</option>
-              <option value="corporate">Corporate retreat</option>
-              <option value="destination">Destination curation</option>
+          <div class="ua-field">
+            <label for="phone">Phone</label>
+            <input id="phone" name="phone" type="tel" autocomplete="tel">
+          </div>
+          <div class="ua-field">
+            <label for="package">Experience</label>
+            <select id="package" name="package" required>
+              <option value="">Select one</option>
+              <option>Solo Escape</option>
+              <option>Romance</option>
+              <option>Family Escape</option>
+              <option>Group Retreat</option>
+              <option>Celebration</option>
+              <option>Unwind Relaxation Services</option>
+              <option>Custom Experience</option>
             </select>
           </div>
-          <div>
-            <label class="ua-label" for="guests">Estimated guest count</label>
-            <input class="ua-input" type="number" id="guests" name="guests" min="1" placeholder="e.g. 20" />
+          <div class="ua-field">
+            <label for="dates">Preferred dates</label>
+            <input id="dates" name="dates" type="text" placeholder="Month, dates, or flexible">
           </div>
-          <div>
-            <label class="ua-label" for="message">Share your mood board <span>*</span></label>
-            <textarea class="ua-textarea" id="message" name="message" required placeholder="Tell us the vibe, must-haves, dates, or special requests."></textarea>
+          <div class="ua-field">
+            <label for="group_size">Guests</label>
+            <input id="group_size" name="group_size" type="text" placeholder="Solo, 2, 8, 30...">
           </div>
-          <button type="submit" class="btn primary-solid">Send message</button>
-          <p class="form-footnote">We respect your inbox - no spam, just a considered reply within one business day.</p>
-        </form>
-      </div>
-
-      <div class="info-stack">
-        <div class="info-card">
-          <h3>Concierge desk</h3>
-          <p>Our producers, wellness leads, and stylists craft immersive itineraries across West Africa and beyond. Reach out any time - you'll always hear from a real human.</p>
-          <ul class="info-list">
-            <li class="info-item">
-              <span class="icon-pill">HQ</span>
-              <div>
-                <strong>Victoria Island office</strong>
-                <span>8 Providence road, Lekki Phase 1, Lekki, Lagos, Ibeju-Lekki</span>
-              </div>
-            </li>
-            <li class="info-item">
-              <span class="icon-pill">Call</span>
-              <div>
-                <strong>+234 805 141 1198</strong>
-                <strong>+234 806 206 7832</strong>
-                <span>Mon-Fri: 9am-6pm | Sat: 10am-4pm</span>
-              </div>
-            </li>
-            <li class="info-item">
-              <span class="icon-pill">Mails</span>
-              <div>
-                <strong>unwindafrica24@gmail.com</strong>
-                <strong>info@unwindafrica.com</strong>
-                <span>For briefs, proposals, and partnerships</span>
-              </div>
-            </li>
-          </ul>
+          <div class="ua-field ua-field--full">
+            <label for="notes">What should this experience do for you?</label>
+            <textarea id="notes" name="notes" placeholder="Tell us what you are coming from, what you need to feel, and any non-negotiables."></textarea>
+          </div>
         </div>
-        <!-- <div class="info-card">
-          <h3>Press & partnerships</h3>
-          <p>Media features, brand collaborations, wellness collectives - share your idea and we'll schedule a discovery call.</p>
-          <div class="direct-grid">
-            <a class="direct-card" href="mailto:press@unwindafrica.com">
-              <span>PR & MEDIA</span>
-              <strong>press@unwindafrica.com</strong>
-              <span>Storytelling & editorials</span>
-            </a>
-            <a class="direct-card" href="mailto:partnerships@unwindafrica.com">
-              <span>BRAND ALLIANCES</span>
-              <strong>partnerships@unwindafrica.com</strong>
-              <span>Co-branded experiences</span>
-            </a>
-          </div>
-        </div> -->
+        <input type="hidden" name="page" value="contact">
+        <input type="hidden" name="utm" value="{{ request.META.HTTP_REFERER|default:'' }}">
+        <div class="ua-actions">
+          <button class="ua-button" type="submit">Send private brief</button>
+        </div>
+        <p id="ua-quote-status" class="ua-status-note" hidden></p>
+      </form>
+    </div>
+  </section>
+
+  <section class="ua-section ua-page-dark">
+    <div class="ua-wrap">
+      <div class="ua-section-head">
+        <p class="ua-kicker">What happens next</p>
+        <h2 class="ua-title">A calm planning process.</h2>
+      </div>
+      <div class="ua-grid">
+        <article class="ua-card">
+          <h3>We read for intent</h3>
+          <p>Your brief is reviewed for emotional purpose, logistics, privacy needs, timing, and budget direction.</p>
+        </article>
+        <article class="ua-card">
+          <h3>We recommend a path</h3>
+          <p>You receive a focused recommendation instead of a long menu: destination, tone, service layer, and next decision.</p>
+        </article>
+        <article class="ua-card">
+          <h3>We refine quietly</h3>
+          <p>Once aligned, we shape the details and coordinate the experience with the right partners and pace.</p>
+        </article>
       </div>
     </div>
   </section>
+</main>
 
-  <section class="section contact-cta" aria-labelledby="contact-cta-title">
-    <div class="container contact-cta-card">
-      <p class="ed-kicker">Prefer a quick brief?</p>
-      <h2 id="contact-cta-title" class="ed-title">Drop your checklist. We'll orchestrate the rest.</h2>
-      <p>Send us your Pinterest links, playlists, or inspiration words - we'll respond with curated venues, rituals, and gifting concepts aligned to your vibe.</p>
-      <a class="btn primary-solid" href="mailto:info@unwindafrica.com">Share inspiration</a>
-    </div>
-  </section>
-</div>
-{% endblock %}
-
-{% block extra_js %}
 <script>
 (() => {
-  const form = document.getElementById('ua-contact-form');
-  if (!form) return;
-  form.addEventListener('submit', (event) => {
+  const form = document.getElementById('ua-quote-form');
+  const status = document.getElementById('ua-quote-status');
+  if (!form || !status) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const requestedPackage = params.get('package');
+  if (requestedPackage) {
+    const select = form.querySelector('select[name="package"]');
+    const match = Array.from(select.options).find(option => option.value === requestedPackage || option.text === requestedPackage);
+    if (match) select.value = match.value || match.text;
+  }
+
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const data = new FormData(form);
-    const requiredFields = ['first_name','last_name','email','message'];
-    const hasEmpty = requiredFields.some((key) => !String(data.get(key) || '').trim());
-    if (hasEmpty) {
-      alert('Please fill in the required fields before sending your message.');
-      return;
+    status.hidden = false;
+    status.textContent = 'Sending your brief...';
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || 'Unable to send your brief.');
+      form.reset();
+      status.textContent = 'Thank you. Your brief has been received, and our concierge team will respond with considered next steps.';
+    } catch (error) {
+      status.textContent = error.message || 'Something went wrong. Please email info@unwindafrica.com directly.';
     }
-    alert('Thank you for reaching out to Unwind Africa. Our concierge desk will be in touch shortly.');
-    form.reset();
   });
 })();
-
-console.log("testing.............")
 </script>
 {% endblock %}

@@ -5,21 +5,21 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="referrer" content="same-origin" />
-  <meta name="description" content="Unwind Africa designs restorative luxury experiences across Africa — wellness retreats, solo resets, and milestone celebrations that feel like coming home to yourself." />
+  <meta name="description" content="Unwind Africa designs restorative luxury travel and retreat experiences across Africa: wellness retreats, solo resets, romantic escapes, celebrations, and concierge-led group journeys." />
   <link rel="canonical" href="https://unwindafrica.com{{ request.path }}" />
   <meta name="google-site-verification" content="ijwEXZ6-NGAmKCXUC7Njs03CBRbuU3eW42eMHWYLlKk" />
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://unwindafrica.com/">
-  <meta property="og:title" content="Unwind Africa - Restorative Luxury Experiences">
-  <meta property="og:description" content="We design restorative luxury experiences across Africa — solo resets, kinship gatherings, and milestone celebrations that feel like coming home to yourself.">
+  <meta property="og:title" content="Unwind Africa - Restorative Luxury Travel">
+  <meta property="og:description" content="Restorative luxury travel, retreats, romantic escapes, celebrations, and concierge-led group journeys across Africa.">
   <meta property="og:image" content="{% static 'assets/LOGO.png' %}">
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://unwindafrica.com/">
-  <meta property="twitter:title" content="Unwind Africa - Restorative Luxury Experiences">
-  <meta property="twitter:description" content="We design restorative luxury experiences across Africa — solo resets, kinship gatherings, and milestone celebrations that feel like coming home to yourself.">
+  <meta property="twitter:title" content="Unwind Africa - Restorative Luxury Travel">
+  <meta property="twitter:description" content="Restorative luxury travel, retreats, romantic escapes, celebrations, and concierge-led group journeys across Africa.">
   <meta property="twitter:image" content="{% static 'assets/LOGO.png' %}">
 
 <link rel="icon" type="image/png" sizes="48x48" href="{% static 'assets/favicon-48x48.png' %}">
@@ -27,7 +27,7 @@
   <!-- Primary Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Playfair+Display:wght@600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Vendor CSS (deduped) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
@@ -63,6 +63,7 @@
   <link rel="stylesheet" href="{% static 'css/packages_section.css' %}" />
   <link rel="stylesheet" href="{% static 'css/home.css' %}" />
   <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/navigation.css' %}" />
   <link rel="stylesheet" href="{% static 'css/notifications.css' %}" />
 
   {% block extra_css %}{% endblock %}
@@ -77,7 +78,7 @@
     "alternateName": "Unwind Africa Ltd",
     "url": "https://unwindafrica.com",
     "logo": "https://unwindafrica.com/static/assets/LOGO.png",
-    "description": "Unwind Africa designs restorative luxury experiences across Africa — solo resets, kinship gatherings, wellness retreats, and milestone celebrations that feel like coming home to yourself.",
+    "description": "Unwind Africa designs restorative luxury travel and retreat experiences across Africa, including wellness retreats, solo resets, romantic escapes, celebrations, and concierge-led group journeys.",
     "foundingDate": "2023",
     "address": {
       "@type": "PostalAddress",
@@ -172,18 +173,18 @@
       <div>
         <h4 class="text-sm uppercase tracking-widest mb-4 font-bold">Experiences</h4>
         <ul class="space-y-2 text-gray-400">
-          <li><a href="/packages" class="hover:text-white transition-colors">Retreats & Wellness</a></li>
-          <li><a href="/packages" class="hover:text-white transition-colors">Signature Parties</a></li>
-          <li><a href="/packages" class="hover:text-white transition-colors">Cultural Showcase</a></li>
+          <li><a href="{% url 'packages' %}" class="hover:text-white transition-colors">Retreats & Wellness</a></li>
+          <li><a href="{% url 'packages' %}" class="hover:text-white transition-colors">Signature Parties</a></li>
+          <li><a href="{% url 'packages' %}" class="hover:text-white transition-colors">Cultural Showcase</a></li>
         </ul>
       </div>
 
       <div>
         <h4 class="text-sm uppercase tracking-widest mb-4 font-bold">Company</h4>
         <ul class="space-y-2 text-gray-400">
-          <li><a href="/about" class="hover:text-white transition-colors">About Unwind Africa</a></li>
-          <li><a href="/blog" class="hover:text-white transition-colors">Journal</a></li>
-          <li><a href="/#faq" class="hover:text-white transition-colors">FAQ</a></li>
+          <li><a href="{% url 'about' %}" class="hover:text-white transition-colors">About Unwind Africa</a></li>
+          <li><a href="{% url 'blog' %}" class="hover:text-white transition-colors">Journal</a></li>
+          <li><a href="{% url 'faq' %}" class="hover:text-white transition-colors">FAQ</a></li>
         </ul>
       </div>
 

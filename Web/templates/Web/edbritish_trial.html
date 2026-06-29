@@ -1,797 +1,86 @@
-{% extends 'Web/main.html' %}
+{% extends "Web/main.html" %}
 {% load static %}
 
-{% block title %}Free Trial Classes for Diaspora Children | EdBriTish Consult × Unwind Africa{% endblock %}
-
-{% block navbar %}
-{% include './partials/header/navbar.html' with theme='dark' %}
-{% include './partials/header/hamburger-menu.html' with faq_link="/about#faq" %}
-{% endblock %}
+{% block title %}EdBriTish Trial Classes - Unwind Africa{% endblock %}
 
 {% block extra_css %}
-<style>
-    /* Fixed navbar styling */
-    body {
-        padding-top: 80px;
-    }
-    
-    header.absolute {
-        position: fixed !important;
-        background: rgba(255, 255, 255, 0.98) !important;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    
-    header.absolute a,
-    header.absolute button,
-    header.absolute span {
-        color: #0A0B10 !important;
-    }
-    
-    header.absolute svg {
-        stroke: #0A0B10 !important;
-        fill: #0A0B10 !important;
-    }
-    
-    .trial-page {
-        min-height: 100vh;
-        background: linear-gradient(180deg, #F5F7FA 0%, #FFFFFF 100%);
-        padding-top: 80px;
-    }
-    
-    /* Global box-sizing for all elements */
-    .trial-page * {
-        box-sizing: border-box;
-        max-width: 100%;
-    }
-    
-    .logo-item img {
-        max-width: 100%;
-        height: auto;
-    }
-    
-    .partnership-header {
-        text-align: center;
-        padding: 4rem 1rem 3rem;
-        background: white;
-        border-bottom: 1px solid #eef0f6;
-    }
-    
-    .logos-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 3rem;
-        flex-wrap: wrap;
-        margin-bottom: 1.5rem;
-    }
-    
-    .logo-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    .logo-item img {
-        max-height: 80px;
-        width: auto;
-        object-fit: contain;
-    }
-    
-    .logo-item .logo-text {
-        font-family: 'Space Grotesk', sans-serif;
-        font-weight: 700;
-        font-size: 1.2rem;
-        color: #0A0B10;
-    }
-    
-    .partnership-symbol {
-        font-size: 2rem;
-        color: #00B2FF;
-    }
-    
-    .partnership-tagline {
-        font-size: 1rem;
-        color: #666;
-        font-weight: 500;
-        letter-spacing: 0.5px;
-    }
-    
-    .page-title-section {
-        text-align: center;
-        padding: 4rem 1rem 2rem;
-    }
-    
-    .page-title {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 3rem;
-        font-weight: 900;
-        color: #0A0B10;
-        margin-bottom: 0.5rem;
-        line-height: 1.2;
-    }
-    
-    .page-subtitle {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #00B2FF;
-    }
-    
-    .content-section {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
-    
-    .intro-text {
-        background: white;
-        border-radius: 20px;
-        padding: 2.5rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
-        border: 1px solid #eef0f6;
-        margin-bottom: 2rem;
-        line-height: 1.8;
-        color: #333;
-    }
-    
-    .intro-text p {
-        margin-bottom: 1rem;
-    }
-    
-    .intro-text ul {
-        list-style: none;
-        padding: 0;
-        margin: 1.5rem 0;
-    }
-    
-    .intro-text ul li {
-        padding: 0.5rem 0;
-        padding-left: 1.5rem;
-        position: relative;
-    }
-    
-    .intro-text ul li::before {
-        content: '✦';
-        position: absolute;
-        left: 0;
-        color: #00B2FF;
-    }
-    
-    .info-box {
-        background: linear-gradient(135deg, #00B2FF 0%, #00C2FF 100%);
-        color: white;
-        border-radius: 16px;
-        padding: 1.5rem 2rem;
-        margin: 2rem 0;
-    }
-    
-    .info-box h4 {
-        font-family: 'Space Grotesk', sans-serif;
-        font-weight: 700;
-        font-size: 1.2rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .who-section {
-        background: white;
-        border-radius: 20px;
-        padding: 2.5rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
-        border: 1px solid #eef0f6;
-        margin-bottom: 2rem;
-    }
-    
-    .section-title {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: #0A0B10;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-    
-    .section-title i {
-        color: #00B2FF;
-    }
-    
-    .who-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-    
-    .who-list li {
-        padding: 1rem 1.5rem;
-        background: #F5F7FA;
-        border-radius: 12px;
-        margin-bottom: 0.75rem;
-        border-left: 4px solid #00B2FF;
-    }
-    
-    .limited-trial-box {
-        background: #FFF8E7;
-        border: 2px solid #FFB648;
-        border-radius: 16px;
-        padding: 1.5rem 2rem;
-        margin-bottom: 2rem;
-    }
-    
-    .limited-trial-box h4 {
-        font-family: 'Space Grotesk', sans-serif;
-        font-weight: 700;
-        color: #B8860B;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    .registration-form {
-        background: white;
-        border-radius: 20px;
-        padding: 2.5rem;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
-        border: 1px solid #eef0f6;
-        overflow: hidden;
-    }
-    
-    .form-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-        width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
-    }
-    
-    .form-field {
-        width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
-    }
-    
-    .form-field input,
-    .form-field select,
-    .form-field textarea {
-        width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    
-    @media (min-width: 640px) {
-        .form-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-    
-    @media (min-width: 1024px) {
-        .form-grid {
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        }
-    }
-    
-    .form-field {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .form-field.full-width {
-        grid-column: 1 / -1;
-    }
-    
-    .form-field label {
-        font-weight: 600;
-        color: #0A0B10;
-        font-size: 0.95rem;
-    }
-    
-    .form-field input,
-    .form-field select,
-    .form-field textarea {
-        padding: 1rem;
-        border: 2px solid #eef0f6;
-        border-radius: 12px;
-        font-size: 1rem;
-        font-family: 'Inter', sans-serif;
-        transition: all 0.3s ease;
-        background: #F5F7FA;
-    }
-    
-    .form-field input:focus,
-    .form-field select:focus,
-    .form-field textarea:focus {
-        outline: none;
-        border-color: #00B2FF;
-        background: white;
-        box-shadow: 0 0 0 4px rgba(0, 178, 255, 0.1);
-    }
-    
-    .form-field input::placeholder {
-        color: #999;
-    }
-    
-    .subject-options {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 0.75rem;
-    }
-    
-    @media (min-width: 480px) {
-        .subject-options {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-    
-    @media (min-width: 640px) {
-        .subject-options {
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        }
-    }
-    
-    .subject-option {
-        position: relative;
-    }
-    
-    .subject-option input[type="radio"] {
-        position: absolute;
-        opacity: 0;
-        cursor: pointer;
-    }
-    
-    .subject-option label {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 1rem;
-        background: #F5F7FA;
-        border: 2px solid #eef0f6;
-        border-radius: 12px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-weight: 500;
-    }
-    
-    .subject-option input[type="radio"]:checked + label {
-        background: #00B2FF;
-        border-color: #00B2FF;
-        color: white;
-    }
-    
-    .subject-option label:hover {
-        border-color: #00B2FF;
-    }
-    
-    .submit-btn {
-        width: 100%;
-        padding: 1.25rem 2rem;
-        background: linear-gradient(135deg, #00B2FF 0%, #00C2FF 100%);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        font-size: 1.1rem;
-        font-weight: 700;
-        font-family: 'Space Grotesk', sans-serif;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 1rem;
-    }
-    
-    .submit-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(0, 178, 255, 0.3);
-    }
-    
-    .trust-line {
-        text-align: center;
-        padding: 2rem;
-        color: #666;
-        font-size: 0.95rem;
-        border-top: 1px solid #eef0f6;
-        margin-top: 2rem;
-    }
-    
-    .success-message {
-        display: none;
-        text-align: center;
-        padding: 3rem;
-        background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
-        color: white;
-        border-radius: 20px;
-        margin-bottom: 2rem;
-    }
-    
-    .success-message.show {
-        display: block;
-    }
-    
-    .success-message h3 {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 2rem;
-        font-weight: 800;
-        margin-bottom: 1rem;
-    }
-    
-    .success-message p {
-        font-size: 1.1rem;
-        opacity: 0.95;
-    }
-    
-    @media (max-width: 768px) {
-        .page-title {
-            font-size: 2rem;
-        }
-        
-        .page-subtitle {
-            font-size: 1.2rem;
-        }
-        
-        .logos-container {
-            gap: 1.5rem;
-        }
-        
-        .logos-container img {
-            max-height: 60px;
-        }
-        
-        .partnership-symbol {
-            font-size: 1.5rem;
-        }
-        
-        .content-section {
-            padding: 1rem;
-            max-width: 100%;
-        }
-        
-        .intro-text {
-            padding: 1.5rem;
-        }
-        
-        .who-section {
-            padding: 1.5rem;
-        }
-        
-        .registration-form {
-            padding: 1.5rem;
-        }
-        
-        .form-grid {
-            grid-template-columns: 1fr !important;
-            gap: 1rem;
-        }
-        
-        .form-field input,
-        .form-field select,
-        .form-field textarea {
-            padding: 0.875rem;
-            font-size: 16px; /* Prevents iOS zoom on focus */
-        }
-        
-        .subject-options {
-            grid-template-columns: 1fr !important;
-        }
-        
-        .subject-option label {
-            padding: 0.875rem;
-            font-size: 0.9rem;
-        }
-        
-        .submit-btn {
-            padding: 1rem 1.5rem;
-            font-size: 1rem;
-        }
-        
-        .limited-trial-box {
-            padding: 1rem 1.25rem;
-        }
-        
-        .info-box {
-            padding: 1rem 1.25rem;
-        }
-    }
-    
-    /* Extra small devices */
-    @media (max-width: 480px) {
-        .page-title {
-            font-size: 1.75rem;
-        }
-        
-        .page-title-section {
-            padding: 2rem 1rem 1.5rem;
-        }
-        
-        .logos-container {
-            gap: 1rem;
-        }
-        
-        .logo-item img {
-            max-height: 50px !important;
-        }
-        
-        .partnership-header {
-            padding: 2rem 1rem;
-        }
-        
-        .registration-form {
-            padding: 1.25rem;
-            border-radius: 16px;
-        }
-        
-        .form-field label {
-            font-size: 0.875rem;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="trial-page">
-    <!-- Partnership Header -->
-    <div class="partnership-header">
-        <div class="logos-container">
-            <div class="logo-item">
-                <img src="{% static 'assets/LOGO.png' %}" alt="Unwind Africa">
-                <span class="logo-text">Unwind Africa</span>
-            </div>
-            <span class="partnership-symbol">×</span>
-            <div class="logo-item">
-                <!-- EdBriTish Consult Logo - Replace src with actual logo if available -->
-                <div style="width: 120px; height: 80px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; overflow: hidden;">
-                    <img src="{% static 'assets/edbritish_logo.jpeg' %}" alt="EdBriTish Consult" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                    <span style="display: none; font-weight: 800; font-size: 1.2rem; text-align: center; padding: 0.5rem; line-height: 1.2;">EdBriTish<br>Consult</span>
-                </div>
-                <span class="logo-text">EdBriTish Consult</span>
-            </div>
+<main class="ua-page">
+  <section class="ua-hero ua-hero--dark" style="--ua-hero-image: url('{% static 'assets/home/family.jpg' %}')">
+    <div class="ua-wrap ua-hero-grid">
+      <div>
+        <p class="ua-kicker">Education partnership</p>
+        <h1 class="ua-title">Support that goes beyond the retreat.</h1>
+        <p class="ua-copy">
+          In partnership with EdBriTish Consult, this program offers selected trial classes for children and young people
+          connected to the Students & Youth recognition campaign.
+        </p>
+        <div class="ua-actions">
+          <a class="ua-button ua-button--light" href="#register">Register interest</a>
+          <a class="ua-button ua-button--ghost" href="{% url 'voting_campaigns_list' %}">View campaign</a>
         </div>
-        <p class="partnership-tagline">Educational Partnership for the Nominate to Unwind – Students & Youth Edition</p>
+      </div>
+      <aside class="ua-editorial-panel">
+        <strong>Recognition should open a door.</strong>
+        <p>This partnership adds practical support to the emotional care behind Nominate to Unwind.</p>
+      </aside>
     </div>
+  </section>
 
-    <!-- Page Title -->
-    <div class="page-title-section">
-        <h1 class="page-title">Free Trial Classes – Students & Youth Edition</h1>
-        <p class="page-subtitle">EdBriTish Consult × Unwind Africa</p>
-        <p style="margin-top: 1rem; color: #666;">Nominations close March 22 • Partnership for Diaspora Families</p>
+  <section class="ua-section">
+    <div class="ua-wrap">
+      <div class="ua-list">
+        <article class="ua-list-item"><div><h3>Who it serves</h3><p>Students, young people, and families seeking educational support connected to the campaign.</p></div></article>
+        <article class="ua-list-item"><div><h3>What is offered</h3><p>Trial learning sessions, guidance, and exposure to structured academic support.</p></div></article>
+        <article class="ua-list-item"><div><h3>How to begin</h3><p>Register your interest and the team will follow up with available openings and next steps.</p></div><a class="ua-button" href="#register">Register</a></article>
+      </div>
     </div>
+  </section>
 
-    <!-- Content Section -->
-    <div class="content-section">
-        <!-- Introduction -->
-        <div class="intro-text" data-aos="fade-up">
-            <p>Unwind Africa, in collaboration with EdBriTish Consult, is proud to announce an exciting education sponsorship for the <strong>Nominate to Unwind – Students & Youth Edition</strong>.</p>
-            <p>This initiative allows families in the diaspora to access trial classes in the following subjects:</p>
-            <ul>
-                <li><strong>Academics:</strong> Mathematics, English Language, and Science</li>
-                <li><strong>Skills:</strong> Coding, AI Animation Video, Digital Marketing</li>
-                <li><strong>Language:</strong> Hausa, Igbo, Yoruba, French, Spanish, German, and Chinese</li>
-            </ul>
-            <p>Members of the Unwind Africa community can share this opportunity with friends and families abroad whose children may benefit from additional learning support.</p>
-            <div class="info-box">
-                <h4>🎓 Free Trial Programs Available</h4>
-                <p style="margin: 0; opacity: 0.95;">Mathematics • English Language • AI Animation Video • Digital Marketing</p>
-            </div>
+  <section class="ua-section" id="register" style="padding-top:0;">
+    <div class="ua-wrap">
+      <form class="ua-form-shell" id="edbritishForm" method="post" action="{% url 'edbritish_trial_registration' %}">
+        {% csrf_token %}
+        <p class="ua-kicker">Registration</p>
+        <div class="ua-form-grid">
+          <div class="ua-field"><label for="parent_name">Parent or guardian name</label><input id="parent_name" name="parent_name" required></div>
+          <div class="ua-field"><label for="parent_email">Email</label><input id="parent_email" name="parent_email" type="email" required></div>
+          <div class="ua-field"><label for="parent_phone">Phone</label><input id="parent_phone" name="parent_phone" required></div>
+          <div class="ua-field"><label for="country">Country of residence</label><input id="country" name="country" required></div>
+          <div class="ua-field"><label for="child_name">Child's name</label><input id="child_name" name="child_name" required></div>
+          <div class="ua-field"><label for="child_age">Child's age</label><input id="child_age" name="child_age" type="number" min="3" max="20" required></div>
+          <div class="ua-field ua-field--full"><label for="subject">Subject of interest</label><input id="subject" name="subject" required></div>
         </div>
-
-        <!-- Who This Is For -->
-        <div class="who-section" data-aos="fade-up" data-aos-delay="100">
-            <h2 class="section-title"><i class="fas fa-user-friends"></i> Who This Is For</h2>
-            <ul class="who-list">
-                <li>Families in diaspora who want structured academic support for their children</li>
-                <li>Parents who want their children to build stronger learning foundations</li>
-                <li>Children and youth interested in Mathematics, English, Science, AI, Digital Marketing, Coding, Music, Art, or Languages</li>
-                <li>Selected nominees for the Students & Youth Edition may also receive access to training, mentorship, and personal development sessions</li>
-            </ul>
-        </div>
-
-        <!-- Limited Trial Note -->
-        <div class="limited-trial-box" data-aos="fade-up" data-aos-delay="200">
-            <h4><i class="fas fa-exclamation-circle"></i> Limited Trial Access</h4>
-            <p style="margin: 0; color: #666;">This education sponsorship will run during the current Students & Youth Edition of Nominate to Unwind. Early registration is recommended as trial spots are limited.</p>
-        </div>
-
-        <!-- Registration Form -->
-        <div class="registration-form" data-aos="fade-up" data-aos-delay="300" id="registration-form">
-            <!-- Success Message -->
-            <div class="success-message" id="success-message">
-                <h3>✓ Registration Successful!</h3>
-                <p>Thank you for registering. Further information on how to access the trial class will be sent to your email shortly.</p>
-            </div>
-
-            <form id="trial-registration-form" method="POST" action="{% url 'edbritish_trial_registration' %}">
-                {% csrf_token %}
-                
-                <div class="form-grid">
-                    <!-- Parent/Guardian Full Name -->
-                    <div class="form-field">
-                        <label for="parent_name">Parent / Guardian Full Name *</label>
-                        <input type="text" id="parent_name" name="parent_name" required placeholder="Enter your full name">
-                    </div>
-
-                    <!-- Parent Email Address -->
-                    <div class="form-field">
-                        <label for="parent_email">Parent Email Address *</label>
-                        <input type="email" id="parent_email" name="parent_email" required placeholder="your.email@example.com">
-                    </div>
-
-                    <!-- Parent Phone Number -->
-                    <div class="form-field">
-                        <label for="parent_phone">Parent Phone Number (WhatsApp preferred) *</label>
-                        <input type="tel" id="parent_phone" name="parent_phone" required placeholder="+1 234 567 8900">
-                    </div>
-
-                    <!-- Country of Residence -->
-                    <div class="form-field">
-                        <label for="country">Country of Residence *</label>
-                        <select id="country" name="country" required>
-                            <option value="">Select your country</option>
-                            <option value="United States">United States</option>
-                            <option value="United Kingdom">United Kingdom</option>
-                            <option value="Canada">Canada</option>
-                            <option value="Germany">Germany</option>
-                            <option value="France">France</option>
-                            <option value="Netherlands">Netherlands</option>
-                            <option value="Spain">Spain</option>
-                            <option value="Italy">Italy</option>
-                            <option value="Belgium">Belgium</option>
-                            <option value="Ireland">Ireland</option>
-                            <option value="Australia">Australia</option>
-                            <option value="New Zealand">New Zealand</option>
-                            <option value="South Africa">South Africa</option>
-                            <option value="Nigeria">Nigeria</option>
-                            <option value="Ghana">Ghana</option>
-                            <option value="Kenya">Kenya</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-
-                    <!-- Child's Name -->
-                    <div class="form-field">
-                        <label for="child_name">Child's Name *</label>
-                        <input type="text" id="child_name" name="child_name" required placeholder="Enter child's full name">
-                    </div>
-
-                    <!-- Child's Age -->
-                    <div class="form-field">
-                        <label for="child_age">Child's/Youth Age *</label>
-                        <select id="child_age" name="child_age" required>
-                            <option value="">Select age</option>
-                            <option value="5">5 years old</option>
-                            <option value="6">6 years old</option>
-                            <option value="7">7 years old</option>
-                            <option value="8">8 years old</option>
-                            <option value="9">9 years old</option>
-                            <option value="10">10 years old</option>
-                            <option value="11">11 years old</option>
-                            <option value="12">12 years old</option>
-                            <option value="13">13 years old</option>
-                            <option value="14">14 years old</option>
-                            <option value="15">15 years old</option>
-                            <option value="16">16 years old</option>
-                            <option value="17">17 years old</option>
-                            <option value="18">18 years old</option>
-                            <option value="19">19 years old</option>
-                            <option value="20">20 years old</option>
-                            <option value="21">21 years old</option>
-                            <option value="22">22 years old</option>
-                            <option value="23">23 years old</option>
-                            <option value="24">24 years old</option>
-                            <option value="25">25 years old</option>
-                        </select>
-                    </div>
-
-                    <!-- Subject of Interest -->
-                    <div class="form-field full-width">
-                        <label>Subject of Interest *</label>
-                        <div class="subject-options">
-                            <div class="subject-option">
-                                <input type="radio" id="subject_english" name="subject" value="English Language" required>
-                                <label for="subject_english">English Language</label>
-                            </div>
-                            <div class="subject-option">
-                                <input type="radio" id="subject_mathematics" name="subject" value="Mathematics">
-                                <label for="subject_mathematics">Mathematics</label>
-                            </div>
-                            <div class="subject-option">
-                                <input type="radio" id="subject_science" name="subject" value="Science">
-                                <label for="subject_science">Science</label>
-                            </div>
-                            <div class="subject-option">
-                                <input type="radio" id="subject_ai_animation" name="subject" value="AI Video Animation">
-                                <label for="subject_ai_animation">AI Video Animation</label>
-                            </div>
-                            <div class="subject-option">
-                                <input type="radio" id="subject_digital_marketing" name="subject" value="Digital Marketing">
-                                <label for="subject_digital_marketing">Digital Marketing</label>
-                            </div>
-                            <div class="subject-option">
-                                <input type="radio" id="subject_coding" name="subject" value="Coding">
-                                <label for="subject_coding">Coding</label>
-                            </div>
-                            <div class="subject-option">
-                                <input type="radio" id="subject_music" name="subject" value="Music">
-                                <label for="subject_music">Music</label>
-                            </div>
-                            <div class="subject-option">
-                                <input type="radio" id="subject_arts" name="subject" value="Arts">
-                                <label for="subject_arts">Arts</label>
-                            </div>
-                            <div class="subject-option">
-                                <input type="radio" id="subject_language" name="subject" value="Language">
-                                <label for="subject_language">Language</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" class="submit-btn">Register for Trial Class</button>
-            </form>
-        </div>
-
-        <!-- Trust Line -->
-        <div class="trust-line">
-            <p>This opportunity is made available through the Unwind Africa community in partnership with EdBriTish Consult.</p>
-        </div>
+        <div class="ua-actions"><button class="ua-button" type="submit">Submit registration</button></div>
+        <p class="ua-status-note" id="edbritishMessage" style="display:none; margin-top:1rem;"></p>
+      </form>
     </div>
-</div>
+  </section>
+</main>
 
 <script>
-// Load AOS CSS and JS directly to ensure availability
-var aosCss = document.createElement('link');
-aosCss.rel = 'stylesheet';
-aosCss.href = 'https://unpkg.com/aos@2.3.4/dist/aos.css';
-document.head.appendChild(aosCss);
-
-var aosJs = document.createElement('script');
-aosJs.src = 'https://unpkg.com/aos@2.3.4/dist/aos.js';
-aosJs.onload = function() {
-    AOS.init({ duration: 1000, once: true });
-};
-document.head.appendChild(aosJs);
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Wait for AOS to load if not already initialized
-    if (typeof AOS !== 'undefined' && !AOS.isInitialized) {
-        AOS.init({ duration: 1000, once: true });
-    }
-    
-    const form = document.getElementById('trial-registration-form');
-    const successMessage = document.getElementById('success-message');
-    
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Collect form data
-        const formData = new FormData(form);
-        
-        // Send form data via fetch
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Hide form, show success message
-                form.style.display = 'none';
-                successMessage.classList.add('show');
-                // Scroll to success message
-                successMessage.scrollIntoView({ behavior: 'smooth' });
-            } else {
-                alert('There was an error submitting your registration. Please try again.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('There was an error submitting your registration. Please try again.');
-        });
+document.getElementById('edbritishForm').addEventListener('submit', async function(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const message = document.getElementById('edbritishMessage');
+  const formData = new FormData(form);
+  message.style.display = 'block';
+  message.textContent = 'Submitting registration...';
+  try {
+    const response = await fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') }
     });
+    const data = await response.json();
+    message.textContent = data.success ? 'Registration received. The team will follow up.' : (data.error || 'Unable to submit registration.');
+    if (data.success) form.reset();
+  } catch (error) {
+    message.textContent = 'Unable to submit registration. Please try again.';
+  }
 });
 </script>
 {% endblock %}

@@ -1,70 +1,91 @@
 {% extends 'Web/main.html' %}
 {% load static %}
 
-<title>Blog Post - Unwind Africa</title>
-<style>
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  .animate-fade-in-up { animation: fadeInUp 0.6s ease-out; }
-  .animate-fade-in { animation: fadeIn 0.5s ease-out; }
-</style>
+{% block title %}{{ post.title }} - Unwind Africa Journal{% endblock %}
 
-{% block navbar %}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}" />
+<style>
+  .ua-article-body {
+    max-width: 760px;
+    margin-inline: auto;
+    color: var(--ua-text);
+    font-size: 1.06rem;
+    line-height: 1.88;
+  }
+  .ua-article-body p { margin: 0 0 1.35rem; }
+  .ua-article-body a { color: var(--ua-primary); text-decoration: underline; text-underline-offset: 0.18em; }
+  .ua-article-body h2,
+  .ua-article-body h3 {
+    margin: 2.4rem 0 1rem;
+    font-family: "Playfair Display", ui-serif, Georgia, serif;
+    line-height: 1.1;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-   {% include './partials/header/navbar.html' with theme='dark'%}
-   {% include './partials/header/hamburger-menu.html' with faq_link="/about#faq"%}
-<div class="pt-12">
-  <!-- Back Button -->
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 animate-fade-in">
-    <a href="{% url 'blog' %}" class="inline-flex items-center text-teal-600 hover:text-teal-700 font-medium">
-      <i class="fas fa-arrow-left mr-2"></i>
-      Back to Blog
-    </a>
-  </div>
-
-  <!-- Blog Post Content -->
-  <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-    <!-- Blog Image -->
-    {% if post.thumbnail %}
-      <div class="mb-8 animate-fade-in">
-        <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}" class="w-full h-64 md:h-96 object-cover rounded-xl shadow-lg"/>
-      </div>
-    {% endif %}
-
-    <!-- Blog Body -->
-    <div class="bg-white rounded-xl shadow-lg p-8 animate-fade-in-up">
-      <header class="mb-8">
-        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">{{ post.title }}</h1>
-
-        <div class="flex items-center text-gray-600 text-sm">
-          <div class="flex items-center">
-            <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center mr-3">
-              <i class="fas fa-user text-teal-600"></i>
-            </div>
-            <div>
-              <p class="font-medium text-gray-900">Unwind Africa</p>
-              <p class="text-xs text-gray-500">Author</p>
-            </div>
-          </div>
-          <span class="mx-4">•</span>
-          <div class="flex items-center">
-            <i class="fas fa-calendar text-gray-400 mr-2"></i>
-            <span>{{ post.created_at|date:"F j, Y" }}</span>
-          </div>
+<main id="main-content" class="ua-page">
+  <article>
+    <section class="ua-hero ua-hero--dark" style="--ua-hero-image: url('{% if post.image %}{{ post.image.url }}{% elif post.thumbnail %}{{ post.thumbnail.url }}{% else %}{% static 'assets/home/marquee_section/slide_5.jpg' %}{% endif %}');">
+      <div class="ua-wrap">
+        <p class="ua-kicker">{{ post.category }}</p>
+        <h1 class="ua-title">{{ post.title }}</h1>
+        <p class="ua-copy">{{ post.excerpt|default:post.content|striptags|truncatewords:34 }}</p>
+        <div class="ua-meta">
+          <span>Unwind Africa Journal</span>
+          <span>{{ post.created_at|date:"F j, Y" }}</span>
+          <span>{{ post.read_minutes }} min read</span>
         </div>
-      </header>
+      </div>
+    </section>
 
-      <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
-        {{ post.content|linebreaks }}
+    <section class="ua-section">
+      <div class="ua-wrap">
+        <div class="ua-article-body">
+          {{ post.content|linebreaks }}
+        </div>
+      </div>
+    </section>
+  </article>
+
+  {% if related %}
+  <section class="ua-section">
+    <div class="ua-wrap">
+      <div class="ua-section-head">
+        <p class="ua-kicker">Continue reading</p>
+        <h2 class="ua-title">More from the journal.</h2>
+      </div>
+      <div class="ua-grid">
+        {% for item in related %}
+        <article class="ua-card">
+          {% if item.thumbnail %}
+          <img class="ua-card-media" src="{{ item.thumbnail.url }}" alt="{{ item.title }}">
+          {% endif %}
+          <p class="ua-kicker">{{ item.category }}</p>
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.excerpt|default:item.content|striptags|truncatewords:24 }}</p>
+          <div class="ua-actions">
+            <a class="ua-link-button" href="{% url 'blog_detail' item.slug %}">Read article</a>
+          </div>
+        </article>
+        {% endfor %}
       </div>
     </div>
-  </article>
-</div>
+  </section>
+  {% endif %}
+
+  <section class="ua-section ua-page-dark">
+    <div class="ua-wrap ua-hero-grid">
+      <div>
+        <p class="ua-kicker">From reading to retreat</p>
+        <h2 class="ua-title">Let the next step become a place, not another saved article.</h2>
+      </div>
+      <div class="ua-actions">
+        <a class="ua-button ua-button--light" href="{% url 'contact' %}">Start a private brief</a>
+        <a class="ua-button ua-button--ghost" href="{% url 'blog' %}">Back to journal</a>
+      </div>
+    </div>
+  </section>
+</main>
 {% endblock %}

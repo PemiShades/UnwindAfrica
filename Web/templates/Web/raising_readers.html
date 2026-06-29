@@ -1,277 +1,54 @@
-{% extends 'Web/main.html' %}
+{% extends "Web/main.html" %}
 {% load static %}
 
-{% block title %}Raising Readers – Community Book Circle | Unwind Africa{% endblock %}
+{% block title %}Raising Readers - Unwind Africa{% endblock %}
 
 {% block extra_css %}
-<style>
-:root{
-  --ua-sky:#00B2FF;--ua-sea:#00C2FF;--ua-sun:#FFB648;--ua-ink:#0A0B10;--ua-paper:#FFFFFF;
-  --radius:16px;--shadow:0 8px 32px rgba(10,11,16,.12);
-}
-
-.rr-page{font-family:Inter,system-ui,sans-serif;color:var(--ua-ink);background:#f8f9fa;}
-
-/* Hero */
-.rr-hero{
-  position:relative;
-  min-height:70vh;
-  display:flex;
-  align-items:center;
-  color:#fff;
-  padding:100px 20px 60px;
-}
-.rr-hero::before{
-  content:"";
-  position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(10,11,16,.92) 0%,rgba(8,18,38,.85) 100%);
-  z-index:1;
-}
-.rr-hero::after{
-  content:"";
-  position:absolute;inset:0;
-  background:url("{% static 'assets/home/family.jpg' %}") center/cover no-repeat;
-  filter:brightness(.5) contrast(1.1);
-}
-.rr-hero .hero-content{position:relative;z-index:2;text-align:center;max-width:800px;margin:0 auto;}
-.rr-hero h1{font-size:clamp(2rem,6vw,3.5rem);font-weight:900;margin-bottom:1rem;letter-spacing:-.02em;}
-.rr-hero p{font-size:clamp(1rem,2vw,1.25rem);opacity:.9;margin-bottom:2rem;line-height:1.6;}
-.rr-hero .cta-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:1rem 2rem;border-radius:999px;font-weight:700;cursor:pointer;transition:all .3s;border:none;text-decoration:none;}
-.btn-primary{background:linear-gradient(90deg,#FF6B9D,var(--ua-sky));color:#fff;box-shadow:0 4px 20px rgba(255,107,157,.4);}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,107,157,.5);}
-.btn-outline{background:transparent;border:2px solid #fff;color:#fff;}
-.btn-outline:hover{background:#fff;color:var(--ua-ink);}
-.btn-green{background:#27ae60;color:#fff;}
-.btn-blue{background:#3498db;color:#fff;}
-
-/* Section */
-.rr-section{padding:4rem 20px;max-width:1200px;margin:0 auto;}
-.section-title{font-size:clamp(1.5rem,4vw,2.25rem);font-weight:800;text-align:center;margin-bottom:2rem;}
-
-/* Rest Card Required Banner */
-.rest-banner{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:1.5rem;border-radius:var(--radius);text-align:center;margin-bottom:2rem;}
-.rest-banner h3{margin:0 0 .5rem;font-size:1.25rem;}
-.rest-banner p{margin:0 0 1rem;opacity:.9;}
-.rest-banner .btn{background:#fff;color:#667eea;padding:.75rem 1.5rem;font-size:.9rem;}
-
-/* Action Cards Grid */
-.actions-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-bottom:3rem;}
-.action-card{background:#fff;border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow);text-align:center;transition:transform .3s;}
-.action-card:hover{transform:translateY(-5px);}
-.action-card .icon{font-size:3rem;margin-bottom:1rem;}
-.action-card h3{font-size:1.25rem;margin-bottom:.75rem;}
-.action-card p{color:#666;font-size:.95rem;margin-bottom:1.25rem;line-height:1.5;}
-.action-card .btn{width:100%;justify-content:center;}
-
-/* Books Grid */
-.books-section{background:#fff;padding:3rem 20px;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:3rem;}
-.books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.5rem;margin-top:1.5rem;}
-.book-card{background:#f8f9fa;border-radius:12px;overflow:hidden;transition:all .3s;}
-.book-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.12);}
-.book-cover{height:250px;background:#e9ecef;display:flex;align-items:center;justify-content:center;font-size:4rem;color:#adb5bd;}
-.book-cover img{width:100%;height:100%;object-fit:cover;}
-.book-info{padding:1rem;}
-.book-title{font-weight:700;font-size:1rem;margin-bottom:.25rem;line-height:1.3;}
-.book-author{color:#666;font-size:.85rem;margin-bottom:.5rem;}
-.book-status{ display:inline-block;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;font-weight:600;}
-.status-available{background:#d4edda;color:#155724;}
-.status-borrowed{background:#fff3cd;color:#856404;}
-.book-actions{display:flex;gap:.5rem;margin-top:.75rem;}
-.book-actions .btn{flex:1;padding:.5rem;font-size:.85rem;}
-
-/* Quick Info */
-.quick-info{background:#fff;padding:2rem;border-radius:var(--radius);box-shadow:var(--shadow);}
-.quick-info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem;}
-.info-item{text-align:center;}
-.info-item .icon{font-size:2rem;margin-bottom:.5rem;}
-.info-item h4{font-size:1rem;margin-bottom:.25rem;}
-.info-item p{color:#666;font-size:.9rem;}
-
-/* Footer CTA */
-.rr-cta{background:linear-gradient(135deg,#FF6B9D,var(--ua-sky));color:#fff;padding:3rem 20px;border-radius:var(--radius);text-align:center;}
-.rr-cta h2{font-size:clamp(1.5rem,4vw,2rem);margin-bottom:1rem;}
-.rr-cta p{margin-bottom:1.5rem;opacity:.95;}
-.rr-cta .btn{background:#fff;color:#FF6B9D;}
-
-/* Responsive */
-@media(max-width:768px){
-  .rr-hero{min-height:60vh;padding:80px 20px 40px;}
-  .actions-grid{grid-template-columns:1fr;}
-  .books-grid{grid-template-columns:repeat(2,1fr);}
-}
-</style>
+<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="rr-page">
-  <!-- Hero Section -->
-  <section class="rr-hero">
-    <div class="hero-content">
-      <h1>📚 Raising Readers</h1>
-      <p>Community Book Circle. Lend. Borrow. Read. Repeat.<br>Join families building a reading culture together.</p>
-      <div class="cta-btns">
-        <a href="#get-started" class="btn btn-primary">Get Started</a>
-        <a href="#browse" class="btn btn-outline">Browse Books</a>
+<main class="ua-page">
+  <section class="ua-hero ua-hero--dark" style="--ua-hero-image: url('{% static 'assets/home/family.jpg' %}')">
+    <div class="ua-wrap ua-hero-grid">
+      <div>
+        <p class="ua-kicker">Family culture</p>
+        <h1 class="ua-title">A quieter circle for families raising readers.</h1>
+        <p class="ua-copy">
+          Raising Readers is a community book circle for families who want children to grow up around stories,
+          language, care, and shared attention.
+        </p>
+        <div class="ua-actions">
+          <a class="ua-button ua-button--light" href="{% url 'rest_card_info' %}">Get Rest Card</a>
+          <a class="ua-button ua-button--ghost" href="#books">Browse books</a>
+        </div>
       </div>
+      <aside class="ua-editorial-panel">
+        <strong>Rest is also cultural.</strong>
+        <p>A slower home, a shared book, a child who feels held by language. This is part of the Unwind Africa world.</p>
+      </aside>
     </div>
   </section>
 
-  <div class="rr-section">
-    <!-- REST Card Required -->
-    <div class="rest-banner" id="get-started">
-      <h3>🔐 REST Card Required</h3>
-      <p>You need a REST Card to lend or borrow books. It's free to join!</p>
-      <a href="{% url 'rest_card_info' %}" class="btn">Get REST Card →</a>
-    </div>
-
-    <!-- Action Cards -->
-    <h2 class="section-title">What Would You Like To Do?</h2>
-    <div class="actions-grid">
-      <div class="action-card">
-        <div class="icon">📤</div>
-        <h3>Lend a Book</h3>
-        <p>Share your books with the community. Help others discover great reads.</p>
-        <a href="#" class="btn btn-primary" onclick="alert('Login with REST Card to lend books')">Lend Now</a>
+  <section class="ua-section" id="books">
+    <div class="ua-wrap">
+      <div class="ua-section-head">
+        <p class="ua-kicker">Library</p>
+        <h2 class="ua-title">Community collection</h2>
       </div>
-      <div class="action-card">
-        <div class="icon">📥</div>
-        <h3>Borrow a Book</h3>
-        <p>Find your next read from our community collection.</p>
-        <a href="#browse" class="btn btn-green">Browse Books</a>
-      </div>
-      <div class="action-card">
-        <div class="icon">✅</div>
-        <h3>Return a Book</h3>
-        <p>Already borrowed? Confirm your return here.</p>
-        <a href="#" class="btn btn-blue" onclick="alert('Login to confirm return')">Confirm Return</a>
-      </div>
-      <div class="action-card">
-        <div class="icon">💬</div>
-        <h3>Share a Review</h3>
-        <p>Tell others about what you read. Inspire the community!</p>
-        <a href="#" class="btn btn-outline" style="border-color:#FF6B9D;color:#FF6B9D;">Write Review</a>
+      <div class="ua-grid">
+        {% for book in books %}
+        <article class="ua-card">
+          {% if book.cover_image %}<img class="ua-card-media" src="{{ book.cover_image.url }}" alt="{{ book.title }}">{% endif %}
+          <h3>{{ book.title }}</h3>
+          <p>{{ book.author }}</p>
+          <div class="ua-meta"><span>{{ book.status|title }}</span></div>
+        </article>
+        {% empty %}
+        <div class="ua-card"><h3>The shelf is being prepared.</h3><p>Books will appear here as the circle grows.</p></div>
+        {% endfor %}
       </div>
     </div>
-
-    <!-- Browse Books -->
-    <div class="books-section" id="browse">
-      <h2 class="section-title">📖 Available Books</h2>
-      <p style="text-align:center;color:#666;margin-bottom:1rem;">Browse our community collection</p>
-      
-      <div class="books-grid">
-        {% if books %}
-          {% for book in books %}
-          <div class="book-card">
-            <div class="book-cover">
-              {% if book.cover_image %}
-                <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
-              {% else %}
-                📖
-              {% endif %}
-            </div>
-            <div class="book-info">
-              <div class="book-title">{{ book.title }}</div>
-              <div class="book-author">{{ book.author }}</div>
-              {% if book.status == 'available' %}
-                <span class="book-status status-available">Available</span>
-              {% elif book.status == 'on_loan' %}
-                <span class="book-status status-borrowed">On Loan</span>
-              {% else %}
-                <span class="book-status" style="background:#e2e6ea;color:#6c757d;">Unavailable</span>
-              {% endif %}
-              <div class="book-actions">
-                <button class="btn btn-green" data-book-id="{{ book.id }}" data-title="{{ book.title|escapejs }}" data-author="{{ book.author|escapejs }}" data-description="{{ book.description|escapejs }}" data-age="{{ book.age_category|escapejs }}" data-genre="{{ book.genre|escapejs }}" data-status="{% if book.status == 'available' %}Available{% elif book.status == 'on_loan' %}On Loan{% else %}{{ book.status|title }}{% endif %}" onclick="showBookModal(this)">Details</button>
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-        {% else %}
-          <p style="grid-column:1/-1;text-align:center;color:#666;">No books available yet. Check back soon!</p>
-        {% endif %}
-      </div>
-    </div>
-
-    <!-- Quick Info -->
-    <div class="quick-info">
-      <div class="quick-info-grid">
-        <div class="info-item">
-          <div class="icon">📅</div>
-          <h4>Twice Monthly Cycles</h4>
-          <p>Borrow for 2 weeks, return on schedule</p>
-        </div>
-        <div class="info-item">
-          <div class="icon">📚</div>
-          <h4>3-5 Books Max</h4>
-          <p>Fair access for all members</p>
-        </div>
-        <div class="info-item">
-          <div class="icon">✅</div>
-          <h4>Care for Books</h4>
-          <p>Return in good condition</p>
-        </div>
-        <div class="info-item">
-          <div class="icon">🤝</div>
-          <h4>Community Trust</h4>
-          <p>Built on respect & responsibility</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer CTA -->
-    <div class="rr-cta">
-      <h2>Ready to Join the Reading Circle?</h2>
-      <p>Get your REST Card today and start sharing the joy of reading!</p>
-      <a href="{% url 'rest_card_info' %}" class="btn">Get REST Card →</a>
-    </div>
-  </div>
-</div>
-
-<!-- Book Details Modal -->
-<div id="bookModal" class="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;padding:20px;">
-  <div class="modal-content" style="background:#fff;border-radius:16px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;position:relative;">
-    <button onclick="closeBookModal()" style="position:absolute;top:15px;right:15px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#666;">✕</button>
-    <div id="modalBody" style="padding:2rem;">
-      <h2 id="modalTitle" style="margin:0 0 .5rem;font-size:1.5rem;"></h2>
-      <p id="modalAuthor" style="color:#666;margin-bottom:1rem;"></p>
-      <div id="modalStatus" style="margin-bottom:1rem;"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
-        <div><strong>Age Category:</strong> <span id="modalAge"></span></div>
-        <div><strong>Genre:</strong> <span id="modalGenre"></span></div>
-      </div>
-      <p id="modalDescription" style="color:#444;line-height:1.6;"></p>
-      <button class="btn btn-primary" style="width:100%;margin-top:1rem;" onclick="alert('Please login with REST Card to borrow this book')">Request to Borrow</button>
-    </div>
-  </div>
-</div>
-
-<script>
-function showBookModal(btn) {
-  document.getElementById('modalTitle').textContent = btn.dataset.title;
-  document.getElementById('modalAuthor').textContent = 'by ' + btn.dataset.author;
-  document.getElementById('modalAge').textContent = btn.dataset.age || 'N/A';
-  document.getElementById('modalGenre').textContent = btn.dataset.genre || 'N/A';
-  document.getElementById('modalDescription').textContent = btn.dataset.description || 'No description available.';
-  
-  const statusEl = document.getElementById('modalStatus');
-  const status = btn.dataset.status;
-  if (status === 'Available') {
-    statusEl.innerHTML = '<span style="background:#d4edda;color:#155724;padding:.25rem .75rem;border-radius:20px;font-size:.85rem;">✓ Available</span>';
-  } else if (status === 'On Loan') {
-    statusEl.innerHTML = '<span style="background:#fff3cd;color:#856404;padding:.25rem .75rem;border-radius:20px;font-size:.85rem;">� currently on loan</span>';
-  } else {
-    statusEl.innerHTML = '<span style="background:#e2e6ea;color:#6c757d;padding:.25rem .75rem;border-radius:20px;font-size:.85rem;">Unavailable</span>';
-  }
-  
-  document.getElementById('bookModal').style.display = 'flex';
-}
-
-function closeBookModal() {
-  document.getElementById('bookModal').style.display = 'none';
-}
-
-document.getElementById('bookModal').addEventListener('click', function(e) {
-  if (e.target === this) closeBookModal();
-});
-</script>
+  </section>
+</main>
 {% endblock %}

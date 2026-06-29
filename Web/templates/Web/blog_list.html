@@ -1,65 +1,74 @@
 {% extends 'Web/main.html' %}
 {% load static %}
 
-<style>
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+{% block title %}Journal - Unwind Africa{% endblock %}
 
-  .animate-fade-in-up {
-    animation: fadeInUp 0.6s ease-out;
-  }
-
-  .blog-card {
-    transition: all 0.3s ease-in-out;
-  }
-
-  .blog-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 15px 25px rgba(0,0,0,0.08);
-  }
-
-  .blog-image {
-    transition: transform 0.3s ease-out;
-  }
-
-  .blog-card:hover .blog-image {
-    transform: scale(1.05);
-  }
-</style>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}" />
+{% endblock %}
 
 {% block content %}
-   {% include './partials/header/navbar.html' with theme='dark'%}
-   {% include './partials/header/hamburger-menu.html' with faq_link="/about#faq"%}
-<!-- Hero -->
-<section class="bg-gradient-to-br from-teal-50 to-cyan-50 py-20 text-center">
-  <div class="max-w-3xl mx-auto px-4">
-    <h1 class="text-5xl font-bold mb-4 animate-fade-in-up">Unwind Africa Blog</h1>
-    <p class="text-lg text-gray-600 animate-fade-in-up">Curated travel stories, tips & wellness insights from across Africa.</p>
-  </div>
-</section>
+<main id="main-content" class="ua-page">
+  <section class="ua-hero ua-hero--dark" style="--ua-hero-image: url('{% static 'assets/home/marquee_section/slide_4.jpg' %}');">
+    <div class="ua-wrap ua-hero-grid">
+      <div>
+        <p class="ua-kicker">Journal</p>
+        <h1 class="ua-title">Field notes on rest, place, ritual, and African escape.</h1>
+        <p class="ua-copy">A quieter editorial space for people planning a reset, a celebration, or a more intentional way to travel.</p>
+      </div>
+      <aside class="ua-editorial-panel">
+        <strong>Read slowly.</strong>
+        <p>The journal is designed to help guests choose with more clarity, not scroll through travel noise.</p>
+      </aside>
+    </div>
+  </section>
 
-<!-- Blog Grid -->
-<section class="py-16 bg-white">
-  <div class="max-w-7xl mx-auto px-4 grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-    {% for post in posts %}
-      <a href="{% url 'blog_detail' post.slug %}" class="blog-card rounded-xl bg-white overflow-hidden shadow group animate-fade-in-up">
-        <div class="relative overflow-hidden h-52">
-          <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}" class="blog-image w-full h-full object-cover" />
-        </div>
-        <div class="p-5">
-          <div class="text-sm text-gray-500 flex items-center mb-2">
-            <i class="fas fa-calendar mr-2 text-teal-500"></i>
-            {{ post.created_at|date:"F j, Y" }}
+  <section class="ua-section">
+    <div class="ua-wrap">
+      <div class="ua-section-head">
+        <p class="ua-kicker">Latest writing</p>
+        <h2 class="ua-title">Stories worth taking with you.</h2>
+      </div>
+
+      {% if posts %}
+      <div class="ua-grid">
+        {% for post in posts %}
+        <article class="ua-card">
+          {% if post.thumbnail %}
+          <img class="ua-card-media" src="{{ post.thumbnail.url }}" alt="{{ post.title }}">
+          {% endif %}
+          <p class="ua-kicker">{{ post.category }}</p>
+          <h3>{{ post.title }}</h3>
+          <p>{{ post.excerpt|default:post.content|striptags|truncatewords:28 }}</p>
+          <div class="ua-meta">
+            <span>{{ post.created_at|date:"F j, Y" }}</span>
+            <span>{{ post.read_minutes }} min read</span>
           </div>
-          <h3 class="text-xl font-bold text-gray-900 group-hover:text-teal-600 transition">{{ post.title }}</h3>
-          <p class="text-gray-600 text-sm mt-2 line-clamp-3">{{ post.content|striptags|truncatewords:25 }}</p>
-        </div>
-      </a>
-    {% empty %}
-      <p class="text-center text-gray-500 col-span-full">No blog posts available at the moment.</p>
-    {% endfor %}
-  </div>
-</section>
+          <div class="ua-actions">
+            <a class="ua-link-button" href="{% url 'blog_detail' post.slug %}">Read article</a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="ua-status-note">
+        The journal is being edited. New field notes on restorative travel will appear here soon.
+      </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="ua-section ua-page-dark">
+    <div class="ua-wrap ua-hero-grid">
+      <div>
+        <p class="ua-kicker">Plan from insight</p>
+        <h2 class="ua-title">When a story starts to sound like what you need, let us build the trip.</h2>
+      </div>
+      <div class="ua-actions">
+        <a class="ua-button ua-button--light" href="{% url 'contact' %}">Start a private brief</a>
+        <a class="ua-button ua-button--ghost" href="{% url 'packages' %}">Explore packages</a>
+      </div>
+    </div>
+  </section>
+</main>
 {% endblock %}

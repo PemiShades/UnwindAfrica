@@ -1,76 +1,78 @@
 {% load static %}
-<!-- Hamburger Icon -->
+<div id="hamburgerMenu" class="ua-menu" aria-hidden="true">
+  <button type="button" class="ua-menu__scrim" data-menu-close aria-label="Close menu"></button>
 
-<!-- Hamburger Menu Overlay -->
-<div id="hamburgerMenu" class="fixed inset-0 z-40 bg-white transition-transform duration-500 transform translate-x-full">
-  <div class="flex h-full overflow-hidden">
-
-    <!-- Left Side Branding -->
-    <div class="w-1/2 hidden md:flex bg-[#111827] text-white justify-center items-center relative">
-      <div class="text-center">
-        <img src="{% static 'assets/LOGO.png' %}" alt="Unwind Africa" class="h-16 w-auto mx-auto mb-4">
-        <div class="text-5xl font-bold tracking-widest rotate-[-90deg]">
-          EXPLORE
-        </div>
-      </div>
+  <aside class="ua-menu__panel" role="dialog" aria-modal="true" aria-label="Unwind Africa navigation">
+    <div class="ua-menu__panel-head">
+      <a href="{% url 'home' %}" class="ua-menu__brand" aria-label="Unwind Africa home">
+        <img src="{% static 'assets/LOGO.png' %}" alt="Unwind Africa">
+      </a>
+      <button type="button" class="ua-menu__close" data-menu-close aria-label="Close menu">
+        <span>Close</span>
+        <i aria-hidden="true"></i>
+      </button>
     </div>
 
-    <!-- Right Side Menu Content -->
-    <div class="w-full md:w-1/2 p-10 flex flex-col h-full overflow-y-auto">
+    <div class="ua-menu__content">
+      <nav class="ua-menu__primary" aria-label="Primary navigation">
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'about' %}">About</a>
+        <a href="{% url 'packages' %}">Packages</a>
+        <a href="{% url 'blog' %}">Journal</a>
+        <a href="{% url 'contact' %}">Contact</a>
+      </nav>
 
-      <!-- Close Button -->
-      <div class="flex justify-end flex-shrink-0">
-        <button onclick="toggleMenu()" class="text-3xl text-gray-700 hover:text-black">
-          &times;
-        </button>
-      </div>
-
-      <!-- Navigation Links -->
-      <div class="mt-10 space-y-6 text-gray-800 text-xl font-semibold">
-        <a href="/about" class="block hover:text-blue-600 transition">About</a>
-        <a href="/packages" class="block hover:text-blue-600 transition">Packages</a>
-        <a href="/blog" class="block hover:text-blue-600 transition">Blog</a>
-        <a href="/contact/" class="block hover:text-blue-600 transition">Contact-Us</a>
-        
-        <!-- Programs Section -->
-        <div class="border-t border-gray-200 pt-4 mt-4">
-          <div class="text-sm text-gray-500 uppercase tracking-wide mb-3">Programs</div>
-          <a href="/raising-readers/" class="block hover:text-blue-600 transition">Raising Readers</a>
-          <a href="/edbritish-trial/" class="block hover:text-blue-600 transition mt-3">EdBriTish Trial</a>
+      <div class="ua-menu__secondary" aria-label="Secondary navigation">
+        <div>
+          <p>Experiences</p>
+          <a href="{% url 'packages' %}#solo">Solo Reset</a>
+          <a href="{% url 'packages' %}#group">Group Retreats</a>
+          <a href="{% url 'packages' %}#urs">Relaxation Services</a>
         </div>
-        
-        <!-- Community Section -->
-        <div class="border-t border-gray-200 pt-4 mt-4">
-          <div class="text-sm text-gray-500 uppercase tracking-wide mb-3">Community</div>
-          <a href="/rest-card/signup/" class="block hover:text-blue-600 transition">Rest Card</a>
-          <a href="/voting/" class="block hover:text-blue-600 transition mt-3">Vote Now</a>
-          <a href="/dashboard/" class="block hover:text-blue-600 transition mt-3 font-medium">My Dashboard</a>
+        <div>
+          <p>Community</p>
+          <a href="{% url 'rest_card_signup' %}">Rest Card</a>
+          <a href="{% url 'voting_campaigns_list' %}">Nominate to Unwind</a>
+          <a href="{% url 'user_dashboard' %}">Dashboard</a>
+        </div>
+        <div>
+          <p>Programs</p>
+          <a href="{% url 'raising_readers' %}">Raising Readers</a>
+          <a href="{% url 'edbritish_trial' %}">EdBriTish Trial</a>
         </div>
       </div>
 
-      <!-- Socials -->
-      <!-- <div class="mt-10">
-        <div class="text-gray-600 text-sm mb-4">Follow Us</div>
-        <div class="flex gap-4">
-          <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200">
-            <i class="fab fa-linkedin-in text-gray-700"></i>
-          </a>
-          <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200">
-            <i class="fab fa-instagram text-gray-700"></i>
-          </a>
-        </div>
-      </div> -->
+      <a href="{% url 'contact' %}" class="ua-menu__feature">
+        <span>Private Concierge</span>
+        <strong>Begin with what you need to feel. We will design the escape around it.</strong>
+        <em>Start a brief</em>
+      </a>
     </div>
-  </div>
+  </aside>
 </div>
 
-<!-- Toggle Script -->
 <script>
-  function toggleMenu() {
-    const menu = document.getElementById('hamburgerMenu');
-    menu.classList.toggle('translate-x-full');
-  }
-</script>
+(() => {
+  const menu = document.getElementById('hamburgerMenu');
+  const openers = document.querySelectorAll('[data-menu-open]');
+  const closers = document.querySelectorAll('[data-menu-close]');
+  if (!menu || !openers.length) return;
 
-<!-- Font Awesome (using CDN with integrity) -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  const setOpen = (isOpen) => {
+    menu.classList.toggle('is-open', isOpen);
+    menu.setAttribute('aria-hidden', String(!isOpen));
+    document.documentElement.classList.toggle('ua-menu-open', isOpen);
+    document.body.classList.toggle('ua-menu-open', isOpen);
+    openers.forEach((button) => button.setAttribute('aria-expanded', String(isOpen)));
+  };
+
+  openers.forEach((button) => button.addEventListener('click', () => setOpen(true)));
+  closers.forEach((button) => button.addEventListener('click', () => setOpen(false)));
+  menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => setOpen(false)));
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') setOpen(false);
+  });
+
+  window.toggleMenu = () => setOpen(!menu.classList.contains('is-open'));
+})();
+</script>

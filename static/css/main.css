@@ -1,11 +1,21 @@
 :root{
-  --ua-sky: #00B2FF;
+  --ua-primary: #0A0B10;
+  --ua-secondary: #111827;
+  --ua-accent-gold: #FFB648;
+  --ua-accent-sky: #00B2FF;
+  --ua-background: #F5F1E8;
+  --ua-surface: #FFFFFF;
+  --ua-surface-warm: #EFE7D8;
+  --ua-text: #0A0B10;
+  --ua-muted: #68707C;
+  --ua-border: rgba(10, 11, 16, 0.12);
+  --ua-sky: var(--ua-accent-sky);
   --ua-sea: #00C2FF;
-  --ua-sun: #FFB648;
-  --ua-ink: #0A0B10;
-  --ua-paper: #FFFFFF;
-  --ua-cream: #F5F7FA;
-  --border: #e9eef4;
+  --ua-sun: var(--ua-accent-gold);
+  --ua-ink: var(--ua-primary);
+  --ua-paper: var(--ua-surface);
+  --ua-cream: var(--ua-background);
+  --border: var(--ua-border);
 
   --radius: 16px;
   --shadow: 0 10px 24px rgba(0,0,0,.06);
@@ -24,8 +34,8 @@ html {
 
 body {
   margin: 0;
-  background: var(--ua-cream);
-  color: var(--ua-ink);
+  background: var(--ua-background);
+  color: var(--ua-text);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -63,22 +73,18 @@ a:hover {
   padding-block: clamp(56px, 8vw, 120px);
 }
 
-/* Custom Scrollbar */
+/* Keep the luxury interface clean while preserving native scroll behavior. */
+html {
+  scrollbar-width: none;
+}
+
+body {
+  -ms-overflow-style: none;
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--ua-cream);
-}
-
-::-webkit-scrollbar-thumb {
-  background: #d1d1d1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+  width: 0;
+  height: 0;
 }
 
 /* Typography */

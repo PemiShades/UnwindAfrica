@@ -1,245 +1,58 @@
 {% extends "Web/main.html" %}
 {% load static %}
 
-{% block title %}Rest Card - Unwind Africa{% endblock %}
+{% block title %}The Rest Card - Unwind Africa{% endblock %}
 
 {% block extra_css %}
-<style>
-body {
-    padding-top: 80px;
-}
-
-header.absolute {
-    position: fixed !important;
-    background: rgba(255, 255, 255, 0.98) !important;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-header.absolute a,
-header.absolute button,
-header.absolute span {
-    color: #0A0B10 !important;
-}
-
-header.absolute svg {
-    stroke: #0A0B10 !important;
-    fill: #0A0B10 !important;
-}
-
-.rest-card-page {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    min-height: 100vh;
-    padding: 3rem 1rem;
-}
-
-.card-mockup {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 20px;
-    padding: 2rem;
-    color: white;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    max-width: 400px;
-    margin: 0 auto 3rem;
-}
-
-.benefit-card {
-    background: white;
-    border-radius: 15px;
-    padding: 1.5rem;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
-}
-
-.benefit-card:hover {
-    transform: translateY(-5px);
-}
-
-.waitlist-form {
-    background: white;
-    border-radius: 20px;
-    padding: 2.5rem;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-    max-width: 500px;
-    margin: 0 auto;
-}
-</style>
+<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="rest-card-page">
-    <div style="max-width: 1200px; margin: 0 auto;">
-        
-        <!-- Header -->
-        <div style="text-align: center; margin-bottom: 4rem;">
-            <h1 style="font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 900; color: #0A0B10; margin-bottom: 1rem;">The Rest Card</h1>
-            <p style="font-size: clamp(1.1rem, 2.5vw, 1.4rem); color: #555; max-width: 700px; margin: 0 auto;">
-                Your passport to exclusive wellness experiences, rewards, and rest points across Africa.
-            </p>
+<main class="ua-page">
+  <section class="ua-hero ua-hero--dark" style="--ua-hero-image: url('{% static 'assets/home/rest.jpg' %}')">
+    <div class="ua-wrap ua-hero-grid">
+      <div>
+        <p class="ua-kicker">Membership</p>
+        <h1 class="ua-title">A quieter way into the Unwind Africa world.</h1>
+        <p class="ua-copy">
+          The Rest Card is our community membership layer: early access, stored recognition, Rest Points,
+          and thoughtful privileges for people who want to make restoration a rhythm, not a rare event.
+        </p>
+        <div class="ua-actions">
+          <a class="ua-button ua-button--light" href="{% url 'rest_card_signup' %}">Apply for access</a>
+          <a class="ua-button ua-button--ghost" href="{% url 'rest_card_status' %}">Check status</a>
         </div>
-
-        <!-- Card Mockup -->
-        <div class="card-mockup">
-            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
-                <div>
-                    <p style="font-size: 0.9rem; opacity: 0.9; margin: 0;">Unwind Africa</p>
-                    <h2 style="font-size: 1.8rem; margin: 0.5rem 0;">REST CARD</h2>
-                </div>
-                <div style="font-size: 2rem;">💳</div>
-            </div>
-            <div style="margin-bottom: 2rem;">
-                <p style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 0.3rem;">Card Number</p>
-                <p style="font-size: 1.3rem; letter-spacing: 0.1em; font-weight: 600;">•••• •••• •••• 1234</p>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-                <div>
-                    <p style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 0.3rem;">Member</p>
-                    <p style="font-weight: 600;">YOUR NAME</p>
-                </div>
-                <div>
-                    <p style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 0.3rem;">Rest Points</p>
-                    <p style="font-weight: 600; font-size: 1.2rem;">0</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Benefits -->
-        <div style="margin-bottom: 4rem;">
-            <h2 style="text-align: center; font-size: clamp(1.8rem, 4vw, 2.5rem); margin-bottom: 2rem; color: #0A0B10;">Card Benefits</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-                <div class="benefit-card">
-                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🎁</div>
-                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Discounted Experiences</h3>
-                    <p style="color: #666;">Get discounts on relaxation experiences when available.</p>
-                </div>
-                
-                <div class="benefit-card">
-                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🎯</div>
-                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Monthly & Annual Draws</h3>
-                    <p style="color: #666;">Eligibility for monthly and annual prize draws.</p>
-                </div>
-                
-                <div class="benefit-card">
-                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">⚡</div>
-                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Priority Access</h3>
-                    <p style="color: #666;">Get priority access to community programs and events.</p>
-                </div>
-                
-                <div class="benefit-card">
-                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">💳</div>
-                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Installment Plans</h3>
-                    <p style="color: #666;">Access to installment plans for relaxation packages.</p>
-                </div>
-                
-                <div class="benefit-card">
-                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🎉</div>
-                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Free Treats</h3>
-                    <p style="color: #666;">Occasionally receive free or sponsored treats when available.</p>
-                </div>
-                
-                <div class="benefit-card">
-                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">👥</div>
-                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #0A0B10;">Community ID</h3>
-                    <p style="color: #666;">Identification as part of the Unwind Africa community.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Waitlist Counter -->
-        <div style="text-align: center; margin-bottom: 2rem;">
-            <div style="background: rgba(0,0,0,0.05); display: inline-block; padding: 1rem 2rem; border-radius: 50px;">
-                <p style="font-size: 0.9rem; color: #666; margin: 0 0 0.3rem;">Current Waitlist</p>
-                <p style="font-size: 2rem; font-weight: 900; color: #764ba2; margin: 0;">{{ waitlist_count|default:"0" }}/1000</p>
-                <p style="font-size: 0.85rem; color: #27ae60; margin: 0.3rem 0 0; font-weight: 600;">{{ spots_remaining|default:"1000" }} spots remaining!</p>
-            </div>
-        </div>
-
-         <!-- Get Rest Card Form -->
-        <div class="waitlist-form">
-            <h2 style="text-align: center; margin-bottom: 0.5rem; color: #0A0B10;">Get Your Rest Card</h2>
-            <p style="text-align: center; color: #666; margin-bottom: 2rem;">Join the Unwind Africa community and enjoy exclusive benefits</p>
-            
-            <form id="waitlistForm" onsubmit="submitWaitlist(event)" style="text-align: left;">
-                {% csrf_token %}
-                <div style="margin-bottom: 1.5rem;">
-                    <label for="name" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0A0B10;">Full Name</label>
-                    <input type="text" id="name" name="name" required
-                           style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;">
-                </div>
-                
-                <div style="margin-bottom: 1.5rem;">
-                    <label for="email" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0A0B10;">Email Address</label>
-                    <input type="email" id="email" name="email" required
-                           style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;">
-                </div>
-                
-                <div style="margin-bottom: 1.5rem;">
-                    <label for="phone" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0A0B10;">Phone Number</label>
-                    <input type="tel" id="phone" name="phone" required
-                           style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;">
-                </div>
-                
-                <div style="margin-bottom: 2rem;">
-                    <label for="message" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #0A0B10;">Message (Optional)</label>
-                    <textarea id="message" name="message" rows="3"
-                              style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;"></textarea>
-                </div>
-                
-                <button type="submit" 
-                        style="display: inline-block; width: 100%; background: linear-gradient(90deg, #FFB648, #00B2FF); color: #0A0B10; border: none; padding: 1rem; border-radius: 8px; font-weight: 900; font-size: 1.1rem; cursor: pointer; transition: transform 0.3s ease; text-decoration: none; text-align: center;">
-                    Get Your Rest Card →
-                </button>
-            </form>
-            
-            <div id="waitlistMessage" style="display: none; margin-top: 1.5rem; padding: 1rem; border-radius: 8px; text-align: center; font-weight: 600;"></div>
-        </div>
-
-        <!-- Check Status Link -->
-        <div style="text-align: center; margin-top: 3rem;">
-            <p style="color: #666;">Already on the waitlist?</p>
-            <a href="{% url 'rest_card_status' %}" style="color: #764ba2; font-weight: 600; text-decoration: underline;">Check Your Status →</a>
-        </div>
+      </div>
+      <aside class="ua-editorial-panel">
+        <strong>Not a gimmick. A record of belonging.</strong>
+        <p>{{ waitlist_count|default:"0" }} applications are currently on the waitlist. {{ spots_remaining|default:"1000" }} founder spaces remain.</p>
+      </aside>
     </div>
-</div>
+  </section>
 
-<script>
-function submitWaitlist(event) {
-    event.preventDefault();
-    const form = event.target;
-    const formData = new FormData(form);
-    const messageDiv = document.getElementById('waitlistMessage');
-    
-    fetch('{% url "rest_card_waitlist_join" %}', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.ok) {
-            messageDiv.style.display = 'block';
-            messageDiv.style.background = '#d4edda';
-            messageDiv.style.color = '#155724';
-            messageDiv.textContent = data.message;
-            form.reset();
-            setTimeout(() => location.reload(), 2000);
-        } else {
-            messageDiv.style.display = 'block';
-            messageDiv.style.background = '#f8d7da';
-            messageDiv.style.color = '#721c24';
-            messageDiv.textContent = data.error;
-        }
-    })
-    .catch(error => {
-        messageDiv.style.display = 'block';
-        messageDiv.style.background = '#f8d7da';
-        messageDiv.style.color = '#721c24';
-        messageDiv.textContent = 'An error occurred. Please try again.';
-    });
-    
-    return false;
-}
-</script>
+  <section class="ua-section">
+    <div class="ua-wrap">
+      <div class="ua-section-head">
+        <p class="ua-kicker">What it unlocks</p>
+        <h2 class="ua-title">Useful privileges, held with restraint.</h2>
+        <p class="ua-copy">The card is designed to support repeat connection with Unwind Africa, not overwhelm you with empty rewards.</p>
+      </div>
+
+      <div class="ua-list">
+        <article class="ua-list-item">
+          <div><h3>Early access</h3><p>Priority notice for intimate retreats, limited offers, community programs, and private openings.</p></div>
+        </article>
+        <article class="ua-list-item">
+          <div><h3>Rest Points</h3><p>Points connected to eligible votes, activities, and community participation, kept visible through your wallet.</p></div>
+        </article>
+        <article class="ua-list-item">
+          <div><h3>Member consideration</h3><p>Where available, members receive preferred access to selected packages, treats, and payment options.</p></div>
+        </article>
+        <article class="ua-list-item">
+          <div><h3>Community identity</h3><p>A simple way to belong to the Unwind Africa ecosystem beyond a single trip or campaign.</p></div>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
 {% endblock %}

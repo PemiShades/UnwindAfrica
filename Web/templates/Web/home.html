@@ -1,1088 +1,197 @@
 {% extends "Web/main.html" %}
 {% load static %}
 
-{% block title %}Nominate to Unwind — Students & Youth Edition | Unwind Africa{% endblock %}
+{% block title %}Unwind Africa - Restorative Luxury Travel & Retreats{% endblock %}
 
 {% block extra_css %}
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet" />
-
-<style>
-    /* =========================================
-       UNWIND AFRICA — Students & Youth Edition
-       Modern, clean design for student nomination campaign
-       Mobile-first, accessible, fast.
-    ========================================= */
-
-    /* ----- Brand palette (fresh and vibrant for youth) ----- */
-    :root{
-      --ua-sky: #00B2FF;
-      --ua-sea: #00C2FF;
-      --ua-sun: #FFB648;
-      --ua-ink: #0A0B10;
-      --ua-paper: #FFFFFF;
-      --border: #e9eef4;
-      --radius: 16px;
-      --shadow: 0 10px 24px rgba(0,0,0,.06);
-      --container: min(1180px, 92vw);
-    }
-
-    /* ----- Base ----- */
-    *{ box-sizing:border-box }
-    html{ min-height:100% }
-    body{
-      margin:0;
-      background:var(--ua-paper);
-      color:var(--ua-ink);
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-      overflow-x:hidden;
-    }
-    h1,h2,h3,h4,h5,h6{ font-family:"Playfair Display", ui-serif, Georgia, serif; margin:.2em 0 }
-    img{ max-width:100%; height:auto; display:block }
-    a{ color:inherit; text-decoration:none }
-
-    /* Utilities */
-    .container{ width:var(--container); margin-inline:auto }
-    .section{ padding-block: clamp(56px, 8vw, 120px) }
-    .muted{ color: color-mix(in oklab, var(--ua-ink) 60%, #666) }
-    .rule{
-      height:4px; width:64px; border-radius:3px;
-      background: linear-gradient(90deg,var(--ua-sun),var(--ua-sky));
-      margin:10px 0 6px;
-    }
-
-    /* Poster typography */
-    .ed-kicker{
-      font-size:.72rem; letter-spacing:.22em; text-transform:uppercase;
-      font-weight:900; color: var(--ua-sky);
-    }
-    .ed-title{
-      font-weight: 900; text-transform: uppercase;
-      line-height:.92; letter-spacing:-.02em;
-      font-size: clamp(2.2rem, 9vw, 6.2rem);
-      margin:0 0 clamp(8px, 1.2vw, 12px);
-    }
-    .ed-sub{ max-width: 72ch; font-size: clamp(1rem, 1.6vw, 1.125rem); text-align: center; }
-
-    /* Buttons */
-    .btn{
-      display:inline-flex; align-items:center; justify-content:center;
-      padding:.9rem 1.2rem; border-radius:999px; font-weight:900;
-      border:1px solid transparent; transition: transform .2s ease, filter .2s ease;
-      cursor:pointer; text-align:center; white-space:nowrap;
-    }
-    .btn:hover{ transform: translateY(-2px) }
-    .primary-solid{
-      background: linear-gradient(90deg, var(--ua-sun), var(--ua-sky)); color:#0b172a;
-      border-color: color-mix(in oklab, var(--ua-sun) 40%, transparent);
-    }
-    .primary-outline{
-      background:transparent; color:var(--ua-ink); border:2px solid var(--ua-ink);
-    }
-    .secondary-ink{
-      background:#0A0B10; color:#fff; border:1px solid #10131a;
-    }
-
-    /* Hero - Clean Asymmetrical Layout */
-    .hero{ 
-      position:relative; color:#fff; overflow:clip; min-height: 100vh; display: flex; align-items: center; 
-    }
-    .hero-wrapper {
-      position: relative;
-      z-index: 2;
-      width: var(--container);
-      margin-inline: auto;
-      padding: clamp(80px, 15vh, 140px) 0;
-      display: flex;
-      align-items: center;
-      gap: clamp(3rem, 8vw, 8rem);
-    }
-    @media (max-width: 1024px) {
-      .hero-wrapper {
-        flex-direction: column;
-        text-align: center;
-        padding-top: clamp(100px, 20vh, 180px);
-      }
-    }
-    .hero-content {
-      flex: 1;
-      max-width: 720px;
-    }
-    .hero-visual {
-      flex: 0 0 auto;
-      width: 380px;
-    }
-    @media (max-width: 1024px) {
-      .hero-visual {
-        width: 100%;
-        max-width: 420px;
-      }
-    }
-    .hero-visual-card {
-      background: rgba(255,255,255,0.12);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.25);
-      border-radius: 24px;
-      padding: 2rem;
-      animation: float 6s ease-in-out infinite;
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
-    .hero-stat {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1.25rem;
-      background: rgba(255,255,255,0.1);
-      border-radius: 14px;
-      margin-bottom: 1rem;
-      transition: transform 0.3s ease;
-    }
-    .hero-stat:hover {
-      transform: translateX(8px);
-    }
-    .hero-stat:last-child {
-      margin-bottom: 0;
-    }
-    .hero-stat-icon {
-      font-size: 2.25rem;
-      width: 56px;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255,255,255,0.15);
-      border-radius: 14px;
-    }
-    .hero-stat-text {
-      flex: 1;
-    }
-    .hero-stat-value {
-      font-size: 1.75rem;
-      font-weight: 800;
-      line-height: 1.1;
-    }
-    .hero-stat-label {
-      font-size: 0.9rem;
-      opacity: 0.85;
-      font-weight: 500;
-    }
-    .hero-chips{
-      display:flex; gap:0.75rem; flex-wrap:wrap;
-      margin-bottom: 1.5rem;
-    }
-    @media (max-width: 1024px) {
-      .hero-chips {
-        justify-content: center;
-      }
-    }
-    .hero-chips span{
-      border:1px solid rgba(255,255,255,.3);
-      background:rgba(255,255,255,.1);
-      padding:0.6rem 1.25rem; border-radius:999px; font-size:.85rem;
-      text-transform:uppercase; font-weight:800; letter-spacing:.05em;
-      backdrop-filter: blur(10px);
-    }
-    .hero-title{
-      font-size: clamp(2.5rem, 6vw, 4.5rem);
-      font-weight: 900;
-      text-transform: uppercase;
-      line-height: 1.05;
-      letter-spacing: -0.02em;
-      margin: 0 0 1.25rem;
-      text-align: left;
-    }
-    @media (max-width: 1024px) {
-      .hero-title {
-        text-align: center;
-      }
-    }
-    .hero-sub{
-      font-size: clamp(1rem, 1.5vw, 1.25rem);
-      line-height: 1.65;
-      color: rgba(255,255,255,0.85);
-      margin-bottom: 2rem;
-      max-width: 560px;
-    }
-    @media (max-width: 1024px) {
-      .hero-sub {
-        margin-left: auto;
-        margin-right: auto;
-      }
-    }
-    .hero-actions{ 
-      display:flex; gap:1rem; flex-wrap:wrap; 
-    }
-    @media (max-width: 1024px) {
-      .hero-actions { 
-        justify-content: center; 
-      }
-    }
-    .hero .btn{
-      padding: 1rem 2rem;
-      font-size: 1rem;
-    }
-    .hero-media{ position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden }
-
-    .hero-media::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:
-        linear-gradient(180deg, rgba(5,6,10,.2) 0%, rgba(5,6,10,.78) 82%),
-        linear-gradient(120deg, rgba(0,178,255,.32) 0%, rgba(255,182,72,.18) 55%);
-      z-index:1;
-      mix-blend-mode:multiply;
-      pointer-events:none;
-    }
-
-    .hero-media video,
-    .hero-media img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-    }
-    .hero-actions{ display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; margin:.8rem 0 1.1rem }
-    .hero-chips{
-      display:flex; gap:.5rem; justify-content:center; flex-wrap:wrap;
-      list-style:none; padding:0; margin:0;
-    }
-    .hero-chips li{
-      border:1px solid rgba(255,255,255,.28);
-      background:rgba(255,255,255,.12);
-      padding:.45rem .8rem; border-radius:999px; font-size:.78rem;
-      text-transform:uppercase; font-weight:900; letter-spacing:.04em;
-    }
-    .hero-actions{ display:flex; gap:.6rem; flex-wrap:wrap; margin:.8rem 0 1.1rem }
-    @media (min-width: 768px) {
-      .hero-actions { justify-content: flex-start; }
-    }
-    .strip{ background:#0A0B10; color:#fff; border-block:1px solid rgba(255,255,255,.08) }
-    .strip-inner{
-      width:var(--container); margin-inline:auto; padding:10px 0;
-      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
-    }
-    .badges{ display:flex; gap:8px; flex-wrap:wrap }
-    .badge{
-      display:inline-flex; align-items:center; padding:.45rem .7rem; border-radius:999px;
-      font-weight:900; text-transform:uppercase; font-size:.72rem;
-      background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.25);
-    }
-
-    /* Sections shared head */
-    .section-head{
-      display:flex; align-items:flex-end; justify-content:space-between;
-      gap:18px; flex-wrap:wrap; margin-bottom: clamp(16px, 3vw, 28px);
-    }
-
-    /* Student-focused sections */
-    .students-section{
-      background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
-      border-block:1px solid #e0f2fe;
-    }
-
-    .nominate-band{
-      position:relative;
-      padding:clamp(32px, 6vw, 64px);
-      border-radius:calc(var(--radius) * 1.6);
-      background:
-        radial-gradient(140% 120% at 20% 15%, rgba(0,194,255,.18), transparent 68%),
-        radial-gradient(120% 120% at 80% 0%, rgba(255,182,72,.2), transparent 72%),
-        linear-gradient(135deg, rgba(10,11,16,.95), rgba(10,11,16,.86));
-      color:#f5f7ff;
-      box-shadow:0 24px 60px rgba(10,11,16,.28);
-      overflow:hidden;
-    }
-    .nominate-band::after{
-      content:"";
-      position:absolute;
-      inset:-40% -20% auto auto;
-      width:320px;
-      height:320px;
-      background:radial-gradient(50% 50% at 50% 50%, rgba(0,178,255,.35), transparent 72%);
-      opacity:.5;
-      pointer-events:none;
-    }
-    .nominate-band::before{
-      content:"";
-      position:absolute;
-      inset:auto auto -45% -25%;
-      width:420px;
-      height:420px;
-      background:radial-gradient(50% 50% at 50% 50%, rgba(255,182,72,.28), transparent 70%);
-      opacity:.5;
-      pointer-events:none;
-    }
-    .nominate-grid{
-      position:relative;
-      z-index:1;
-      display:grid;
-      gap:clamp(28px, 4vw, 52px);
-    }
-    @media(min-width:980px){
-      .nominate-grid{
-        grid-template-columns:minmax(0,1.4fr) minmax(0,.9fr);
-      }
-    }
-    .nominate-copy{
-      display:grid;
-      gap:clamp(16px, 2vw, 24px);
-    }
-    .nominate-tag{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:.4rem .9rem;
-      border-radius:999px;
-      background:rgba(245,247,255,.12);
-      border:1px solid rgba(245,247,255,.22);
-      font-weight:800;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      font-size:.7rem;
-    }
-    .nominate-copy .ed-title{
-      color:#f5f7ff;
-      margin-bottom:0;
-    }
-    .nominate-sub{
-      font-size:clamp(1rem, 1.6vw, 1.2rem);
-      max-width:60ch;
-      color:rgba(245,247,255,.85);
-    }
-    .nominate-band .muted{
-      color:rgba(245,247,255,.62);
-    }
-
-    /* Card request form */
-    .card-request-form{
-      background: white;
-      border-radius: 20px;
-      padding: 2rem;
-      box-shadow: 0 20px 60px rgba(0,0,0,.08);
-      border: 1px solid #eef0f6;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    .card-request-form h3{
-      text-align: center;
-      margin-bottom: 1.5rem;
-      color: var(--ua-ink);
-    }
-    .form-field{
-      margin-bottom: 1.5rem;
-    }
-    .form-field label{
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-      color: var(--ua-ink);
-    }
-    .form-field input,
-    .form-field textarea{
-      width: 100%;
-      padding: 0.75rem;
-      border: 2px solid #eef0f6;
-      border-radius: 12px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-    }
-    .form-field input:focus,
-    .form-field textarea:focus{
-      outline: none;
-      border-color: var(--ua-sky);
-      box-shadow: 0 0 0 3px rgba(0, 178, 255, 0.1);
-    }
-    .form-field textarea{
-      resize: vertical;
-      min-height: 100px;
-    }
-    .form-actions{
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      margin-top: 2rem;
-    }
-    .btn-primary{
-      background: linear-gradient(135deg, var(--ua-sun), var(--ua-sky));
-      color: white;
-      border: none;
-      padding: 0.75rem 2rem;
-      border-radius: 999px;
-      font-weight: 700;
-      font-size: 1.1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0, 178, 255, 0.3);
-    }
-    .btn-primary:hover{
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 178, 255, 0.4);
-    }
-    .btn-secondary{
-      background: white;
-      color: var(--ua-ink);
-      border: 2px solid #eef0f6;
-      padding: 0.75rem 2rem;
-      border-radius: 999px;
-      font-weight: 700;
-      font-size: 1.1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .btn-secondary:hover{
-      border-color: var(--ua-sky);
-      background: rgba(0, 178, 255, 0.05);
-    }
-
-    /* Features grid - horizontal auto-scroll */
-    .features-scroll-container {
-      position: relative;
-      overflow: hidden;
-      margin-top: 3rem;
-    }
-    .features-track {
-      display: flex;
-      gap: 1.5rem;
-      width: max-content;
-      animation: scroll-left 30s linear infinite;
-    }
-    .features-track:hover {
-      animation-play-state: paused;
-    }
-    @keyframes scroll-left {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(calc(-50% - 0.75rem)); }
-    }
-    .feature-card{
-      background: white;
-      border-radius: 20px;
-      padding: 2rem;
-      box-shadow: 0 10px 30px rgba(0,0,0,.08);
-      border: 1px solid #eef0f6;
-      text-align: center;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      flex: 0 0 300px;
-    }
-    .feature-card:hover{
-      transform: translateY(-5px);
-      box-shadow: 0 15px 40px rgba(0,0,0,.12);
-    }
-    .feature-icon{
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-    .feature-title{
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      color: var(--ua-ink);
-    }
-    .feature-description{
-      color: #666;
-      line-height: 1.6;
-    }
-
-    /* Testimonial section */
-    .testimonial-section{
-      background: linear-gradient(135deg, var(--ua-sky) 0%, var(--ua-sea) 100%);
-      color: white;
-      padding: 4rem 0;
-    }
-    .testimonial-content{
-      max-width: 800px;
-      margin: 0 auto;
-      text-align: center;
-    }
-    .testimonial-quote{
-      font-size: 1.5rem;
-      font-style: italic;
-      margin-bottom: 2rem;
-      line-height: 1.6;
-    }
-    .testimonial-author{
-      font-weight: 700;
-      font-size: 1.1rem;
-    }
-
-    /* CTA section */
-    .cta-section{
-      background: white;
-      padding: 4rem 0;
-      text-align: center;
-    }
-    .cta-content{
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    .cta-title{
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      background: linear-gradient(135deg, var(--ua-sun), var(--ua-sky));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .cta-description{
-      font-size: 1.1rem;
-      color: #666;
-      margin-bottom: 2rem;
-      line-height: 1.6;
-    }
-
-    .nominee-card:hover .story-overlay {
-      opacity: 1 !important;
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 768px){
-      .hero-actions{
-        flex-direction: column;
-        align-items: center;
-      }
-      .form-actions{
-        flex-direction: column;
-        align-items: center;
-      }
-    }
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/brand-home.css' %}">
 {% endblock %}
 
 {% block content %}
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero-media">
-      <video id="heroVideo" autoplay muted loop playsinline poster="{% static 'assets/home/hero.jpg' %}" aria-label="Beautiful sunset over ocean with gentle waves - Unwind Africa welcome video">
-        <source src="{% static 'assets/videos/bg1.mp4' %}" type="video/mp4">
-        <track kind="captions" label="English" srclang="en" src="#" default>
-        Your browser does not support the video tag.
-      </video>
-    </div>
-    
-    <script>
-      // Video background with sequential playback
-      document.addEventListener('DOMContentLoaded', function() {
-        const heroVideo = document.getElementById('heroVideo');
-        const videos = [
-          "{% static 'assets/videos/bg1.mp4' %}",
-          "{% static 'assets/videos/bg2.mp4' %}"
-        ];
-        let currentVideo = 0;
-        
-        heroVideo.addEventListener('ended', function() {
-          currentVideo = (currentVideo + 1) % videos.length;
-          heroVideo.src = videos[currentVideo];
-          heroVideo.play();
-        });
-      });
-    </script>
-    <div class="hero-wrapper">
-      <div class="hero-content">
-        <div class="hero-chips">
-          <span>🎓 Students & Youth Edition</span>
-          <span>🌟 Recognizing Resilience</span>
+<main class="brand-home" id="main-content">
+  <section class="editorial-hero" aria-label="Unwind Africa">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <p class="ua-kicker">Restorative luxury across Africa</p>
+        <h1 class="ua-title">There is a kind of rest you cannot book from a search bar.</h1>
+        <p class="ua-subtitle">
+          Unwind Africa creates private retreats, romantic escapes, celebration weekends, and executive pauses
+          for people carrying too much to plan their own exhale.
+        </p>
+        <div class="hero-actions">
+          <a href="{% url 'contact' %}" class="ua-button ua-button--light">Begin a private brief</a>
+          <a href="{% url 'packages' %}" class="ua-link">Explore experiences</a>
         </div>
-      <h1 class="hero-title">
-        Nominate to Unwind
-        </h1>
-        <p class="hero-sub">
-          Nominate to Unwind is Unwind Africa’s community recognition program that celebrates resilience, honours inspiring stories, and gives deserving individuals a moment to rest and be restored.
-      </p>
-      <div class="hero-actions">
-        <a href="{% url 'nominate' %}" class="btn primary-solid">
-          Nominate Now
-          <span>→</span>
-        </a>
-        <a href="{% url 'rest_card_signup' %}" class="btn secondary-ink">
-          Request Rest Card
-        </a>
       </div>
-      </div>
-      
-      <div class="hero-visual">
-        <div class="hero-visual-card" style="text-align: center; padding: 2rem;">
-          <div style="font-size: 3rem; margin-bottom: 1rem;">🌟</div>
-          <h3 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; color: white;">Help Us Celebrate Resilience</h3>
-          <p style="color: rgba(255,255,255,0.85); font-size: 0.95rem; line-height: 1.5;">Nominate a student or young person who deserves a moment to rest.</p>
-          <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.2);">
-            <p style="font-size: 0.85rem; color: rgba(255,255,255,0.75);">Every vote makes a difference</p>
-          </div>
-        </div>
+
+      <div class="hero-note">
+        <strong>For the overextended, the devoted, the always-on.</strong>
+        <p>
+          We design the kind of journey where the room is ready, the pace is humane,
+          the food is thoughtful, and someone has already protected the quiet.
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- Trust Strip -->
-  <section class="strip">
-    <div class="strip-inner">
-      <div class="badges">
-        <span class="badge">✓ Secure & Confidential</span>
-        <span class="badge">✓ Free Nomination</span>
-        <span class="badge">✓ Fair Selection</span>
+  <section class="ua-section feeling-section">
+    <div class="ua-container feeling-grid">
+      <div class="feeling-image" aria-hidden="true"></div>
+      <div class="feeling-copy">
+        <p class="ua-kicker">Permission</p>
+        <h2 class="ua-title">You do not need another itinerary. You need to be held by one.</h2>
+        <p class="ua-subtitle">
+          Most travel asks you to keep managing: the transfers, the restaurant choices, the surprise,
+          the weather plan, the needs of everyone else. We remove that labour without removing your taste.
+        </p>
+        <blockquote>
+          The point is not to disappear from your life. The point is to return to it with breath in your body.
+        </blockquote>
       </div>
-      <div class="muted" style="font-size: .8rem; color: rgba(255,255,255,0.7);">
-        Nominate a student or young person today
+    </div>
+  </section>
+
+  <section class="ua-section method-section">
+    <div class="ua-container method-layout">
+      <div class="section-intro">
+        <p class="ua-kicker">The Unwind Method</p>
+        <h2 class="ua-title">Designed around the nervous system, not the brochure.</h2>
+        <p class="ua-subtitle">
+          Our work sits between hospitality, wellness, cultural hosting, and production. Every decision has to earn its place.
+        </p>
+      </div>
+
+      <div class="method-list">
+        <article class="method-item">
+          <span>Listen</span>
+          <div>
+            <h3>We begin with emotional truth.</h3>
+            <p>What are you tired of carrying? Who needs to feel celebrated? Where do you need privacy, beauty, silence, or joy?</p>
+          </div>
+        </article>
+        <article class="method-item">
+          <span>Compose</span>
+          <div>
+            <h3>We build the escape like a score.</h3>
+            <p>Location, rooms, meals, movement, scent, music, photography, and downtime are arranged to support the feeling you came for.</p>
+          </div>
+        </article>
+        <article class="method-item">
+          <span>Protect</span>
+          <div>
+            <h3>We hold the invisible work.</h3>
+            <p>Transfers, timing, weather shifts, dietary care, vendor quality, guest needs, and recovery plans are managed quietly.</p>
+          </div>
+        </article>
+        <article class="method-item">
+          <span>Release</span>
+          <div>
+            <h3>You arrive into something already considered.</h3>
+            <p>The luxury is not excess. It is the feeling that, for once, you are not responsible for everything.</p>
+          </div>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- Top Nominees - Shown before Why Nominate -->
-  {% if top_nominees %}
-  <section style="background: white; padding: 4rem 0; border-bottom: 1px solid #e9eef4;">
-    <div class="container">
-      <div class="section-head" style="margin-bottom: 2rem;">
-        <div style="width: 100%;">
-          <div class="rule" style="margin: 0 0 1rem; background: linear-gradient(90deg, #fff, rgba(255,255,255,0.5));"></div>
-          <h2 class="ed-title" style="text-transform: uppercase; font-size: clamp(1.8rem, 5vw, 2.5rem); color: #0A0B10;">Meet Our Nominees</h2>
-          <p class="ed-sub" style="max-width: 600px; color: #666;">
-            These inspiring students and young people have been nominated for their resilience. Click to read their stories and vote!
-          </p>
-        </div>
+  <section class="ua-section trust-section">
+    <div class="ua-container trust-layout">
+      <div class="trust-copy">
+        <p class="ua-kicker">Why trust us</p>
+        <h2 class="ua-title">The difference is not what we show. It is what never becomes your problem.</h2>
+        <p class="ua-subtitle">
+          Luxury hospitality is a discipline of anticipation. We work with vetted partners, clear briefs,
+          calm communication, and guest care that respects privacy, culture, and time.
+        </p>
+        <ul class="trust-list">
+          <li><strong>Concierge</strong><span>One point of contact from first conversation to final departure.</span></li>
+          <li><strong>Partners</strong><span>Homes, hosts, wellness practitioners, chefs, transport, and production teams selected for reliability and tone.</span></li>
+          <li><strong>Care</strong><span>Dietary needs, rooming sensitivity, privacy, pacing, and guest comfort handled before arrival.</span></li>
+          <li><strong>Clarity</strong><span>Thoughtful briefs, transparent inclusions, and a plan that makes investment feel considered.</span></li>
+        </ul>
       </div>
-
-      <div style="display: flex; overflow-x: auto; scroll-behavior: smooth; gap: 1.5rem; padding: 0.5rem 0; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
-        {% for nominee in top_nominees|slice:':6' %}
-        <a href="{% url 'voting_campaign' nominee.campaign.slug %}#nominee-{{ nominee.id }}" style="flex: 0 0 280px; scroll-snap-align: start; text-decoration: none; color: inherit;">
-          <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.2); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-8px)'" onmouseout="this.style.transform='translateY(0)'">
-            <div style="position: relative; height: 180px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-              {% if nominee.photo %}
-                <img src="{{ nominee.photo.url }}" alt="{{ nominee.name }}" style="width: 100%; height: 100%; object-fit: cover;">
-              {% else %}
-                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 2.5rem;">👤</div>
-              {% endif %}
-              <div style="position: absolute; top: 10px; right: 10px; background: #FFB648; color: #0A0B10; padding: 4px 10px; border-radius: 12px; font-weight: 700; font-size: 0.8rem;">
-                {{ nominee.vote_count }} votes
-              </div>
-            </div>
-            <div style="padding: 1rem;">
-              <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; color: #0A0B10;">{{ nominee.name }}</h3>
-              <p style="font-size: 0.8rem; color: #667eea; margin-bottom: 0.5rem;">{{ nominee.story|truncatewords:12 }}</p>
-              <span style="display: block; text-align: center; background: linear-gradient(90deg, #667eea, #764ba2); color: white; padding: 0.5rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600;">View & Vote →</span>
-            </div>
-          </div>
-        </a>
-        {% endfor %}
-      </div>
-
-      <div style="text-align: center; margin-top: 2rem;">
-        <a href="{% url 'voting_campaigns_list' %}" style="display: inline-block; background: white; color: #667eea; padding: 0.75rem 2rem; border-radius: 30px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-          View All Nominees →
-        </a>
-      </div>
+      <div class="trust-image" aria-hidden="true"></div>
     </div>
   </section>
-  {% endif %}
-  <section class="students-section section">
-    <div class="container">
-      <div class="section-head">
-        <div>
-          <div class="rule"></div>
-          <h2 class="ed-title">Why Nominate?</h2>
-          <p class="ed-sub muted">
-            We're opening nominations to honour students and young people who show resilience, quiet strength, and perseverance.
-          </p>
-        </div>
-      </div>
 
-      <div class="features-scroll-container">
-        <div class="features-track">
-          <!-- Original cards -->
-          <div class="feature-card">
-            <div class="feature-icon">🎓</div>
-            <h3 class="feature-title">Recognize Excellence</h3>
-            <p class="feature-description">
-              Celebrate young people who are navigating responsibility and growth beyond their age
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">💪</div>
-            <h3 class="feature-title">Highlight Resilience</h3>
-            <p class="feature-description">
-              Recognize quiet strength and perseverance in the face of challenges
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">🌟</div>
-            <h3 class="feature-title">Community Support</h3>
-            <p class="feature-description">
-              Show young people that their efforts are seen and appreciated
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">🎁</div>
-            <h3 class="feature-title">Amazing Prizes</h3>
-            <p class="feature-description">
-              Winners receive fantastic relaxation experiences and wellness packages
-            </p>
-          </div>
-
-          <!-- Duplicated cards for infinite scroll -->
-          <div class="feature-card">
-            <div class="feature-icon">🎓</div>
-            <h3 class="feature-title">Recognize Excellence</h3>
-            <p class="feature-description">
-              Celebrate young people who are navigating responsibility and growth beyond their age
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">💪</div>
-            <h3 class="feature-title">Highlight Resilience</h3>
-            <p class="feature-description">
-              Recognize quiet strength and perseverance in the face of challenges
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">🌟</div>
-            <h3 class="feature-title">Community Support</h3>
-            <p class="feature-description">
-              Show young people that their efforts are seen and appreciated
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">🎁</div>
-            <h3 class="feature-title">Amazing Prizes</h3>
-            <p class="feature-description">
-              Winners receive fantastic relaxation experiences and wellness packages
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="cta-section" style="margin-top: 4rem;">
-        <div class="cta-content">
-          <h2 class="cta-title">Ready to Nominate?</h2>
-          <p class="cta-description">
-            Help us recognize exceptional students and young people who deserve to be celebrated
-          </p>
-          <a href="{% url 'nominate' %}" class="btn-primary">
-            Submit Your Nomination
+  <section class="ua-section experiences-section">
+    <div class="ua-container experience-feature">
+      <div class="experience-image" aria-hidden="true"></div>
+      <div class="experience-copy">
+        <p class="ua-kicker">What you can book</p>
+        <h2 class="ua-title">Escapes with a point of view.</h2>
+        <p class="ua-subtitle">
+          Every experience begins with a mood, then becomes a carefully hosted African retreat around your people,
+          your privacy, and your reason for getting away.
+        </p>
+        <div class="experience-menu" aria-label="Experience categories">
+          <a href="{% url 'packages' %}#solo">
+            <strong>Solo Escape</strong>
+            <span>Quiet rooms, spa rituals, reflective meals, and days with no performance.</span>
+          </a>
+          <a href="{% url 'packages' %}#group">
+            <strong>Romance</strong>
+            <span>Proposals, anniversaries, private dinners, and intimate weekends with emotional precision.</span>
+          </a>
+          <a href="{% url 'packages' %}#group">
+            <strong>Celebration</strong>
+            <span>Birthdays, family gatherings, and milestone weekends hosted with warmth and polish.</span>
+          </a>
+          <a href="{% url 'packages' %}#urs">
+            <strong>Corporate Retreats</strong>
+            <span>Offsites for teams who need clarity, trust, better conversation, and room to think.</span>
+          </a>
+          <a href="{% url 'packages' %}#solo">
+            <strong>Reset</strong>
+            <span>Wellness-led pauses with movement, bodywork, nourishing tables, and silence.</span>
           </a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Rest Card Information Section - Redesigned -->
-  <section id="card-request" class="section" style="background: #0A0B10; padding: 5rem 0; position: relative; overflow: hidden;">
-    <!-- Decorative elements -->
-    <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(0,178,255,0.15) 0%, transparent 70%); pointer-events: none;"></div>
-    <div style="position: absolute; bottom: -150px; left: -100px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(255,182,72,0.1) 0%, transparent 70%); pointer-events: none;"></div>
-    
-    <div class="container" style="position: relative; z-index: 1;">
-      <!-- Header -->
-      <div style="text-align: center; margin-bottom: 3.5rem;">
-        <div style="display: inline-block; background: linear-gradient(135deg, #00B2FF, #FFB648); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 0.9rem; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.75rem;">
-          Exclusive Offer
+  <section class="ua-section story-section">
+    <div class="ua-container">
+      <div class="story-layout">
+        <div class="story-copy">
+          <p class="ua-kicker">What guests remember</p>
+          <h2 class="ua-title">Not the checklist. The feeling.</h2>
+          <p class="ua-subtitle">
+            A table set before sunset. A driver who knows when not to talk. A massage timed after a difficult flight.
+            A room that feels prepared for the version of you that is tired.
+          </p>
+          <blockquote class="story-quote">
+            "It felt like someone had finally planned for my softness."
+          </blockquote>
         </div>
-        <h2 style="font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; color: white; margin: 0 0 1rem; line-height: 1.2;">
-          Get Your <span style="background: linear-gradient(135deg, #00B2FF, #FFB648); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Rest Card</span> Today
-        </h2>
-        <p style="color: rgba(255,255,255,0.7); font-size: 1.1rem; max-width: 500px; margin: 0 auto; line-height: 1.6;">
-          Join thousands who have already registered for exclusive wellness benefits and partner rewards.
-        </p>
+        <div class="story-image" aria-hidden="true"></div>
       </div>
 
-      <!-- Main Card -->
-      <div style="max-width: 420px; margin: 0 auto; background: linear-gradient(145deg, #1a1d24, #12151a); border-radius: 24px; padding: 2.5rem; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
-        <!-- Card Header Icon -->
-        <div style="text-align: center; margin-bottom: 1.5rem;">
-          <div style="width: 80px; height: 80px; margin: 0 auto 1rem; background: linear-gradient(135deg, #00B2FF, #FFB648); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; box-shadow: 0 10px 30px rgba(0,178,255,0.3);">
-            <span style="color: #0A0B10;">🎴</span>
-          </div>
-          <h3 style="color: white; font-size: 1.5rem; font-weight: 700; margin: 0; font-family: 'Playfair Display', serif;">Free Rest Card</h3>
-          <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin: 0.5rem 0 0;">Limited to first 1,000 registrants</p>
-        </div>
-        
-        <!-- Price -->
-        <div style="text-align: center; margin-bottom: 1.5rem; padding: 1rem; background: rgba(0,178,255,0.1); border-radius: 12px; border: 1px solid rgba(0,178,255,0.3);">
-          <span style="color: #00B2FF; font-size: 2.5rem; font-weight: 800;">FREE</span>
-        </div>
-        
-        <!-- Features -->
-        <div style="margin-bottom: 2rem;">
-          <div style="display: flex; align-items: center; gap: 12px; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-            <span style="color: #00B2FF; font-size: 1.2rem;">✓</span>
-            <span style="color: rgba(255,255,255,0.9);">Partner discounts & rewards</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 12px; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-            <span style="color: #00B2FF; font-size: 1.2rem;">✓</span>
-            <span style="color: rgba(255,255,255,0.9);">Wellness experiences access</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 12px; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-            <span style="color: #00B2FF; font-size: 1.2rem;">✓</span>
-            <span style="color: rgba(255,255,255,0.9);">Community events</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 12px; padding: 0.75rem 0;">
-            <span style="color: #00B2FF; font-size: 1.2rem;">✓</span>
-            <span style="color: rgba(255,255,255,0.9);">Exclusive member offers</span>
-          </div>
-        </div>
-        
-        <!-- CTA Button -->
-        <a href="{% url 'rest_card_signup' %}" style="display: block; width: 100%; padding: 1.25rem; background: linear-gradient(135deg, #00B2FF, #FFB648); color: #0A0B10; text-align: center; border-radius: 12px; font-weight: 700; font-size: 1.1rem; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,178,255,0.4);">
-          Register Now - It is Free
-        </a>
-        
-        <!-- Trust -->
-        <p style="text-align: center; color: rgba(255,255,255,0.5); font-size: 0.8rem; margin: 1rem 0 0;">
-          🔒 No payment required - Takes 2 minutes
-        </p>
-      </div>
-      
-      <!-- Stats -->
-      <div style="display: flex; justify-content: center; gap: 3rem; margin-top: 3rem; flex-wrap: wrap;">
-        <div style="text-align: center;">
-          <div style="color: #00B2FF; font-size: 2rem; font-weight: 800;">500+</div>
-          <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Already Registered</div>
-        </div>
-        <div style="text-align: center;">
-          <div style="color: #FFB648; font-size: 2rem; font-weight: 800;">500</div>
-          <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Spots Left</div>
-        </div>
-        <div style="text-align: center;">
-          <div style="color: white; font-size: 2rem; font-weight: 800;">4.9</div>
-          <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Rating</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Prizes Section -->
-  <section class="section" style="background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%); padding: 4rem 0;">
-    <div class="container">
-      <div class="section-head">
+      <aside class="campaign-aside">
         <div>
-          <div class="rule"></div>
-          <h2 class="ed-title">Prizes You Can Win</h2>
-          <p class="ed-sub muted">
-            Amazing prizes await our nominees. Recognize their resilience and they could win these incredible relaxation experiences.
-          </p>
+          <p class="ua-kicker">Community wing</p>
+          <p>Nominate to Unwind remains part of the Unwind Africa ecosystem, but it now lives away from the main brand homepage.</p>
         </div>
-      </div>
-
-      <div class="features-scroll-container">
-        <div class="features-track">
-          <!-- Original cards -->
-          <div class="feature-card">
-            <div class="feature-icon">🏨</div>
-            <h3 class="feature-title">Spa Treatment</h3>
-            <p class="feature-description">
-              A luxurious spa day with full body massage, facial, and aromatherapy session
-            </p>
-          </div>
-          
-          <div class="feature-card">
-            <div class="feature-icon">🏖️</div>
-            <h3 class="feature-title">Weekend Getaway</h3>
-            <p class="feature-description">
-              All-expenses paid weekend retreat at a premium resort in Lagos
-            </p>
-          </div>
-          
-          <div class="feature-card">
-            <div class="feature-icon">🎁</div>
-            <h3 class="feature-title">Wellness Package</h3>
-            <p class="feature-description">
-              Comprehensive wellness package including yoga classes, meditation sessions, and healthy meal plans
-            </p>
-          </div>
-          
-          <div class="feature-card">
-            <div class="feature-icon">📚</div>
-            <h3 class="feature-title">Personal Development</h3>
-            <p class="feature-description">
-              Online courses and workshops on leadership, resilience, and personal growth
-            </p>
-          </div>
-          
-          <div class="feature-card">
-            <div class="feature-icon">💆</div>
-            <h3 class="feature-title">Self-Care Kit</h3>
-            <p class="feature-description">
-              Premium self-care kit with organic skincare products, essential oils, and relaxation tools
-            </p>
-          </div>
-          
-          <div class="feature-card">
-            <div class="feature-icon">🎉</div>
-            <h3 class="feature-title">Recognition Award</h3>
-            <p class="feature-description">
-              Custom trophy and certificate of recognition at our annual awards ceremony
-            </p>
-          </div>
-          
-          <!-- Duplicated cards for infinite scroll -->
-          <div class="feature-card">
-            <div class="feature-icon">🏨</div>
-            <h3 class="feature-title">Spa Treatment</h3>
-            <p class="feature-description">
-              A luxurious spa day with full body massage, facial, and aromatherapy session
-            </p>
-          </div>
-          
-          <div class="feature-card">
-            <div class="feature-icon">🏖️</div>
-            <h3 class="feature-title">Weekend Getaway</h3>
-            <p class="feature-description">
-              All-expenses paid weekend retreat at a premium resort in Lagos
-            </p>
-          </div>
-          
-          <div class="feature-card">
-            <div class="feature-icon">🎁</div>
-            <h3 class="feature-title">Wellness Package</h3>
-            <p class="feature-description">
-              Comprehensive wellness package including yoga classes, meditation sessions, and healthy meal plans
-            </p>
-          </div>
-          
-          <div class="feature-card">
-            <div class="feature-icon">📚</div>
-            <h3 class="feature-title">Personal Development</h3>
-            <p class="feature-description">
-              Online courses and workshops on leadership, resilience, and personal growth
-            </p>
-          </div>
-          
-          <div class="feature-card">
-            <div class="feature-icon">💆</div>
-            <h3 class="feature-title">Self-Care Kit</h3>
-            <p class="feature-description">
-              Premium self-care kit with organic skincare products, essential oils, and relaxation tools
-            </p>
-          </div>
-          
-          <div class="feature-card">
-            <div class="feature-icon">🎉</div>
-            <h3 class="feature-title">Recognition Award</h3>
-            <p class="feature-description">
-              Custom trophy and certificate of recognition at our annual awards ceremony
-            </p>
-          </div>
-        </div>
-      </div>
-
-  
+        <a href="{% url 'voting_campaigns_list' %}" class="ua-link">View campaign</a>
+      </aside>
     </div>
   </section>
 
-  <!-- Testimonial Section -->
-
-
-      <style>
-        .nominee-card:hover {
-          transform: translateY(-8px);
-        }
-        
-        #nominees-carousel {
-          scrollbar-width: thin;
-          scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
-        }
-        
-        #nominees-carousel::-webkit-scrollbar {
-          height: 6px;
-        }
-        
-        #nominees-carousel::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        
-        #nominees-carousel::-webkit-scrollbar-thumb {
-          background-color: rgba(102, 126, 234, 0.3);
-          border-radius: 3px;
-        }
-        
-        #nominees-carousel::-webkit-scrollbar-thumb:hover {
-          background-color: rgba(102, 126, 234, 0.5);
-        }
-
-        @media (max-width: 768px) {
-          #nominees-carousel {
-            gap: 1rem;
-          }
-          
-          .nominee-card {
-            flex: 0 0 calc(min(100%, 320px)) !important;
-          }
-        }
-      </style>
+  <section class="ua-section booking-section">
+    <div class="ua-container">
+      <div class="booking-copy">
+        <p class="ua-kicker">Begin gently</p>
+        <h2 class="ua-title">Tell us what kind of rest you are ready to invest in.</h2>
+        <p class="ua-subtitle">
+          Share the occasion, the people, the pressure, and the feeling you want to leave with.
+          We will shape the right retreat around it.
+        </p>
+        <a href="{% url 'contact' %}" class="ua-button ua-button--light">Start your private brief</a>
+      </div>
     </div>
   </section>
-
-  <!-- Testimonial Section -->
-  <section class="testimonial-section">
-    <div class="container">
-      <div class="testimonial-content">
-        <div class="testimonial-quote">
-          "I want to say a big thank you to my dear Sister Ps. (Mrs )Awogbindin & Sis Victoria for nominating me. Special thanks to friends, family & love ones for casting their vote for me & everyone who voted 🗳️. And to all the nominees well done. I appreciate you all. 💕"
-        </div>
-        <div class="testimonial-author">
-          — Owolabi Komolafe Nominee 2025
-        </div>
-      </div>
-    </div>
-
-    <!-- Voting modal (shows when voting hasn't started yet) -->
-    <div id="voting-start-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
-      <div style="background:white; color:#0a0b10; max-width:520px; width:90%; border-radius:12px; padding:1.25rem; text-align:center;">
-        <h3 style="margin-bottom:0.5rem;">Voting Starts Soon</h3>
-        <p id="voting-start-text" style="margin-bottom:1rem; color:#444;">Voting for this campaign hasn't started yet. Check back soon.</p>
-        <div style="display:flex; gap:0.5rem; justify-content:center;">
-          <button id="voting-start-close" style="padding:0.6rem 1rem; border-radius:8px; background:#e5e7eb; border:none;">Close</button>
-        </div>
-      </div>
-    </div>
-
-    <script>
-      (function(){
-        const modal = document.getElementById('voting-start-modal');
-        const text = document.getElementById('voting-start-text');
-        const close = document.getElementById('voting-start-close');
-        close.addEventListener('click', ()=> modal.style.display='none');
-
-        document.querySelectorAll('.vote-now').forEach(a => {
-          a.addEventListener('click', function(e){
-            try {
-              const active = this.getAttribute('data-active') === '1';
-              const start = this.getAttribute('data-start');
-              if (!active && start) {
-                const startDt = new Date(start.replace(' ', 'T'));
-                const now = new Date();
-                if (startDt > now) {
-                  e.preventDefault();
-                  text.textContent = `Voting starts on ${startDt.toLocaleString()}.`; 
-                  modal.style.display = 'flex';
-                  return false;
-                }
-              }
-            } catch(err) { /* fallback: allow navigation */ }
-          });
-        });
-      })();
-    </script>
-  </section>
-
-  <!-- CTA Section -->
-    <div class="cta-section" style="margin-top: 4rem;">
-        <div class="cta-content">
-          <h2 class="cta-title">Nominate Someone Today!</h2>
-          <p class="cta-description">
-            Help us recognize exceptional students and young people who deserve to be celebrated with these amazing prizes
-          </p>
-          <a href="{% url 'nominate' %}" class="btn-primary">
-            Submit Your Nomination
-          </a>
-        </div>
-      </div>
+</main>
 {% endblock %}

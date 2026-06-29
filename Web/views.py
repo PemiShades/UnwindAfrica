@@ -460,9 +460,14 @@ def community_stats(request):
 
 
 def rest_card_info(request):
-    """Redirect to home page's card request section"""
-    from django.shortcuts import redirect
-    return redirect('/#card-request')
+    """Rest Card information page"""
+    from .models import RestCard
+    waitlist_count = RestCard.objects.filter(status='waitlist').count()
+    spots_remaining = max(0, 1000 - waitlist_count)
+    return render(request, 'Web/community/rest_card.html', {
+        'waitlist_count': waitlist_count,
+        'spots_remaining': spots_remaining,
+    })
 
 
 @require_POST
@@ -1279,7 +1284,7 @@ def user_dashboard(request):
     # Generate unique referral code
     import hashlib
     referral_code = hashlib.md5(email.encode()).hexdigest()[:8].upper()
-    referral_link = f"{request.scheme}://{request.get_host()}/dashboard/signup/?ref={referral_code}"
+    referral_link = f"{request.scheme}://{request.get_host()}/rest-card/signup/?ref={referral_code}"
     
     # ==== Points System ====
     total_points = 0
@@ -1341,7 +1346,7 @@ def user_dashboard(request):
         'description': 'Nominate a deserving person for recognition',
         'points': 75,
         'completed': False,
-        'action_url': '/#about',
+        'action_url': '/nominate/',
         'action_label': 'Nominate'
     })
     
@@ -1520,4 +1525,3 @@ def claim_frozen_points(request):
             return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
-
