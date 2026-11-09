@@ -1,0 +1,54 @@
+:root { --ua-background:#fff; --ua-surface:#fff; --ua-paper:#fff; --ua-cream:#fff; }
+body { background:#fff; }
+.experience-page { --exp-ink:#102b25; --exp-green:#174f3d; --exp-gold:#bd8c39; --exp-muted:#727a76; --exp-rule:#e9ece8; color:var(--exp-ink); background:#fff; }
+.experience-intro { position:relative; display:grid; grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr); align-items:center; gap:clamp(2rem,7vw,7rem); width:min(1240px,90vw); min-height:650px; margin:0 auto; padding:clamp(7rem,12vw,10rem) 0 4.5rem; }
+.experience-intro__copy { position:relative; z-index:1; padding:1rem 0; }
+.experience-kicker { margin:0 0 1.1rem; color:var(--exp-green); font:700 .68rem/1.5 Inter,sans-serif; letter-spacing:.18em; }
+.experience-intro h1 { margin:0; color:var(--exp-ink); font:600 clamp(3.5rem,8.5vw,7.8rem)/.9 "Playfair Display",Georgia,serif; letter-spacing:-.055em; }
+.experience-intro h1 em { color:var(--exp-green); font-weight:500; }
+.experience-intro__copy>p:not(.experience-kicker) { max-width:390px; margin:1.55rem 0 1.7rem; color:#656e69; font-size:1rem; line-height:1.8; }
+.experience-text-link { display:inline-flex; align-items:center; gap:.8rem; padding-bottom:.45rem; border-bottom:1px solid #b6c3ba; color:var(--exp-ink); font-size:.8rem; font-weight:700; letter-spacing:.03em; }
+.experience-intro__image { position:relative; height:clamp(360px,46vw,540px); margin:0; overflow:hidden; border-radius:48% 48% 4px 4px; background:#edf1ed; }
+.experience-intro__image img { width:100%; height:100%; object-fit:cover; object-position:50% 50%; }
+.experience-intro__image:after { position:absolute; inset:55% 0 0; background:linear-gradient(transparent,rgba(7,24,18,.48)); content:""; }
+.experience-intro__image figcaption { position:absolute; z-index:1; bottom:2rem; left:2rem; color:#fff; font:500 clamp(1.5rem,3vw,2.5rem)/1.15 "Playfair Display",Georgia,serif; }
+.experience-intro__stamp { position:absolute; right:-1.5rem; bottom:5.4rem; z-index:2; padding:1rem 1.15rem; border:1px solid rgba(255,255,255,.7); border-radius:50%; background:var(--exp-green); color:white; font-size:.6rem; font-weight:700; letter-spacing:.11em; line-height:1.5; text-align:center; transform:rotate(9deg); }
+.experience-values { display:flex; justify-content:center; gap:clamp(2rem,7vw,7rem); width:min(1240px,90vw); margin:0 auto; padding:1.4rem 0; border-top:1px solid var(--exp-rule); border-bottom:1px solid var(--exp-rule); color:#66736c; font-size:.74rem; letter-spacing:.04em; }
+.experience-values span+span:before { margin-right:clamp(2rem,7vw,7rem); color:#c49a55; content:"✳"; }
+.experience-collection { width:min(1240px,90vw); margin:0 auto; padding:clamp(5rem,9vw,8rem) 0; }
+.experience-heading { display:flex; align-items:end; justify-content:space-between; gap:2rem; margin-bottom:2.5rem; }
+.experience-heading h2,.experience-note h2 { max-width:700px; margin:0; color:var(--exp-ink); font:600 clamp(2.2rem,5vw,4rem)/1.04 "Playfair Display",Georgia,serif; letter-spacing:-.035em; }
+.experience-heading>p { max-width:355px; margin:0 0 .3rem; color:var(--exp-muted); font-size:.86rem; line-height:1.75; }
+.experience-filter { display:flex; flex-wrap:wrap; gap:.45rem; margin-bottom:2rem; }
+.experience-filter button { padding:.72rem 1rem; border:1px solid #e2e7e3; border-radius:99px; background:#fff; color:#58645d; cursor:pointer; font:600 .72rem Inter,sans-serif; transition:.2s; }
+.experience-filter button:hover,.experience-filter button.is-active { border-color:var(--exp-green); background:var(--exp-green); color:#fff; }
+.experience-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1.6rem; }
+.experience-card { overflow:hidden; border:1px solid #eaeeeb; border-radius:3px; background:#fff; transition:transform .25s ease,box-shadow .25s ease; }
+.experience-card:hover { transform:translateY(-4px); box-shadow:0 18px 45px rgba(16,43,37,.09); }
+.experience-card[hidden] { display:none; }
+.experience-card__photo { position:relative; display:block; height:clamp(210px,23vw,300px); overflow:hidden; background:#edf0ec; }
+.experience-card__photo img { width:100%; height:100%; object-fit:cover; transition:transform .7s cubic-bezier(.2,.7,.2,1); }
+.experience-card:hover .experience-card__photo img { transform:scale(1.035); }
+.experience-card__number,.experience-card__duration { position:absolute; top:1rem; padding:.48rem .68rem; border:1px solid rgba(255,255,255,.6); background:rgba(255,255,255,.9); color:var(--exp-ink); font-size:.62rem; font-weight:700; letter-spacing:.08em; }
+.experience-card__number { left:1rem; }
+.experience-card__duration { right:1rem; }
+.experience-card__content { padding:1.25rem 1.3rem 1.15rem; }
+.experience-card__category { margin:0 0 .45rem; color:var(--exp-green); font-size:.64rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }
+.experience-card h3 { margin:0; color:var(--exp-ink); font:600 1.7rem/1.15 "Playfair Display",Georgia,serif; }
+.experience-card__description { min-height:3.8em; margin:.65rem 0 1.2rem; color:var(--exp-muted); font-size:.78rem; line-height:1.65; }
+.experience-card__price { display:flex; align-items:end; justify-content:space-between; gap:1rem; padding:.85rem 0; border-top:1px solid var(--exp-rule); }
+.experience-card__price div { display:grid; gap:.1rem; }
+.experience-card__price span { color:var(--exp-muted); font-size:.65rem; }
+.experience-card__price strong { color:var(--exp-ink); font:600 1.65rem/1.1 "Space Grotesk",Inter,sans-serif; letter-spacing:-.04em; }
+.experience-card__price small { max-width:48%; color:var(--exp-muted); font-size:.65rem; text-align:right; }
+.experience-card__footnote { margin:.1rem 0 .8rem; color:#737b76; font-size:.68rem; }
+.experience-card__link { display:flex; align-items:center; justify-content:space-between; padding-top:.9rem; border-top:1px solid var(--exp-rule); color:var(--exp-green); font-size:.72rem; font-weight:700; letter-spacing:.025em; }
+.experience-card__link span { font-size:1.1rem; }
+.experience-empty { grid-column:1/-1; padding:4rem 1rem; color:var(--exp-muted); text-align:center; }
+.experience-note { display:grid; grid-template-columns:1fr 1.1fr auto; align-items:center; gap:clamp(1.5rem,4vw,4rem); padding:clamp(2.5rem,5vw,4.5rem) max(5vw,calc((100vw - 1240px)/2)); border-top:1px solid var(--exp-rule); background:#fafbf9; }
+.experience-note .experience-kicker { margin-bottom:.6rem; }
+.experience-note h2 { font-size:clamp(1.75rem,3vw,2.7rem); }
+.experience-note>p { max-width:510px; margin:0; color:var(--exp-muted); font-size:.8rem; line-height:1.8; }
+.experience-note>a { color:var(--exp-green); font-size:.73rem; font-weight:700; white-space:nowrap; }
+@media(max-width:900px){.experience-intro{min-height:0;grid-template-columns:.9fr 1.1fr;gap:2rem}.experience-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.experience-note{grid-template-columns:1fr 1fr}.experience-note>a{grid-column:2}}
+@media(max-width:620px){.experience-intro{width:min(100% - 2rem,500px);grid-template-columns:1fr;padding:6.8rem 0 2.2rem;gap:1.3rem}.experience-intro h1{font-size:clamp(3.5rem,15vw,5.2rem)}.experience-intro__copy>p:not(.experience-kicker){margin:.9rem 0 1rem}.experience-intro__image{height:340px;border-radius:48% 48% 3px 3px}.experience-intro__image figcaption{bottom:1.4rem;left:1.3rem}.experience-intro__stamp{right:-.15rem;bottom:1.5rem;padding:.8rem;font-size:.52rem}.experience-values{width:100%;justify-content:flex-start;gap:.65rem;overflow:auto;padding:1rem 5vw;white-space:nowrap;font-size:.62rem}.experience-values span+span:before{margin-right:.65rem}.experience-collection{width:calc(100% - 2rem);padding:4rem 0}.experience-heading{display:block;margin-bottom:1.7rem}.experience-heading>p{margin-top:.9rem}.experience-filter{flex-wrap:nowrap;overflow:auto;margin-right:-1rem;padding:0 1rem .5rem 0}.experience-filter button{flex:none}.experience-grid{grid-template-columns:1fr;gap:1rem}.experience-card__photo{height:260px}.experience-card__description{min-height:0}.experience-note{grid-template-columns:1fr;padding:2.5rem 1rem;gap:1rem}.experience-note>a{grid-column:auto}.experience-page .ua-hero,.experience-page section{scroll-margin-top:90px}}

@@ -67,4 +67,13 @@ urlpatterns = [
     path("books/<int:book_id>/edit/", views.edit_book, name="edit_book"),
     path("books/<int:book_id>/delete/", views.delete_book, name="delete_book"),
     path("books/<int:book_id>/toggle-status/", views.toggle_book_status, name="toggle_book_status"),
+
+    # Group Getaway Packages
+    path("packages/", views.packages_dashboard, name="packages_dashboard"),
+    path("packages/create/", views.create_package, name="create_package"),
+    path("packages/<int:package_id>/edit/", views.edit_package, name="edit_package"),
+    path("packages/<int:package_id>/delete/", views.delete_package, name="delete_package"),
+    path("addons/create/", views.create_addon, name="create_addon"),
+    path("addons/<int:addon_id>/edit/", views.edit_addon, name="edit_addon"),
+    path("addons/<int:addon_id>/delete/", views.delete_addon, name="delete_addon"),
 ]

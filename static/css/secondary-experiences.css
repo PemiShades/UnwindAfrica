@@ -3,25 +3,25 @@
   --ua-secondary: #111827;
   --ua-accent-gold: #FFB648;
   --ua-accent-sky: #00B2FF;
-  --ua-background: #F5F1E8;
-  --ua-surface: #FFFDF8;
+  --ua-background: #FFFFFF;
+  --ua-surface: #FFFFFF;
   --ua-surface-warm: #EDE4D5;
   --ua-text: #0A0B10;
   --ua-muted: #656B73;
   --ua-border: rgba(10, 11, 16, 0.13);
-  --ua-light: #F9F4EA;
-  --ua-light-muted: rgba(249, 244, 234, 0.74);
+  --ua-light: #FFFFFF;
+  --ua-light-muted: rgba(255, 255, 255, 0.76);
   --ua-container: min(1160px, 90vw);
 }
 
 body {
-  background: var(--ua-background);
+  background: #FFFFFF;
   color: var(--ua-text);
 }
 
 .ua-page {
   min-height: 100vh;
-  background: var(--ua-background);
+  background: #FFFFFF;
 }
 
 .ua-page-dark {

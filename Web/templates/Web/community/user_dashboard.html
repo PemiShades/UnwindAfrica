@@ -1,261 +1,264 @@
 {% extends "Web/main.html" %}
 {% load static %}
 
-{% block title %}Member Dashboard - Unwind Africa{% endblock %}
+{% block title %}Your Dashboard | Unwind Africa{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}">
-<style>
-.dash-shell { background: var(--ua-background); min-height: 100vh; padding: 112px 0 clamp(60px, 8vw, 112px); }
-.dash-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2rem; align-items: end; margin-bottom: clamp(34px, 6vw, 70px); }
-.dash-title { margin: 0; font-family: "Playfair Display", ui-serif, Georgia, serif; font-size: clamp(2.4rem, 6vw, 5.4rem); line-height: .94; letter-spacing: -.035em; }
-.dash-email { margin-top: .75rem; color: var(--ua-muted); }
-.dash-signout { border-bottom: 1px solid currentColor; font-size: .78rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
-.dash-grid { display: grid; grid-template-columns: minmax(0, 1.28fr) minmax(320px, .72fr); gap: clamp(24px, 4vw, 42px); align-items: start; }
-.dash-panel { background: var(--ua-surface); border: 1px solid var(--ua-border); padding: clamp(1.25rem, 3vw, 2.2rem); box-shadow: 0 18px 48px rgba(10,11,16,.07); }
-.dash-panel + .dash-panel { margin-top: 1.2rem; }
-.dash-panel-dark { background: var(--ua-primary); color: var(--ua-light); }
-.dash-panel-dark .ua-copy, .dash-panel-dark p { color: var(--ua-light-muted); }
-.dash-label { margin: 0 0 .65rem; color: var(--ua-accent-gold); font-size: .72rem; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; }
-.dash-heading { margin: 0; font-family: "Playfair Display", ui-serif, Georgia, serif; font-size: clamp(1.55rem, 3vw, 2.6rem); line-height: 1.06; }
-.dash-stat-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--ua-border); border-left: 1px solid var(--ua-border); margin-bottom: 1.2rem; }
-.dash-stat { padding: 1.15rem; border-right: 1px solid var(--ua-border); border-bottom: 1px solid var(--ua-border); background: rgba(255,253,248,.55); }
-.dash-stat strong { display: block; font-family: "Playfair Display", ui-serif, Georgia, serif; font-size: clamp(1.8rem, 4vw, 3.1rem); line-height: .9; }
-.dash-stat span { display: block; margin-top: .45rem; color: var(--ua-muted); font-size: .82rem; }
-.dash-progress { height: 4px; background: rgba(10,11,16,.12); margin: 1rem 0 .7rem; }
-.dash-progress span { display: block; height: 100%; background: linear-gradient(90deg, var(--ua-accent-gold), var(--ua-accent-sky)); }
-.dash-list { display: grid; border-top: 1px solid var(--ua-border); }
-.dash-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--ua-border); align-items: center; }
-.dash-item h3 { margin: 0; font-family: "Playfair Display", ui-serif, Georgia, serif; font-size: 1.3rem; }
-.dash-item p { margin: .35rem 0 0; color: var(--ua-muted); line-height: 1.55; }
-.dash-mini { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; }
-.dash-field-copy { width: 100%; border: 0; border-bottom: 1px solid var(--ua-border); background: transparent; padding: .85rem 0; color: inherit; }
-.dash-modal { position: fixed; inset: 0; background: rgba(10,11,16,.62); display: none; align-items: center; justify-content: center; z-index: 80; padding: 1rem; }
-.dash-modal.is-open { display: flex; }
-.dash-modal-card { max-width: 520px; width: 100%; background: var(--ua-surface); border: 1px solid var(--ua-border); padding: clamp(1.4rem, 4vw, 2.4rem); }
-@media (max-width: 980px) { .dash-top, .dash-grid { grid-template-columns: 1fr; } .dash-stat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 620px) { .dash-stat-row, .dash-mini, .dash-item { grid-template-columns: 1fr; } }
-</style>
+<link rel="stylesheet" href="{% static 'css/user-dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/package-flow.css' %}">
 {% endblock %}
 
 {% block content %}
-<main class="dash-shell">
-  <div class="ua-wrap">
-    <header class="dash-top">
+<main class="member-dashboard">
+  <div class="member-dashboard__inner">
+    <header class="member-welcome">
       <div>
-        <p class="dash-label">Private member console</p>
-        <h1 class="dash-title">Your Unwind Africa account.</h1>
-        <p class="dash-email">{{ email }}</p>
+        <span class="member-eyebrow">Your Unwind Africa account</span>
+        <h1>Welcome back</h1>
+        <p>Your getaway plans and payment progress, all in one place.</p>
       </div>
-      <a class="dash-signout" href="{% url 'user_dashboard_logout' %}">Sign out</a>
+      <a class="member-signout" href="{% url 'user_dashboard_logout' %}">Sign out <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i></a>
     </header>
 
-    <section class="dash-panel dash-panel-dark">
-      <div class="dash-grid" style="align-items:center;">
-        <div>
-          <p class="dash-label">Today</p>
-          {% if has_voted_today %}
-          <h2 class="dash-heading">Your support has been recorded today.</h2>
-          <p>Come back tomorrow, or use this space to invite someone into the circle.</p>
-          {% else %}
-          <h2 class="dash-heading">You still have a chance to recognise someone today.</h2>
-          <p>{% if free_votes_available > 0 %}{{ free_votes_available }} free vote{{ free_votes_available|pluralize }} available.{% else %}You can still support an active campaign.{% endif %}</p>
-          {% endif %}
+    <section class="member-overview" aria-label="Savings overview">
+      <article class="member-savings-card">
+        <div class="member-savings-card__topline">
+          <div>
+            <span class="member-eyebrow">Your getaway savings</span>
+            <h2>Keep your next escape in reach.</h2>
+          </div>
+          <span class="member-savings-card__icon" aria-hidden="true"><i class="fa-solid fa-sun"></i></span>
         </div>
-        <div class="ua-actions" style="justify-content:flex-end;">
-          <a class="ua-button ua-button--light" href="{% url 'voting_campaigns_list' %}">View campaigns</a>
-          <a class="ua-button ua-button--ghost" href="{% url 'nominate' %}">Nominate someone</a>
+        <div class="member-savings-card__totals">
+          <div>
+            <span class="member-label">Saved so far</span>
+            <strong>₦{{ total_saved|floatformat:0 }}</strong>
+          </div>
+          <div class="member-savings-card__target">
+            <span class="member-label">Total package value</span>
+            <strong>₦{{ total_target|floatformat:0 }}</strong>
+          </div>
         </div>
-      </div>
+        <div class="member-progress" role="progressbar" aria-label="Overall savings progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ overall_progress|floatformat:0 }}">
+          <span style="width:{{ overall_progress|floatformat:0 }}%"></span>
+        </div>
+        <div class="member-savings-card__foot">
+          <span>{{ overall_progress|floatformat:0 }}% complete</span>
+          <span>₦{{ total_remaining|floatformat:0 }} remaining</span>
+        </div>
+        {% if total_credit %}<p class="member-credit-note">₦{{ total_credit|floatformat:0 }} early access credit applied to your getaway account.</p>{% endif %}
+        <a class="member-primary-link" href="{% url 'packages' %}">Explore getaways <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
+      </article>
+
+      <aside class="member-account-card">
+        <div class="member-account-card__heading">
+          <span class="member-eyebrow">Your account</span>
+          <span class="member-avatar" aria-hidden="true">{{ email|slice:':1'|upper }}</span>
+        </div>
+        <p class="member-account-card__email">{{ email }}</p>
+        {% if rest_card %}
+        <div class="member-account-card__restcard">
+          <span class="member-label">Rest Card</span>
+          <strong>{{ rest_card.get_status_display }}</strong>
+          <span class="member-account-card__number">•••• {{ rest_card.card_number|slice:"-4:"|default:"Pending" }}</span>
+        </div>
+        {% else %}
+        <div class="member-account-card__restcard member-account-card__restcard--empty">
+          <span class="member-label">Rest Card</span>
+          <strong>Make room for more rest.</strong>
+          <a href="{% url 'rest_card_signup' %}">Explore membership <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        </div>
+        {% endif %}
+        <div class="member-points-row">
+          <div><span class="member-label">Rest points</span><strong>{{ total_points|floatformat:0 }}</strong></div>
+          <div><span class="member-label">Free votes</span><strong>{{ free_votes_available|floatformat:0 }}</strong></div>
+        </div>
+      </aside>
     </section>
 
-    <div class="dash-stat-row">
-      <div class="dash-stat"><strong>{{ total_points|floatformat:0 }}</strong><span>Total Rest Points</span></div>
-      <div class="dash-stat"><strong>{{ frozen_points|floatformat:0 }}</strong><span>Frozen points</span></div>
-      <div class="dash-stat"><strong>{{ free_votes_available|floatformat:0 }}</strong><span>Free votes</span></div>
-      <div class="dash-stat"><strong>{{ voting_streak }}</strong><span>Voting streak</span></div>
-    </div>
-
-    <div class="dash-grid">
-      <div>
-        <section class="dash-panel">
-          <p class="dash-label">Membership standing</p>
-          <h2 class="dash-heading">{{ member_tier }} member</h2>
-          <p class="ua-copy">{{ points_to_next_reward|floatformat:0 }} points until your next reward threshold at {{ next_reward_at|floatformat:0 }}.</p>
-          <div class="dash-progress" aria-label="Reward progress"><span style="width: {{ progress_to_next|floatformat:0 }}%"></span></div>
-          <div class="dash-mini">
-            <div class="ua-status-note">Votes recorded from this account: {{ points_from_votes }}</div>
-            <div class="ua-status-note">Referrals recorded: {{ referral_count }}</div>
+    <section class="member-content-grid">
+      <div class="member-panel member-orders">
+        <div class="member-panel__header">
+          <div>
+            <span class="member-eyebrow">Your plans</span>
+            <h2>Getaway purchases</h2>
           </div>
-        </section>
+          <a class="member-text-link" href="{% url 'packages' %}">Browse packages <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        </div>
 
-        <section class="dash-panel">
-          <p class="dash-label">Daily actions</p>
-          <h2 class="dash-heading">Small actions, real value.</h2>
-          <div class="dash-list">
-            {% for task in daily_tasks %}
-            <article class="dash-item">
-              <div>
-                <h3>{{ task.title }}</h3>
-                <p>{{ task.description }} · {{ task.points }} points</p>
+        {% if package_orders %}
+          <div class="member-order-list">
+          {% for order in package_orders %}
+            <article class="member-order{% if order.status == 'completed' %} member-order--complete{% endif %}">
+              <div class="member-order__main">
+                <span class="member-order__icon" aria-hidden="true"><i class="fa-solid fa-umbrella-beach"></i></span>
+                <div>
+                  <h3>{{ order.package.name }}</h3>
+                  <p>{{ order.package.get_category_display }} · {{ order.package.get_experience_duration_display }} · {% if order.is_savings_plan %}{{ order.duration_months }} month payment plan{% else %}Pay outright{% endif %}</p>
+                </div>
               </div>
-              {% if task.completed %}
-              <strong>Done</strong>
-              {% else %}
-              <a class="ua-button ua-button--ghost" href="{{ task.action_url }}">{{ task.action_label }}</a>
-              {% endif %}
-            </article>
-            {% endfor %}
-          </div>
-        </section>
-
-        <section class="dash-panel" id="rewards-section">
-          <p class="dash-label">Reward path</p>
-          <h2 class="dash-heading">What your points can become.</h2>
-          <div class="dash-list">
-            {% for reward in rewards %}
-            <article class="dash-item">
-              <div>
-                <h3>{{ reward.name }}</h3>
-                <p>{{ reward.description }}</p>
+              <span class="member-order__status member-order__status--{{ order.status|lower }}">{{ order.get_status_display }}</span>
+              <div class="member-order__amounts">
+                <div><span class="member-label">Paid</span><strong>₦{{ order.amount_paid|floatformat:0 }}</strong></div>
+                <div><span class="member-label">Package total</span><strong>₦{{ order.grand_total|floatformat:0 }}</strong></div>
+                <div><span class="member-label">Balance</span><strong>₦{{ order.outstanding_balance|floatformat:0 }}</strong></div>
               </div>
-              <strong>{% if total_points >= reward.threshold %}Unlocked{% else %}{{ reward.threshold }} pts{% endif %}</strong>
-            </article>
-            {% endfor %}
-          </div>
-        </section>
-
-        <section class="dash-panel">
-          <p class="dash-label">Recent activity</p>
-          <h2 class="dash-heading">Your account history.</h2>
-          <div class="dash-list">
-            {% for activity in activity_feed %}
-            <article class="dash-item">
-              <div>
-                <h3>{{ activity.message }}</h3>
-                <p>{{ activity.date|date:"M d, Y" }}</p>
+              <div class="member-order__progress">
+                <div class="member-order__progress-label"><span>Payment progress</span><strong>{{ order.payment_progress|floatformat:0 }}%</strong></div>
+                <div class="member-progress member-progress--small" role="progressbar" aria-label="{{ order.package.name }} payment progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ order.payment_progress|floatformat:0 }}">
+                  <span style="width:{{ order.payment_progress|floatformat:0 }}%"></span>
+                </div>
               </div>
-              <strong>+{{ activity.points|floatformat:0 }}</strong>
+              <div class="member-order__actions">
+                {% if order.outstanding_balance > 0 %}
+                <button class="member-pay-button" type="button" onclick="payInstallment({{ order.id }}, {{ order.outstanding_balance }}, this)">Make a payment <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+                {% endif %}
+                {% if order.early_access_discount %}<span class="member-order__discount">Early access −₦{{ order.early_access_discount|floatformat:0 }}{% if order.early_access_slot %} · Participant {{ order.early_access_slot }} of 20{% endif %}</span>{% endif %}
+                <a class="member-schedule-link" href="{% url 'package_order' order.id %}">View payment schedule</a>
+              </div>
             </article>
-            {% empty %}
-            <article class="dash-item"><div><h3>No activity yet</h3><p>Vote, nominate, or apply for the Rest Card to begin building history.</p></div></article>
-            {% endfor %}
+          {% endfor %}
           </div>
-        </section>
+        {% else %}
+          <div class="member-empty-state">
+            <span class="member-empty-state__icon" aria-hidden="true"><i class="fa-solid fa-suitcase-rolling"></i></span>
+            <h3>Your next getaway starts here.</h3>
+            <p>Choose a package and pay outright or spread the cost over time.</p>
+            <a class="member-primary-link" href="{% url 'packages' %}">Explore packages <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        {% endif %}
       </div>
 
-      <aside>
-        <section class="dash-panel">
-          <p class="dash-label">Rest Card</p>
-          {% if rest_card %}
-          <h2 class="dash-heading">{{ rest_card.get_status_display }}</h2>
-          <p class="ua-copy">{{ rest_card.member_name }}</p>
-          <div class="ua-table-list">
-            {% if rest_card.card_number %}<div class="ua-table-row"><span>Card</span><strong>****{{ rest_card.card_number|slice:"-4:" }}</strong></div>{% endif %}
-            <div class="ua-table-row"><span>Tier</span><strong>{{ member_tier }}</strong></div>
-            <div class="ua-table-row"><span>Card points</span><strong>{{ rest_card.total_rest_points|floatformat:0 }}</strong></div>
-            <div class="ua-table-row"><span>Waitlist position</span><strong>{% if rest_card.waitlist_position %}{{ rest_card.waitlist_position }}{% else %}N/A{% endif %}</strong></div>
+      <aside class="member-side-column">
+        <section class="member-panel member-activity">
+          <div class="member-panel__header">
+            <div><span class="member-eyebrow">Your account</span><h2>Frozen points</h2></div>
+            <span class="member-activity__icon" aria-hidden="true"><i class="fa-regular fa-snowflake"></i></span>
+          </div>
+          <strong class="member-frozen-value">{{ frozen_points|floatformat:0 }}</strong>
+          <p>Points from voting, ready to move to your Rest Card when eligible.</p>
+          {% if frozen_points > 0 and rest_card %}
+            <button class="member-secondary-button" id="claim-points-btn" type="button">Claim points <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+          {% elif frozen_points > 0 %}
+            <a class="member-secondary-button" href="{% url 'rest_card_signup' %}">Apply for a Rest Card <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+          {% else %}
+            <span class="member-quiet-note">Keep taking part to earn points.</span>
+          {% endif %}
+        </section>
+
+        <section class="member-panel member-activity">
+          <div class="member-panel__header">
+            <div><span class="member-eyebrow">Recently</span><h2>Activity</h2></div>
+            <span class="member-activity__icon" aria-hidden="true"><i class="fa-regular fa-clock"></i></span>
+          </div>
+          {% if activity_feed %}
+          <div class="member-activity-list">
+            {% for activity in activity_feed|slice:":5" %}
+            <article class="member-activity-item">
+              <span class="member-activity-item__dot member-activity-item__dot--{{ activity.type }}" aria-hidden="true"></span>
+              <div><strong>{{ activity.message }}</strong><span>{{ activity.date|date:"M j, Y" }}</span></div>
+              <b>+{{ activity.points|floatformat:0 }}</b>
+            </article>
+            {% endfor %}
           </div>
           {% else %}
-          <h2 class="dash-heading">No Rest Card yet.</h2>
-          <p class="ua-copy">Apply to activate card benefits and claim eligible frozen points.</p>
-          <div class="ua-actions"><a class="ua-button" href="{% url 'rest_card_signup' %}">Apply now</a></div>
+          <p class="member-quiet-note">Your recent votes and point activity will show here.</p>
           {% endif %}
-        </section>
-
-        <section class="dash-panel">
-          <p class="dash-label">Frozen points</p>
-          <h2 class="dash-heading">{{ frozen_points|floatformat:0 }}</h2>
-          <p class="ua-copy">{% if rest_card %}Transfer eligible frozen points into your Rest Card balance.{% else %}Apply for a Rest Card to unlock eligible frozen points.{% endif %}</p>
-          {% if frozen_points > 0 and rest_card %}
-          <div class="ua-actions"><button class="ua-button" id="claim-points-btn" type="button">Claim points</button></div>
-          {% endif %}
-        </section>
-
-        <section class="dash-panel" id="referral-section">
-          <p class="dash-label">Invite with intention</p>
-          <h2 class="dash-heading">Share access, not noise.</h2>
-          <p class="ua-copy">Your referral code: <strong>{{ referral_code }}</strong></p>
-          <input class="dash-field-copy" id="referral-link" readonly value="{{ referral_link }}">
-          <div class="ua-actions">
-            <button class="ua-button" onclick="copyReferralLink()" type="button">Copy link</button>
-            <button class="ua-button ua-button--ghost" onclick="shareOnWhatsApp()" type="button">WhatsApp</button>
-          </div>
-        </section>
-
-        <section class="dash-panel">
-          <p class="dash-label">Concierge suggestion</p>
-          <h2 class="dash-heading">Ready for the real experience?</h2>
-          <p class="ua-copy">Points and campaigns are the community layer. The deeper Unwind Africa experience begins with a private brief.</p>
-          <div class="ua-actions"><a class="ua-button" href="{% url 'contact' %}">Start a brief</a></div>
         </section>
       </aside>
+    </section>
+  </div>
+
+  <div class="member-modal" id="claim-modal" role="dialog" aria-modal="true" aria-labelledby="claim-modal-title">
+    <div class="member-modal__card">
+      <div class="member-modal__header"><h2 id="claim-modal-title">Claim frozen points</h2><button class="member-modal__close" id="cancel-claim-btn" type="button" aria-label="Close">&times;</button></div>
+      <p>Transfer <strong>{{ frozen_points|floatformat:0 }}</strong> frozen points to your Rest Card balance?</p>
+      <div class="member-modal__actions"><button class="member-schedule-link" id="cancel-claim-btn2" type="button">Cancel</button><button class="member-pay-button" id="confirm-claim-btn" type="button">Confirm transfer</button></div>
     </div>
   </div>
 </main>
+{% endblock %}
 
-<div class="dash-modal" id="claim-modal" role="dialog" aria-modal="true">
-  <div class="dash-modal-card">
-    <p class="dash-label">Claim frozen points</p>
-    <h2 class="dash-heading">Transfer {{ frozen_points|floatformat:0 }} points to your Rest Card?</h2>
-    <p class="ua-copy">This action moves eligible frozen points into your active card balance.</p>
-    <div class="ua-actions">
-      <button class="ua-button" id="confirm-claim-btn" type="button">Confirm transfer</button>
-      <button class="ua-button ua-button--ghost" id="cancel-claim-btn" type="button">Cancel</button>
-    </div>
-  </div>
-</div>
-
+{% block extra_js %}
+<script src="https://js.paystack.co/v1/inline.js"></script>
 <script>
-function copyReferralLink() {
-  const linkInput = document.getElementById('referral-link');
-  linkInput.select();
-  document.execCommand('copy');
-}
-
-function shareOnWhatsApp() {
-  const text = "Join me in the Unwind Africa community: {{ referral_link }}";
-  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  const claimBtn = document.getElementById('claim-points-btn');
+document.addEventListener('DOMContentLoaded', function () {
+  const claimButton = document.getElementById('claim-points-btn');
   const claimModal = document.getElementById('claim-modal');
-  const confirmClaimBtn = document.getElementById('confirm-claim-btn');
-  const cancelClaimBtn = document.getElementById('cancel-claim-btn');
+  const confirmButton = document.getElementById('confirm-claim-btn');
+  const cancelButtons = document.querySelectorAll('#cancel-claim-btn, #cancel-claim-btn2');
 
-  if (!claimBtn || !claimModal) return;
+  if (claimButton && claimModal) {
+    claimButton.addEventListener('click', () => claimModal.classList.add('is-open'));
+    cancelButtons.forEach(button => button.addEventListener('click', () => claimModal.classList.remove('is-open')));
+    claimModal.addEventListener('click', event => {
+      if (event.target === claimModal) claimModal.classList.remove('is-open');
+    });
+    confirmButton.addEventListener('click', async function () {
+      confirmButton.disabled = true;
+      confirmButton.textContent = 'Transferring…';
+      try {
+        const response = await fetch('{% url "claim_frozen_points" %}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+          body: JSON.stringify({ rest_card_id: {{ rest_card.id|default:"null" }} })
+        });
+        const data = await response.json();
+        if (data.success) window.location.reload();
+        else alert(data.error || 'Unable to claim points.');
+      } catch (error) {
+        alert('Unable to claim points. Please try again.');
+      } finally {
+        confirmButton.disabled = false;
+        confirmButton.textContent = 'Confirm transfer';
+      }
+    });
+  }
 
-  claimBtn.addEventListener('click', function() {
-    claimModal.classList.add('is-open');
-  });
-
-  cancelClaimBtn.addEventListener('click', function() {
-    claimModal.classList.remove('is-open');
-  });
-
-  confirmClaimBtn.addEventListener('click', async function() {
-    confirmClaimBtn.disabled = true;
-    confirmClaimBtn.textContent = 'Transferring...';
-    try {
-      const response = await fetch('{% url "claim_frozen_points" %}', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({ rest_card_id: {{ rest_card.id|default:"null" }} })
-      });
-      const data = await response.json();
-      if (data.success) window.location.reload();
-      else alert(data.error || 'Unable to claim points.');
-    } catch (error) {
-      alert('Unable to claim points. Please try again.');
-    } finally {
-      confirmClaimBtn.disabled = false;
-      confirmClaimBtn.textContent = 'Confirm transfer';
+  window.payInstallment = async function (orderId, outstandingBalance, button) {
+    const amount = Number.parseFloat(window.prompt('Enter amount to pay (₦):', outstandingBalance));
+    if (!amount || amount <= 0) return;
+    if (amount > outstandingBalance) {
+      alert('Payment cannot be greater than the outstanding balance.');
+      return;
     }
-  });
+    const originalText = button.innerHTML;
+    button.disabled = true;
+    button.textContent = 'Initializing…';
+    try {
+      const response = await fetch('/dashboard/packages/' + orderId + '/contribute/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+        body: JSON.stringify({ amount: amount })
+      });
+      const result = await response.json();
+      if (!result.success) throw new Error(result.message || 'Failed to initialize payment.');
+      const handler = PaystackPop.setup({
+        key: '{{ paystack_public_key }}', email: '{{ email|escapejs }}',
+        amount: Math.round(Number(result.amount) * 100), ref: result.reference, currency: 'NGN',
+        callback: function () { verifyInstallmentPayment(result.reference); },
+        onClose: function () { button.disabled = false; button.innerHTML = originalText; }
+      });
+      handler.openIframe();
+    } catch (error) {
+      alert(error.message || 'Payment initialization failed. Please try again.');
+      button.disabled = false;
+      button.innerHTML = originalText;
+    }
+  };
+
+  async function verifyInstallmentPayment(reference) {
+    try {
+      const response = await fetch('/dashboard/packages/verify/' + encodeURIComponent(reference) + '/', {
+        headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Accept': 'application/json' }
+      });
+      const result = await response.json();
+      if (!response.ok || result.success === false) throw new Error(result.message || 'Payment verification failed.');
+      window.location.reload();
+    } catch (error) {
+      alert(error.message || 'Unable to verify payment. Please check your dashboard.');
+    }
+  }
 });
 </script>
 {% endblock %}

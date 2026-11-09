@@ -3,8 +3,6 @@
 
 {% block title %}Member Access - Unwind Africa{% endblock %}
 
-{% block navbar %}{% endblock %}
-
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}">
 <style>
@@ -40,6 +38,14 @@
           <input type="email" id="email" name="email" placeholder="you@example.com" required>
         </div>
         <button type="button" id="send-otp-btn" class="ua-button">Send verification code</button>
+        <button type="button" id="show-password-btn" class="ua-button ua-button--ghost">Sign in with your dashboard password</button>
+      </div>
+
+      <div id="password-step" class="access-step hidden">
+        <p class="ua-status-note">Use the temporary password sent after your first confirmed getaway deposit.</p>
+        <div class="ua-field"><label for="dashboard-password">Dashboard password</label><input type="password" id="dashboard-password" autocomplete="current-password"></div>
+        <button type="button" id="password-login-btn" class="ua-button">Sign in</button>
+        <button type="button" id="show-otp-btn" class="ua-button ua-button--ghost">Use a verification code instead</button>
       </div>
 
       <div id="step-2" class="access-step hidden">
@@ -68,6 +74,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const step2 = document.getElementById('step-2');
   const displayEmail = document.getElementById('display-email');
   const messageArea = document.getElementById('message-area');
+  const passwordStep = document.getElementById('password-step');
+  const passwordLoginBtn = document.getElementById('password-login-btn');
   let currentEmail = '';
 
   function showMessage(message) {
@@ -138,6 +146,40 @@ document.addEventListener('DOMContentLoaded', function() {
     step2.classList.add('hidden');
     step1.classList.remove('hidden');
     hideMessage();
+  });
+
+  document.getElementById('show-password-btn').addEventListener('click', function() {
+    currentEmail = emailInput.value.trim().toLowerCase();
+    if (!currentEmail) return showMessage('Enter your email address first.');
+    step1.classList.add('hidden');
+    passwordStep.classList.remove('hidden');
+    hideMessage();
+  });
+  document.getElementById('show-otp-btn').addEventListener('click', function() {
+    passwordStep.classList.add('hidden');
+    step1.classList.remove('hidden');
+    hideMessage();
+  });
+  passwordLoginBtn.addEventListener('click', async function() {
+    const password = document.getElementById('dashboard-password').value;
+    if (!password) return showMessage('Enter your dashboard password.');
+    passwordLoginBtn.disabled = true;
+    passwordLoginBtn.textContent = 'Signing in...';
+    try {
+      const response = await fetch('{% url "user_dashboard_login" %}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+        body: JSON.stringify({ email: currentEmail, password: password })
+      });
+      const data = await response.json();
+      if (data.success) window.location.href = '{% url "user_dashboard" %}';
+      else showMessage(data.error || 'Unable to sign in.');
+    } catch (error) {
+      showMessage('Unable to sign in. Please try again.');
+    } finally {
+      passwordLoginBtn.disabled = false;
+      passwordLoginBtn.textContent = 'Sign in';
+    }
   });
 
   emailInput.addEventListener('keypress', function(e) {

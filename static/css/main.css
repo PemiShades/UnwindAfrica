@@ -3,7 +3,7 @@
   --ua-secondary: #111827;
   --ua-accent-gold: #FFB648;
   --ua-accent-sky: #00B2FF;
-  --ua-background: #F5F1E8;
+  --ua-background: #FFFFFF;
   --ua-surface: #FFFFFF;
   --ua-surface-warm: #EFE7D8;
   --ua-text: #0A0B10;
@@ -14,7 +14,7 @@
   --ua-sun: var(--ua-accent-gold);
   --ua-ink: var(--ua-primary);
   --ua-paper: var(--ua-surface);
-  --ua-cream: var(--ua-background);
+  --ua-cream: #FFFFFF;
   --border: var(--ua-border);
 
   --radius: 16px;
@@ -34,7 +34,7 @@ html {
 
 body {
   margin: 0;
-  background: var(--ua-background);
+  background: #FFFFFF;
   color: var(--ua-text);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;

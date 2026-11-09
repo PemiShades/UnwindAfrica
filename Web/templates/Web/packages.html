@@ -1,161 +1,85 @@
 {% extends "Web/main.html" %}
 {% load static %}
 
-{% block title %}Packages - Unwind Africa{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}" />
-{% endblock %}
-
+{% block title %}Curated Getaways | Unwind Africa{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}"><link rel="stylesheet" href="{% static 'css/package-experiences.css' %}">{% endblock %}
 {% block content %}
-<main id="main-content" class="ua-page">
-  <section class="ua-hero ua-hero--dark" style="--ua-hero-image: url('{% static 'assets/home/packages/oceanic-odyssey.jpg' %}');">
-    <div class="ua-wrap ua-hero-grid">
-      <div>
-        <p class="ua-kicker">Private escapes and retreats</p>
-        <h1 class="ua-title">Choose the feeling. We will design the journey around it.</h1>
-        <p class="ua-copy">
-          Unwind Africa packages are starting points, not rigid products. Each one is shaped by your reason for leaving, your pace, your guests, and the kind of return you want to make.
-        </p>
-        <div class="ua-actions">
-          <a class="ua-button ua-button--light" href="{% url 'contact' %}">Start a private brief</a>
-          <a class="ua-button ua-button--ghost" href="#packages">View pathways</a>
+<main class="experience-page">
+  <section class="experience-intro">
+    <div class="experience-intro__copy">
+      <p class="experience-kicker">UNWIND AFRICA · 2026 / 2027</p>
+      <h1>Time away,<br><em>well spent.</em></h1>
+      <p>Rest by the water. Reconnect with your people. Let us take care of the details.</p>
+      <a href="#getaways" class="experience-text-link">Explore the getaways <span aria-hidden="true">↓</span></a>
+    </div>
+    <figure class="experience-intro__image">
+      <img src="{% static 'assets/home/photography/show_1.jpeg' %}" alt="Unwind Africa guests enjoying time together by the water" fetchpriority="high">
+      <figcaption>Room to slow down.<br>Space to feel present.</figcaption>
+    </figure>
+    <div class="experience-intro__stamp" aria-hidden="true">REST<br>RECHARGE<br>RECONNECT</div>
+  </section>
+
+  <section class="experience-values" aria-label="Experience details">
+    <span>Thoughtfully hosted</span><span>Easy payment plans</span><span>Made for real connection</span>
+  </section>
+
+  <section class="experience-collection" id="getaways">
+    <header class="experience-heading">
+      <div><p class="experience-kicker">THE 2026 / 2027 COLLECTION</p><h2>Choose your kind of escape.</h2></div>
+      <p>Outright payment or a 3, 6, 9, or 12 month savings plan. Begin with any amount.</p>
+    </header>
+    <nav class="experience-filter" aria-label="Filter packages">
+      <button class="is-active" type="button" data-filter="all">All experiences</button>
+      <button type="button" data-filter="group">Group getaway</button>
+      <button type="button" data-filter="couples">Couples escape</button>
+      <button type="button" data-filter="family">Family moments</button>
+    </nav>
+
+    <div class="experience-grid">
+      {% for package in packages %}
+      {% with category=package.category %}
+      <article class="experience-card" data-category="{{ category }}">
+        <a class="experience-card__photo" href="{% url 'package_detail' package.slug %}" aria-label="Explore {{ package.name }}">
+          {% if package.flyer %}<img src="{{ package.flyer.url }}" alt="{{ package.name }} getaway" loading="lazy">
+          {% elif category == 'couples' %}<img src="{% static 'assets/home/photography/show_2.jpg' %}" alt="A couple sharing a moment together" loading="lazy">
+          {% elif category == 'family' %}<img src="{% static 'assets/home/family.jpg' %}" alt="A family enjoying time together by the sea" loading="lazy">
+          {% elif package.experience_duration == 'two_days_one_night' %}<img src="{% static 'assets/home/packages/sunset.jpg' %}" alt="Palm trees beside the sea at sunset" loading="lazy">
+          {% else %}<img src="{% static 'assets/home/photography/show_1.jpeg' %}" alt="Unwind Africa guests at a beach gathering" loading="lazy">{% endif %}
+          <span class="experience-card__number">0{{ forloop.counter }}</span>
+          <span class="experience-card__duration">{{ package.get_experience_duration_display }}</span>
+        </a>
+        <div class="experience-card__content">
+          <p class="experience-card__category">{{ package.get_category_display }}</p>
+          <h3>{{ package.name }}</h3>
+          <p class="experience-card__description">{{ package.short_description|default:package.description|truncatechars:145 }}</p>
+          <div class="experience-card__price"><div><span>From</span><strong>₦{{ package.price_per_person|floatformat:0 }}</strong></div><small>{{ package.get_pricing_basis_display }}</small></div>
+          {% if package.category == 'family' %}<p class="experience-card__footnote">Starting price includes 2 adults and 2 children.</p>{% endif %}
+          <a class="experience-card__link" href="{% url 'package_detail' package.slug %}?mode=plan">Explore &amp; reserve <span aria-hidden="true">↗</span></a>
         </div>
-      </div>
-      <aside class="ua-editorial-panel">
-        <strong>No rushed itineraries. No generic packages.</strong>
-        <p>Every escape is edited for ease: fewer decisions, better details, and more room to be present.</p>
-      </aside>
+      </article>
+      {% endwith %}
+      {% empty %}
+      <div class="experience-empty">New experiences are being prepared. Please check back soon.</div>
+      {% endfor %}
     </div>
   </section>
 
-  <section id="packages" class="ua-section">
-    <div class="ua-wrap">
-      <div class="ua-section-head">
-        <p class="ua-kicker">Experience pathways</p>
-        <h2 class="ua-title">Five ways to unwind.</h2>
-        <p class="ua-copy">Begin with the emotional purpose. The final itinerary is built after a private planning conversation.</p>
-      </div>
-      <div class="ua-list">
-        <div id="solo" class="ua-list-item">
-          <div>
-            <h3>Reset: Solo Escape</h3>
-            <p>Quiet stays, spa rituals, reflective time, gentle movement, nourishing meals, and concierge support for guests who need to recover their inner pace.</p>
-          </div>
-          <a class="ua-link-button" href="{% url 'contact' %}?package=Solo%20Escape">Begin reset</a>
-        </div>
-        <div class="ua-list-item">
-          <div>
-            <h3>Romance: Private Two-Person Escape</h3>
-            <p>Discreet planning for anniversaries, reconnection, proposals, and beautifully paced time away from daily noise.</p>
-          </div>
-          <a class="ua-link-button" href="{% url 'contact' %}?package=Romance">Plan romance</a>
-        </div>
-        <div id="family" class="ua-list-item">
-          <div>
-            <h3>Family: Multigenerational Ease</h3>
-            <p>Comfortable stays, child-aware pacing, shared meals, private transport, and moments that help families feel together instead of managed.</p>
-          </div>
-          <a class="ua-link-button" href="{% url 'contact' %}?package=Family%20Escape">Plan family escape</a>
-        </div>
-        <div id="group" class="ua-list-item">
-          <div>
-            <h3>Corporate Retreats and Group Journeys</h3>
-            <p>Executive offsites, team resets, founder retreats, and private group escapes designed for clarity, connection, and memorable hospitality.</p>
-          </div>
-          <a class="ua-link-button" href="{% url 'contact' %}?package=Group%20Retreat">Build group retreat</a>
-        </div>
-        <div id="photo" class="ua-list-item">
-          <div>
-            <h3>Celebration and Storytelling</h3>
-            <p>Proposals, milestone birthdays, weddings, beach days, photo-led memories, and private celebrations with production handled calmly.</p>
-          </div>
-          <a class="ua-link-button" href="{% url 'contact' %}?package=Celebration">Design celebration</a>
-        </div>
-        <div id="urs" class="ua-list-item">
-          <div>
-            <h3>Unwind Relaxation Services</h3>
-            <p>Wellness support, body care, rest rituals, and restorative services that can be layered into a trip or designed as a standalone reset.</p>
-          </div>
-          <a class="ua-link-button" href="{% url 'contact' %}?package=URS">Request URS</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="ua-section ua-page-dark">
-    <div class="ua-wrap">
-      <div class="ua-section-head">
-        <p class="ua-kicker">What changes when we curate</p>
-        <h2 class="ua-title">The itinerary becomes emotional architecture.</h2>
-      </div>
-      <div class="ua-grid">
-        <article class="ua-card">
-          <img class="ua-card-media" src="{% static 'assets/packages/excursion.jpeg' %}" alt="A curated Unwind Africa excursion">
-          <h3>Arrival without friction</h3>
-          <p>Transport, check-in, room preferences, timing, and first impressions are coordinated so the body can settle quickly.</p>
-        </article>
-        <article class="ua-card">
-          <img class="ua-card-media" src="{% static 'assets/packages/treats.jpg' %}" alt="Nourishing hospitality details">
-          <h3>Hospitality with texture</h3>
-          <p>Meals, local experiences, private hosts, and cultural details are selected to feel warm and specific, never staged.</p>
-        </article>
-        <article class="ua-card">
-          <img class="ua-card-media" src="{% static 'assets/packages/boat-cruize.jpeg' %}" alt="A private water experience">
-          <h3>Space for the unplanned</h3>
-          <p>We design breathing room into the schedule because the best luxury is often the freedom to linger.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="ua-section">
-    <div class="ua-wrap ua-hero-grid">
-      <div>
-        <p class="ua-kicker">Planning rhythm</p>
-        <h2 class="ua-title">How a private Unwind Africa escape is built.</h2>
-      </div>
-      <div class="ua-list">
-        <div class="ua-list-item">
-          <div>
-            <h3>01. Private brief</h3>
-            <p>We ask what you need to feel, who is coming, what should be avoided, and what would make the trip feel worth it.</p>
-          </div>
-        </div>
-        <div class="ua-list-item">
-          <div>
-            <h3>02. Curated direction</h3>
-            <p>You receive a clear experience direction: destination, tone, pace, service layer, and estimated investment.</p>
-          </div>
-        </div>
-        <div class="ua-list-item">
-          <div>
-            <h3>03. Concierge execution</h3>
-            <p>Once approved, we handle partner coordination, timings, reservations, arrival notes, and guest communications.</p>
-          </div>
-        </div>
-        <div class="ua-list-item">
-          <div>
-            <h3>04. Restful re-entry</h3>
-            <p>The last day is planned with care so guests do not feel abruptly pushed back into the world they came to leave behind.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="ua-section ua-page-dark">
-    <div class="ua-wrap ua-hero-grid">
-      <div>
-        <p class="ua-kicker">Concierge note</p>
-        <h2 class="ua-title">The best package is the one that understands why you need to leave.</h2>
-        <p class="ua-copy">Send a short brief. We will recommend the right pathway and shape the experience with discretion.</p>
-      </div>
-      <div class="ua-actions">
-        <a class="ua-button ua-button--light" href="{% url 'contact' %}">Send brief</a>
-        <a class="ua-button ua-button--ghost" href="{% url 'about' %}">Our method</a>
-      </div>
-    </div>
+  <section class="experience-note">
+    <div><p class="experience-kicker">A LITTLE MORE ROOM TO UNWIND</p><h2>Make the journey yours.</h2></div>
+    <p>Add My Doctor &amp; I for ₦35,000. Request transportation from ₦20,000 per person, with the final price confirmed for your pickup. The first 20 eligible guests with a confirmed deposit receive 5% off their experience.</p>
+    <a href="mailto:unwindafrica24@gmail.com">Talk to our team <span aria-hidden="true">↗</span></a>
   </section>
 </main>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const buttons = document.querySelectorAll('.experience-filter button');
+  const cards = document.querySelectorAll('.experience-card');
+  buttons.forEach(button => button.addEventListener('click', () => {
+    buttons.forEach(item => item.classList.toggle('is-active', item === button));
+    cards.forEach(card => { card.hidden = button.dataset.filter !== 'all' && card.dataset.category !== button.dataset.filter; });
+  }));
+});
+</script>
 {% endblock %}

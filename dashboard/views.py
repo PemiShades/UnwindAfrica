@@ -1,6 +1,7 @@
 # dashboard/views.py
 from datetime import date, timedelta
 from collections import Counter
+from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST, require_http_methods
 from django.http import JsonResponse
@@ -14,6 +15,7 @@ from django.utils.timezone import now
 from .models import Post, Event
 from .forms import PostForm, EventForm, AdminAuthenticationForm, VotingCampaignForm, NomineeForm
 from Web.models import PageView, Session, VotingCampaign, Nominee, Vote, Transaction, Book
+from Web.models import GroupGetawayPackage, PackageAddOn, PackageOrder
 
 
 def _ensure_unique_slug(instance, base_text: str):
@@ -155,12 +157,15 @@ def dashboard_home(request):
     active_cards = rest_cards.filter(status='active')
     pending_cards = rest_cards.filter(status='pending')
     total_rest_points = RestCard.objects.aggregate(total=Sum('total_rest_points'))['total'] or 0
-    
     # Books data
     books = Book.objects.all().order_by('-created_at')
     books_available = books.filter(status='available').count()
     books_on_loan = books.filter(status='on_loan').count()
-    
+
+    # Package data (admin tab)
+    packages = GroupGetawayPackage.objects.all().order_by('price_per_person')
+    addons = PackageAddOn.objects.all().order_by('name')
+    orders = PackageOrder.objects.all().order_by('-created_at')[:50]
     # Calculate average votes per nominee
     avg_votes_per_nominee = 0
     if nominees.count() > 0:
@@ -221,6 +226,9 @@ def dashboard_home(request):
         "books_on_loan": books_on_loan,
         "avg_votes_per_nominee": avg_votes_per_nominee,
         "trial_registrations": trial_registrations,
+        "packages": packages,
+        "addons": addons,
+        "orders": orders,
     }
     return render(request, "dashboard/index.html", ctx)
 
@@ -2112,3 +2120,168 @@ def get_book(request, book_id):
         })
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
+# ========== Group Getaway Packages - CMS management ==========
+
+@login_required
+def packages_dashboard(request):
+    """Packages tab data for the admin dashboard."""
+    packages = GroupGetawayPackage.objects.all().order_by('price_per_person')
+    addons = PackageAddOn.objects.all().order_by('name')
+    orders = PackageOrder.objects.all().order_by('-created_at')[:50]
+    return render(request, 'dashboard/packages.html', {
+        'packages': packages,
+        'addons': addons,
+        'orders': orders,
+    })
+
+
+@require_POST
+@login_required
+def create_package(request):
+    try:
+        import json
+        data = json.loads(request.body)
+        name = (data.get('name') or '').strip()
+        if not name:
+            return JsonResponse({"ok": False, "error": "Package name is required."}, status=400)
+        price = Decimal(data.get('price_per_person') or 0)
+        pct = Decimal(data.get('instalment_charge_percent') or 0)
+        flat = Decimal(data.get('instalment_charge_flat') or 0)
+        durations = data.get('available_durations') or '3,6,9,12'
+        pkg = GroupGetawayPackage.objects.create(
+            name=name,
+            slug=slugify(name),
+            price_per_person=price,
+            short_description=data.get('short_description', '') or '',
+            description=data.get('description', '') or '',
+            inclusions=data.get('inclusions', '') or '',
+            instalment_charge_percent=pct,
+            instalment_charge_flat=flat,
+            available_durations=durations,
+            is_active=bool(data.get('is_active', True)),
+        )
+        return JsonResponse({"ok": True, "package": {
+            "id": pkg.id, "name": pkg.name, "slug": pkg.slug,
+            "price_per_person": str(pkg.price_per_person),
+            "instalment_charge_percent": str(pkg.instalment_charge_percent),
+            "instalment_charge_flat": str(pkg.instalment_charge_flat),
+            "available_durations": pkg.available_durations,
+            "is_active": pkg.is_active,
+        }})
+    except Exception as e:
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@login_required
+def edit_package(request, package_id):
+    try:
+        pkg = get_object_or_404(GroupGetawayPackage, id=package_id)
+        if request.method == "GET":
+            return JsonResponse({
+                "ok": True,
+                "package": {
+                    "id": pkg.id, "name": pkg.name, "slug": pkg.slug,
+                    "price_per_person": str(pkg.price_per_person),
+                    "short_description": pkg.short_description or "",
+                    "description": pkg.description or "",
+                    "inclusions": pkg.inclusions or "",
+                    "instalment_charge_percent": str(pkg.instalment_charge_percent),
+                    "instalment_charge_flat": str(pkg.instalment_charge_flat),
+                    "available_durations": pkg.available_durations,
+                    "is_active": pkg.is_active,
+                }
+            })
+        import json
+        data = json.loads(request.body)
+        pkg.name = data.get('name', pkg.name).strip()
+        if not pkg.name:
+            return JsonResponse({"ok": False, "error": "Name is required."}, status=400)
+        pkg.price_per_person = Decimal(data.get('price_per_person') or pkg.price_per_person)
+        pkg.short_description = data.get('short_description', pkg.short_description)
+        pkg.description = data.get('description', pkg.description)
+        pkg.inclusions = data.get('inclusions', pkg.inclusions)
+        pkg.instalment_charge_percent = Decimal(data.get('instalment_charge_percent') or pkg.instalment_charge_percent)
+        pkg.instalment_charge_flat = Decimal(data.get('instalment_charge_flat') or pkg.instalment_charge_flat)
+        pkg.available_durations = data.get('available_durations', pkg.available_durations)
+        pkg.is_active = bool(data.get('is_active', pkg.is_active))
+        pkg.slug = slugify(pkg.name)
+        pkg.save()
+        return JsonResponse({"ok": True})
+    except Exception as e:
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@require_POST
+@login_required
+def delete_package(request, package_id):
+    try:
+        pkg = get_object_or_404(GroupGetawayPackage, id=package_id)
+        pkg.delete()
+        return JsonResponse({"ok": True})
+    except Exception as e:
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@require_POST
+@login_required
+def create_addon(request):
+    try:
+        import json
+        data = json.loads(request.body)
+        name = (data.get('name') or '').strip()
+        if not name:
+            return JsonResponse({"ok": False, "error": "Add-on name is required."}, status=400)
+        addon = PackageAddOn.objects.create(
+            name=name,
+            description=data.get('description', '') or '',
+            price=Decimal(data.get('price') or 0),
+            regular_price=Decimal(data.get('regular_price') or 0),
+            is_active=bool(data.get('is_active', True)),
+        )
+        return JsonResponse({"ok": True, "addon": {
+            "id": addon.id, "name": addon.name, "price": str(addon.price),
+            "regular_price": str(addon.regular_price), "is_active": addon.is_active,
+        }})
+    except Exception as e:
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@login_required
+def edit_addon(request, addon_id):
+    try:
+        addon = get_object_or_404(PackageAddOn, id=addon_id)
+        if request.method == "GET":
+            return JsonResponse({
+                "ok": True,
+                "addon": {
+                    "id": addon.id, "name": addon.name, "description": addon.description or "",
+                    "price": str(addon.price), "regular_price": str(addon.regular_price),
+                    "is_active": addon.is_active,
+                }
+            })
+        import json
+        data = json.loads(request.body)
+        addon.name = data.get('name', addon.name).strip()
+        if not addon.name:
+            return JsonResponse({"ok": False, "error": "Name is required."}, status=400)
+        addon.description = data.get('description', addon.description)
+        addon.price = Decimal(data.get('price') or addon.price)
+        addon.regular_price = Decimal(data.get('regular_price') or addon.regular_price)
+        addon.is_active = bool(data.get('is_active', addon.is_active))
+        addon.save()
+        return JsonResponse({"ok": True})
+    except Exception as e:
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
+@require_POST
+@login_required
+def delete_addon(request, addon_id):
+    try:
+        addon = get_object_or_404(PackageAddOn, id=addon_id)
+        addon.delete()
+        return JsonResponse({"ok": True})
+    except Exception as e:
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)

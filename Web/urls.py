@@ -7,7 +7,16 @@ urlpatterns = [
 	path('',views.home,name="home"),
     path('test/', views.test, name='test'),
 	path('about/',views.about,name="about"),
-	path('packages/',views.packages,name="packages"),
+    path('packages/',views.packages,name="packages"),
+    path('api/v1/packages/', views.mobile_packages_api, name='mobile_packages_api'),
+    path('api/v1/auth/request-code/', views.mobile_request_login_code, name='mobile_request_login_code'),
+    path('api/v1/auth/verify-code/', views.mobile_verify_login_code, name='mobile_verify_login_code'),
+    path('api/v1/dashboard/', views.mobile_dashboard_api, name='mobile_dashboard_api'),
+    path('packages/<slug:slug>/',views.package_detail,name="package_detail"),
+    path('packages/<slug:slug>/checkout/',views.package_checkout,name="package_checkout"),
+    path('packages/order/<int:order_id>/',views.package_order,name="package_order"),
+    path('packages/order/<int:order_id>/upgrade/', views.package_upgrade, name='package_upgrade'),
+    path('packages/api/calculate-plan/',views.api_calculate_plan,name="api_calculate_plan"),
     path('blog/<slug:slug>/', views.blog_detail, name='blog_detail'),
     path('unwind-thrive/', views.unwind_thrive, name='services'),
 
@@ -63,6 +72,10 @@ urlpatterns = [
     path('dashboard/', views.user_dashboard, name='user_dashboard'),
     path('dashboard/logout/', views.user_dashboard_logout, name='user_dashboard_logout'),
     path('dashboard/claim-points/', views.claim_frozen_points, name='claim_frozen_points'),
+
+    # Installment Payments URLs (Paystack)
+    path('dashboard/packages/<int:order_id>/contribute/', views.initialize_installment_payment, name='initialize_installment_payment'),
+    path('dashboard/packages/verify/<str:reference>/', views.verify_installment_payment, name='verify_installment_payment'),
 ]
 
 

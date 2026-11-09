@@ -712,3 +712,271 @@ class EdBritishTrialRegistration(models.Model):
     def __str__(self):
         return f"{self.child_name} - {self.subject} - {self.parent_email}"
 
+
+# ===================== GROUP GETAWAY PACKAGES =====================
+
+class GroupGetawayPackage(models.Model):
+    """Group Getaway experience package (e.g. Classic, Premium Classic)."""
+    CATEGORY_CHOICES = [
+        ('group', 'Group Getaway'),
+        ('couples', 'Couples Escape'),
+        ('family', 'Family Moments'),
+    ]
+    DURATION_CHOICES = [
+        ('one_day', 'One Day'),
+        ('two_days_one_night', 'Two Days, One Night'),
+    ]
+    PRICING_BASIS_CHOICES = [
+        ('person', 'Per person'),
+        ('couple', 'Per couple'),
+        ('family', 'Per family (2 adults, 2 children)'),
+    ]
+
+    name = models.CharField(max_length=255, unique=True)
+    slug = models.SlugField(unique=True, blank=True)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='group', db_index=True)
+    experience_duration = models.CharField(max_length=30, choices=DURATION_CHOICES, default='one_day', db_index=True)
+    pricing_basis = models.CharField(max_length=20, choices=PRICING_BASIS_CHOICES, default='person')
+    included_adults = models.PositiveSmallIntegerField(default=1)
+    included_children = models.PositiveSmallIntegerField(default=0)
+    price_per_person = models.DecimalField(max_digits=12, decimal_places=2, default=0,
+        help_text="Base price per person in Naira")
+    short_description = models.TextField(blank=True)
+    description = models.TextField(blank=True)
+    inclusions = models.TextField(blank=True, help_text="Experience inclusions from the approved package flyer")
+    flyer = models.ImageField(upload_to='packages/flyers/', blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+
+    # Instalment / savings plan configuration (admin-configurable)
+    instalment_charge_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0,
+        help_text="Percentage of subtotal added as instalment charges")
+    instalment_charge_flat = models.DecimalField(max_digits=12, decimal_places=2, default=0,
+        help_text="Flat Naira charge added per month of the plan")
+    available_durations = models.CharField(max_length=50, default="3,6,9,12",
+        help_text="Comma-separated allowed plan durations in months")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['price_per_person']
+        verbose_name = "Group Getaway Package"
+        verbose_name_plural = "Group Getaway Packages"
+
+    def __str__(self):
+        return f"{self.name} – ₦{self.price_per_person:,.0f}"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base = slugify(self.name)
+            slug = base
+            i = 2
+            while GroupGetawayPackage.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base}-{i}"; i += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+    @property
+    def durations(self):
+        return [int(d.strip()) for d in self.available_durations.split(',') if d.strip()]
+
+    def calculate_plan(self, duration_months, addon_total=0, rest_forward=False, package_total=None):
+        """Return a plain breakdown dict for a savings-plan duration."""
+        from decimal import Decimal, ROUND_HALF_UP
+        package_amount = Decimal(package_total) if package_total is not None else self.price_per_person
+        base = package_amount + Decimal(addon_total or 0)
+        pct_fee = (self.instalment_charge_percent / Decimal(100)) * base
+        flat_fee = self.instalment_charge_flat * Decimal(duration_months)
+        instalment_charges = pct_fee + flat_fee
+        grand_total = base + instalment_charges
+        monthly = (grand_total / Decimal(duration_months)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        rest_forward_total = monthly if rest_forward else Decimal('0')
+        rest_forward_monthly = (rest_forward_total / Decimal(duration_months)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        return {
+            'base_price': package_amount,
+            'addon_total': Decimal(addon_total or 0),
+            'subtotal': base,
+            'instalment_charges': instalment_charges,
+            'grand_total': grand_total,
+            'duration': duration_months,
+            'monthly_contribution': monthly,
+            'rest_forward': rest_forward,
+            'rest_forward_total': rest_forward_total,
+            'rest_forward_monthly': rest_forward_monthly,
+        }
+
+
+class PackageAddOn(models.Model):
+    """Optional add-on sold at checkout (e.g. My Doctor and I)."""
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    price = models.DecimalField(max_digits=12, decimal_places=2, default=0,
+        help_text="Customer price for the add-on")
+    regular_price = models.DecimalField(max_digits=12, decimal_places=2, default=0,
+        help_text="Regular/strike-through reference price")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = "Package Add-On"
+        verbose_name_plural = "Package Add-Ons"
+
+    def __str__(self):
+        return f"{self.name} – ₦{self.price:,.0f}"
+
+
+class PackageOrder(models.Model):
+    """Customer order for a Group Getaway package."""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('active', 'Active'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+
+    customer_email = models.EmailField(db_index=True)
+    customer_name = models.CharField(max_length=255, blank=True)
+    package = models.ForeignKey(GroupGetawayPackage, on_delete=models.PROTECT, related_name='orders')
+
+    party_size = models.PositiveSmallIntegerField(default=1)
+    transportation_selected = models.BooleanField(default=False)
+    transportation_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    transportation_pickup_location = models.CharField(max_length=255, blank=True)
+    early_access_discount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    early_access_slot = models.PositiveSmallIntegerField(null=True, blank=True, unique=True)
+    early_access_confirmed_at = models.DateTimeField(null=True, blank=True)
+    overpayment_credit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    # Snapshots taken at checkout
+    package_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    duration_months = models.PositiveIntegerField(default=1)
+
+    my_doctor_selected = models.BooleanField(default=False)
+    my_doctor_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    rest_forward_selected = models.BooleanField(default=False)
+    rest_forward_total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    rest_forward_monthly = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    rest_forward_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    instalment_charges = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    grand_total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    monthly_contribution = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    amount_paid = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    outstanding_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Package Order"
+        verbose_name_plural = "Package Orders"
+
+    def __str__(self):
+        return f"{self.package.name} – {self.customer_email} – ₦{self.grand_total:,.0f}"
+
+    @property
+    def is_savings_plan(self):
+        return self.duration_months > 1
+
+    @property
+    def payment_progress(self):
+        """Calculate payment progress percentage towards the grand total."""
+        if self.grand_total <= 0:
+            return 0
+        return min(100, (self.amount_paid / self.grand_total) * 100)
+
+
+class GroupGetawayEarlyAccessOffer(models.Model):
+    """Serialized counter for the first confirmed launch deposits."""
+    name = models.CharField(max_length=80, unique=True, default='group-getaway-launch')
+    capacity = models.PositiveSmallIntegerField(default=20)
+    confirmed_count = models.PositiveSmallIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.name}: {self.confirmed_count}/{self.capacity} confirmed"
+
+
+class PackageCustomerCredential(models.Model):
+    """Single sign-in credential for the booking contact's package dashboard."""
+    email = models.EmailField(unique=True)
+    password_hash = models.CharField(max_length=128)
+    password_sent_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.email
+
+
+class MobileLoginChallenge(models.Model):
+    """Short-lived, single-use email code for mobile API sign-in."""
+    email = models.EmailField(unique=True)
+    code_hash = models.CharField(max_length=128)
+    expires_at = models.DateTimeField()
+    attempts = models.PositiveSmallIntegerField(default=0)
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Mobile sign-in for {self.email}"
+
+
+class PackageInstalment(models.Model):
+    """Single row of the customer's payment schedule."""
+    order = models.ForeignKey(PackageOrder, on_delete=models.CASCADE, related_name='instalments')
+    month_number = models.PositiveIntegerField()
+    due_date = models.DateField()
+    main_amount_due = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    rest_forward_portion = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_due = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    amount_paid = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    status = models.CharField(max_length=20, default='pending', db_index=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['month_number']
+        unique_together = ['order', 'month_number']
+        verbose_name = "Package Instalment"
+        verbose_name_plural = "Package Instalments"
+
+    def __str__(self):
+        return f"Instalment {self.month_number} for {self.order}"
+
+    @property
+    def outstanding(self):
+        return self.total_due - self.amount_paid
+
+
+class PackagePayment(models.Model):
+    """Record of a payment made against a package order."""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('success', 'Successful'),
+        ('failed', 'Failed'),
+    ]
+    order = models.ForeignKey(PackageOrder, on_delete=models.CASCADE, related_name='payments')
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    allocated_to_rest_forward = models.BooleanField(default=False)
+    is_initial_deposit = models.BooleanField(default=False)
+    reference = models.CharField(max_length=100, blank=True)
+    paystack_reference = models.CharField(max_length=100, blank=True)
+    authorization_url = models.URLField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='success', db_index=True)
+    paystack_response = models.JSONField(blank=True, null=True)
+    paid_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-paid_at']
+        verbose_name = "Package Payment"
+        verbose_name_plural = "Package Payments"
+
+    def __str__(self):
+        return f"₦{self.amount} on {self.order}"
+

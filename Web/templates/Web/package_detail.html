@@ -1,0 +1,224 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}{{ package.name }} | Unwind Africa{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}">
+<link rel="stylesheet" href="{% static 'css/package-flow.css' %}">
+<style>
+.gg-detail { padding: 7rem 1.2rem 4rem; background: var(--ua-background); }
+.gg-detail__wrap { width: min(1120px, 100%); margin: 0 auto; }
+.gg-detail__intro { display: grid; grid-template-columns: 1.1fr .9fr; gap: 2.5rem; align-items: start; }
+.gg-detail__copy { padding: 1.25rem 0; }
+.gg-detail__copy h1 { margin: .5rem 0; font: 700 clamp(2.2rem, 5vw, 4rem)/1.04 'Playfair Display', Georgia, serif; }
+.gg-detail__category { margin: 0; color: var(--ua-muted); font-size: .95rem; }
+.gg-detail__price { margin: 1.4rem 0 .2rem; font: 700 clamp(1.8rem, 4vw, 2.8rem) 'Space Grotesk', sans-serif; color: var(--ua-ink); }
+.gg-detail__price-note { color: var(--ua-muted); font-size: .85rem; }
+.gg-detail__note { margin-top: 1.3rem; padding: 1rem; border-left: 3px solid var(--ua-accent-gold); background: rgba(255,255,255,.72); color: var(--ua-muted); font-size: .88rem; line-height: 1.6; }
+.gg-detail__note a { color: var(--ua-ink); font-weight: 700; text-underline-offset: 3px; }
+.gg-detail__form { padding: clamp(1.1rem, 2.5vw, 1.6rem); border: 1px solid var(--ua-border); border-radius: 18px; background: var(--ua-surface); box-shadow: 0 18px 48px rgba(10,11,16,.08); }
+.gg-detail__form h2 { margin: 0 0 .25rem; font: 700 1.4rem 'Playfair Display', Georgia, serif; }
+.gg-detail__form > p { margin: 0 0 1rem; color: var(--ua-muted); font-size: .82rem; }
+.gg-fields { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.gg-field { display: grid; gap: .35rem; margin-bottom: .75rem; }
+.gg-field--wide { grid-column: 1/-1; }
+.gg-field label, .gg-field__label { color: var(--ua-muted); font-size: .7rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.gg-field input, .gg-field select { width: 100%; min-height: 43px; padding: .65rem .75rem; border: 1px solid var(--ua-border); border-radius: 9px; background: #fff; color: var(--ua-ink); font: inherit; }
+.gg-field input:focus, .gg-field select:focus { outline: 2px solid rgba(0,178,255,.22); border-color: var(--ua-accent-sky); }
+.gg-plan-mode, .gg-plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; margin: .85rem 0; }
+.gg-choice, .gg-plan-choice { min-height: 45px; padding: .65rem .7rem; border: 1px solid var(--ua-border); border-radius: 10px; background: #fff; color: var(--ua-ink); cursor: pointer; font: 700 .78rem Inter, sans-serif; }
+.gg-choice.is-active, .gg-plan-choice.is-active { border-color: var(--ua-ink); background: var(--ua-ink); color: #fff; }
+.gg-plan-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.gg-plan-choice { min-height: 54px; padding: .5rem .25rem; }
+.gg-plan-choice strong, .gg-plan-choice span { display: block; }
+.gg-plan-choice span { margin-top: .2rem; font-size: .65rem; font-weight: 500; }
+.gg-check { display: flex; align-items: flex-start; gap: .55rem; margin: .65rem 0; color: var(--ua-ink); font-size: .8rem; line-height: 1.5; }
+.gg-check input { width: 1rem; height: 1rem; margin-top: .15rem; accent-color: var(--ua-ink); }
+.gg-check small { color: var(--ua-muted); }
+.gg-summary { display: grid; gap: .4rem; margin: 1rem 0; padding: .85rem 0; border-top: 1px solid var(--ua-border); border-bottom: 1px solid var(--ua-border); }
+.gg-summary__row { display: flex; justify-content: space-between; gap: .75rem; color: var(--ua-muted); font-size: .77rem; }
+.gg-summary__row strong { color: var(--ua-ink); text-align: right; }
+.gg-summary__row--total { padding-top: .45rem; border-top: 1px solid var(--ua-border); font-weight: 800; }
+.gg-summary__row--total strong { font-size: 1.05rem; }
+.gg-alert { margin: 0 0 1rem; padding: .8rem; border-radius: 10px; background: rgba(255,182,72,.18); color: #674100; font-size: .8rem; line-height: 1.5; }
+.gg-alert a { color: inherit; font-weight: 800; }
+.gg-submit { width: 100%; min-height: 48px; border: 0; border-radius: 11px; background: var(--ua-accent-gold); color: var(--ua-ink); cursor: pointer; font: 800 .88rem Inter, sans-serif; }
+.gg-submit:hover { filter: brightness(.96); }
+.gg-submit:disabled { opacity: .6; cursor: wait; }
+.gg-detail__experience { margin-top: 1.2rem; padding: 1.2rem; border: 1px solid var(--ua-border); border-radius: 16px; background: rgba(255,255,255,.72); }
+.gg-detail__experience h2 { margin: 0 0 .55rem; font: 700 1.2rem 'Playfair Display', Georgia, serif; }
+.gg-detail__experience p { margin: 0; color: var(--ua-muted); font-size: .88rem; line-height: 1.65; white-space: pre-line; }
+@media (max-width: 850px) { .gg-detail__intro { grid-template-columns: 1fr; gap: .5rem; } .gg-detail__copy { padding: .5rem 0; } }
+@media (max-width: 540px) { .gg-detail { padding: 6rem .8rem 2.5rem; } .gg-fields { grid-template-columns: 1fr; gap: 0; } .gg-field--wide { grid-column: auto; } .gg-plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="gg-detail">
+  <div class="gg-detail__wrap">
+    <div class="gg-detail__intro">
+      <section class="gg-detail__copy">
+        <figure class="gg-detail__photo">
+          {% if package.category == 'couples' %}<img src="{% static 'assets/home/photography/show_2.jpg' %}" alt="A couple enjoying time together" fetchpriority="high">
+          {% elif package.category == 'family' %}<img src="{% static 'assets/home/family.jpg' %}" alt="Family enjoying a day together at the beach" fetchpriority="high">
+          {% else %}<img src="{% static 'assets/home/photography/show_1.jpeg' %}" alt="Unwind Africa guests sharing a beach getaway" fetchpriority="high">{% endif %}
+        </figure>
+        <span class="ua-kicker">{{ package.get_category_display }} · {{ package.get_experience_duration_display }}</span>
+        <h1>{{ package.name }}</h1>
+        <p class="gg-detail__category">A considered Unwind Africa experience, shaped around time together and room to rest.</p>
+        <p class="gg-detail__price">₦{{ package.price_per_person|floatformat:0 }}</p>
+        <p class="gg-detail__price-note">Starting price · {{ package.get_pricing_basis_display }}</p>
+        <p class="gg-detail__note"><strong>Early access:</strong> The first 20 eligible confirmed deposits receive 5% off the experience price. Optional add-ons and transport are excluded. Any discount credited after an outright payment is shown on your account.</p>
+        {% if package.pricing_basis == 'family' %}
+        <p class="gg-detail__note">Family starting price covers two adults and two children. For a larger family, extended stay, or custom experience, <a href="{% url 'contact' %}?package={{ package.name|urlencode }}">request a tailored quote</a>.</p>
+        {% endif %}
+        <div class="gg-detail__experience">
+          <h2>Experience details</h2>
+          <p>{{ package.description|default:package.short_description }}{% if package.inclusions %}
+
+{{ package.inclusions }}{% endif %}</p>
+        </div>
+      </section>
+
+      <form class="gg-detail__form" method="post" action="{% url 'package_checkout' package.slug %}">
+        {% csrf_token %}
+        <h2>Reserve your experience</h2>
+        <p>Choose a payment plan, select any extras, then enter the amount you want to start with.</p>
+        {% if checkout_error %}
+          {% if checkout_error == 'member' %}
+          <div class="gg-alert">This launch registration is for existing Unwind Africa community members. If you have not used our forms or taken part in voting, send a short introduction to <a href="mailto:unwindafrica24@gmail.com">unwindafrica24@gmail.com</a>.</div>
+          {% elif checkout_error == 'pickup' %}<div class="gg-alert">Add your pickup location to request transportation pricing.</div>
+          {% elif checkout_error == 'deposit' %}<div class="gg-alert">Enter a deposit greater than zero and no more than the total payable.</div>
+          {% elif checkout_error == 'party' %}<div class="gg-alert">Choose a group size from 1 to 20 people.</div>
+          {% elif checkout_error == 'plan' %}<div class="gg-alert">Choose one of the available payment durations.</div>
+          {% elif checkout_error == 'payment' %}<div class="gg-alert">We could not start payment. Your booking was not confirmed. Please try again or contact support.</div>
+          {% else %}<div class="gg-alert">Enter a valid email address to continue.</div>{% endif %}
+        {% endif %}
+
+        <div class="gg-fields">
+          <div class="gg-field"><label for="customer_name">Full name</label><input id="customer_name" name="customer_name" autocomplete="name" required></div>
+          <div class="gg-field"><label for="customer_email">Email address</label><input type="email" id="customer_email" name="customer_email" autocomplete="email" required></div>
+          {% if package.pricing_basis == 'person' %}
+          <div class="gg-field gg-field--wide"><label for="party_size">Number of participants</label><input id="party_size" name="party_size" type="number" min="1" max="20" value="1" required></div>
+          {% else %}
+          <div class="gg-field gg-field--wide"><span class="gg-field__label">Guests included</span><input value="{% if package.pricing_basis == 'couple' %}2 guests{% else %}2 adults + 2 children{% endif %}" readonly></div>
+          <input type="hidden" id="party_size" name="party_size" value="{{ default_party_size }}">
+          {% endif %}
+        </div>
+
+        <div class="gg-plan-mode" role="group" aria-label="Payment option">
+          <button type="button" class="gg-choice" id="mode-outright" onclick="setMode('outright')">Pay Outright</button>
+          <button type="button" class="gg-choice is-active" id="mode-plan" onclick="setMode('plan')">Start Your Savings Plan</button>
+        </div>
+        <input type="hidden" name="outright" id="outright" value="0">
+        <input type="hidden" name="duration_months" id="duration_months" value="{{ durations.0 }}">
+        <div id="durationOptions" class="gg-plan-grid">
+          {% for duration in durations %}
+          <button type="button" class="gg-plan-choice{% if forloop.first %} is-active{% endif %}" data-duration="{{ duration }}" onclick="selectDuration({{ duration }}, this)">
+            <strong>{{ duration }} months</strong><span class="plan-estimate">Calculating…</span>
+          </button>
+          {% endfor %}
+        </div>
+
+        <input type="hidden" name="my_doctor" id="my_doctor" value="off">
+        <label class="gg-check"><input type="checkbox" id="doctor-choice" onchange="toggleChoice('my_doctor', this.checked)"><span><strong>My Doctor &amp; I</strong> · ₦{{ addon_price|floatformat:0 }} per booking<br><small>Optional wellness experience</small></span></label>
+
+        <input type="hidden" name="transportation" id="transportation" value="off">
+        <label class="gg-check"><input type="checkbox" id="transport-choice" onchange="toggleChoice('transportation', this.checked); togglePickup()"><span><strong>Request transportation</strong> · from ₦{{ transport_price|floatformat:0 }} per person<br><small>Final price depends on pickup location and arrangement.</small></span></label>
+        <div class="gg-field" id="pickupField" hidden><label for="pickup_location">Pickup location</label><input id="pickup_location" name="transportation_pickup_location" placeholder="City or pickup address"></div>
+        <input type="hidden" name="rest_forward" value="off">
+
+        <div class="gg-summary" aria-live="polite">
+          <div class="gg-summary__row"><span>Experience</span><strong id="summary-package">₦{{ package_total|floatformat:0 }}</strong></div>
+          <div class="gg-summary__row"><span>Optional extras</span><strong id="summary-addons">₦0</strong></div>
+          <div class="gg-summary__row"><span>Installment charges</span><strong id="summary-fees">₦0</strong></div>
+          <div class="gg-summary__row gg-summary__row--total"><span>Total payable</span><strong id="summary-total">₦{{ package_total|floatformat:0 }}</strong></div>
+          <div class="gg-summary__row"><span>Plan contribution</span><strong id="summary-monthly">—</strong></div>
+        </div>
+        <div class="gg-field"><label for="initial_deposit">Your initial deposit (₦)</label><input id="initial_deposit" name="initial_deposit" type="number" min="1" step="1" value="" placeholder="Enter any amount to start" required></div>
+        <button class="gg-submit" type="submit" id="submit-booking">Continue to secure payment</button>
+      </form>
+    </div>
+  </div>
+</main>
+
+<script>
+const packageSlug = '{{ package.slug|escapejs }}';
+let selectedDuration = {{ durations.0|default:3 }};
+let latestPlan = null;
+let depositEdited = false;
+
+function setMode(mode) {
+  const isOutright = mode === 'outright';
+  document.getElementById('outright').value = isOutright ? '1' : '0';
+  document.getElementById('mode-outright').classList.toggle('is-active', isOutright);
+  document.getElementById('mode-plan').classList.toggle('is-active', !isOutright);
+  document.getElementById('durationOptions').hidden = isOutright;
+  document.getElementById('submit-booking').textContent = isOutright ? 'Continue with outright payment' : 'Continue to secure payment';
+  if (isOutright) document.getElementById('duration_months').value = '1';
+  else document.getElementById('duration_months').value = String(selectedDuration);
+  refreshPlan();
+}
+
+function selectDuration(duration, button) {
+  selectedDuration = duration;
+  document.getElementById('duration_months').value = String(duration);
+  document.querySelectorAll('.gg-plan-choice').forEach(item => item.classList.remove('is-active'));
+  button.classList.add('is-active');
+  refreshPlan();
+}
+
+function toggleChoice(name, checked) {
+  document.getElementById(name).value = checked ? 'on' : 'off';
+  refreshPlan();
+}
+
+function togglePickup() {
+  const field = document.getElementById('pickupField');
+  const input = document.getElementById('pickup_location');
+  field.hidden = !document.getElementById('transport-choice').checked;
+  input.required = !field.hidden;
+}
+
+function naira(value) { return '₦' + Number(value || 0).toLocaleString('en-NG', { maximumFractionDigits: 0 }); }
+
+async function refreshPlan() {
+  const duration = document.getElementById('outright').value === '1' ? 1 : selectedDuration;
+  const partySize = document.getElementById('party_size').value || '{{ default_party_size }}';
+  const query = new URLSearchParams({
+    slug: packageSlug, duration: String(duration), party_size: String(partySize),
+    my_doctor: String(document.getElementById('doctor-choice').checked),
+    transportation: String(document.getElementById('transport-choice').checked)
+  });
+  try {
+    const response = await fetch('/packages/api/calculate-plan/?' + query.toString());
+    const data = await response.json();
+    if (!response.ok || !data.ok) return;
+    latestPlan = data.plan;
+    document.getElementById('summary-package').textContent = naira(latestPlan.base_price);
+    document.getElementById('summary-addons').textContent = naira(latestPlan.addon_total);
+    document.getElementById('summary-fees').textContent = naira(latestPlan.instalment_charges);
+    document.getElementById('summary-total').textContent = naira(latestPlan.grand_total);
+    document.getElementById('summary-monthly').textContent = document.getElementById('outright').value === '1' ? 'Paid in full' : naira(latestPlan.monthly_contribution) + ' / month';
+    const selected = document.querySelector('.gg-plan-choice.is-active .plan-estimate');
+    if (selected) selected.textContent = naira(latestPlan.monthly_contribution) + ' / month';
+    const deposit = document.getElementById('initial_deposit');
+    deposit.max = latestPlan.grand_total;
+    if (!depositEdited) deposit.value = document.getElementById('outright').value === '1' ? latestPlan.grand_total : Math.max(1, Math.round(Number(latestPlan.monthly_contribution)));
+  } catch (error) {
+    console.error('Unable to calculate Group Getaway plan', error);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('party_size').addEventListener('input', refreshPlan);
+  document.getElementById('initial_deposit').addEventListener('input', () => { depositEdited = true; });
+  document.getElementById('initial_deposit').addEventListener('blur', function () {
+    if (latestPlan && Number(this.value) > Number(latestPlan.grand_total)) this.value = latestPlan.grand_total;
+  });
+  setMode('{{ request.GET.mode|default:"plan"|escapejs }}');
+  if (document.getElementById('transport-choice').checked) togglePickup();
+});
+</script>
+{% endblock %}

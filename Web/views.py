@@ -2,15 +2,183 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.timezone import now
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum
 from django.db.models.functions import TruncMonth
-from datetime import date
+from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET
+from django.views.decorators.csrf import csrf_exempt
+from datetime import date, timedelta
+from decimal import Decimal, ROUND_HALF_UP
+import json
 import logging
+import requests
+import secrets
 
 from .models import Post, Event, BlogCategory
 from .forms import PostForm, EventForm
 
 logger = logging.getLogger(__name__)
+
+
+@require_GET
+def mobile_packages_api(request):
+    """Public, read-only getaway package feed for the React Native client."""
+    from .models import GroupGetawayPackage
+    rows = GroupGetawayPackage.objects.filter(is_active=True).order_by(
+        'category', 'experience_duration', 'price_per_person'
+    )
+    return JsonResponse({
+        'results': [{
+            'id': package.pk,
+            'name': package.name,
+            'slug': package.slug,
+            'category': package.category,
+            'category_label': package.get_category_display(),
+            'duration_label': package.get_experience_duration_display(),
+            'pricing_basis': package.get_pricing_basis_display(),
+            'price': str(package.price_per_person),
+            'description': package.short_description or package.description,
+        } for package in rows],
+    })
+
+
+@csrf_exempt
+@require_POST
+def mobile_request_login_code(request):
+    """Send a one-time code to an existing Unwind Africa member."""
+    from django.contrib.auth.hashers import make_password
+    from django.core.cache import cache
+    from django.core.mail import send_mail
+    from django.http import JsonResponse
+    from django.utils import timezone
+    from .models import (
+        CommunityMember, FrozenRestPoints, MobileLoginChallenge,
+        PackageOrder, RestCard, TokenWallet, Vote,
+    )
+
+    try:
+        data = json.loads(request.body or '{}')
+    except (TypeError, json.JSONDecodeError):
+        return JsonResponse({'success': False, 'error': 'Invalid request.'}, status=400)
+    email = str(data.get('email', '')).strip().lower()
+    if not email or '@' not in email:
+        return JsonResponse({'success': False, 'error': 'Enter a valid email address.'}, status=400)
+
+    known_member = (
+        CommunityMember.objects.filter(email__iexact=email).exists()
+        or RestCard.objects.filter(member_email__iexact=email).exists()
+        or FrozenRestPoints.objects.filter(member_email__iexact=email).exists()
+        or TokenWallet.objects.filter(member_email__iexact=email).exists()
+        or Vote.objects.filter(voter_email__iexact=email).exists()
+        or PackageOrder.objects.filter(customer_email__iexact=email).exists()
+    )
+    if not known_member:
+        return JsonResponse({'success': False, 'error': 'This email is not connected to an Unwind Africa account.'}, status=404)
+
+    throttle_key = 'mobile-login-code:' + email
+    if not cache.add(throttle_key, '1', timeout=60):
+        return JsonResponse({'success': False, 'error': 'Please wait a minute before requesting another code.'}, status=429)
+
+    now_value = timezone.now()
+    challenge = MobileLoginChallenge.objects.filter(email=email).first()
+    if challenge and not challenge.is_used and challenge.updated_at > now_value - timedelta(seconds=60):
+        return JsonResponse({'success': False, 'error': 'Please wait a minute before requesting another code.'}, status=429)
+
+    code = f'{secrets.randbelow(1_000_000):06d}'
+    MobileLoginChallenge.objects.update_or_create(
+        email=email,
+        defaults={
+            'code_hash': make_password(code),
+            'expires_at': now_value + timedelta(minutes=10),
+            'attempts': 0,
+            'is_used': False,
+        },
+    )
+    try:
+        send_mail(
+            'Your Unwind Africa sign-in code',
+            f'Your sign-in code is {code}. It expires in 10 minutes. If you did not request this, you can ignore this email.',
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+            fail_silently=False,
+        )
+    except Exception:
+        logger.exception('Unable to send mobile sign-in code')
+        MobileLoginChallenge.objects.filter(email=email).update(is_used=True)
+        return JsonResponse({'success': False, 'error': 'We could not deliver your code. Please try again shortly.'}, status=503)
+    return JsonResponse({'success': True})
+
+
+@csrf_exempt
+@require_POST
+def mobile_verify_login_code(request):
+    """Exchange an email code for a signed, expiring bearer token."""
+    from django.contrib.auth.hashers import check_password
+    from django.core import signing
+    from django.http import JsonResponse
+    from django.utils import timezone
+    from .models import MobileLoginChallenge
+
+    try:
+        data = json.loads(request.body or '{}')
+    except (TypeError, json.JSONDecodeError):
+        return JsonResponse({'success': False, 'error': 'Invalid request.'}, status=400)
+    email = str(data.get('email', '')).strip().lower()
+    code = str(data.get('code', '')).strip()
+    challenge = MobileLoginChallenge.objects.filter(email=email, is_used=False).first()
+    if not challenge or challenge.expires_at <= timezone.now() or challenge.attempts >= 5:
+        return JsonResponse({'success': False, 'error': 'Code expired. Request a new one.'}, status=400)
+
+    challenge.attempts += 1
+    challenge.save(update_fields=['attempts', 'updated_at'])
+    if len(code) != 6 or not code.isdigit() or not check_password(code, challenge.code_hash):
+        return JsonResponse({'success': False, 'error': 'Invalid verification code.'}, status=400)
+
+    challenge.is_used = True
+    challenge.save(update_fields=['is_used', 'updated_at'])
+    signer = signing.TimestampSigner(salt='unwind.mobile.auth')
+    token = signer.sign(email)
+    return JsonResponse({'success': True, 'token': token, 'expires_in': 2592000})
+
+
+@require_GET
+def mobile_dashboard_api(request):
+    """Return only the signed-in member's getaway orders and savings totals."""
+    from django.core import signing
+    from django.db.models import Sum
+    from django.http import JsonResponse
+    from .models import PackageOrder
+
+    authorization = request.headers.get('Authorization', '')
+    if not authorization.startswith('Bearer '):
+        return JsonResponse({'error': 'Sign-in required.'}, status=401)
+    signer = signing.TimestampSigner(salt='unwind.mobile.auth')
+    try:
+        email = signer.unsign(authorization[7:].strip(), max_age=2592000)
+    except signing.BadSignature:
+        return JsonResponse({'error': 'Your sign-in has expired. Please sign in again.'}, status=401)
+
+    orders = list(PackageOrder.objects.filter(customer_email__iexact=email).select_related('package'))
+    target = sum((order.grand_total for order in orders), Decimal('0'))
+    saved = sum((min(order.amount_paid, order.grand_total) for order in orders), Decimal('0'))
+    remaining = sum((order.outstanding_balance for order in orders), Decimal('0'))
+    progress = float((saved / target * 100) if target else 0)
+    return JsonResponse({
+        'email': email,
+        'total_saved': str(saved),
+        'total_target': str(target),
+        'total_remaining': str(remaining),
+        'overall_progress': round(progress),
+        'orders': [{
+            'id': order.pk,
+            'package': order.package.name,
+            'status': order.get_status_display(),
+            'amount_paid': str(order.amount_paid),
+            'grand_total': str(order.grand_total),
+            'outstanding_balance': str(order.outstanding_balance),
+            'progress': round(float(order.payment_progress)),
+        } for order in orders],
+    })
 
 
 def home(request):
@@ -216,7 +384,354 @@ def raising_readers(request):
 
 
 def packages(request):
-    return render(request, 'Web/packages.html', context={})
+    from .models import GroupGetawayPackage, PackageAddOn
+    packages_qs = GroupGetawayPackage.objects.filter(is_active=True).order_by('category', 'experience_duration', 'price_per_person')
+    addons_qs = PackageAddOn.objects.filter(is_active=True).order_by('name')
+    return render(request, 'Web/packages.html', context={
+        'packages': packages_qs,
+        'addons': addons_qs,
+    })
+
+
+def add_months(d, n):
+    y = d.year + (d.month - 1 + n) // 12
+    m = (d.month - 1 + n) % 12 + 1
+    return d.replace(year=y, month=m)
+
+
+def package_detail(request, slug):
+    """Group Getaway package page with Pay Outright / Start Your Savings Plan options."""
+    from .models import GroupGetawayPackage, PackageAddOn
+    package = get_object_or_404(GroupGetawayPackage, slug=slug, is_active=True)
+    addons = PackageAddOn.objects.filter(is_active=True).order_by('name')
+    doctor_addon = PackageAddOn.objects.filter(name__icontains='doctor', is_active=True).first()
+    transport_addon = PackageAddOn.objects.filter(name__icontains='transport', is_active=True).first()
+    durations = package.durations or [3, 6, 9, 12]
+    default_party_size = package.included_adults + package.included_children if package.pricing_basis == 'family' else (2 if package.pricing_basis == 'couple' else 1)
+    package_total = package.price_per_person * (default_party_size if package.pricing_basis == 'person' else 1)
+    plans = {}
+    for duration in durations:
+        plans[duration] = package.calculate_plan(duration, package_total=package_total)
+    context = {
+        'package': package,
+        'addons': addons,
+        'doctor_addon': doctor_addon,
+        'addon_price': doctor_addon.price if doctor_addon else Decimal('35000'),
+        'transport_price': transport_addon.price if transport_addon else Decimal('20000'),
+        'durations': durations,
+        'plans': plans,
+        'default_party_size': default_party_size,
+        'package_total': package_total,
+        'checkout_error': request.GET.get('registration_error'),
+        'plan_mode_label': 'savings plan' if request.GET.get('mode') == 'plan' else 'payment',
+    }
+    return render(request, 'Web/package_detail.html', context)
+
+
+@require_POST
+def package_checkout(request, slug):
+    """Create the booking and securely collect its first deposit through Paystack."""
+    from .models import (GroupGetawayPackage, PackageAddOn, PackageOrder, PackageInstalment,
+                         PackagePayment, CommunityMember, RestCard, FrozenRestPoints,
+                         TokenWallet, Vote)
+    package = get_object_or_404(GroupGetawayPackage, slug=slug, is_active=True)
+
+    customer_email = request.POST.get('customer_email', '').strip().lower()
+    customer_name = request.POST.get('customer_name', '').strip()
+    try:
+        duration = int(request.POST.get('duration_months', 1) or 1)
+    except (TypeError, ValueError):
+        duration = 0
+    outright = request.POST.get('outright') == '1'
+    my_doctor = request.POST.get('my_doctor') == 'on'
+    transportation = request.POST.get('transportation') == 'on'
+    pickup_location = request.POST.get('transportation_pickup_location', '').strip()
+    try:
+        party_size = int(request.POST.get('party_size', 1) or 1)
+        initial_deposit = Decimal(request.POST.get('initial_deposit', '0') or '0').quantize(Decimal('0.01'))
+    except (ValueError, TypeError, ArithmeticError):
+        party_size, initial_deposit = 0, Decimal('0')
+
+    if not customer_email:
+        return redirect(f"/packages/{package.slug}/?registration_error=email")
+
+    # Launch registration is for people already known through the community, Rest Card, or voting.
+    is_known_member = (
+        CommunityMember.objects.filter(email__iexact=customer_email).exists()
+        or RestCard.objects.filter(member_email__iexact=customer_email).exists()
+        or FrozenRestPoints.objects.filter(member_email__iexact=customer_email).exists()
+        or TokenWallet.objects.filter(member_email__iexact=customer_email).exists()
+        or Vote.objects.filter(voter_email__iexact=customer_email).exists()
+        or PackageOrder.objects.filter(customer_email__iexact=customer_email).exists()
+    )
+    if not is_known_member:
+        return redirect(f"/packages/{package.slug}/?registration_error=member")
+
+    if package.pricing_basis == 'person':
+        if party_size < 1 or party_size > 20:
+            return redirect(f"/packages/{package.slug}/?registration_error=party")
+        unit_count = party_size
+        transport_headcount = party_size
+    elif package.pricing_basis == 'couple':
+        unit_count = 1
+        transport_headcount = 2
+        party_size = 2
+    else:
+        unit_count = 1
+        transport_headcount = package.included_adults + package.included_children
+        party_size = transport_headcount
+
+    if duration not in package.durations and not outright:
+        return redirect(f"/packages/{package.slug}/?registration_error=plan")
+    if outright:
+        duration = 1
+    if transportation and not pickup_location:
+        return redirect(f"/packages/{package.slug}/?registration_error=pickup")
+
+    package_total = package.price_per_person * unit_count
+    addon_total = Decimal('0')
+    if my_doctor:
+        addon = PackageAddOn.objects.filter(name__icontains='doctor', is_active=True).first()
+        addon_total += addon.price if addon else Decimal('35000')
+    transport_unit_price = PackageAddOn.objects.filter(name__icontains='transport', is_active=True).values_list('price', flat=True).first() or Decimal('20000')
+    transportation_total = transport_unit_price * transport_headcount if transportation else Decimal('0')
+    addon_total += transportation_total
+
+    plan = package.calculate_plan(duration, addon_total=addon_total, package_total=package_total)
+    if initial_deposit <= 0:
+        return redirect(f"/packages/{package.slug}/?registration_error=deposit")
+    if initial_deposit > plan['grand_total']:
+        return redirect(f"/packages/{package.slug}/?registration_error=deposit")
+
+    # A zero charge rate is used until the business provides approved installment fees.
+    start_date = date.today()
+    schedule = []
+    monthly = plan['monthly_contribution']
+    for i in range(1, duration + 1):
+        due = add_months(start_date, i - 1)
+        main_due = plan['grand_total'] - (monthly * (duration - 1)) if i == duration else monthly
+        schedule.append({
+            'month_number': i,
+            'due_date': due,
+            'main_amount_due': main_due,
+            'rest_forward_portion': Decimal('0'),
+            'total_due': main_due,
+        })
+
+    order = PackageOrder.objects.create(
+        customer_email=customer_email,
+        customer_name=customer_name,
+        package=package,
+        package_price=package_total,
+        duration_months=duration,
+        my_doctor_selected=my_doctor,
+        my_doctor_price=(addon.price if my_doctor and addon else Decimal('35000') if my_doctor else Decimal('0')),
+        transportation_selected=transportation,
+        transportation_price=transportation_total,
+        transportation_pickup_location=pickup_location,
+        party_size=party_size,
+        rest_forward_selected=False,
+        rest_forward_total=Decimal('0'),
+        rest_forward_monthly=Decimal('0'),
+        rest_forward_balance=Decimal('0'),
+        subtotal=plan['subtotal'],
+        instalment_charges=plan['instalment_charges'],
+        grand_total=plan['grand_total'],
+        monthly_contribution=plan['monthly_contribution'],
+        amount_paid=Decimal('0'),
+        outstanding_balance=plan['grand_total'],
+        status='pending',
+    )
+
+    for item in schedule:
+        PackageInstalment.objects.create(
+            order=order,
+            month_number=item['month_number'],
+            due_date=item['due_date'],
+            main_amount_due=item['main_amount_due'],
+            rest_forward_portion=item['rest_forward_portion'],
+            total_due=item['total_due'],
+            amount_paid=Decimal('0'),
+            status='pending',
+        )
+
+    if not settings.PAYSTACK_SECRET_KEY:
+        return redirect(f"/packages/{package.slug}/?registration_error=payment")
+    reference = f"GG-{secrets.token_urlsafe(18)}"
+    payment = PackagePayment.objects.create(
+        order=order, amount=initial_deposit, reference=reference,
+        is_initial_deposit=True, status='pending',
+    )
+    payload = {
+        'email': customer_email,
+        'amount': int(initial_deposit * 100),
+        'reference': reference,
+        'callback_url': request.build_absolute_uri(f'/dashboard/packages/verify/{reference}/'),
+        'metadata': {
+            'order_id': order.id,
+            'customer_name': customer_name,
+            'package_name': package.name,
+            'initial_deposit': True,
+        },
+    }
+    try:
+        response = requests.post(
+            'https://api.paystack.co/transaction/initialize',
+            headers={'Authorization': f'Bearer {settings.PAYSTACK_SECRET_KEY}', 'Content-Type': 'application/json'},
+            json=payload,
+            timeout=15,
+        )
+        response_data = response.json()
+        if response.ok and response_data.get('status'):
+            paystack_data = response_data['data']
+            payment.paystack_reference = paystack_data.get('reference', reference)
+            payment.authorization_url = paystack_data.get('authorization_url', '')
+            payment.paystack_response = response_data
+            payment.save(update_fields=['paystack_reference', 'authorization_url', 'paystack_response'])
+            return redirect(payment.authorization_url)
+        payment.status = 'failed'
+        payment.paystack_response = response_data
+        payment.save(update_fields=['status', 'paystack_response'])
+        return redirect(f"/packages/{package.slug}/?registration_error=payment")
+    except (requests.RequestException, ValueError) as exc:
+        logger.exception('Unable to initialize Group Getaway initial deposit')
+        payment.status = 'failed'
+        payment.paystack_response = {'error': str(exc)}
+        payment.save(update_fields=['status', 'paystack_response'])
+        return redirect(f"/packages/{package.slug}/?registration_error=payment")
+
+
+def package_order(request, order_id):
+    """Authenticated order detail with payment schedule and history."""
+    from .models import PackageOrder, PackageInstalment, PackagePayment, GroupGetawayPackage
+    email = request.session.get('dashboard_user_email')
+    if not email:
+        return redirect('user_dashboard_login')
+    order = get_object_or_404(PackageOrder, id=order_id, customer_email__iexact=email)
+    instalments = order.instalments.all()
+    payments = order.payments.all()
+
+    context = {
+        'order': order,
+        'instalments': instalments,
+        'payments': payments,
+        'upgrade_packages': GroupGetawayPackage.objects.filter(
+            category=order.package.category, is_active=True,
+            price_per_person__gt=order.package.price_per_person,
+        ).exclude(pk=order.package_id).order_by('price_per_person'),
+        'paystack_public_key': settings.PAYSTACK_PUBLIC_KEY,
+    }
+    return render(request, 'Web/package_order.html', context)
+
+
+@require_POST
+def package_upgrade(request, order_id):
+    """Upgrade an existing getaway booking and add the price difference to its balance."""
+    from .models import PackageOrder, GroupGetawayPackage, PackageInstalment
+    from django.db import transaction
+    from django.contrib import messages
+
+    email = request.session.get('dashboard_user_email')
+    if not email:
+        return redirect('user_dashboard_login')
+    order = get_object_or_404(PackageOrder, pk=order_id, customer_email__iexact=email)
+    target = get_object_or_404(GroupGetawayPackage, slug=request.POST.get('package_slug'), is_active=True)
+    if target.category != order.package.category or target.pricing_basis != order.package.pricing_basis:
+        messages.error(request, 'Choose an available upgrade in the same experience category.')
+        return redirect('package_order', order_id=order.id)
+
+    target_units = order.party_size if target.pricing_basis == 'person' else 1
+    new_package_total = target.price_per_person * target_units
+    if new_package_total <= order.package_price:
+        messages.error(request, 'Choose an experience with a higher starting price to upgrade.')
+        return redirect('package_order', order_id=order.id)
+
+    discount = (new_package_total * Decimal('0.05')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if order.early_access_slot else Decimal('0')
+    discounted_package_total = new_package_total - discount
+    addon_total = order.my_doctor_price + order.transportation_price
+    plan = target.calculate_plan(
+        max(1, order.duration_months), addon_total=addon_total,
+        package_total=discounted_package_total,
+    )
+
+    with transaction.atomic():
+        order = PackageOrder.objects.select_for_update().get(pk=order.pk)
+        paid_instalments = list(order.instalments.filter(status='paid').order_by('month_number'))
+        order.package = target
+        order.package_price = new_package_total
+        order.early_access_discount = discount
+        order.subtotal = plan['subtotal']
+        order.instalment_charges = plan['instalment_charges']
+        order.grand_total = plan['grand_total']
+        order.monthly_contribution = plan['monthly_contribution']
+        order.outstanding_balance = max(Decimal('0'), order.grand_total - order.amount_paid)
+        order.overpayment_credit = max(Decimal('0'), order.amount_paid - order.grand_total)
+        order.status = 'completed' if order.outstanding_balance <= 0 else 'active'
+        order.save()
+
+        order.instalments.exclude(status='paid').delete()
+        paid_months = {row.month_number for row in paid_instalments}
+        open_months = [month for month in range(1, max(1, order.duration_months) + 1) if month not in paid_months]
+        if not open_months and order.outstanding_balance > 0:
+            open_months = [max(paid_months or {0}) + 1]
+        remaining = order.outstanding_balance
+        count = len(open_months)
+        if count:
+            monthly = (remaining / count).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            for index, month in enumerate(open_months):
+                due = remaining if index == count - 1 else min(monthly, remaining)
+                remaining -= due
+                PackageInstalment.objects.create(
+                    order=order,
+                    month_number=month,
+                    due_date=add_months(date.today(), max(0, month - 1)),
+                    main_amount_due=due,
+                    total_due=due,
+                    rest_forward_portion=Decimal('0'),
+                )
+
+    messages.success(request, f'Your booking is now upgraded to {target.name}. Pay the updated balance to complete it.')
+    return redirect('package_order', order_id=order.id)
+
+
+def api_calculate_plan(request):
+    """AJAX endpoint: compute plan breakdown for duration/add-ons."""
+    from .models import GroupGetawayPackage, PackageAddOn
+    from decimal import Decimal, ROUND_HALF_UP
+    slug = request.GET.get('slug')
+    try:
+        duration = int(request.GET.get('duration', 1) or 1)
+    except (TypeError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'Choose a valid payment duration.'}, status=400)
+    my_doctor = request.GET.get('my_doctor') == 'true'
+    transportation = request.GET.get('transportation') == 'true'
+    rest_forward = request.GET.get('rest_forward') == 'true'
+    try:
+        party_size = max(1, min(20, int(request.GET.get('party_size', '1'))))
+    except (TypeError, ValueError):
+        party_size = 1
+
+    package = get_object_or_404(GroupGetawayPackage, slug=slug, is_active=True)
+    if package.pricing_basis == 'person':
+        unit_count, headcount = party_size, party_size
+    elif package.pricing_basis == 'couple':
+        unit_count, headcount = 1, 2
+    else:
+        unit_count, headcount = 1, package.included_adults + package.included_children
+    package_total = package.price_per_person * unit_count
+
+    addon_total = Decimal('0')
+    addon_price = PackageAddOn.objects.filter(name__icontains='doctor', is_active=True).values_list('price', flat=True).first() or Decimal('35000')
+    transport_price = PackageAddOn.objects.filter(name__icontains='transport', is_active=True).values_list('price', flat=True).first() or Decimal('20000')
+    if my_doctor:
+        addon_total += addon_price
+    if transportation:
+        addon_total += transport_price * headcount
+
+    plan = package.calculate_plan(duration, addon_total=addon_total, rest_forward=rest_forward, package_total=package_total)
+    plan['addon_price'] = addon_price
+    plan['transport_price'] = transport_price
+    return JsonResponse({'ok': True, 'plan': {k: str(v) for k, v in plan.items()}})
 
 
 def custom_404(request, exception):
@@ -1119,13 +1634,27 @@ def user_dashboard_login(request):
                 return JsonResponse({'success': False, 'error': 'Email is required'})
             
             # Check if user has any records (RestCard, FrozenPoints, or TokenWallet)
-            from .models import RestCard, FrozenRestPoints, TokenWallet
+            from .models import (RestCard, FrozenRestPoints, TokenWallet, Vote,
+                                 CommunityMember, PackageOrder, PackageCustomerCredential)
+
+            password = data.get('password')
+            if password:
+                from django.contrib.auth.hashers import check_password
+                credential = PackageCustomerCredential.objects.filter(email=email).first()
+                if not credential or not check_password(password, credential.password_hash):
+                    return JsonResponse({'success': False, 'error': 'Email or password is incorrect.'}, status=401)
+                request.session['dashboard_authenticated'] = True
+                request.session['dashboard_user_email'] = email
+                return JsonResponse({'success': True})
             
             has_rest_card = RestCard.objects.filter(member_email=email).exists()
             has_frozen_points = FrozenRestPoints.objects.filter(member_email=email, frozen_points__gt=0).exists()
             has_token_wallet = TokenWallet.objects.filter(member_email=email).exists()
+            has_existing_form = CommunityMember.objects.filter(email__iexact=email).exists()
+            has_voted = Vote.objects.filter(voter_email__iexact=email).exists()
+            has_package_order = PackageOrder.objects.filter(customer_email__iexact=email).exists()
             
-            if not (has_rest_card or has_frozen_points or has_token_wallet):
+            if not (has_rest_card or has_frozen_points or has_token_wallet or has_existing_form or has_voted or has_package_order):
                 return JsonResponse({
                     'success': False, 
                     'error': 'No account found for this email. Vote in our campaigns or join our waitlist to get started!'
@@ -1214,7 +1743,7 @@ def user_dashboard(request):
     Main user dashboard - shows rest points, frozen points, token wallet
     Requires email authentication via session
     """
-    from .models import RestCard, FrozenRestPoints, TokenWallet, Vote
+    from .models import RestCard, FrozenRestPoints, TokenWallet, Vote, PackageOrder
     from django.db.models import Count
     from django.utils import timezone
     from datetime import timedelta
@@ -1224,7 +1753,12 @@ def user_dashboard(request):
     email = request.session.get('dashboard_user_email')
     if not email:
         return render(request, 'Web/community/user_dashboard_login.html', {})
-    
+
+    def add_months(d, n):
+        y = d.year + (d.month - 1 + n) // 12
+        m = (d.month - 1 + n) % 12 + 1
+        return d.replace(year=y, month=m)
+
     # Get user data
     try:
         rest_card = RestCard.objects.filter(member_email=email).first()
@@ -1243,6 +1777,19 @@ def user_dashboard(request):
     
     # Get recent votes
     recent_votes = Vote.objects.filter(voter_email=email).order_by('-created_at')[:10]
+
+    # Package orders for this customer
+    from .models import PackageInstalment
+    package_orders = PackageOrder.objects.filter(customer_email=email).order_by('-created_at')
+
+    # Package installments for this customer
+    total_target = sum(o.grand_total for o in package_orders)
+    total_saved = sum(min(o.amount_paid, o.grand_total) for o in package_orders)
+    total_remaining = sum(o.outstanding_balance for o in package_orders)
+    total_credit = sum(o.overpayment_credit for o in package_orders)
+    overall_progress = 0
+    if total_target > 0:
+        overall_progress = min(100, (total_saved / total_target) * 100)
     
     # ==== Daily Action Engine ====
     # Calculate voting streak
@@ -1412,6 +1959,51 @@ def user_dashboard(request):
     activity_feed.sort(key=lambda x: x['date'], reverse=True)
     activity_feed = activity_feed[:10]
     
+    # ==== Chart-ready data ====
+    # Monthly points earned (last 6 months)
+    from django.db.models.functions import TruncMonth
+    six_months_ago = today - timedelta(days=180)
+    votes_by_month = (
+        Vote.objects.filter(voter_email=email, created_at__date__gte=six_months_ago)
+        .annotate(month=TruncMonth('created_at'))
+        .values('month')
+        .annotate(points=Sum('rest_points_earned'), count=Count('id'))
+        .order_by('month')
+    )
+    chart_labels = []
+    chart_points = []
+    chart_votes = []
+    month_map = {}
+    for v in votes_by_month:
+        key = v['month'].strftime('%b %Y')
+        month_map[key] = {'points': float(v['points'] or 0), 'count': v['count']}
+    # Ensure last 6 months appear
+    for i in range(5, -1, -1):
+        m = add_months(today.replace(day=1), -i)
+        key = m.strftime('%b %Y')
+        chart_labels.append(key)
+        data = month_map.get(key, {'points': 0, 'count': 0})
+        chart_points.append(data['points'])
+        chart_votes.append(data['count'])
+
+    # Package spending breakdown
+    package_spending = [
+        {'name': o.package.name, 'total': float(o.grand_total), 'paid': float(o.amount_paid)}
+        for o in package_orders
+    ]
+
+    # Rest card tier progression
+    tier_thresholds = {'Bronze': 0, 'Silver': 2500, 'Gold': 5000}
+    current_tier_points = total_points
+    tier_progress = 0
+    tier_label = member_tier
+    if member_tier == 'Gold':
+        tier_progress = 100
+    elif member_tier == 'Silver':
+        tier_progress = min(100, (current_tier_points / 5000) * 100)
+    elif member_tier == 'Bronze':
+        tier_progress = min(100, (current_tier_points / 2500) * 100)
+
     context = {
         'email': email,
         'rest_card': rest_card,
@@ -1419,44 +2011,60 @@ def user_dashboard(request):
         'frozen_entries': frozen_entries,
         'token_wallet': token_wallet,
         'recent_votes': recent_votes,
-        
+        'package_orders': package_orders,
+        'total_target': total_target,
+        'total_saved': total_saved,
+        'total_remaining': total_remaining,
+        'total_credit': total_credit,
+        'overall_progress': overall_progress,
+        'paystack_public_key': settings.PAYSTACK_PUBLIC_KEY,
+
         # Daily Action Engine
         'has_voted_today': has_voted_today,
         'voting_streak': streak,
         'free_votes_available': free_votes_available,
         'next_vote_time': next_vote_time,
-        
+
         # Referral System
         'referral_count': referral_count,
         'referral_code': referral_code,
         'referral_link': referral_link,
-        
+
         # Points System
         'total_points': total_points,
         'next_reward_at': next_reward_at,
         'points_to_next_reward': points_to_next_reward,
         'progress_to_next': progress_to_next,
         'points_from_votes': points_from_votes,
-        
+
         # Task System
         'daily_tasks': daily_tasks,
         'completed_tasks': completed_tasks,
         'total_tasks': len(daily_tasks),
-        
+
         # Rewards
         'rewards': rewards,
-        
+
         # Leaderboard
         'top_voters': top_voters,
         'user_rank': user_rank,
-        
+
         # Member Tier
         'member_tier': member_tier,
-        
+        'tier_progress': tier_progress,
+        'tier_thresholds': tier_thresholds,
+
         # Activity Feed
         'activity_feed': activity_feed,
+
+        # Charts
+        'chart_labels': chart_labels,
+        'chart_points': chart_points,
+        'chart_votes': chart_votes,
+        'package_spending': package_spending,
+        'paystack_public_key': settings.PAYSTACK_PUBLIC_KEY,
     }
-    
+
     return render(request, 'Web/community/user_dashboard.html', context)
 
 
@@ -1467,6 +2075,299 @@ def user_dashboard_logout(request):
     if 'dashboard_authenticated' in request.session:
         del request.session['dashboard_authenticated']
     return redirect('home')
+
+
+# ============================================
+# PACKAGE INSTALLMENT PAYMENTS (PAYSTACK)
+# ============================================
+@require_POST
+def initialize_installment_payment(request, order_id):
+    """
+    Initialize Paystack payment for a package installment.
+    Creates a pending PackagePayment record, returns authorization URL.
+    """
+    from .models import PackageOrder, PackagePayment
+    from django.http import JsonResponse
+
+    email = request.session.get('dashboard_user_email')
+    if not email:
+        return JsonResponse({'success': False, 'error': 'Not authenticated'}, status=401)
+
+    try:
+        import json
+        data = json.loads(request.body)
+        amount = data.get('amount')
+
+        try:
+            amount = Decimal(str(amount))
+        except (ValueError, TypeError):
+            return JsonResponse({'success': False, 'error': 'Invalid amount'}, status=400)
+
+        if amount <= 0:
+            return JsonResponse({'success': False, 'error': 'Amount must be greater than zero'}, status=400)
+
+        order = get_object_or_404(PackageOrder, id=order_id, customer_email=email)
+
+        if order.status == 'completed':
+            return JsonResponse({'success': False, 'error': 'This order is already completed'}, status=400)
+        if amount > order.outstanding_balance:
+            return JsonResponse({'success': False, 'error': 'Payment cannot exceed the outstanding balance.'}, status=400)
+
+        # Generate unique reference
+        import secrets
+        reference = f"INST-{secrets.token_urlsafe(16)}"
+
+        # Convert to kobo (Paystack uses kobo for Naira)
+        amount_in_kobo = int(amount * 100)
+
+        paystack_secret = settings.PAYSTACK_SECRET_KEY
+        if not paystack_secret:
+            return JsonResponse({
+                'success': False,
+                'message': 'Payment gateway not configured. Please contact support.'
+            }, status=500)
+
+        # Create pending payment record
+        payment = PackagePayment.objects.create(
+            order=order,
+            amount=amount,
+            reference=reference,
+            status='pending',
+        )
+
+        # Initialize Paystack payment
+        headers = {
+            'Authorization': f'Bearer {paystack_secret}',
+            'Content-Type': 'application/json',
+        }
+
+        payload = {
+            'email': email,
+            'amount': amount_in_kobo,
+            'reference': reference,
+            'callback_url': request.build_absolute_uri(
+                f'/dashboard/packages/verify/{reference}/'
+            ),
+            'metadata': {
+                'customer_email': email,
+                'customer_name': order.customer_name,
+                'order_id': order.id,
+                'package_name': order.package.name,
+                'custom_fields': [
+                    {
+                        'display_name': 'Package',
+                        'variable_name': 'package_name',
+                        'value': order.package.name
+                    },
+                    {
+                        'display_name': 'Order',
+                        'variable_name': 'order_id',
+                        'value': str(order.id)
+                    }
+                ]
+            }
+        }
+
+        response = requests.post(
+            'https://api.paystack.co/transaction/initialize',
+            headers=headers,
+            json=payload,
+            verify=False,
+            timeout=10
+        )
+
+        response_data = response.json()
+
+        if response.status_code == 200 and response_data.get('status'):
+            data = response_data['data']
+            payment.paystack_reference = data.get('reference', '')
+            payment.authorization_url = data.get('authorization_url', '')
+            payment.paystack_response = response_data
+            payment.save()
+
+            return JsonResponse({
+                'success': True,
+                'authorization_url': data.get('authorization_url'),
+                'reference': reference,
+                'amount': float(amount),
+                'access_code': data.get('access_code', ''),
+                'message': 'Payment initialized successfully',
+            })
+        else:
+            payment.status = 'failed'
+            payment.paystack_response = response_data
+            payment.save()
+            return JsonResponse({
+                'success': False,
+                'message': response_data.get('message', 'Payment initialization failed')
+            }, status=400)
+
+    except Exception as e:
+        import traceback
+        print("=" * 50)
+        print("ERROR in initialize_installment_payment:")
+        print(traceback.format_exc())
+        print("=" * 50)
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+def verify_installment_payment(request, reference):
+    """
+    Verify Paystack payment for a package installment.
+    Updates payment status and order amount_paid / outstanding_balance.
+    """
+    from .models import PackageOrder, PackagePayment, GroupGetawayEarlyAccessOffer
+    from django.contrib import messages
+    from django.db import transaction as db_transaction
+    from django.utils.timezone import now
+
+    ajax_request = 'application/json' in request.headers.get('Accept', '')
+    try:
+        payment = get_object_or_404(PackagePayment, reference=reference)
+        email = request.session.get('dashboard_user_email')
+        if not payment.is_initial_deposit and email != payment.order.customer_email:
+            if ajax_request:
+                return JsonResponse({'success': False, 'message': 'Please sign in to verify this payment.'}, status=401)
+            return redirect('user_dashboard_login')
+
+        if payment.status == 'success':
+            if payment.is_initial_deposit:
+                request.session['dashboard_user_email'] = payment.order.customer_email
+                request.session['dashboard_authenticated'] = True
+            if ajax_request:
+                return JsonResponse({'success': True, 'already_verified': True})
+            return redirect('user_dashboard')
+
+        response = requests.get(
+            f'https://api.paystack.co/transaction/verify/{reference}',
+            headers={'Authorization': f'Bearer {settings.PAYSTACK_SECRET_KEY}'},
+            timeout=15,
+        )
+        response_data = response.json()
+        paystack_data = response_data.get('data') or {}
+        expected_kobo = int(payment.amount * 100)
+        is_paid = (
+            response.ok and response_data.get('status')
+            and paystack_data.get('status') == 'success'
+            and paystack_data.get('reference') == (payment.paystack_reference or payment.reference)
+            and int(paystack_data.get('amount') or 0) == expected_kobo
+            and paystack_data.get('currency') == 'NGN'
+        )
+        if not is_paid:
+            if response_data.get('data', {}).get('status') in ('failed', 'abandoned'):
+                payment.status = 'failed'
+                payment.paystack_response = response_data
+                payment.save(update_fields=['status', 'paystack_response'])
+            if ajax_request:
+                return JsonResponse({'success': False, 'message': 'Payment could not be confirmed.'}, status=400)
+            messages.error(request, 'Payment could not be confirmed. Please try again or contact support.')
+            return redirect('user_dashboard')
+
+        order = None
+        discount_slot = None
+        with db_transaction.atomic():
+            locked_payment = PackagePayment.objects.select_for_update().get(pk=payment.pk)
+            if locked_payment.status == 'success':
+                order = locked_payment.order
+            else:
+                order = PackageOrder.objects.select_for_update().get(pk=locked_payment.order_id)
+                locked_payment.status = 'success'
+                locked_payment.paystack_reference = paystack_data.get('reference', reference)
+                locked_payment.paystack_response = response_data
+                locked_payment.paid_at = now()
+                locked_payment.save(update_fields=['status', 'paystack_reference', 'paystack_response', 'paid_at'])
+
+                if locked_payment.is_initial_deposit and not order.early_access_confirmed_at:
+                    offer, _ = GroupGetawayEarlyAccessOffer.objects.get_or_create(
+                        pk=1, defaults={'name': 'group-getaway-launch', 'capacity': 20, 'confirmed_count': 0}
+                    )
+                    offer = GroupGetawayEarlyAccessOffer.objects.select_for_update().get(pk=offer.pk)
+                    if offer.confirmed_count < offer.capacity:
+                        offer.confirmed_count += 1
+                        discount_slot = offer.confirmed_count
+                        offer.save(update_fields=['confirmed_count'])
+                        order.early_access_slot = discount_slot
+                        order.early_access_confirmed_at = now()
+                        order.early_access_discount = (order.package_price * Decimal('0.05')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                        order.grand_total = max(Decimal('0'), order.grand_total - order.early_access_discount)
+
+                order.amount_paid += locked_payment.amount
+                order.outstanding_balance = max(Decimal('0'), order.grand_total - order.amount_paid)
+                order.overpayment_credit = max(Decimal('0'), order.amount_paid - order.grand_total)
+                order.status = 'completed' if order.outstanding_balance <= 0 else 'active'
+                order.save()
+
+                if locked_payment.is_initial_deposit and order.early_access_discount:
+                    instalments = list(order.instalments.select_for_update().order_by('month_number'))
+                    monthly_due = (order.grand_total / max(1, order.duration_months)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                    scheduled = Decimal('0')
+                    for index, instalment in enumerate(instalments):
+                        due = order.grand_total - scheduled if index == len(instalments) - 1 else monthly_due
+                        scheduled += due
+                        instalment.main_amount_due = due
+                        instalment.total_due = due
+                        instalment.save(update_fields=['main_amount_due', 'total_due'])
+
+                # Apply the confirmed amount against the oldest unpaid schedule rows.
+                remaining = locked_payment.amount
+                for instalment in order.instalments.select_for_update().filter(status='pending').order_by('month_number'):
+                    if remaining <= 0:
+                        break
+                    due = max(Decimal('0'), instalment.total_due - instalment.amount_paid)
+                    applied = min(remaining, due)
+                    instalment.amount_paid += applied
+                    remaining -= applied
+                    if instalment.amount_paid >= instalment.total_due:
+                        instalment.status = 'paid'
+                        instalment.paid_at = now()
+                    instalment.save(update_fields=['amount_paid', 'status', 'paid_at'])
+
+        if payment.is_initial_deposit:
+            request.session['dashboard_user_email'] = order.customer_email
+            request.session['dashboard_authenticated'] = True
+            _send_package_dashboard_password(order.customer_email, order.customer_name)
+        if ajax_request:
+            return JsonResponse({
+                'success': True,
+                'discount': str(order.early_access_discount),
+                'early_access_slot': order.early_access_slot,
+            })
+        messages.success(request, f'₦{payment.amount:,.0f} payment confirmed for {order.package.name}.')
+        return redirect('user_dashboard')
+    except requests.RequestException:
+        logger.exception('Unable to verify package payment with Paystack')
+        if ajax_request:
+            return JsonResponse({'success': False, 'message': 'Unable to reach the payment gateway.'}, status=502)
+        messages.error(request, 'Unable to reach the payment gateway. Please try again shortly.')
+        return redirect('user_dashboard')
+
+
+def _send_package_dashboard_password(email, customer_name=''):
+    """Issue a one-time dashboard password after the first deposit is verified."""
+    from .models import PackageCustomerCredential
+    from django.contrib.auth.hashers import make_password
+    from django.utils.timezone import now
+
+    if PackageCustomerCredential.objects.filter(email__iexact=email).exists():
+        return
+    temporary_password = secrets.token_urlsafe(10)
+    credential = PackageCustomerCredential.objects.create(
+        email=email,
+        password_hash=make_password(temporary_password),
+        password_sent_at=now(),
+    )
+    try:
+        send_mail(
+            'Your Unwind Africa getaway dashboard access',
+            f"Hello {customer_name or 'there'},\n\nYour initial deposit is confirmed. You can access your getaway dashboard at {settings.SITE_URL if hasattr(settings, 'SITE_URL') else 'https://unwindafrica.com/dashboard/'}\n\nEmail: {email}\nTemporary password: {temporary_password}\n\nYou can also request a one-time verification code on the dashboard login page. Keep these details private.\n\nUnwind Africa",
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+            fail_silently=False,
+        )
+    except Exception:
+        logger.exception('Unable to send package dashboard credentials to %s', email)
+        # Retain the credential so the customer can still use OTP or be assisted by support.
+    return credential
 
 
 def claim_frozen_points(request):

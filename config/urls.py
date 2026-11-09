@@ -21,6 +21,9 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic.base import RedirectView, TemplateView
+from django.http import JsonResponse
+from django.db import connection
+from django.views.decorators.http import require_GET
 
 from Web.sitemaps import StaticViewSitemap, BlogSitemap, EventSitemap, CampaignSitemap
 
@@ -31,7 +34,16 @@ sitemaps = {
     'campaigns': CampaignSitemap,
 }
 
+@require_GET
+def health_check(request):
+    try:
+        connection.ensure_connection()
+    except Exception:
+        return JsonResponse({'status': 'unavailable'}, status=503)
+    return JsonResponse({'status': 'ok'})
+
 urlpatterns = [
+    path('healthz', health_check, name='health_check'),
     path('admin/', admin.site.urls),
     # Admin Dashboard (CMS) - moved from /dashboard/ to avoid conflict with user dashboard
     path('cms/', include('dashboard.urls')),

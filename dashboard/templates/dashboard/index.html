@@ -202,6 +202,10 @@
                            dark:border-white/20">{{ trial_registrations|length }}</span>
             </button>
 
+            <button @click="setTab('packages')" :class="tab==='packages' ? 'side-link active' : 'side-link'">
+              <i class="fa-solid fa-suitcase w-5 text-indigo-600 dark:text-indigo-400"></i><span class="leading-none">Packages</span>
+            </button>
+
             <div class="mt-4 h-px bg-black/10 dark:bg-white/10"></div>
             <a href="/" class="side-link"><i class="fa-solid fa-globe w-5"></i><span class="leading-none">View site</span></a>
           </nav>
@@ -1077,11 +1081,135 @@
                 {% else %}
                 <div class="text-center py-12">
                   <i class="fa-solid fa-user-graduate text-4xl mb-2 opacity-50"></i>
-                  <p class="text-sm opacity-70">No trial registrations yet</p>
+                  <p class="text-gray-400">No trial registrations yet</p>
                   <a href="/edbritish-trial/" target="_blank" class="mt-4 inline-block btn-primary text-sm">
                     View Registration Page
                   </a>
                 </div>
+                {% endif %}
+              </div>
+            </section>
+          </template>
+
+          <!-- PACKAGES -->
+          <template x-if="tab==='packages'">
+            <section class="grid gap-6">
+              <div>
+                <p class="admin-kicker">Group Getaway packages</p>
+                <h1>Package prices &amp; payment plans</h1>
+                <p>Set package prices, savings-plan durations, instalment charges and optional add-on prices. Changes apply instantly to checkout calculations.</p>
+              </div>
+
+              <!-- Packages -->
+              <div class="rounded-2xl p-6 shadow-soft bg-white/5 border border-white/10">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-xl font-bold">Packages</h3>
+                  <button @click="openPkgModal()" class="btn-primary text-sm">+ Add package</button>
+                </div>
+                {% if packages %}
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="border-b border-white/10">
+                      <th class="text-left py-3 font-semibold">Package</th>
+                      <th class="text-right py-3 font-semibold">Price / person</th>
+                      <th class="text-right py-3 font-semibold">Instalment %</th>
+                      <th class="text-right py-3 font-semibold">Flat / month</th>
+                      <th class="text-left py-3 font-semibold">Durations (mo)</th>
+                      <th class="text-center py-3 font-semibold">Active</th>
+                      <th class="text-center py-3 font-semibold">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for p in packages %}
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                      <td class="py-3">{{ p.name }}</td>
+                      <td class="text-right py-3 font-bold">₦{{ p.price_per_person|floatformat:0 }}</td>
+                      <td class="text-right py-3">{{ p.instalment_charge_percent }}%</td>
+                      <td class="text-right py-3">₦{{ p.instalment_charge_flat|floatformat:0 }}</td>
+                      <td class="py-3">{{ p.available_durations }}</td>
+                      <td class="text-center py-3"><span class="px-2 py-1 text-xs rounded-full {% if p.is_active %}bg-green-500/20 text-green-400 border border-green-500/30{% else %}bg-red-500/20 text-red-400 border border-red-500/30{% endif %}">{% if p.is_active %}Yes{% else %}No{% endif %}</span></td>
+                      <td class="text-center py-3">
+                        <button @click="editPkg({{ p.id }})" class="text-xs btn-ghost border border-indigo-400/30 hover:border-indigo-400/60">Edit</button>
+                        <button @click="deletePkg({{ p.id }}, '{{ p.name }}')" class="text-xs btn-ghost border border-red-400/30 hover:border-red-400/60 text-red-400">Delete</button>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                {% else %}
+                <div class="text-center py-8 text-gray-400"><p>No packages yet. Click "Add package" to create one.</p></div>
+                {% endif %}
+              </div>
+
+              <!-- Add-ons -->
+              <div class="rounded-2xl p-6 shadow-soft bg-white/5 border border-white/10" style="margin-top:1rem;">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-xl font-bold">Optional add-ons</h3>
+                  <button @click="openAddonModal()" class="btn-primary text-sm">+ Add add-on</button>
+                </div>
+                {% if addons %}
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="border-b border-white/10">
+                      <th class="text-left py-3 font-semibold">Add-on</th>
+                      <th class="text-right py-3 font-semibold">Customer price</th>
+                      <th class="text-right py-3 font-semibold">Regular price</th>
+                      <th class="text-center py-3 font-semibold">Active</th>
+                      <th class="text-center py-3 font-semibold">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for a in addons %}
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                      <td class="py-3">{{ a.name }}</td>
+                      <td class="text-right py-3 font-bold">₦{{ a.price|floatformat:0 }}</td>
+                      <td class="text-right py-3 text-gray-400">₦{{ a.regular_price|floatformat:0 }}</td>
+                      <td class="text-center py-3"><span class="px-2 py-1 text-xs rounded-full {% if a.is_active %}bg-green-500/20 text-green-400 border border-green-500/30{% else %}bg-red-500/20 text-red-400 border border-red-500/30{% endif %}">{% if a.is_active %}Yes{% else %}No{% endif %}</span></td>
+                      <td class="text-center py-3">
+                        <button @click="editAddon({{ a.id }})" class="text-xs btn-ghost border border-indigo-400/30 hover:border-indigo-400/60">Edit</button>
+                        <button @click="deleteAddon({{ a.id }}, '{{ a.name }}')" class="text-xs btn-ghost border border-red-400/30 hover:border-red-400/60 text-red-400">Delete</button>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                {% else %}
+                <div class="text-center py-8 text-gray-400"><p>No add-ons yet. Click "Add add-on" to create one (e.g. My Doctor and I).</p></div>
+                {% endif %}
+              </div>
+
+              <!-- Recent orders -->
+              <div class="rounded-2xl p-6 shadow-soft bg-white/5 border border-white/10" style="margin-top:1rem;">
+                <h3 class="text-xl font-bold mb-4">Recent package orders</h3>
+                {% if orders %}
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="border-b border-white/10">
+                      <th class="text-left py-3 font-semibold">Customer</th>
+                      <th class="text-left py-3 font-semibold">Package</th>
+                      <th class="text-right py-3 font-semibold">Total</th>
+                      <th class="text-right py-3 font-semibold">Paid</th>
+                      <th class="text-right py-3 font-semibold">Outstanding</th>
+                      <th class="text-right py-3 font-semibold">Rest Forward</th>
+                      <th class="text-center py-3 font-semibold">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for o in orders %}
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                      <td class="py-3">{{ o.customer_name|default:o.customer_email }}</td>
+                      <td class="py-3">{{ o.package.name }}</td>
+                      <td class="text-right py-3 font-bold">₦{{ o.grand_total|floatformat:0 }}</td>
+                      <td class="text-right py-3">₦{{ o.amount_paid|floatformat:0 }}</td>
+                      <td class="text-right py-3">₦{{ o.outstanding_balance|floatformat:0 }}</td>
+                      <td class="text-right py-3">{% if o.rest_forward_selected %}₦{{ o.rest_forward_balance|floatformat:0 }}{% else %}&mdash;{% endif %}</td>
+                      <td class="text-center py-3"><span class="px-2 py-1 text-xs rounded-full {% if o.status == 'completed' %}bg-green-500/20 text-green-400 border border-green-500/30{% elif o.status == 'pending' %}bg-yellow-500/20 text-yellow-400 border border-yellow-500/30{% else %}bg-red-500/20 text-red-400 border border-red-500/30{% endif %}">{{ o.get_status_display }}</span></td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                {% else %}
+                <div class="text-center py-8 text-gray-400"><p>No orders yet.</p></div>
                 {% endif %}
               </div>
             </section>

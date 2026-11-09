@@ -1,0 +1,48 @@
+:root{--ua-background:#fff;--ua-surface:#fff;--ua-surface-warm:#f7f8f5;--ua-paper:#fff;--ua-cream:#fff}
+body{background:#fff}
+.gg-detail,.po-page{min-height:70vh;background:#fff!important;color:#17352c}
+.gg-detail{padding:7.2rem 1.2rem 5rem}
+.gg-detail__wrap{max-width:1180px}
+.gg-detail__intro{grid-template-columns:minmax(0,1fr) minmax(420px,.94fr);align-items:start;gap:clamp(2rem,5vw,5.5rem)}
+.gg-detail__copy{position:sticky;top:7rem;padding:1.3rem 0}
+.gg-detail__photo{height:clamp(220px,29vw,350px);margin:0 0 1.7rem;overflow:hidden;background:#f2f4f1}
+.gg-detail__photo img{width:100%;height:100%;object-fit:cover}
+.gg-detail__copy h1{font-size:clamp(3rem,6vw,5.3rem);letter-spacing:-.045em;color:#17352c}
+.gg-detail__category{color:#60736a}
+.gg-detail__price{color:#174f3d;font-size:clamp(2rem,4vw,3.2rem)}
+.gg-detail__note{border-left-color:#bd8c39;background:#f8f8f5;color:#657169}
+.gg-detail__experience,.gg-detail__form{border:1px solid #e7ebe7;border-radius:4px;background:#fff;box-shadow:0 14px 42px rgba(17,53,42,.055)}
+.gg-detail__form{padding:clamp(1.2rem,3vw,2rem)}
+.gg-detail__form h2,.gg-detail__experience h2{color:#17352c}
+.gg-detail__form>p,.gg-detail__experience p{color:#6c766f}
+.gg-plan-mode,.gg-plan-grid{gap:.55rem}
+.gg-choice,.gg-plan-choice{border-radius:4px;border-color:#e3e9e4}
+.gg-choice.is-active,.gg-plan-choice.is-active{border-color:#174f3d;background:#174f3d}
+.gg-check input{accent-color:#174f3d}
+.gg-submit{border-radius:3px;background:#174f3d;color:#fff;letter-spacing:.025em}
+.gg-submit:hover{background:#103d2e;filter:none}
+.gg-field input:focus,.gg-field select:focus{outline:2px solid rgba(23,79,61,.14);border-color:#174f3d}
+.po-page{padding:7.2rem 1rem 4rem}
+.po-wrap{max-width:1120px;padding:0 0 3rem}
+.po-head h1{color:#17352c;font-size:clamp(1.8rem,4vw,2.6rem)}
+.po-card{border:1px solid #e8ece8;border-radius:4px;box-shadow:0 9px 26px rgba(17,53,42,.035)}
+.po-card .label{color:#68766d}
+.po-card .value{color:#17352c}
+.po-section h3{color:#174f3d}
+.po-button{border-radius:3px}
+.po-button--primary{background:#174f3d}
+.po-button--ghost{border-color:#174f3d;color:#174f3d}
+.pay-form{border-radius:4px}
+.status--active,.status--completed{background:#edf5ef;color:#266343;border-color:#d5e6d9}
+.member-dashboard{--ua-background:#fff;--ua-surface:#fff;background:#fff;color:#17352c}
+.member-welcome h1,.member-savings-card h2,.member-panel__header h2,.member-empty-state h3{color:#17352c}
+.member-welcome__name{color:#174f3d}
+.member-savings-card,.member-account-card,.member-panel{border-radius:4px;box-shadow:0 12px 35px rgba(17,53,42,.045)}
+.member-savings-card{background:linear-gradient(125deg,#fff 0%,#fff 68%,#f0f5f1 100%)}
+.member-progress>span{background:linear-gradient(90deg,#174f3d,#b9904d)}
+.member-order,.member-account-card__restcard,.member-empty-state__icon,.member-activity__icon{border-radius:4px}
+.member-primary-link,.member-pay-button,.member-secondary-button{border-radius:3px;background:#174f3d;color:#fff}
+.member-primary-link:hover,.member-pay-button:hover,.member-secondary-button:hover{background:#103d2e;color:#fff}
+@media(max-width:850px){.gg-detail__intro{grid-template-columns:1fr}.gg-detail__copy{position:static;top:auto;padding:.5rem 0}.gg-detail__photo{height:clamp(240px,48vw,430px)}.gg-detail__form{grid-row:2}}
+@media(max-width:600px){.gg-detail{padding:6rem .8rem 3rem}.po-page{padding:6rem .8rem 3rem}.po-table{display:block;overflow-x:auto;white-space:nowrap}}
+@media(prefers-reduced-motion:reduce){.experience-card,.experience-card__photo img{transition:none!important}}

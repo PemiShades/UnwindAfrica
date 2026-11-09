@@ -17,7 +17,7 @@ if not SECRET_KEY:
 
 DEBUG = env_bool("DEBUG", False)
 
-ALLOWED_HOSTS = [
+DEFAULT_ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
     "159.198.76.102",
@@ -25,6 +25,11 @@ ALLOWED_HOSTS = [
     "unwindafrica.com",
     "www.unwindafrica.com",
     "testserver",
+]
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv("ALLOWED_HOSTS", ",".join(DEFAULT_ALLOWED_HOSTS)).split(",")
+    if host.strip()
 ]
 
 # Required for HTTPS + CSRF protection
@@ -35,6 +40,11 @@ CSRF_TRUSTED_ORIGINS = [
     "http://server1.unwindafrica.com",
     "https://www.unwindafrica.com",
     "http://www.unwindafrica.com",
+]
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("CSRF_TRUSTED_ORIGINS", ",".join(CSRF_TRUSTED_ORIGINS)).split(",")
+    if origin.strip()
 ]
 
 
@@ -94,7 +104,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # --- Database ---
-# Prefer DATABASE_URL in production; falls back to explicit PG vars; DEBUG->sqlite3 for convenience
+# SQLite is for local development. Production must provide PostgreSQL DATABASE_URL.
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL:
     DATABASES = {
@@ -115,15 +125,7 @@ elif DEBUG:
         }
     }
 else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-            'OPTIONS': {
-                'init_command': "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL; PRAGMA cache_size=10000; PRAGMA temp_store=MEMORY;",
-            }
-        }
-    }
+    raise RuntimeError("DATABASE_URL is required when DEBUG=False. Configure a persistent PostgreSQL database before launch.")
 # else:
 #     DATABASES = {
 #         'default': {
@@ -154,13 +156,13 @@ USE_TZ = True
 # --- Static & Media ---
 # Match Nginx (we'll serve /static and /media from /srv/unwindafrica/*)
 STATIC_URL = '/static/'
-STATIC_ROOT = os.getenv('STATIC_ROOT')  # Nginx location /static/ -> /srv/unwindafrica/static
+STATIC_ROOT = os.getenv('STATIC_ROOT', BASE_DIR / 'staticfiles')
 
 local_static = BASE_DIR / "static"
 STATICFILES_DIRS = [local_static] if local_static.exists() else []
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.getenv('MEDIA_ROOT')    # Nginx location /media/ -> /srv/unwindafrica/media
+MEDIA_ROOT = os.getenv('MEDIA_ROOT', BASE_DIR / 'media')
 
 # WhiteNoise (kept as fallback; safe with Nginx in front)
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

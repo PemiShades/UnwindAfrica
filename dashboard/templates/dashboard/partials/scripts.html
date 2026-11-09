@@ -54,6 +54,12 @@ document.addEventListener('alpine:init', () => {
       showBookModal: false,
       bookModal: { id: null, title: '', author: '', description: '', age_category: 'adult', genre: 'fiction', status: 'available' },
 
+      // ===== PACKAGE MODAL STATE =====
+      showPkgModal: false,
+      pkgModal: { id: null, name: '', price_per_person: '', short_description: '', description: '', inclusions: '', instalment_charge_percent: '', instalment_charge_flat: '', available_durations: '3,6,9,12', is_active: true },
+      showAddonModal: false,
+      addonModal: { id: null, name: '', description: '', price: '', regular_price: '', is_active: true },
+
       // ===== NOMINEE DETAIL MODAL STATE =====
       showNomineeModal: false,
       nomineeDetail: { id: null, name: '', votes: [], votes_count: 0, total_raised: 0 },
@@ -1377,6 +1383,87 @@ document.addEventListener('alpine:init', () => {
       },
 
       deleteBook: function(bookId, event) {
+        event.preventDefault();
+        if (!confirm('Are you sure you want to delete this book?')) return;
+
+        const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || this.getCsrfToken();
+        fetch(`/cms/books/${bookId}/delete/`, {
+          method: 'POST',
+          headers: { 'X-CSRFToken': csrf }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            this.toast('Book deleted successfully', 'success');
+            location.reload();
+          } else {
+            this.toast(data.error || 'Error deleting book', 'error');
+          }
+        })
+        .catch(error => {
+          this.toast('Error deleting book', 'error');
+        });
+      },
+
+      // ===== PACKAGE MODAL =====
+      openPkgModal() {
+        this.pkgModal = { id: null, name: '', price_per_person: '', short_description: '', description: '', inclusions: '', instalment_charge_percent: '', instalment_charge_flat: '', available_durations: '3,6,9,12', is_active: true };
+        document.getElementById('pkgModal')?.classList.add('is-open');
+      },
+      closePkgModal() { document.getElementById('pkgModal')?.classList.remove('is-open'); },
+      editPkg(id) {
+        fetch(`/cms/packages/${id}/edit/`)
+          .then(r => r.json()).then(d => {
+            if (d.ok) { this.pkgModal = d.package; document.getElementById('pkgModal')?.classList.add('is-open'); }
+            else { this.toast(d.error || 'Load failed', 'error'); }
+          });
+      },
+      savePkg() {
+        const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        const url = this.pkgModal.id ? `/cms/packages/${this.pkgModal.id}/edit/` : '/cms/packages/create/';
+        fetch(url, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+          body: JSON.stringify(this.pkgModal)
+        }).then(r => r.json()).then(d => {
+          if (d.ok) { this.toast('Package saved', 'success'); this.closePkgModal(); setTimeout(() => location.reload(), 800); }
+          else { this.toast(d.error || 'Save failed', 'error'); }
+        });
+      },
+      deletePkg(id, name) {
+        if (!confirm('Delete package "' + name + '"?')) return;
+        const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        fetch(`/cms/packages/${id}/delete/`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf } })
+          .then(r => r.json()).then(d => { if (d.ok) { this.toast('Deleted', 'success'); setTimeout(() => location.reload(), 500); } else { this.toast(d.error, 'error'); } });
+      },
+      // ===== ADD-ON MODAL =====
+      openAddonModal() {
+        this.addonModal = { id: null, name: '', description: '', price: '', regular_price: '', is_active: true };
+        document.getElementById('addonModal')?.classList.add('is-open');
+      },
+      closeAddonModal() { document.getElementById('addonModal')?.classList.remove('is-open'); },
+      editAddon(id) {
+        fetch(`/cms/addons/${id}/edit/`).then(r => r.json()).then(d => {
+          if (d.ok) { this.addonModal = d.addon; document.getElementById('addonModal')?.classList.add('is-open'); }
+          else { this.toast(d.error || 'Load failed', 'error'); }
+        });
+      },
+      saveAddon() {
+        const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        const url = this.addonModal.id ? `/cms/addons/${this.addonModal.id}/edit/` : '/cms/addons/create/';
+        fetch(url, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+          body: JSON.stringify(this.addonModal)
+        }).then(r => r.json()).then(d => {
+          if (d.ok) { this.toast('Add-on saved', 'success'); this.closeAddonModal(); setTimeout(() => location.reload(), 800); }
+          else { this.toast(d.error || 'Save failed', 'error'); }
+        });
+      },
+      deleteAddon(id, name) {
+        if (!confirm('Delete add-on "' + name + '"?')) return;
+        const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        fetch(`/cms/addons/${id}/delete/`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf } })
+          .then(r => r.json()).then(d => { if (d.ok) { this.toast('Deleted', 'success'); setTimeout(() => location.reload(), 500); } else { this.toast(d.error, 'error'); } });
+      },
         event.preventDefault();
         if (!confirm('Are you sure you want to delete this book?')) return;
         

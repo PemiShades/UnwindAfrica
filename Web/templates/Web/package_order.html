@@ -1,0 +1,221 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}Order #{{ order.id }} - Unwind Africa{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}" />
+<link rel="stylesheet" href="{% static 'css/package-flow.css' %}" />
+<style>
+.po-wrap { max-width: 1000px; margin: 0 auto; padding: 0 1rem 3rem; }
+.po-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2rem; gap: 1rem; }
+.po-head h1 { margin: 0; font-family: "Playfair Display", ui-serif, Georgia, serif; font-size: 1.9rem; line-height: 1.1; }
+.po-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.po-card { background: var(--ua-surface); border: 1px solid var(--ua-border); border-radius: 14px; padding: 1.25rem; }
+.po-card .label { font-size: 0.75rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 900; color: var(--ua-accent-gold); margin: 0 0 .4rem; }
+.po-card .value { margin: 0; font-family: "Playfair Display", ui-serif, Georgia, serif; font-size: 1.7rem; font-weight: 800; color: var(--ua-ink); }
+.po-card .sub { color: var(--ua-muted); font-size: 0.85rem; margin-top: .25rem; }
+.po-section { margin-bottom: 2rem; }
+.po-section h3 { margin: 0 0 1rem; font-family: "Playfair Display", ui-serif, Georgia, serif; font-size: 1.3rem; color: var(--ua-accent-gold); }
+table.po-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+table.po-table th { text-align: left; color: var(--ua-muted); font-size: 0.75rem; letter-spacing: .12em; text-transform: uppercase; padding: .75rem; border-bottom: 1px solid var(--ua-border); }
+table.po-table td { padding: .75rem; border-bottom: 1px solid var(--ua-border); color: var(--ua-muted); }
+table.po-table tr.total td { border-top: 2px solid var(--ua-primary); color: var(--ua-ink); font-weight: 800; font-family: "Playfair Display", ui-serif, Georgia, serif; }
+.status-badge { display: inline-block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; padding: .2rem .6rem; border-radius: 999px; border: 1px solid transparent; }
+.status--pending { background: rgba(245,158,11,.15); color: #b45309; border-color: rgba(245,158,11,.35); }
+.status--active { background: rgba(16,185,129,.15); color: #15803d; border-color: rgba(16,185,129,.35); }
+.status--completed { background: rgba(59,130,246,.15); color: #2563eb; border-color: rgba(59,130,246,.35); }
+.status--cancelled { background: rgba(239,68,68,.15); color: #dc2626; border-color: rgba(239,68,68,.35); }
+.po-actions { display: flex; flex-direction: column; gap: .75rem; max-width: 420px; }
+.po-button { display: block; text-align: center; padding: .9rem 1.25rem; border-radius: 12px; font-weight: 800; text-decoration: none; font-size: 1rem; border: 1px solid transparent; }
+.po-button--primary { background: var(--ua-primary); color: var(--ua-paper); }
+.po-button--primary:hover { opacity: .9; }
+.po-button--ghost { background: transparent; color: var(--ua-primary); border-color: var(--ua-primary); }
+.po-button--ghost:hover { background: rgba(10,11,16,.05); }
+.pay-form { background: var(--ua-surface); border: 1px solid var(--ua-border); border-radius: 14px; padding: 1.25rem; margin-top: 1rem; display: grid; grid-template-columns: 1fr auto; gap: .75rem; align-items: end; }
+@media (max-width: 640px) { .pay-form { grid-template-columns: 1fr; } .po-button { width: 100%; } }
+.pay-form input { width: 100%; padding: .8rem 1rem; border-radius: 10px; border: 1px solid var(--ua-border); background: var(--ua-paper); color: var(--ua-ink); }
+.checkbox-row { display: flex; align-items: center; gap: .5rem; font-size: 0.85rem; color: var(--ua-muted); margin-bottom: .5rem; }
+.checkbox-row input { width: 1rem; height: 1rem; accent-color: var(--ua-primary); }
+.po-empty { color: var(--ua-muted); text-align: center; padding: 2rem; }
+.po-note { font-size: 0.85rem; color: var(--ua-muted); margin-top: .5rem; }
+.po-outstanding { color: #dc2626; font-weight: 800; }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="po-page"><div class="po-wrap">
+  <div class="po-head">
+    <div>
+      <p style="font-size:0.8rem; letter-spacing:.14em; text-transform:uppercase; font-weight:900; color:var(--ua-accent-gold); margin:0 0 .25rem;">Package order</p>
+      <h1>#{{ order.id }} &mdash; {{ order.package.name }}</h1>
+    </div>
+    <span class="status-badge status--{{ order.status }}">{{ order.get_status_display }}</span>
+  </div>
+
+  <div class="po-meta">
+    <div class="po-card">
+      <p class="label">Package total</p>
+      <p class="value">₦{{ order.grand_total|floatformat:0 }}</p>
+      <p class="sub">Includes instalment charges of ₦{{ order.instalment_charges|floatformat:0 }}</p>
+    </div>
+    <div class="po-card">
+      <p class="label">Early access discount</p>
+      <p class="value">{% if order.early_access_discount %}−₦{{ order.early_access_discount|floatformat:0 }}{% else %}—{% endif %}</p>
+      <p class="sub">{% if order.early_access_slot %}Confirmed participant {{ order.early_access_slot }} of 20{% else %}First 20 confirmed deposits qualify{% endif %}</p>
+    </div>
+    <div class="po-card">
+      <p class="label">Amount paid</p>
+      <p class="value">₦{{ order.amount_paid|floatformat:0 }}</p>
+    </div>
+    <div class="po-card">
+      <p class="label">Outstanding balance</p>
+      <p class="value po-outstanding">₦{{ order.outstanding_balance|floatformat:0 }}</p>
+    </div>
+    <div class="po-card">
+      <p class="label">Rest Forward balance</p>
+      <p class="value">{% if order.rest_forward_selected %}₦{{ order.rest_forward_balance|floatformat:0 }}{% else %}&mdash;{% endif %}</p>
+      <p class="sub">{% if order.rest_forward_selected %}Separate balance, usable toward a future experience.{% else %}Not selected.{% endif %}</p>
+    </div>
+    <div class="po-card">
+      <p class="label">Plan</p>
+      <p class="value">{% if order.is_savings_plan %}{{ order.duration_months }} months{% else %}Pay outright{% endif %}</p>
+      <p class="sub">Monthly contribution ₦{{ order.monthly_contribution|floatformat:0 }}</p>
+    </div>
+    <div class="po-card">
+      <p class="label">Add-ons</p>
+      <p class="value" style="font-size:1.1rem;">{% if order.my_doctor_selected %}My Doctor &amp; I · ₦{{ order.my_doctor_price|floatformat:0 }}{% endif %}{% if order.transportation_selected %}<br>Transportation · ₦{{ order.transportation_price|floatformat:0 }}{% endif %}{% if not order.my_doctor_selected and not order.transportation_selected %}None{% endif %}</p>
+      {% if order.transportation_selected %}<p class="sub">Pickup: {{ order.transportation_pickup_location }}</p>{% endif %}
+    </div>
+    {% if order.overpayment_credit %}<div class="po-card"><p class="label">Getaway credit</p><p class="value">₦{{ order.overpayment_credit|floatformat:0 }}</p><p class="sub">Credit remaining after your launch discount.</p></div>{% endif %}
+  </div>
+
+  <div class="po-section">
+    <h3>Payment schedule</h3>
+    {% if instalments %}
+    <table class="po-table">
+      <thead>
+        <tr>
+          <th>Instalment</th>
+          <th>Due date</th>
+          <th>Main amount</th>
+          <th>Rest Forward portion</th>
+          <th>Total due</th>
+          <th>Paid</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inst in instalments %}
+        <tr>
+          <td>Month {{ inst.month_number }}</td>
+          <td>{{ inst.due_date|date:"M d, Y" }}</td>
+          <td>₦{{ inst.main_amount_due|floatformat:0 }}</td>
+          <td>₦{{ inst.rest_forward_portion|floatformat:0 }}</td>
+          <td>₦{{ inst.total_due|floatformat:0 }}</td>
+          <td>₦{{ inst.amount_paid|floatformat:0 }}</td>
+          <td><span class="status-badge status--{{ inst.status }}">{{ inst.get_status_display }}</span></td>
+        </tr>
+        {% endfor %}
+        <tr class="total">
+          <td colspan="4" style="text-align:right;">Total</td>
+          <td>₦{{ order.grand_total|floatformat:0 }}</td>
+          <td>₦{{ order.amount_paid|floatformat:0 }}</td>
+          <td>₦{{ order.outstanding_balance|floatformat:0 }}</td>
+        </tr>
+      </tbody>
+    </table>
+    {% else %}
+    <div class="po-empty">No payment schedule yet.</div>
+    {% endif %}
+  </div>
+
+  <div class="po-section">
+    <h3>Make a payment</h3>
+    <p class="po-note">Choose any amount up to your outstanding balance. Paystack confirms each payment before your dashboard updates.</p>
+    {% if order.outstanding_balance > 0 %}
+    <div class="po-actions"><button class="po-button po-button--primary" type="button" id="pay-balance" onclick="payBalance(this, {{ order.outstanding_balance }})">Pay toward this getaway</button></div>
+    {% else %}<div class="po-empty">This getaway is fully paid.</div>{% endif %}
+  </div>
+
+  {% if upgrade_packages %}
+  <div class="po-section">
+    <h3>Upgrade your experience</h3>
+    <p class="po-note">Choose an available higher-tier experience in this category. The difference will be added to your outstanding balance.</p>
+    <form method="post" action="{% url 'package_upgrade' order.id %}" class="pay-form">
+      {% csrf_token %}
+      <select name="package_slug" required>
+        <option value="">Select an upgrade</option>
+        {% for package in upgrade_packages %}<option value="{{ package.slug }}">{{ package.name }} · from ₦{{ package.price_per_person|floatformat:0 }}</option>{% endfor %}
+      </select>
+      <button class="po-button po-button--primary" type="submit">Upgrade booking</button>
+    </form>
+  </div>
+  {% endif %}
+
+  <div class="po-section">
+    <h3>Payments made</h3>
+    {% if payments %}
+    <table class="po-table">
+      <thead>
+        <tr><th>Date</th><th>Amount</th><th>Status</th><th>Type</th><th>Reference</th></tr>
+      </thead>
+      <tbody>
+        {% for p in payments %}
+        <tr>
+          <td>{{ p.paid_at|date:"M d, Y" }}</td>
+          <td>₦{{ p.amount|floatformat:0 }}</td>
+          <td><span class="status-badge status--{{ p.status }}">{{ p.get_status_display }}</span></td>
+          <td>{% if p.is_initial_deposit %}Initial deposit{% else %}Installment{% endif %}</td>
+          <td>{{ p.reference|default:"&mdash;" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="po-empty">No payments recorded yet.</div>
+    {% endif %}
+  </div>
+
+  <div class="po-actions" style="margin-top:2rem;">
+    <a class="po-button po-button--ghost" href="{% url 'packages' %}">Browse packages</a>
+    {% if order.customer_email %}<a class="po-button po-button--ghost" href="{% url 'user_dashboard_login' %}">Go to dashboard</a>{% endif %}
+  </div>
+</div></main>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script>
+async function payBalance(button, balance) {
+  const amount = Number.parseFloat(window.prompt('Enter amount to pay (₦):', balance));
+  if (!amount || amount <= 0) return;
+  if (amount > balance) { alert('Payment cannot exceed the outstanding balance.'); return; }
+  const original = button.innerHTML;
+  button.disabled = true;
+  button.textContent = 'Initializing payment…';
+  try {
+    const response = await fetch('/dashboard/packages/{{ order.id }}/contribute/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+      body: JSON.stringify({ amount: amount })
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.message || result.error || 'Unable to initialize payment.');
+    const handler = PaystackPop.setup({
+      key: '{{ paystack_public_key }}', email: '{{ order.customer_email|escapejs }}',
+      amount: Math.round(Number(result.amount) * 100), ref: result.reference, currency: 'NGN',
+      callback: async function () {
+        const verified = await fetch('/dashboard/packages/verify/' + encodeURIComponent(result.reference) + '/', { headers: { 'Accept': 'application/json' } });
+        const data = await verified.json();
+        if (!verified.ok || !data.success) { alert(data.message || 'Payment verification failed.'); return; }
+        window.location.reload();
+      },
+      onClose: function () { button.disabled = false; button.innerHTML = original; }
+    });
+    handler.openIframe();
+  } catch (error) {
+    alert(error.message || 'Payment initialization failed.');
+    button.disabled = false;
+    button.innerHTML = original;
+  }
+}
+</script>
+{% endblock %}
