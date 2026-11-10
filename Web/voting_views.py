@@ -405,7 +405,7 @@ def initialize_payment(request):
             'https://api.paystack.co/transaction/initialize',
             headers=headers,
             json=payload,
-            verify=False,  # Disable SSL verification for local testing (remove in production)
+            verify=True,
             timeout=10
         )
         

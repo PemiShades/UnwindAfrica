@@ -1,23 +1,29 @@
 services:
   - type: web
-    name: unwind-django
-    env: python
-    rootDir: UnwindAfrica
+    name: unwind-africa
+    env: docker
+    rootDir: .
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     region: frankfurt
     plan: 0.5c-512mb
-    buildCommand: |
-      pip install -r requirements.txt
-      python manage.py collectstatic --noinput
     preDeployCommand: python manage.py migrate --noinput
-    startCommand: gunicorn config.wsgi:application
-    healthCheckPath: /healthz
+    healthCheckPath: /health
     envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DJANGO_WORKDIR
+        value: .
+      - key: DJANGO_INTERNAL_ORIGIN
+        value: http://127.0.0.1:8000
       - key: DEBUG
         value: "False"
       - key: ALLOWED_HOSTS
-        value: "unwindafrica.com,www.unwindafrica.com"
+        value: "unwindafrica.com,www.unwindafrica.com,unwind-africa.onrender.com"
       - key: CSRF_TRUSTED_ORIGINS
-        value: "https://unwindafrica.com,https://www.unwindafrica.com"
+        value: "https://unwindafrica.com,https://www.unwindafrica.com,https://unwind-africa.onrender.com"
+      - key: MEDIA_ROOT
+        value: "/app/media"
       - key: SECURE_SSL_REDIRECT
         value: "True"
       - key: SECRET_KEY
@@ -39,7 +45,12 @@ services:
       - key: USE_CONSOLE_EMAIL
         value: "False"
       - key: WEB_CONCURRENCY
-        value: "2"
+        value: "1"
+    disk:
+      name: unwind-media
+      mountPath: /app/media
+      sizeGB: 1
+
 databases:
   - name: unwind-postgres
     region: frankfurt

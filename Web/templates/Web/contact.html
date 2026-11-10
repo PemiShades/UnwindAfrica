@@ -9,7 +9,7 @@
 
 {% block content %}
 <main id="main-content" class="ua-page">
-  <section class="ua-hero ua-hero--dark" style="--ua-hero-image: url('{% static 'assets/home/rest.jpg' %}');">
+  <section class="ua-hero ua-hero--dark contact-page-hero" style="--ua-hero-image: url('{% static 'assets/home/rest.jpg' %}');">
     <div class="ua-wrap ua-hero-grid">
       <div>
         <p class="ua-kicker">Private concierge</p>
@@ -25,35 +25,15 @@
     </div>
   </section>
 
-  <section class="ua-section">
-    <div class="ua-wrap ua-hero-grid">
-      <div>
+  <section class="ua-section contact-brief-section">
+    <div class="ua-wrap">
+      <header class="contact-brief-heading">
         <p class="ua-kicker">Your brief</p>
         <h2 class="ua-title">Start with the feeling. We will handle the shape.</h2>
-        <p class="ua-copy">Use this for solo resets, romantic escapes, group retreats, celebrations, URS, photography-led moments, and custom travel planning.</p>
-        <div class="ua-list">
-          <div class="ua-list-item">
-            <div>
-              <h3>Email</h3>
-              <p>info@unwindafrica.com</p>
-            </div>
-          </div>
-          <div class="ua-list-item">
-            <div>
-              <h3>Phone</h3>
-              <p>+234 806 206 7832</p>
-            </div>
-          </div>
-          <div class="ua-list-item">
-            <div>
-              <h3>Studio</h3>
-              <p>No 8, Providence Street, Lekki Phase 1, Lagos.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <form id="ua-quote-form" class="ua-form-shell" method="post" action="{% url 'quote_request' %}">
+        <p class="ua-copy">Tell us a little about the experience you have in mind. We will take it from there.</p>
+      </header>
+      <div class="contact-brief-layout">
+        <form id="ua-quote-form" class="ua-form-shell" method="post" action="{% url 'quote_request' %}">
         {% csrf_token %}
         <div class="ua-form-grid">
           <div class="ua-field">
@@ -100,7 +80,17 @@
           <button class="ua-button" type="submit">Send private brief</button>
         </div>
         <p id="ua-quote-status" class="ua-status-note" hidden></p>
-      </form>
+        </form>
+        <aside class="contact-details">
+          <p class="ua-kicker">Talk to our concierge</p>
+          <p class="contact-details__intro">Prefer to start with a conversation? Reach us directly.</p>
+          <div class="ua-list">
+            <div class="ua-list-item"><div><h3>Email</h3><p><a href="mailto:info@unwindafrica.com">info@unwindafrica.com</a></p></div></div>
+            <div class="ua-list-item"><div><h3>Phone</h3><p><a href="tel:+2348062067832">+234 806 206 7832</a></p></div></div>
+            <div class="ua-list-item"><div><h3>Studio</h3><p>No 8, Providence Street, Lekki Phase 1, Lagos.</p></div></div>
+          </div>
+        </aside>
+      </div>
     </div>
   </section>
 

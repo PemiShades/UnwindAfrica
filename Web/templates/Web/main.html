@@ -42,10 +42,10 @@
       theme: {
         extend: {
           colors: {
-            'ua-sky': '#00B2FF',
-            'ua-sea': '#00C2FF',
-            'ua-sun': '#FFB648',
-            'ua-ink': '#0A0B10',
+            'ua-sky': '#174F3D',
+            'ua-sea': '#256D53',
+            'ua-sun': '#BD9655',
+            'ua-ink': '#17352C',
             'ua-paper': '#FFFFFF',
             'ua-cream': '#F5F7FA',
           },
@@ -65,8 +65,8 @@
   <link rel="stylesheet" href="{% static 'css/main.css' %}" />
   <link rel="stylesheet" href="{% static 'css/navigation.css' %}" />
   <link rel="stylesheet" href="{% static 'css/notifications.css' %}" />
-
   {% block extra_css %}{% endblock %}
+  <link rel="stylesheet" href="{% static 'css/site-responsive.css' %}" />
   <title>{% block title %}Unwind Africa{% endblock %}</title>
   
   <!-- Organization Schema for SEO -->

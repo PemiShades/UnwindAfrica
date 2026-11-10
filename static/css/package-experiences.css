@@ -23,7 +23,7 @@ body { background:#fff; }
 .experience-filter button { padding:.72rem 1rem; border:1px solid #e2e7e3; border-radius:99px; background:#fff; color:#58645d; cursor:pointer; font:600 .72rem Inter,sans-serif; transition:.2s; }
 .experience-filter button:hover,.experience-filter button.is-active { border-color:var(--exp-green); background:var(--exp-green); color:#fff; }
 .experience-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1.6rem; }
-.experience-card { overflow:hidden; border:1px solid #eaeeeb; border-radius:3px; background:#fff; transition:transform .25s ease,box-shadow .25s ease; }
+.experience-card { overflow:hidden; border:1px solid #eaeeeb; border-radius:14px; background:#fff; transition:transform .25s ease,box-shadow .25s ease; }
 .experience-card:hover { transform:translateY(-4px); box-shadow:0 18px 45px rgba(16,43,37,.09); }
 .experience-card[hidden] { display:none; }
 .experience-card__photo { position:relative; display:block; height:clamp(210px,23vw,300px); overflow:hidden; background:#edf0ec; }

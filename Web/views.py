@@ -38,8 +38,35 @@ def mobile_packages_api(request):
             'pricing_basis': package.get_pricing_basis_display(),
             'price': str(package.price_per_person),
             'description': package.short_description or package.description,
+            'inclusions': package.inclusions,
         } for package in rows],
     })
+
+
+@require_GET
+def mobile_voting_campaigns_api(request):
+    """Read-only live campaign and nominee data for the native mobile client."""
+    from .models import VotingCampaign
+    campaigns = VotingCampaign.objects.filter(is_active=True).prefetch_related('nominees').order_by('-start_date')
+    return JsonResponse({'results': [{
+        'id': campaign.pk,
+        'name': campaign.name,
+        'slug': campaign.slug,
+        'tagline': campaign.tagline,
+        'description': campaign.description,
+        'vote_price': str(campaign.vote_price),
+        'start_date': campaign.start_date.isoformat(),
+        'end_date': campaign.end_date.isoformat(),
+        'total_votes': campaign.total_votes,
+        'nominees': [{
+            'id': nominee.pk,
+            'name': nominee.name,
+            'number': nominee.number,
+            'story': nominee.story,
+            'vote_count': nominee.vote_count,
+            'photo': request.build_absolute_uri(nominee.photo.url) if nominee.photo else '',
+        } for nominee in campaign.nominees.all()],
+    } for campaign in campaigns]})
 
 
 @csrf_exempt
@@ -147,7 +174,7 @@ def mobile_dashboard_api(request):
     from django.core import signing
     from django.db.models import Sum
     from django.http import JsonResponse
-    from .models import PackageOrder
+    from .models import CommunityMember, FrozenRestPoints, PackageOrder, RestCard, TokenWallet, Vote
 
     authorization = request.headers.get('Authorization', '')
     if not authorization.startswith('Bearer '):
@@ -163,12 +190,45 @@ def mobile_dashboard_api(request):
     saved = sum((min(order.amount_paid, order.grand_total) for order in orders), Decimal('0'))
     remaining = sum((order.outstanding_balance for order in orders), Decimal('0'))
     progress = float((saved / target * 100) if target else 0)
+    rest_card = RestCard.objects.filter(member_email__iexact=email).first()
+    frozen_points = FrozenRestPoints.objects.filter(
+        member_email__iexact=email, points_claimed=False
+    ).aggregate(total=Sum('frozen_points'))['total'] or Decimal('0')
+    reward_wallet = TokenWallet.objects.filter(member_email__iexact=email).first()
+    member_name = (rest_card.member_name if rest_card else '') or (
+        reward_wallet.member_name if reward_wallet else ''
+    ) or next(
+        (order.customer_name for order in orders if order.customer_name), ''
+    )
+    latest_vote = Vote.objects.filter(voter_email__iexact=email).order_by('-created_at').first()
+    community_member = CommunityMember.objects.filter(email__iexact=email).first()
+    if not member_name:
+        member_name = latest_vote.voter_name if latest_vote else (community_member.name if community_member else '')
+    member_phone = (rest_card.member_phone if rest_card else '') or (
+        community_member.phone if community_member else ''
+    ) or (latest_vote.voter_phone if latest_vote else '')
+    vote_history = Vote.objects.filter(voter_email__iexact=email).select_related(
+        'nominee__campaign'
+    ).order_by('-created_at')[:10]
     return JsonResponse({
         'email': email,
+        'name': member_name,
+        'phone': member_phone,
         'total_saved': str(saved),
         'total_target': str(target),
         'total_remaining': str(remaining),
         'overall_progress': round(progress),
+        'rest_points': str(rest_card.total_rest_points if rest_card else Decimal('0')),
+        'frozen_points': str(frozen_points),
+        'reward_tokens': str(reward_wallet.available_tokens if reward_wallet else Decimal('0')),
+        'vote_history': [{
+            'id': vote.pk,
+            'nominee': vote.nominee.name,
+            'campaign': vote.nominee.campaign.name,
+            'votes': vote.vote_quantity,
+            'status': vote.get_payment_status_display(),
+            'points_earned': str(vote.rest_points_earned),
+        } for vote in vote_history],
         'orders': [{
             'id': order.pk,
             'package': order.package.name,
@@ -179,6 +239,57 @@ def mobile_dashboard_api(request):
             'progress': round(float(order.payment_progress)),
         } for order in orders],
     })
+
+
+@csrf_exempt
+@require_POST
+def mobile_initialize_vote_api(request):
+    """Authenticate a mobile member and safely pass a valid ballot to the existing Paystack flow."""
+    from django.core import signing
+    from django.http import JsonResponse
+    from django.utils import timezone
+    from .models import Nominee
+
+    authorization = request.headers.get('Authorization', '')
+    if not authorization.startswith('Bearer '):
+        return JsonResponse({'success': False, 'message': 'Sign in before voting.'}, status=401)
+    try:
+        email = signing.TimestampSigner(salt='unwind.mobile.auth').unsign(
+            authorization[7:].strip(), max_age=2592000
+        )
+        data = json.loads(request.body or '{}')
+    except (signing.BadSignature, TypeError, json.JSONDecodeError):
+        return JsonResponse({'success': False, 'message': 'Your session has expired. Sign in again.'}, status=401)
+
+    if str(data.get('voter_email', '')).strip().lower() != email.lower():
+        return JsonResponse({'success': False, 'message': 'The voter email must match your signed-in account.'}, status=403)
+    ballot = data.get('ballot')
+    if not isinstance(ballot, list) or not ballot or len(ballot) > 20:
+        return JsonResponse({'success': False, 'message': 'Choose a nominee and enter a valid vote quantity.'}, status=400)
+    nominee_ids = []
+    for item in ballot:
+        try:
+            nominee_id = int(item.get('nominee_id'))
+            quantity = int(item.get('votes'))
+        except (AttributeError, TypeError, ValueError):
+            return JsonResponse({'success': False, 'message': 'Invalid ballot.'}, status=400)
+        if quantity < 1 or quantity > 100:
+            return JsonResponse({'success': False, 'message': 'Vote quantities must be between 1 and 100.'}, status=400)
+        nominee_ids.append(nominee_id)
+
+    nominees = list(Nominee.objects.filter(pk__in=nominee_ids).select_related('campaign'))
+    now_value = timezone.now()
+    if len(nominees) != len(set(nominee_ids)) or any(
+        not nominee.campaign.is_active
+        or nominee.campaign.start_date > now_value
+        or nominee.campaign.end_date < now_value
+        for nominee in nominees
+    ):
+        return JsonResponse({'success': False, 'message': 'This voting campaign is not accepting votes.'}, status=400)
+
+    # This existing initializer owns pricing, Rest Card free votes, and Paystack transaction creation.
+    from . import voting_views
+    return voting_views.initialize_payment(request)
 
 
 def home(request):
@@ -2172,7 +2283,7 @@ def initialize_installment_payment(request, order_id):
             'https://api.paystack.co/transaction/initialize',
             headers=headers,
             json=payload,
-            verify=False,
+            verify=True,
             timeout=10
         )
 

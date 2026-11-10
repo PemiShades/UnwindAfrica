@@ -1,9 +1,9 @@
 :root {
-  --ua-nav-ink: #111936;
-  --ua-nav-light: #fffaf0;
-  --ua-nav-paper: #fffdf8;
-  --ua-nav-gold: #ffb648;
-  --ua-nav-border: rgba(17, 25, 54, 0.12);
+  --ua-nav-ink: #17352c;
+  --ua-nav-light: #fff;
+  --ua-nav-paper: #fff;
+  --ua-nav-gold: #bd9655;
+  --ua-nav-border: rgba(23, 53, 44, 0.12);
 }
 
 .ua-site-nav {
@@ -16,7 +16,7 @@
 
 .ua-site-nav__inner {
   width: min(1320px, calc(100vw - 32px));
-  min-height: 92px;
+  min-height: 78px;
   margin-inline: auto;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -32,7 +32,7 @@
 
 .ua-site-nav.is-scrolled .ua-site-nav__inner {
   width: min(1120px, calc(100vw - 24px));
-  min-height: 72px;
+  min-height: 64px;
 }
 
 .ua-site-nav.is-scrolled .ua-site-nav__explore,
@@ -110,7 +110,7 @@
 }
 
 .ua-site-nav__brand img {
-  height: clamp(48px, 6vw, 72px);
+  height: clamp(44px, 5vw, 62px);
   width: auto;
   filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.18));
 }
@@ -421,7 +421,7 @@ body.ua-menu-open .ua-site-nav {
   .ua-site-nav__search-mark,
   .ua-site-nav__dots {
     width: 46px;
-    height: 46px;
+  height: 40px;
   }
 
   .ua-site-nav__brand img {

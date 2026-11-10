@@ -1,16 +1,16 @@
 :root{
-  --ua-primary: #0A0B10;
-  --ua-secondary: #111827;
-  --ua-accent-gold: #FFB648;
-  --ua-accent-sky: #00B2FF;
+  --ua-primary: #17352C;
+  --ua-secondary: #174F3D;
+  --ua-accent-gold: #BD9655;
+  --ua-accent-sky: #174F3D;
   --ua-background: #FFFFFF;
   --ua-surface: #FFFFFF;
-  --ua-surface-warm: #EFE7D8;
-  --ua-text: #0A0B10;
-  --ua-muted: #68707C;
-  --ua-border: rgba(10, 11, 16, 0.12);
+  --ua-surface-warm: #F5F6F2;
+  --ua-text: #17352C;
+  --ua-muted: #68766D;
+  --ua-border: rgba(23, 53, 44, 0.12);
   --ua-sky: var(--ua-accent-sky);
-  --ua-sea: #00C2FF;
+  --ua-sea: #256D53;
   --ua-sun: var(--ua-accent-gold);
   --ua-ink: var(--ua-primary);
   --ua-paper: var(--ua-surface);

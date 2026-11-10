@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'css/brand-home.css' %}">
+<link rel="stylesheet" href="{% static 'css/brand-home.css' %}?v=booking-collection-20261110">
 {% endblock %}
 
 {% block content %}
@@ -18,8 +18,7 @@
         <p class="ua-kicker">Restorative luxury across Africa</p>
         <h1 class="ua-title">There is a kind of rest you cannot book from a search bar.</h1>
         <p class="ua-subtitle">
-          Unwind Africa creates private retreats, romantic escapes, celebration weekends, and executive pauses
-          for people carrying too much to plan their own exhale.
+          Private retreats, romantic escapes, and celebration weekends, thoughtfully planned around you.
         </p>
         <div class="hero-actions">
           <a href="{% url 'contact' %}" class="ua-button ua-button--light">Begin a private brief</a>
@@ -30,153 +29,80 @@
       <div class="hero-note">
         <strong>For the overextended, the devoted, the always-on.</strong>
         <p>
-          We design the kind of journey where the room is ready, the pace is humane,
-          the food is thoughtful, and someone has already protected the quiet.
+          Considered places, thoughtful hosting, and quiet details, held for you from arrival to departure.
         </p>
-      </div>
-    </div>
-  </section>
-
-  <section class="ua-section feeling-section">
-    <div class="ua-container feeling-grid">
-      <div class="feeling-image" aria-hidden="true"></div>
-      <div class="feeling-copy">
-        <p class="ua-kicker">Permission</p>
-        <h2 class="ua-title">You do not need another itinerary. You need to be held by one.</h2>
-        <p class="ua-subtitle">
-          Most travel asks you to keep managing: the transfers, the restaurant choices, the surprise,
-          the weather plan, the needs of everyone else. We remove that labour without removing your taste.
-        </p>
-        <blockquote>
-          The point is not to disappear from your life. The point is to return to it with breath in your body.
-        </blockquote>
       </div>
     </div>
   </section>
 
   <section class="ua-section method-section">
     <div class="ua-container method-layout">
-      <div class="section-intro">
-        <p class="ua-kicker">The Unwind Method</p>
-        <h2 class="ua-title">Designed around the nervous system, not the brochure.</h2>
-        <p class="ua-subtitle">
-          Our work sits between hospitality, wellness, cultural hosting, and production. Every decision has to earn its place.
-        </p>
-      </div>
+      <header class="method-heading">
+        <div>
+          <p class="ua-kicker">The Unwind Method</p>
+          <h2 class="ua-title">Thoughtful from the very first detail.</h2>
+        </div>
+        <p class="ua-subtitle">Hospitality, wellness, and cultural hosting shaped around what you need from your time away.</p>
+      </header>
 
-      <div class="method-list">
-        <article class="method-item">
-          <span>Listen</span>
-          <div>
-            <h3>We begin with emotional truth.</h3>
-            <p>What are you tired of carrying? Who needs to feel celebrated? Where do you need privacy, beauty, silence, or joy?</p>
+      <div class="method-steps" aria-label="How we plan your experience">
+        <article class="method-step">
+          <div class="method-step__top">
+            <span class="method-step__number">01</span>
+            <svg class="method-step__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.5 19v-2.2a3.5 3.5 0 0 1 7 0V19M6.5 9.5a5.5 5.5 0 1 1 11 0v1.2a4.2 4.2 0 0 1-4.2 4.2h-.8"/><path d="M9.5 8.5a2 2 0 0 1 4 0v1.2"/></svg>
           </div>
+          <p class="method-step__label">Listen closely</p>
+          <h3>We begin with what matters.</h3>
+          <p>Privacy, celebration, quiet, beauty, or room to think. We start with how you want to feel.</p>
         </article>
-        <article class="method-item">
-          <span>Compose</span>
-          <div>
-            <h3>We build the escape like a score.</h3>
-            <p>Location, rooms, meals, movement, scent, music, photography, and downtime are arranged to support the feeling you came for.</p>
+        <article class="method-step">
+          <div class="method-step__top">
+            <span class="method-step__number">02</span>
+            <svg class="method-step__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m15.8 8.2-2.5 5.1-5.1 2.5 2.5-5.1zM12 3v2M21 12h-2M12 21v-2M3 12h2"/></svg>
           </div>
+          <p class="method-step__label">Compose with care</p>
+          <h3>Every detail has a reason.</h3>
+          <p>Place, pace, meals, and thoughtful touches come together around your time away.</p>
         </article>
-        <article class="method-item">
-          <span>Protect</span>
-          <div>
-            <h3>We hold the invisible work.</h3>
-            <p>Transfers, timing, weather shifts, dietary care, vendor quality, guest needs, and recovery plans are managed quietly.</p>
+        <article class="method-step">
+          <div class="method-step__top">
+            <span class="method-step__number">03</span>
+            <svg class="method-step__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 8.7c0 5.1-8 10.3-8 10.3S4 13.8 4 8.7a4.1 4.1 0 0 1 7.3-2.6A4.1 4.1 0 0 1 20 8.7Z"/><path d="m9.4 11.8 1.7 1.7 3.8-4"/></svg>
           </div>
-        </article>
-        <article class="method-item">
-          <span>Release</span>
-          <div>
-            <h3>You arrive into something already considered.</h3>
-            <p>The luxury is not excess. It is the feeling that, for once, you are not responsible for everything.</p>
-          </div>
+          <p class="method-step__label">Care, quietly handled</p>
+          <h3>You arrive with room to breathe.</h3>
+          <p>Transfers, timing, guest care, and changes are handled quietly by one considered team.</p>
         </article>
       </div>
-    </div>
-  </section>
-
-  <section class="ua-section trust-section">
-    <div class="ua-container trust-layout">
-      <div class="trust-copy">
-        <p class="ua-kicker">Why trust us</p>
-        <h2 class="ua-title">The difference is not what we show. It is what never becomes your problem.</h2>
-        <p class="ua-subtitle">
-          Luxury hospitality is a discipline of anticipation. We work with vetted partners, clear briefs,
-          calm communication, and guest care that respects privacy, culture, and time.
-        </p>
-        <ul class="trust-list">
-          <li><strong>Concierge</strong><span>One point of contact from first conversation to final departure.</span></li>
-          <li><strong>Partners</strong><span>Homes, hosts, wellness practitioners, chefs, transport, and production teams selected for reliability and tone.</span></li>
-          <li><strong>Care</strong><span>Dietary needs, rooming sensitivity, privacy, pacing, and guest comfort handled before arrival.</span></li>
-          <li><strong>Clarity</strong><span>Thoughtful briefs, transparent inclusions, and a plan that makes investment feel considered.</span></li>
-        </ul>
-      </div>
-      <div class="trust-image" aria-hidden="true"></div>
     </div>
   </section>
 
   <section class="ua-section experiences-section">
-    <div class="ua-container experience-feature">
-      <div class="experience-image" aria-hidden="true"></div>
-      <div class="experience-copy">
-        <p class="ua-kicker">What you can book</p>
-        <h2 class="ua-title">Escapes with a point of view.</h2>
-        <p class="ua-subtitle">
-          Every experience begins with a mood, then becomes a carefully hosted African retreat around your people,
-          your privacy, and your reason for getting away.
-        </p>
-        <div class="experience-menu" aria-label="Experience categories">
-          <a href="{% url 'packages' %}#solo">
-            <strong>Solo Escape</strong>
-            <span>Quiet rooms, spa rituals, reflective meals, and days with no performance.</span>
-          </a>
-          <a href="{% url 'packages' %}#group">
-            <strong>Romance</strong>
-            <span>Proposals, anniversaries, private dinners, and intimate weekends with emotional precision.</span>
-          </a>
-          <a href="{% url 'packages' %}#group">
-            <strong>Celebration</strong>
-            <span>Birthdays, family gatherings, and milestone weekends hosted with warmth and polish.</span>
-          </a>
-          <a href="{% url 'packages' %}#urs">
-            <strong>Corporate Retreats</strong>
-            <span>Offsites for teams who need clarity, trust, better conversation, and room to think.</span>
-          </a>
-          <a href="{% url 'packages' %}#solo">
-            <strong>Reset</strong>
-            <span>Wellness-led pauses with movement, bodywork, nourishing tables, and silence.</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="ua-section story-section">
-    <div class="ua-container">
-      <div class="story-layout">
-        <div class="story-copy">
-          <p class="ua-kicker">What guests remember</p>
-          <h2 class="ua-title">Not the checklist. The feeling.</h2>
-          <p class="ua-subtitle">
-            A table set before sunset. A driver who knows when not to talk. A massage timed after a difficult flight.
-            A room that feels prepared for the version of you that is tired.
-          </p>
-          <blockquote class="story-quote">
-            "It felt like someone had finally planned for my softness."
-          </blockquote>
-        </div>
-        <div class="story-image" aria-hidden="true"></div>
-      </div>
-
-      <aside class="campaign-aside">
+    <div class="ua-container experience-collection">
+      <header class="experiences-heading">
         <div>
-          <p class="ua-kicker">Community wing</p>
-          <p>Nominate to Unwind remains part of the Unwind Africa ecosystem, but it now lives away from the main brand homepage.</p>
+          <p class="ua-kicker">What you can book</p>
+          <h2 class="ua-title">Time away, made personal.</h2>
         </div>
-        <a href="{% url 'voting_campaigns_list' %}" class="ua-link">View campaign</a>
-      </aside>
+        <p class="experiences-intro">A considered escape for a quieter mind, a closer connection, or a moment worth celebrating.</p>
+      </header>
+      <div class="experience-gallery" aria-label="Unwind Africa experiences">
+        <a class="experience-card" href="{% url 'packages' %}#getaways">
+          <img src="{% static 'assets/home/about-2.jpg' %}" alt="A woman enjoying a quiet moment beside a pool" loading="lazy">
+          <span class="experience-card__index">01 <i>RETREATS</i></span>
+          <span class="experience-card__caption"><strong>Solo &amp; reset</strong><span>Space to return to yourself</span><b aria-hidden="true">&nearr;</b></span>
+        </a>
+        <a class="experience-card" href="{% url 'packages' %}#getaways">
+          <img src="{% static 'assets/home/packages/couple-enjoying-picnic-together-outdoors-summertime.jpg' %}" alt="A couple sharing a quiet sunset together" loading="lazy">
+          <span class="experience-card__index">02 <i>TOGETHER</i></span>
+          <span class="experience-card__caption"><strong>Couples &amp; celebrations</strong><span>Private moments, beautifully held</span><b aria-hidden="true">&nearr;</b></span>
+        </a>
+        <a class="experience-card" href="{% url 'packages' %}#getaways">
+          <img src="{% static 'assets/home/group.jpeg' %}" alt="Friends celebrating together at sunset" loading="lazy">
+          <span class="experience-card__index">03 <i>IN COMPANY</i></span>
+          <span class="experience-card__caption"><strong>Groups &amp; teams</strong><span>Room to reconnect and celebrate</span><b aria-hidden="true">&nearr;</b></span>
+        </a>
+      </div>
     </div>
   </section>
 

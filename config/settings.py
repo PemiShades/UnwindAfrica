@@ -52,6 +52,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 # If you're behind Nginx/Certbot, tell Django to trust X-Forwarded-Proto=https
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
 
 # --- Auth redirects ---
 LOGIN_URL = 'dashboard_login'

@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "Unwind Africa",
+    "slug": "unwind-africa",
+    "scheme": "unwindafrica",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "icon": "./assets/unwind-mark.png",
+    "newArchEnabled": true,
+    "ios": { "supportsTablet": true, "bundleIdentifier": "com.unwindafrica.mobile", "buildNumber": "1" },
+    "android": { "package": "com.unwindafrica.mobile", "versionCode": 1, "adaptiveIcon": { "foregroundImage": "./assets/unwind-mark.png", "backgroundColor": "#ffffff" } },
+    "extra": { "apiBaseUrl": "API_BASE_URL_FROM_ENV" }
+  }
+}

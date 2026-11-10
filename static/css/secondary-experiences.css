@@ -1,14 +1,14 @@
 :root {
-  --ua-primary: #0A0B10;
-  --ua-secondary: #111827;
-  --ua-accent-gold: #FFB648;
-  --ua-accent-sky: #00B2FF;
+  --ua-primary: #17352C;
+  --ua-secondary: #174F3D;
+  --ua-accent-gold: #BD9655;
+  --ua-accent-sky: #174F3D;
   --ua-background: #FFFFFF;
   --ua-surface: #FFFFFF;
-  --ua-surface-warm: #EDE4D5;
-  --ua-text: #0A0B10;
+  --ua-surface-warm: #F5F6F2;
+  --ua-text: #17352C;
   --ua-muted: #656B73;
-  --ua-border: rgba(10, 11, 16, 0.13);
+  --ua-border: rgba(23, 53, 44, 0.13);
   --ua-light: #FFFFFF;
   --ua-light-muted: rgba(255, 255, 255, 0.76);
   --ua-container: min(1160px, 90vw);
@@ -45,9 +45,13 @@ body {
     var(--ua-hero-image, url("../assets/home/group.jpeg")) center / cover no-repeat;
 }
 
+.contact-page-hero .ua-title {
+  font-size: clamp(2.35rem, 4.5vw, 4.5rem);
+}
+
 .ua-hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.56fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(34px, 7vw, 84px);
   align-items: end;
 }
@@ -295,6 +299,121 @@ body {
   resize: vertical;
 }
 
+.contact-brief-section {
+  padding-block: clamp(48px, 7vw, 84px);
+}
+
+.contact-brief-heading {
+  max-width: 760px;
+  margin-bottom: clamp(24px, 4vw, 42px);
+}
+
+.contact-brief-heading .ua-title {
+  font-size: clamp(2rem, 4.2vw, 3.65rem);
+}
+
+.contact-brief-heading .ua-copy {
+  max-width: 640px;
+}
+
+.contact-brief-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(28px, 4vw, 52px);
+  align-items: stretch;
+}
+
+.contact-brief-layout .ua-form-shell {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  background: #fffdfa;
+  border: 1px solid rgba(189, 150, 85, 0.34);
+  padding: clamp(1.75rem, 3.2vw, 2.8rem);
+  box-shadow: 0 18px 48px rgba(23, 53, 44, 0.07);
+}
+
+.contact-brief-layout .ua-form-grid {
+  gap: 1.3rem 1.15rem;
+}
+
+.contact-brief-layout .ua-field {
+  gap: 0.58rem;
+}
+
+.contact-brief-layout .ua-field label {
+  color: #58645d;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+}
+
+.contact-brief-layout .ua-field input,
+.contact-brief-layout .ua-field select,
+.contact-brief-layout .ua-field textarea {
+  min-height: 54px;
+  border: 1px solid rgba(23, 53, 44, 0.18);
+  border-radius: 0;
+  background: #f8f7f2;
+  padding: 0.9rem 1rem;
+}
+
+.contact-brief-layout .ua-field input:focus,
+.contact-brief-layout .ua-field select:focus,
+.contact-brief-layout .ua-field textarea:focus {
+  border-color: var(--ua-primary);
+  box-shadow: inset 0 0 0 1px var(--ua-primary);
+}
+
+.contact-brief-layout .ua-field textarea {
+  min-height: 170px;
+}
+
+.contact-brief-layout .ua-field label {
+  text-transform: none;
+}
+
+.contact-brief-layout .ua-actions {
+  margin-top: 1.6rem;
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(1.75rem, 3.2vw, 2.8rem);
+  border: 1px solid var(--ua-border);
+  background: #f4f1e8;
+}
+
+.contact-details__intro {
+  margin: 0 0 2rem;
+  max-width: 360px;
+  color: var(--ua-muted);
+  line-height: 1.7;
+}
+
+.contact-details .ua-list-item a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--ua-accent-gold);
+  text-underline-offset: 3px;
+}
+
+.contact-details .ua-list-item {
+  padding-block: 1.4rem;
+}
+
+.contact-details .ua-list-item h3 {
+  color: var(--ua-primary);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.contact-details .ua-list-item p {
+  line-height: 1.6;
+}
+
 .ua-status-note {
   background: var(--ua-surface-warm);
   border-left: 3px solid var(--ua-accent-gold);
@@ -337,6 +456,14 @@ body {
     border-top: 1px solid rgba(249, 244, 234, 0.32);
     padding-left: 0;
   }
+
+  .contact-brief-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .contact-details {
+    padding-top: 0;
+  }
 }
 
 @media (max-width: 680px) {
@@ -349,5 +476,13 @@ body {
   .ua-form-grid,
   .ua-table-row {
     grid-template-columns: 1fr;
+  }
+
+  .contact-brief-layout .ua-form-shell {
+    padding: 1.15rem;
+  }
+
+  .contact-brief-layout .ua-field--full {
+    grid-column: auto;
   }
 }

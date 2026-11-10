@@ -5,7 +5,6 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}">
-<link rel="stylesheet" href="{% static 'css/package-flow.css' %}">
 <style>
 .gg-detail { padding: 7rem 1.2rem 4rem; background: var(--ua-background); }
 .gg-detail__wrap { width: min(1120px, 100%); margin: 0 auto; }
@@ -52,6 +51,7 @@
 @media (max-width: 850px) { .gg-detail__intro { grid-template-columns: 1fr; gap: .5rem; } .gg-detail__copy { padding: .5rem 0; } }
 @media (max-width: 540px) { .gg-detail { padding: 6rem .8rem 2.5rem; } .gg-fields { grid-template-columns: 1fr; gap: 0; } .gg-field--wide { grid-column: auto; } .gg-plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 </style>
+<link rel="stylesheet" href="{% static 'css/package-flow.css' %}">
 {% endblock %}
 
 {% block content %}
