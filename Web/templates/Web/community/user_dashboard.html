@@ -2,9 +2,10 @@
 {% load static %}
 
 {% block title %}Your Dashboard | Unwind Africa{% endblock %}
+{% block robots_meta %}noindex, nofollow{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/user-dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/user-dashboard.css' %}?v=payment-modal-20261110">
 <link rel="stylesheet" href="{% static 'css/package-flow.css' %}">
 {% endblock %}
 
@@ -176,6 +177,22 @@
       <div class="member-modal__actions"><button class="member-schedule-link" id="cancel-claim-btn2" type="button">Cancel</button><button class="member-pay-button" id="confirm-claim-btn" type="button">Confirm transfer</button></div>
     </div>
   </div>
+  <div class="member-modal member-payment-modal" id="installment-modal" role="dialog" aria-modal="true" aria-labelledby="installment-modal-title" aria-hidden="true">
+    <div class="member-modal__card member-payment-modal__card">
+      <div class="member-modal__header"><div><span class="member-payment-modal__eyebrow">SECURE PAYMENT</span><h2 id="installment-modal-title">Add to your getaway</h2></div><button class="member-modal__close" id="close-installment-modal" type="button" aria-label="Close">&times;</button></div>
+      <p class="member-payment-modal__intro">Choose an amount to pay toward your remaining balance.</p>
+      <div class="member-payment-modal__form">
+        <div class="member-payment-modal__balance"><span>Outstanding balance</span><strong id="installment-outstanding">₦0</strong></div>
+        <div class="member-payment-modal__field">
+          <label class="member-payment-modal__label" for="installment-amount">Payment amount</label>
+          <div class="member-payment-modal__input"><span aria-hidden="true">₦</span><input id="installment-amount" type="number" min="1" step="1" inputmode="numeric" autocomplete="off" aria-describedby="installment-error"></div>
+          <p class="member-payment-modal__error" id="installment-error" role="alert" hidden></p>
+        </div>
+        <div class="member-modal__actions"><button class="member-payment-modal__cancel" id="cancel-installment-modal" type="button">Cancel</button><button class="member-pay-button" id="confirm-installment-payment" type="button">Continue to payment</button></div>
+      </div>
+      <small class="member-payment-modal__secure">Payments are securely processed by Paystack.</small>
+    </div>
+  </div>
 </main>
 {% endblock %}
 
@@ -187,6 +204,22 @@ document.addEventListener('DOMContentLoaded', function () {
   const claimModal = document.getElementById('claim-modal');
   const confirmButton = document.getElementById('confirm-claim-btn');
   const cancelButtons = document.querySelectorAll('#cancel-claim-btn, #cancel-claim-btn2');
+  const paymentModal = document.getElementById('installment-modal');
+  const paymentInput = document.getElementById('installment-amount');
+  const paymentError = document.getElementById('installment-error');
+  const paymentConfirm = document.getElementById('confirm-installment-payment');
+  const paymentCloseButtons = document.querySelectorAll('#close-installment-modal, #cancel-installment-modal');
+  let activeInstallment = null;
+
+  function closeInstallmentModal() {
+    paymentModal.classList.remove('is-open');
+    paymentModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    activeInstallment = null;
+  }
+  paymentCloseButtons.forEach(button => button.addEventListener('click', closeInstallmentModal));
+  paymentModal.addEventListener('click', event => { if (event.target === paymentModal) closeInstallmentModal(); });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape' && paymentModal.classList.contains('is-open')) closeInstallmentModal(); });
 
   if (claimButton && claimModal) {
     claimButton.addEventListener('click', () => claimModal.classList.add('is-open'));
@@ -215,16 +248,39 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  window.payInstallment = async function (orderId, outstandingBalance, button) {
-    const amount = Number.parseFloat(window.prompt('Enter amount to pay (₦):', outstandingBalance));
-    if (!amount || amount <= 0) return;
-    if (amount > outstandingBalance) {
-      alert('Payment cannot be greater than the outstanding balance.');
+  window.payInstallment = function (orderId, outstandingBalance, button) {
+    activeInstallment = { orderId, outstandingBalance: Number(outstandingBalance), button, originalText: button.innerHTML };
+    document.getElementById('installment-outstanding').textContent = '₦' + Number(outstandingBalance).toLocaleString('en-NG');
+    paymentInput.max = outstandingBalance;
+    paymentInput.value = outstandingBalance;
+    paymentError.hidden = true;
+    paymentError.textContent = '';
+    paymentModal.classList.add('is-open');
+    paymentModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    window.setTimeout(() => paymentInput.focus(), 50);
+  };
+
+  paymentConfirm.addEventListener('click', async function () {
+    if (!activeInstallment) return;
+    const amount = Number(paymentInput.value);
+    if (!Number.isFinite(amount) || amount <= 0 || !Number.isInteger(amount)) {
+      paymentError.textContent = 'Enter a valid whole amount in naira.';
+      paymentError.hidden = false;
+      paymentInput.focus();
       return;
     }
-    const originalText = button.innerHTML;
+    if (amount > activeInstallment.outstandingBalance) {
+      paymentError.textContent = 'This amount is higher than the outstanding balance.';
+      paymentError.hidden = false;
+      paymentInput.focus();
+      return;
+    }
+    const { orderId, button, originalText } = activeInstallment;
     button.disabled = true;
     button.textContent = 'Initializing…';
+    paymentConfirm.disabled = true;
+    paymentConfirm.textContent = 'Preparing secure payment…';
     try {
       const response = await fetch('/dashboard/packages/' + orderId + '/contribute/', {
         method: 'POST',
@@ -233,6 +289,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       const result = await response.json();
       if (!result.success) throw new Error(result.message || 'Failed to initialize payment.');
+      closeInstallmentModal();
       const handler = PaystackPop.setup({
         key: '{{ paystack_public_key }}', email: '{{ email|escapejs }}',
         amount: Math.round(Number(result.amount) * 100), ref: result.reference, currency: 'NGN',
@@ -241,11 +298,15 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       handler.openIframe();
     } catch (error) {
+      closeInstallmentModal();
       alert(error.message || 'Payment initialization failed. Please try again.');
       button.disabled = false;
       button.innerHTML = originalText;
+    } finally {
+      paymentConfirm.disabled = false;
+      paymentConfirm.textContent = 'Continue to payment';
     }
-  };
+  });
 
   async function verifyInstallmentPayment(reference) {
     try {

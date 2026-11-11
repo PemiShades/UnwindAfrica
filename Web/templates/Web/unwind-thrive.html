@@ -6,7 +6,7 @@
   <title>Unwind & Thrive • Rest well. Live better. | Unwind Africa</title>
   <meta name="description" content="Unwind & Thrive helps families, schools, and communities rediscover balance through guided rest, gratitude, and screen-free micro-practices." />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="preload" href="{% static 'assets/tiara/cover-front.png' %}" as="image" imagesrcset />
+  <link rel="preload" href="{% static 'assets/U&T/front.jpeg' %}" as="image" />
   <link rel="stylesheet" href="{% static 'css/home.css' %}">
   	<script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -25,7 +25,7 @@
       <div class="mt-3" role="group" aria-label="Primary actions">
         <a href="#pricing" class="btn btn-primary">Join the next cohort</a>
         <button class="btn btn-ghost" data-open="#quoteModal">Bulk / Group Quote</button>
-        <a class="btn btn-outline" href="{% static 'assets/tiara/sample.pdf' %}" target="_blank" rel="noopener">See sample pages</a>
+        <a class="btn btn-outline" href="#book">Explore the book</a>
       </div>
       <ul class="check mt-3">
         <li>Screen-free 1-minute “Unwind Minis” that actually fit life</li>
@@ -201,8 +201,8 @@
 <section class="section" style="background:linear-gradient(180deg,#f7fafc,#ffffff)">
   <div class="container book">
     <div class="stack">
-      <img src="{% static 'assets/tiara/cover-back.png' %}" alt="Back cover" class="back" />
-      <img src="{% static 'assets/tiara/cover-front.png' %}" alt="Front cover" />
+      <img src="{% static 'assets/U&T/back.jpeg' %}" alt="Back cover" class="back" />
+      <img src="{% static 'assets/U&T/front.jpeg' %}" alt="Front cover" />
     </div>
     <div>
       <span class="eyebrow">Core companion</span>
@@ -214,7 +214,7 @@
         <li>Paperback or PDF eBook</li>
       </ul>
       <div class="mt-3" role="group" aria-label="Book actions">
-        <a href="{% static 'assets/tiara/sample.pdf' %}" target="_blank" class="btn btn-outline">Sample Pages</a>
+        <a href="#book" class="btn btn-outline">Explore the book</a>
         <a href="/checkout/print" class="btn btn-primary">Buy Paperback</a>
         <a href="/checkout/ebook" class="btn btn-ghost">Buy eBook (PDF)</a>
       </div>
@@ -328,7 +328,7 @@
 <div class="sticky-actions" role="region" aria-label="Quick actions">
   <a href="/checkout/ebook">Buy eBook</a>
   <button data-open="#quoteModal">Group Quote</button>
-  <a href="{% static 'assets/tiara/sample.pdf' %}" target="_blank">Sample</a>
+  <a href="#book">Explore the book</a>
 </div>
 
 <!-- GROUP QUOTE MODAL -->

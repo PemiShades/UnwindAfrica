@@ -2,6 +2,11 @@
 {% load static %}
 
 {% block title %}{{ package.name }} | Unwind Africa{% endblock %}
+{% block meta_description %}Discover {{ package.name }}, a thoughtfully hosted Unwind Africa experience. Explore what is included, available options, and ways to reserve your getaway.{% endblock %}
+{% block og_title %}{{ package.name }} | Unwind Africa{% endblock %}
+{% block og_description %}Explore {{ package.name }}, what is included, and the options available for your Unwind Africa getaway.{% endblock %}
+{% block twitter_title %}{{ package.name }} | Unwind Africa{% endblock %}
+{% block twitter_description %}Explore {{ package.name }}, what is included, and the options available for your Unwind Africa getaway.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}">
@@ -60,9 +65,7 @@
     <div class="gg-detail__intro">
       <section class="gg-detail__copy">
         <figure class="gg-detail__photo">
-          {% if package.category == 'couples' %}<img src="{% static 'assets/home/photography/show_2.jpg' %}" alt="A couple enjoying time together" fetchpriority="high">
-          {% elif package.category == 'family' %}<img src="{% static 'assets/home/family.jpg' %}" alt="Family enjoying a day together at the beach" fetchpriority="high">
-          {% else %}<img src="{% static 'assets/home/photography/show_1.jpeg' %}" alt="Unwind Africa guests sharing a beach getaway" fetchpriority="high">{% endif %}
+          <img src="{{ package_image_url }}" alt="{{ package.name }} getaway experience" fetchpriority="high">
         </figure>
         <span class="ua-kicker">{{ package.get_category_display }} · {{ package.get_experience_duration_display }}</span>
         <h1>{{ package.name }}</h1>
@@ -114,9 +117,9 @@
         <input type="hidden" name="outright" id="outright" value="0">
         <input type="hidden" name="duration_months" id="duration_months" value="{{ durations.0 }}">
         <div id="durationOptions" class="gg-plan-grid">
-          {% for duration in durations %}
-          <button type="button" class="gg-plan-choice{% if forloop.first %} is-active{% endif %}" data-duration="{{ duration }}" onclick="selectDuration({{ duration }}, this)">
-            <strong>{{ duration }} months</strong><span class="plan-estimate">Calculating…</span>
+          {% for option in plan_options %}
+          <button type="button" class="gg-plan-choice{% if forloop.first %} is-active{% endif %}" data-duration="{{ option.duration }}" onclick="selectDuration({{ option.duration }}, this)">
+            <strong>{{ option.duration }} months</strong><span class="plan-estimate">₦{{ option.monthly_display }} / month</span>
           </button>
           {% endfor %}
         </div>
@@ -148,6 +151,8 @@ const packageSlug = '{{ package.slug|escapejs }}';
 let selectedDuration = {{ durations.0|default:3 }};
 let latestPlan = null;
 let depositEdited = false;
+const planCache = new Map();
+let planRequestSequence = 0;
 
 function setMode(mode) {
   const isOutright = mode === 'outright';
@@ -184,30 +189,51 @@ function togglePickup() {
 function naira(value) { return '₦' + Number(value || 0).toLocaleString('en-NG', { maximumFractionDigits: 0 }); }
 
 async function refreshPlan() {
-  const duration = document.getElementById('outright').value === '1' ? 1 : selectedDuration;
+  const isOutright = document.getElementById('outright').value === '1';
   const partySize = document.getElementById('party_size').value || '{{ default_party_size }}';
-  const query = new URLSearchParams({
-    slug: packageSlug, duration: String(duration), party_size: String(partySize),
+  const durations = [...document.querySelectorAll('.gg-plan-choice')].map(item => Number(item.dataset.duration));
+  if (!durations.includes(1)) durations.push(1);
+  const params = {
+    slug: packageSlug, durations: durations.join(','), party_size: String(partySize),
     my_doctor: String(document.getElementById('doctor-choice').checked),
     transportation: String(document.getElementById('transport-choice').checked)
-  });
+  };
+  const cacheKey = JSON.stringify(params);
+  const requestSequence = ++planRequestSequence;
   try {
-    const response = await fetch('/packages/api/calculate-plan/?' + query.toString());
-    const data = await response.json();
-    if (!response.ok || !data.ok) return;
-    latestPlan = data.plan;
+    let plans = planCache.get(cacheKey);
+    if (!plans) {
+      const response = await fetch('/packages/api/calculate-plan/?' + new URLSearchParams(params).toString());
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || 'Unable to calculate this plan.');
+      plans = data.plans || [data.plan];
+      planCache.set(cacheKey, plans);
+    }
+    if (requestSequence !== planRequestSequence) return;
+    plans.forEach(plan => {
+      const estimate = document.querySelector(`.gg-plan-choice[data-duration="${plan.duration}"] .plan-estimate`);
+      if (estimate) estimate.textContent = naira(plan.monthly_contribution) + ' / month';
+    });
+    const activeDuration = isOutright ? 1 : selectedDuration;
+    latestPlan = plans.find(plan => Number(plan.duration) === activeDuration) || plans[0];
+    if (!latestPlan) throw new Error('No plan was returned.');
+    const total = Number(latestPlan.grand_total) - (isOutright ? Number(latestPlan.instalment_charges) : 0);
     document.getElementById('summary-package').textContent = naira(latestPlan.base_price);
     document.getElementById('summary-addons').textContent = naira(latestPlan.addon_total);
-    document.getElementById('summary-fees').textContent = naira(latestPlan.instalment_charges);
-    document.getElementById('summary-total').textContent = naira(latestPlan.grand_total);
-    document.getElementById('summary-monthly').textContent = document.getElementById('outright').value === '1' ? 'Paid in full' : naira(latestPlan.monthly_contribution) + ' / month';
-    const selected = document.querySelector('.gg-plan-choice.is-active .plan-estimate');
-    if (selected) selected.textContent = naira(latestPlan.monthly_contribution) + ' / month';
+    document.getElementById('summary-fees').textContent = naira(isOutright ? 0 : latestPlan.instalment_charges);
+    document.getElementById('summary-total').textContent = naira(total);
+    document.getElementById('summary-monthly').textContent = isOutright ? 'Paid in full' : naira(latestPlan.monthly_contribution) + ' / month';
     const deposit = document.getElementById('initial_deposit');
-    deposit.max = latestPlan.grand_total;
-    if (!depositEdited) deposit.value = document.getElementById('outright').value === '1' ? latestPlan.grand_total : Math.max(1, Math.round(Number(latestPlan.monthly_contribution)));
+    deposit.max = total;
+    if (!depositEdited) deposit.value = isOutright ? total : Math.max(1, Math.round(Number(latestPlan.monthly_contribution)));
   } catch (error) {
     console.error('Unable to calculate Group Getaway plan', error);
+    if (requestSequence === planRequestSequence) {
+      document.querySelectorAll('.plan-estimate').forEach(item => {
+        if (item.textContent.includes('/ month')) return;
+        item.textContent = 'Temporarily unavailable';
+      });
+    }
   }
 }
 

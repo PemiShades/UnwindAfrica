@@ -105,6 +105,8 @@ Unwind Africa is a comprehensive web platform that promotes rest, wellness, and 
    # Add your Paystack keys
    PAYSTACK_PUBLIC_KEY=pk_test_xxxxxxxxxxxxx
    PAYSTACK_SECRET_KEY=sk_test_xxxxxxxxxxxxx
+
+Paystack webhook URL: https://your-domain/voting/webhook/paystack/. This webhook reconciles voting charges and getaway deposits/installments. Use pk_live_... and sk_live_... only in the production server environment; never bundle the secret key in the website or mobile app.
    ```
 
 6. **Run migrations**
@@ -124,7 +126,10 @@ Unwind Africa is a comprehensive web platform that promotes rest, wellness, and 
 
 9. **Access the application**
    - Website: http://127.0.0.1:8000/
-   - Admin Panel: http://127.0.0.1:8000/admin/
+   - Developer / CMS dashboard: http://127.0.0.1:8000/cms/ (sign in at /cms/login/ with an active Django staff account; create one with python manage.py createsuperuser)
+   - Django model admin and full payment ledger: http://127.0.0.1:8000/admin/
+
+   Package payment notices go to active staff email addresses and any comma-separated addresses in PACKAGE_PAYMENT_NOTIFY_EMAILS. Production email delivery requires working SMTP values in the server environment; local console email prints messages to the runserver terminal.
 
 ---
 
@@ -185,7 +190,7 @@ UnwindAfrica/
 
 ```bash
 # Run the test suite
-python test_voting_system.py
+python manage.py test Web.testcases.test_voting
 ```
 
 **Paystack Test Cards:**
@@ -235,7 +240,7 @@ DB_PORT=5432
 ### Running Tests
 ```bash
 # Test voting system
-python test_voting_system.py
+python manage.py test Web.testcases.test_voting
 
 # Run Django tests
 python manage.py test
@@ -306,3 +311,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ---
 
 **Made with ❤️ in Africa**
+
+
+### Native app API origin
+
+The app uses https://unwindafrica.com by default. For staging or local device testing, set EXPO_PUBLIC_API_BASE_URL before running Expo or building the app. This value is public and must be an HTTPS URL for production.

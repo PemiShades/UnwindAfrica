@@ -2,6 +2,12 @@
 {% load static %}
 
 {% block title %}{{ post.title }} - Unwind Africa Journal{% endblock %}
+{% block meta_description %}{{ post.excerpt|default:post.title|striptags|truncatechars:155 }}{% endblock %}
+{% block og_title %}{{ post.title }} | Unwind Africa Journal{% endblock %}
+{% block og_description %}{{ post.excerpt|default:post.title|striptags|truncatechars:200 }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block twitter_title %}{{ post.title }} | Unwind Africa Journal{% endblock %}
+{% block twitter_description %}{{ post.excerpt|default:post.title|striptags|truncatechars:200 }}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}" />
@@ -21,29 +27,44 @@
     font-family: "Playfair Display", ui-serif, Georgia, serif;
     line-height: 1.1;
   }
+  .ua-article-body h4 { margin:2rem 0 .8rem; font:600 1.3rem/1.2 "Playfair Display",Georgia,serif; }
+  .ua-article-body blockquote { margin:2rem 0; padding:1.2rem 1.5rem; border-left:3px solid var(--ua-accent-gold); background:#f5f2ea; color:#45534c; font:italic 1.2rem/1.65 "Playfair Display",Georgia,serif; }
+  .ua-article-body hr { margin:2.3rem auto; width:4rem; border:0; border-top:1px solid var(--ua-accent-gold); }
+  .ua-article-body img { display:block; width:100%; height:auto; margin:2rem 0; }
+  .ua-article-body iframe { display:block; width:min(100%,760px); aspect-ratio:16/9; height:auto; margin:2rem auto; border:0; }
+  .ua-article-lead-image { margin:0 auto 2.5rem; max-width:920px; }
+  .ua-article-lead-image img { display:block; width:100%; max-height:620px; object-fit:cover; }
+  .ua-journal-tags { display:flex; flex-wrap:wrap; gap:.45rem; margin-top:1.25rem; }
+  .ua-journal-tags span { padding:.36rem .65rem; border:1px solid rgba(255,255,255,.36); border-radius:99px; color:#fff; font-size:.65rem; letter-spacing:.08em; text-transform:uppercase; }
+  .ua-journal-article--field_notes .ua-article-body { max-width:820px; font-family:Inter,Arial,sans-serif; }
+  .ua-journal-article--field_notes .ua-article-body h2,
+  .ua-journal-article--field_notes .ua-article-body h3 { color:#174f3d; }
+  .ua-journal-article--field_notes .ua-hero--dark { background-blend-mode:normal; }
 </style>
 {% endblock %}
 
 {% block content %}
 <main id="main-content" class="ua-page">
-  <article>
+  <article class="ua-journal-article ua-journal-article--{{ post.design_template|default:'editorial' }}">
     <section class="ua-hero ua-hero--dark" style="--ua-hero-image: url('{% if post.image %}{{ post.image.url }}{% elif post.thumbnail %}{{ post.thumbnail.url }}{% else %}{% static 'assets/home/marquee_section/slide_5.jpg' %}{% endif %}');">
       <div class="ua-wrap">
         <p class="ua-kicker">{{ post.category }}</p>
         <h1 class="ua-title">{{ post.title }}</h1>
         <p class="ua-copy">{{ post.excerpt|default:post.content|striptags|truncatewords:34 }}</p>
         <div class="ua-meta">
-          <span>Unwind Africa Journal</span>
-          <span>{{ post.created_at|date:"F j, Y" }}</span>
+          <span>{{ post.author|default:"Unwind Africa Admin" }}</span>
+          <span>{{ post.publication_date|default:post.created_at|date:"F j, Y" }}</span>
           <span>{{ post.read_minutes }} min read</span>
         </div>
+        {% if post.journal_tags %}<div class="ua-journal-tags">{% for tag in post.journal_tags %}<span>{{ tag }}</span>{% endfor %}</div>{% endif %}
       </div>
     </section>
 
     <section class="ua-section">
       <div class="ua-wrap">
         <div class="ua-article-body">
-          {{ post.content|linebreaks }}
+          {% if post.image %}<figure class="ua-article-lead-image"><img src="{{ post.image.url }}" alt="{{ post.title }}" loading="lazy"></figure>{% endif %}
+          {{ post.rendered_content|safe }}
         </div>
       </div>
     </section>
@@ -82,7 +103,7 @@
         <h2 class="ua-title">Let the next step become a place, not another saved article.</h2>
       </div>
       <div class="ua-actions">
-        <a class="ua-button ua-button--light" href="{% url 'contact' %}">Start a private brief</a>
+        <a class="ua-button ua-button--light" href="{% url 'packages' %}">Explore experiences</a>
         <a class="ua-button ua-button--ghost" href="{% url 'blog' %}">Back to journal</a>
       </div>
     </div>

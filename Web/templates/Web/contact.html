@@ -2,6 +2,11 @@
 {% load static %}
 
 {% block title %}Contact - Unwind Africa Concierge{% endblock %}
+{% block meta_description %}Contact Unwind Africa about a getaway, retreat, celebration, or wellness experience. Our team will help you find the right next step.{% endblock %}
+{% block og_title %}Contact Unwind Africa{% endblock %}
+{% block og_description %}Get in touch with Unwind Africa about retreats, getaways, and hosted experiences.{% endblock %}
+{% block twitter_title %}Contact Unwind Africa{% endblock %}
+{% block twitter_description %}Get in touch with Unwind Africa about retreats, getaways, and hosted experiences.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}" />
@@ -15,7 +20,7 @@
         <p class="ua-kicker">Private concierge</p>
         <h1 class="ua-title">Tell us what kind of rest you are looking for.</h1>
         <p class="ua-copy">
-          Share a few details and our team will respond with a considered direction for your Unwind Africa experience. The more honest the brief, the more personal the escape.
+          Share a few details and our team will respond with a considered direction for your Unwind Africa experience. The more we understand what matters to you, the more personal the escape.
         </p>
       </div>
       <aside class="ua-editorial-panel">
@@ -28,7 +33,7 @@
   <section class="ua-section contact-brief-section">
     <div class="ua-wrap">
       <header class="contact-brief-heading">
-        <p class="ua-kicker">Your brief</p>
+        <p class="ua-kicker">Your experience</p>
         <h2 class="ua-title">Start with the feeling. We will handle the shape.</h2>
         <p class="ua-copy">Tell us a little about the experience you have in mind. We will take it from there.</p>
       </header>
@@ -77,7 +82,7 @@
         <input type="hidden" name="page" value="contact">
         <input type="hidden" name="utm" value="{{ request.META.HTTP_REFERER|default:'' }}">
         <div class="ua-actions">
-          <button class="ua-button" type="submit">Send private brief</button>
+          <button class="ua-button" type="submit">Send your request</button>
         </div>
         <p id="ua-quote-status" class="ua-status-note" hidden></p>
         </form>
@@ -103,7 +108,7 @@
       <div class="ua-grid">
         <article class="ua-card">
           <h3>We read for intent</h3>
-          <p>Your brief is reviewed for emotional purpose, logistics, privacy needs, timing, and budget direction.</p>
+          <p>We review your priorities, logistics, privacy needs, timing, and budget direction.</p>
         </article>
         <article class="ua-card">
           <h3>We recommend a path</h3>
@@ -135,7 +140,7 @@
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     status.hidden = false;
-    status.textContent = 'Sending your brief...';
+    status.textContent = 'Sending your request...';
 
     try {
       const response = await fetch(form.action, {
@@ -144,9 +149,9 @@
         headers: { 'X-Requested-With': 'XMLHttpRequest' }
       });
       const data = await response.json();
-      if (!response.ok || !data.ok) throw new Error(data.error || 'Unable to send your brief.');
+      if (!response.ok || !data.ok) throw new Error(data.error || 'Unable to send your request.');
       form.reset();
-      status.textContent = 'Thank you. Your brief has been received, and our concierge team will respond with considered next steps.';
+      status.textContent = 'Thank you. Your request has been received, and our concierge team will respond with considered next steps.';
     } catch (error) {
       status.textContent = error.message || 'Something went wrong. Please email info@unwindafrica.com directly.';
     }

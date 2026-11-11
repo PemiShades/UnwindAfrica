@@ -7,15 +7,35 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 from django.db import transaction as db_transaction
+from django.db.models import Q
 from django.conf import settings
 from django.utils.timezone import now
 import requests
 import json
 import secrets
-import traceback
+import logging
+import hmac
+import hashlib
 from decimal import Decimal
 
 from .models import VotingCampaign, Nominee, Vote, Transaction, RestCard, TokenWallet, TokenTransaction, FrozenRestPoints
+
+logger = logging.getLogger(__name__)
+
+
+def _paystack_charge_matches(data, reference, expected_amount):
+    """Check the fields that bind a Paystack charge to its local records."""
+    try:
+        amount_kobo = int(data.get('amount') or 0)
+    except (TypeError, ValueError):
+        return False
+    expected_kobo = int((Decimal(expected_amount) * 100).quantize(Decimal('1')))
+    return (
+        data.get('status') == 'success'
+        and data.get('reference') == reference
+        and data.get('currency') == 'NGN'
+        and amount_kobo == expected_kobo
+    )
 
 
 @require_http_methods(["POST"])
@@ -174,6 +194,9 @@ def voting_campaign_detail(request, slug):
     from django.utils.timezone import now as get_now
     current_time = get_now()
     is_ongoing = campaign.is_active and campaign.start_date <= current_time <= campaign.end_date
+    can_nominate = is_ongoing and (
+        not campaign.nomination_deadline or current_time <= campaign.nomination_deadline
+    )
     
     context = {
         'campaign': campaign,
@@ -182,6 +205,7 @@ def voting_campaign_detail(request, slug):
         'vote_price': campaign.vote_price,
         'rest_points_per_vote': campaign.rest_points_per_vote,
         'is_ongoing': is_ongoing,  # Explicitly pass
+        'can_nominate': can_nominate,
         'search_query': search_query,
         'vote_filter': vote_filter,
     }
@@ -373,9 +397,6 @@ def initialize_payment(request):
         # Convert to kobo (Paystack uses kobo for Naira)
         amount_in_kobo = int(total_amount * 100)
         
-        print(f"DEBUG: total_amount={total_amount}, amount_in_kobo={amount_in_kobo}")
-        print(f"DEBUG: voter_email={voter_email}, voter_name={voter_name}")
-        
         headers = {
             'Authorization': f'Bearer {paystack_secret}',
             'Content-Type': 'application/json',
@@ -408,9 +429,6 @@ def initialize_payment(request):
             verify=True,
             timeout=10
         )
-        
-        print(f"DEBUG: Paystack response status: {response.status_code}")
-        print(f"DEBUG: Paystack response body: {response.text[:500]}")
         
         response_data = response.json()
         
@@ -492,16 +510,11 @@ def initialize_payment(request):
                 'message': response_data.get('message', 'Payment initialization failed')
             }, status=400)
     
-    except Exception as e:
-        # Print full traceback for debugging
-        print("="*50)
-        print("ERROR in initialize_payment:")
-        print(traceback.format_exc())
-        print("="*50)
-        
+    except Exception:
+        logger.exception('Unable to initialize voting payment')
         return JsonResponse({
             'success': False,
-            'message': f'Error: {str(e)}'
+            'message': 'Unable to start payment. Please try again shortly.'
         }, status=500)
 
 
@@ -583,166 +596,154 @@ def update_token_wallet(vote):
 
 
 def verify_payment(request, reference):
-    """Verify payment and update vote counts"""
+    """Verify a vote charge with Paystack before awarding votes or points."""
     try:
-        # Get all transactions with this reference
-        transactions = Transaction.objects.filter(reference=reference)
-        
+        transactions = Transaction.objects.filter(reference=reference).select_related(
+            'vote__nominee__campaign'
+        )
         if not transactions.exists():
             messages.error(request, 'Transaction not found')
             return redirect('voting_campaigns_list')
-        
-        first_transaction = transactions.first()
-        
-        # Verify with Paystack
+
         paystack_secret = settings.PAYSTACK_SECRET_KEY
-        headers = {
-            'Authorization': f'Bearer {paystack_secret}',
-        }
-        
+        if not paystack_secret:
+            messages.error(request, 'Payment verification is temporarily unavailable.')
+            return redirect('voting_campaigns_list')
         response = requests.get(
             f'https://api.paystack.co/transaction/verify/{reference}',
-            headers=headers,
-            timeout=10
+            headers={'Authorization': f'Bearer {paystack_secret}'},
+            timeout=10,
         )
-        
         response_data = response.json()
-        
-        if response.status_code == 200 and response_data.get('status'):
-            data = response_data['data']
-            
-            if data['status'] == 'success':
-                # Update all transactions and vote counts
-                with db_transaction.atomic():
-                    for trans in transactions:
-                        if trans.status != 'success':  # Only update if not already successful
-                            trans.status = 'success'
-                            trans.paid_at = now()
-                            trans.paystack_reference = data.get('reference')
-                            trans.paystack_response = response_data
-                            trans.save()
-                            
-                            # Increment nominee vote count
-                            nominee = trans.vote.nominee
-                            nominee.vote_count += trans.vote.vote_quantity
-                            nominee.save()
-                            
-                            # ✨ Auto-create/update Rest Card with earned points
-                            update_rest_card_points(trans.vote)
-                            
-                            # ✨ Update Token Wallet with earned tokens
-                            update_token_wallet(trans.vote)
-                
-                # Calculate totals for success message
-                total_votes = sum(t.vote.vote_quantity for t in transactions)
-                total_rest_points = sum(t.vote.rest_points_earned for t in transactions)
-                total_tokens = total_votes * 100
-                
-                # Check if user has frozen points
-                first_vote = transactions.first().vote
-                frozen_points = FrozenRestPoints.objects.filter(member_email=first_vote.voter_email).first()
-                
-                # Build success message
-                success_msg = f'Your vote has been recorded! 💛 You voted {total_votes} times.'
-                success_msg += f' You earned {total_rest_points:,.0f} Rest Points (frozen)'
-                success_msg += f' and {total_tokens:,.0f} Tokens!'
-                
-                # Show message about applying for rest card
-                success_msg += ' 📋 Apply for a Rest Card to unlock your frozen points!'
-                
-                messages.success(request, success_msg)
-                
-                # Get campaign for redirect
-                campaign = transactions.first().vote.nominee.campaign
-                
-                # Store data in session for thank you page
-                request.session['vote_success'] = {
-                    'campaign_slug': campaign.slug,
-                    'campaign_name': campaign.name,
-                    'total_votes': total_votes,
-                    'total_rest_points': float(total_rest_points),
-                    'total_tokens': total_tokens,
-                    'rest_card_activated': False,  # No longer auto-activated
-                    'rest_card_number': None,
-                    'has_frozen_points': True,  # New: indicates user has frozen points
-                    'frozen_points': float(total_rest_points),
-                }
-                
-                # Redirect to thank you page
-                return redirect('voting_thank_you')
-            else:
-                # Payment failed
-                for trans in transactions:
-                    trans.status = 'failed'
-                    trans.save()
-                
-                messages.error(request, 'Payment was not successful. Please try again.')
-                return redirect('voting_campaigns_list')
-        else:
-            messages.error(request, 'Unable to verify payment. Please contact support.')
+        expected_amount = sum((item.amount for item in transactions), Decimal('0'))
+        data = response_data.get('data') or {}
+        if not (response.ok and response_data.get('status')
+                and _paystack_charge_matches(data, reference, expected_amount)):
+            messages.error(request, 'Payment was not successful or could not be verified.')
             return redirect('voting_campaigns_list')
-    
-    except Exception as e:
-        messages.error(request, f'Error verifying payment: {str(e)}')
+
+        with db_transaction.atomic():
+            for transaction_row in transactions.select_for_update():
+                if transaction_row.status == 'success':
+                    continue
+                transaction_row.status = 'success'
+                transaction_row.paid_at = now()
+                transaction_row.paystack_reference = data.get('reference', reference)
+                transaction_row.paystack_response = response_data
+                transaction_row.save(update_fields=[
+                    'status', 'paid_at', 'paystack_reference', 'paystack_response',
+                ])
+
+                vote = transaction_row.vote
+                vote.payment_status = 'paid'
+                vote.save(update_fields=['payment_status'])
+                nominee = Nominee.objects.select_for_update().get(pk=vote.nominee_id)
+                nominee.vote_count += vote.vote_quantity
+                nominee.save(update_fields=['vote_count'])
+                update_rest_card_points(vote)
+                update_token_wallet(vote)
+
+        total_votes = sum(item.vote.vote_quantity for item in transactions)
+        total_rest_points = sum((item.vote.rest_points_earned for item in transactions), Decimal('0'))
+        total_tokens = total_votes * 100
+        first_vote = transactions.first().vote
+        request.session['vote_success'] = {
+            'campaign_slug': first_vote.nominee.campaign.slug,
+            'campaign_name': first_vote.nominee.campaign.name,
+            'total_votes': total_votes,
+            'total_rest_points': float(total_rest_points),
+            'total_tokens': total_tokens,
+            'rest_card_activated': False,
+            'rest_card_number': None,
+            'has_frozen_points': True,
+            'frozen_points': float(total_rest_points),
+        }
+        messages.success(request, f'Your vote has been recorded. You voted {total_votes} times.')
+        return redirect('voting_thank_you')
+    except (requests.RequestException, ValueError):
+        logger.exception('Unable to verify voting payment with Paystack')
+        messages.error(request, 'Unable to reach the payment service. Please try again shortly.')
+        return redirect('voting_campaigns_list')
+    except Exception:
+        logger.exception('Unable to process verified voting payment')
+        messages.error(request, 'Unable to verify your payment right now. Please contact support if you were charged.')
         return redirect('voting_campaigns_list')
 
 
-@csrf_exempt
-@require_http_methods(["POST"])
 def paystack_webhook(request):
-    """Handle Paystack webhook for payment notifications"""
+    """Verify signed Paystack events and reconcile vote/package payments once."""
+    paystack_secret = settings.PAYSTACK_SECRET_KEY
+    if not paystack_secret:
+        return HttpResponse('Payment webhook is not configured', status=503)
+
+    signature = request.headers.get('X-Paystack-Signature', '')
+    expected_signature = hmac.new(
+        paystack_secret.encode('utf-8'), request.body, hashlib.sha512
+    ).hexdigest()
+    if not signature or not hmac.compare_digest(signature, expected_signature):
+        return HttpResponse('Invalid signature', status=400)
+
     try:
-        # Verify webhook signature
-        paystack_secret = settings.PAYSTACK_SECRET_KEY
-        signature = request.headers.get('X-Paystack-Signature', '')
-        
-        import hmac
-        import hashlib
-        
-        computed_signature = hmac.new(
-            paystack_secret.encode('utf-8'),
-            request.body,
-            hashlib.sha512
-        ).hexdigest()
-        
-        if signature != computed_signature:
-            return HttpResponse('Invalid signature', status=400)
-        
-        # Process webhook
         payload = json.loads(request.body)
-        event = payload.get('event')
-        
-        if event == 'charge.success':
-            data = payload['data']
-            reference = data['reference']
-            
-            # Update transactions
-            transactions = Transaction.objects.filter(reference=reference)
-            
-            with db_transaction.atomic():
-                for trans in transactions:
-                    if trans.status != 'success':
-                        trans.status = 'success'
-                        trans.paid_at = now()
-                        trans.paystack_reference = reference
-                        trans.paystack_response = payload
-                        trans.save()
-                        
-                        # Increment vote count
-                        nominee = trans.vote.nominee
-                        nominee.vote_count += trans.vote.vote_quantity
-                        nominee.save()
-                        
-                        # ✨ Auto-create/update Rest Card with earned points
-                        update_rest_card_points(trans.vote)
-                        
-                        # ✨ Update Token Wallet with earned tokens
-                        update_token_wallet(trans.vote)
-        
+    except (TypeError, json.JSONDecodeError):
+        return HttpResponse('Invalid payload', status=400)
+    if payload.get('event') != 'charge.success':
         return HttpResponse('OK', status=200)
-    
-    except Exception as e:
-        return HttpResponse(f'Error: {str(e)}', status=500)
+
+    data = payload.get('data') or {}
+    reference = data.get('reference')
+    if not reference:
+        return HttpResponse('Missing reference', status=400)
+
+    # The same Paystack webhook reconciles package deposits and installments.
+    from .models import PackagePayment
+    from .views import _confirm_package_payment, _send_package_dashboard_password
+    package_payment = PackagePayment.objects.filter(
+        Q(reference=reference) | Q(paystack_reference=reference)
+    ).select_related('order').first()
+    if package_payment:
+        order, newly_confirmed = _confirm_package_payment(
+            package_payment, payload, data
+        )
+        if not order:
+            return HttpResponse('Payment details did not match the order', status=400)
+        if newly_confirmed and package_payment.is_initial_deposit:
+            _send_package_dashboard_password(order.customer_email, order.customer_name)
+        return HttpResponse('OK', status=200)
+
+    transactions = Transaction.objects.filter(reference=reference).select_related(
+        'vote__nominee__campaign'
+    )
+    if not transactions.exists():
+        # A valid event can arrive before the application stores its record.
+        # Acknowledge it; the browser callback can still verify by reference.
+        return HttpResponse('OK', status=200)
+    expected_amount = sum((item.amount for item in transactions), Decimal('0'))
+    if not _paystack_charge_matches(data, reference, expected_amount):
+        return HttpResponse('Payment details did not match the vote', status=400)
+
+    with db_transaction.atomic():
+        for transaction_row in transactions.select_for_update():
+            if transaction_row.status == 'success':
+                continue
+            transaction_row.status = 'success'
+            transaction_row.paid_at = now()
+            transaction_row.paystack_reference = reference
+            transaction_row.paystack_response = payload
+            transaction_row.save(update_fields=[
+                'status', 'paid_at', 'paystack_reference', 'paystack_response',
+            ])
+
+            vote = transaction_row.vote
+            vote.payment_status = 'paid'
+            vote.save(update_fields=['payment_status'])
+            nominee = Nominee.objects.select_for_update().get(pk=vote.nominee_id)
+            nominee.vote_count += vote.vote_quantity
+            nominee.save(update_fields=['vote_count'])
+            update_rest_card_points(vote)
+            update_token_wallet(vote)
+
+    return HttpResponse('OK', status=200)
 
 
 def voting_thank_you(request):

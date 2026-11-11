@@ -38,12 +38,12 @@ urlpatterns = [
 
     # Voting System URLs
     path('voting/', voting_views.voting_campaigns_list, name='voting_campaigns_list'),
-    path('voting/<slug:slug>/', voting_views.voting_campaign_detail, name='voting_campaign'),
-    path('voting/nominate/', voting_views.voting_campaign_detail, name='nominate'),
+    path('voting/nominate/', views.nominate, name='nominate_form_alias'),
     path('voting/payment/initialize/', voting_views.initialize_payment, name='initialize_payment'),
     path('voting/payment/verify/<str:reference>/', voting_views.verify_payment, name='verify_payment'),
     path('voting/payment/thank-you/', voting_views.voting_thank_you, name='voting_thank_you'),
     path('voting/webhook/paystack/', voting_views.paystack_webhook, name='paystack_webhook'),
+    path('voting/<slug:slug>/', voting_views.voting_campaign_detail, name='voting_campaign'),
     
     # API: Verify Rest Card
     path('api/verify-rest-card/', voting_views.verify_rest_card, name='verify_rest_card'),

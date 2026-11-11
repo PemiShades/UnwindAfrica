@@ -1,0 +1,70 @@
+{% extends 'Web/main.html' %}
+{% load static %}
+
+{% block title %}Events | Unwind Africa{% endblock %}
+{% block meta_description %}Explore upcoming Unwind Africa gatherings, wellness experiences, and cultural events.{% endblock %}
+{% block og_title %}Events | Unwind Africa{% endblock %}
+{% block og_description %}Upcoming gatherings and considered experiences from Unwind Africa.{% endblock %}
+{% block twitter_title %}Events | Unwind Africa{% endblock %}
+{% block twitter_description %}Upcoming gatherings and considered experiences from Unwind Africa.{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}">{% endblock %}
+
+{% block content %}
+<main id="main-content" class="ua-page">
+  <section class="ua-hero ua-hero--dark" style="--ua-hero-image: url('{% static 'assets/home/Events-1.jpg' %}');">
+    <div class="ua-wrap ua-hero-grid">
+      <div>
+        <p class="ua-kicker">Gather with intention</p>
+        <h1 class="ua-title">Time together, thoughtfully hosted.</h1>
+        <p class="ua-copy">Discover upcoming Unwind Africa gatherings, shared rituals, and moments worth making room for.</p>
+      </div>
+      <aside class="ua-editorial-panel">
+        <strong>Good company changes the feeling of a place.</strong>
+        <p>Every gathering is shaped with care for the people, the setting, and the time we share.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="ua-section">
+    <div class="ua-wrap">
+      <div class="ua-section-head">
+        <p class="ua-kicker">On the calendar</p>
+        <h2 class="ua-title">Upcoming events</h2>
+      </div>
+      {% if events %}
+      <div class="ua-grid">
+        {% for event in events %}
+        <article class="ua-card">
+          {% if event.thumbnail %}<img class="ua-card-media" src="{{ event.thumbnail.url }}" alt="{{ event.name }}" loading="lazy">{% endif %}
+          {% if event.badge %}<p class="ua-kicker">{{ event.badge }}</p>{% endif %}
+          <h3>{{ event.name }}</h3>
+          <p>{{ event.description|striptags|truncatewords:30 }}</p>
+          <div class="ua-meta"><span>{{ event.date|date:"F j, Y" }}</span>{% if event.location %}<span>{{ event.location }}</span>{% endif %}</div>
+          <div class="ua-actions"><a class="ua-link-button" href="{% url 'event_detail' event.slug %}">Event details</a></div>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="ua-status-note"><strong>No upcoming events are scheduled.</strong><br>New gatherings will appear here as soon as dates are confirmed. Explore our getaway collection in the meantime.</div>
+      <div class="ua-actions"><a class="ua-button" href="{% url 'packages' %}">Explore getaways</a></div>
+      {% endif %}
+    </div>
+  </section>
+
+  {% if past_events %}
+  <section class="ua-section ua-page-dark">
+    <div class="ua-wrap">
+      <div class="ua-section-head"><p class="ua-kicker">From our archive</p><h2 class="ua-title">Gatherings we have shared.</h2></div>
+      <div class="ua-list">
+        {% for event in past_events %}
+        <article class="ua-list-item">
+          <div><h3>{{ event.name }}</h3><p>{{ event.date|date:"F j, Y" }}{% if event.location %} · {{ event.location }}{% endif %}</p></div>
+          <a class="ua-button ua-button--ghost" href="{% url 'event_detail' event.slug %}">View event</a>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+</main>
+{% endblock %}

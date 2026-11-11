@@ -48,6 +48,7 @@ from django.forms import (
 # IMPORTANT: import the PROXY models from dashboard.models
 # (These point to the same DB tables defined in web.models)
 from .models import Post, Event
+from Web.blog_content import clean_blog_html
 from Web.models import VotingCampaign, Nominee
 
 
@@ -99,9 +100,7 @@ class PostForm(forms.ModelForm):
     """
     Editor-facing Post form.
 
-    We intentionally exclude:
-      - slug, excerpt, read_minutes, badge  (auto-generated in model.save())
-      - is_published, is_featured           (set by actions in the view/UI, not raw inputs)
+    Slugs/read time are generated; editors can manage the teaser and featured status.
 
     Editable fields: title, category, content, thumbnail, image
     """
@@ -109,10 +108,15 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = [
             "title",
+            "publication_date",
+            "tags",
+            "design_template",
             "category",
+            "excerpt",
             "content",
             "thumbnail",
             "image",
+            "is_featured",
         ]
         widgets = {
             "title": TextInput(attrs={
@@ -120,8 +124,17 @@ class PostForm(forms.ModelForm):
                 "placeholder": "Post title",
                 "maxlength": 350,
             }),
+            "publication_date": DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+            "tags": TextInput(attrs={"placeholder": "rest, wellness, Lagos", "maxlength": 500}),
+            "design_template": Select(),
             "category": Select(attrs={
                 "class": "field ring-brand",
+            }),
+            "excerpt": Textarea(attrs={
+                "class": "field ring-brand",
+                "rows": 3,
+                "placeholder": "A concise journal-card introduction (leave blank to generate from the story).",
+                "maxlength": 1000,
             }),
             "content": Textarea(attrs={
                 "class": "field ring-brand",
@@ -136,7 +149,12 @@ class PostForm(forms.ModelForm):
                 "class": "field ring-brand",
                 "accept": "image/*",
             }),
+            "is_featured": CheckboxInput(attrs={"class": "h-4 w-4 accent-amber-500"}),
         }
+
+    def clean_content(self):
+        content = self.cleaned_data.get('content') or ''
+        return clean_blog_html(content)
 
     def clean_title(self):
         title = self.cleaned_data.get("title", "").strip()

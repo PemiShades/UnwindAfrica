@@ -20,7 +20,11 @@ class StaticViewSitemap(Sitemap):
             'voting_campaigns_list',
             'faq',
             'explore',
-            'blog_list',
+            'event_list',
+            'privacy_policy',
+            'terms',
+            'refund_policy',
+            'services',
         ]
 
     def location(self, item):
@@ -63,7 +67,7 @@ class CampaignSitemap(Sitemap):
     priority = 0.9  # high priority since this is active content
 
     def items(self):
-        return VotingCampaign.objects.all()
+        return VotingCampaign.objects.filter(is_active=True)
 
     def lastmod(self, obj):
         return obj.updated_at if hasattr(obj, 'updated_at') else obj.start_date

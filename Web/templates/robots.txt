@@ -2,6 +2,10 @@ User-agent: *
 Allow: /
 Disallow: /dashboard/
 Disallow: /admin/
+Disallow: /cms/
 Disallow: /accounts/
+Disallow: /api/
+Disallow: /packages/order/
+Disallow: /voting/payment/
 
 Sitemap: https://unwindafrica.com/sitemap.xml

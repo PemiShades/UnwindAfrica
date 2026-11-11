@@ -114,7 +114,7 @@
 🧪 TESTING THE VOTING SYSTEM
 --------------------------------------------------------------------------------
 1. Run the test suite:
-   python test_voting_system.py
+   python manage.py test Web.testcases.test_voting
 
 2. Create a voting campaign in the admin panel:
    - Go to http://127.0.0.1:8000/admin/

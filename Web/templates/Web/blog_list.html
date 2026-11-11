@@ -2,6 +2,11 @@
 {% load static %}
 
 {% block title %}Journal - Unwind Africa{% endblock %}
+{% block meta_description %}Read the Unwind Africa journal for travel inspiration, wellness ideas, thoughtful guides, and stories from restorative experiences across Africa.{% endblock %}
+{% block og_title %}The Journal | Unwind Africa{% endblock %}
+{% block og_description %}Travel inspiration, wellness ideas, thoughtful guides, and stories from Unwind Africa.{% endblock %}
+{% block twitter_title %}The Journal | Unwind Africa{% endblock %}
+{% block twitter_description %}Travel inspiration, wellness ideas, thoughtful guides, and stories from Unwind Africa.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}" />
@@ -41,7 +46,8 @@
           <h3>{{ post.title }}</h3>
           <p>{{ post.excerpt|default:post.content|striptags|truncatewords:28 }}</p>
           <div class="ua-meta">
-            <span>{{ post.created_at|date:"F j, Y" }}</span>
+            <span>{{ post.publication_date|default:post.created_at|date:"F j, Y" }}</span>
+            <span>{{ post.author|default:"Unwind Africa Admin" }}</span>
             <span>{{ post.read_minutes }} min read</span>
           </div>
           <div class="ua-actions">
@@ -65,7 +71,7 @@
         <h2 class="ua-title">When a story starts to sound like what you need, let us build the trip.</h2>
       </div>
       <div class="ua-actions">
-        <a class="ua-button ua-button--light" href="{% url 'contact' %}">Start a private brief</a>
+        <a class="ua-button ua-button--light" href="{% url 'packages' %}">Discover your next experience</a>
         <a class="ua-button ua-button--ghost" href="{% url 'packages' %}">Explore packages</a>
       </div>
     </div>

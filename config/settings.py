@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'django.contrib.admin', 'django.contrib.auth', 'django.contrib.contenttypes',
     'django.contrib.sessions', 'django.contrib.messages', 'django.contrib.staticfiles',
     'django.contrib.sites',  # Required for sitemaps
+    'django.contrib.humanize',
     'django.contrib.sitemaps',  # Sitemap framework
     'Web', 'dashboard', 'widget_tweaks',
 ]
@@ -187,6 +188,11 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'no-reply@unwindafrica.com')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Unwind Africa <no-reply@unwindafrica.com>')
 SERVER_EMAIL = os.getenv('SERVER_EMAIL', 'no-reply@unwindafrica.com')
+PACKAGE_PAYMENT_NOTIFY_EMAILS = [
+    address.strip()
+    for address in os.getenv('PACKAGE_PAYMENT_NOTIFY_EMAILS', '').split(',')
+    if address.strip()
+]
 
 # --- Paystack Configuration ---
 PAYSTACK_PUBLIC_KEY = os.getenv("PAYSTACK_PUBLIC_KEY", "")

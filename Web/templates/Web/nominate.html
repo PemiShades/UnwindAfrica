@@ -28,6 +28,7 @@
   <section class="ua-section">
     <div class="ua-wrap">
       {% if error %}<div class="ua-status-note" style="margin-bottom:1.5rem;">{{ error }}</div>{% endif %}
+      {% if campaign %}
       <form class="ua-form-shell" method="post" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
         <p class="ua-kicker">Your information</p>
@@ -56,6 +57,13 @@
           <a class="ua-button ua-button--ghost" href="{% url 'voting_campaigns_list' %}">View campaigns</a>
         </div>
       </form>
+      {% else %}
+      <div class="ua-editorial-panel">
+        <strong>No active nominations</strong>
+        <p>There is no open campaign at the moment. You can explore previous and upcoming campaigns, then return when nominations reopen.</p>
+        <a class="ua-button ua-button--ghost" href="{% url 'voting_campaigns_list' %}">View campaigns</a>
+      </div>
+      {% endif %}
     </div>
   </section>
 </main>

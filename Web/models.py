@@ -3,6 +3,7 @@ from django.utils.text import slugify
 from django.utils.timezone import now
 from django.urls import reverse
 import re
+import math
 
 
 class BlogCategory(models.Model):
@@ -30,6 +31,11 @@ class Post(models.Model):
     # Metadata
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default="Travel")
     title = models.CharField(max_length=350)
+    author = models.CharField(max_length=120, default="Unwind Africa Admin")
+    publication_date = models.DateField(null=True, blank=True)
+    tags = models.CharField(max_length=500, blank=True, help_text="Comma-separated editorial tags")
+    DESIGN_CHOICES = [("editorial", "Editorial"), ("field_notes", "Field notes")]
+    design_template = models.CharField(max_length=24, choices=DESIGN_CHOICES, default="editorial")
     excerpt = models.TextField(blank=True, help_text="Short teaser used on cards")
     content = models.TextField(null=True, help_text="Full post content")
     read_minutes = models.PositiveIntegerField(default=4)
@@ -68,10 +74,10 @@ class Post(models.Model):
             text = re.sub(r"\s+", " ", text).strip()
             self.excerpt = (text[:177] + "…") if len(text) > 180 else text
 
-        # read_minutes (~220 wpm)
-        if (not self.read_minutes or self.read_minutes == 0) and self.content:
-            words = len(re.findall(r"\b\w+\b", self.content))
-            self.read_minutes = max(1, round(words / 220))
+        # Keep the displayed reading estimate in sync with edited story content.
+        if self.content:
+            words = len(re.findall(r"\b\w+\b", re.sub(r"<[^>]+>", " ", self.content)))
+            self.read_minutes = max(1, math.ceil(words / 220))
 
         # optional badge default
         if not self.badge:
@@ -971,6 +977,9 @@ class PackagePayment(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='success', db_index=True)
     paystack_response = models.JSONField(blank=True, null=True)
     paid_at = models.DateTimeField(auto_now_add=True)
+    started_email_sent_at = models.DateTimeField(null=True, blank=True)
+    customer_confirmation_sent_at = models.DateTimeField(null=True, blank=True)
+    admin_confirmation_sent_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ['-paid_at']

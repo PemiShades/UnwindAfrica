@@ -1,0 +1,42 @@
+{% extends 'Web/main.html' %}
+{% load static %}
+
+{% block title %}{{ event.name }} | Unwind Africa Events{% endblock %}
+{% block meta_description %}{{ event.description|default:event.name|striptags|truncatechars:155 }}{% endblock %}
+{% block og_title %}{{ event.name }} | Unwind Africa{% endblock %}
+{% block og_description %}{{ event.description|default:event.name|striptags|truncatechars:200 }}{% endblock %}
+{% block og_type %}event{% endblock %}
+{% block twitter_title %}{{ event.name }} | Unwind Africa{% endblock %}
+{% block twitter_description %}{{ event.description|default:event.name|striptags|truncatechars:200 }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}">{% endblock %}
+
+{% block content %}
+<main id="main-content" class="ua-page">
+  <article>
+    <section class="ua-hero ua-hero--dark" style="--ua-hero-image: url('{% if event.thumbnail %}{{ event.thumbnail.url }}{% elif event.flier %}{{ event.flier.url }}{% else %}{% static 'assets/home/Events-1.jpg' %}{% endif %}');">
+      <div class="ua-wrap ua-hero-grid">
+        <div>
+          <p class="ua-kicker">{% if event.badge %}{{ event.badge }}{% else %}Unwind Africa gathering{% endif %}</p>
+          <h1 class="ua-title">{{ event.name }}</h1>
+          <p class="ua-copy">{{ event.date|date:"l, F j, Y" }}{% if event.location %} · {{ event.location }}{% endif %}</p>
+          <div class="ua-actions"><a class="ua-button ua-button--light" href="{% url 'event_list' %}">All events</a>{% if not event.is_expired %}<a class="ua-button ua-button--ghost" href="mailto:info@unwindafrica.com?subject={{ event.name|urlencode }}">Ask about this event</a>{% endif %}</div>
+        </div>
+        <aside class="ua-editorial-panel"><strong>Make time for a shared moment.</strong><p>We look forward to welcoming you.</p></aside>
+      </div>
+    </section>
+
+    <section class="ua-section">
+      <div class="ua-wrap ua-care-grid">
+        <div>
+          <p class="ua-kicker">Event details</p>
+          <h2 class="ua-title" style="font-size:clamp(2rem,4vw,3.5rem);">A little more about the gathering.</h2>
+          <div class="ua-copy">{{ event.description|linebreaks }}</div>
+          {% if event.location %}<p class="ua-copy"><strong>Location:</strong> {{ event.location }}</p>{% endif %}
+          <p class="ua-copy"><strong>Date:</strong> {{ event.date|date:"F j, Y" }}</p>
+        </div>
+        {% if event.flier %}<figure class="ua-card" style="padding:0;overflow:hidden;margin:0;"><img src="{{ event.flier.url }}" alt="{{ event.name }} event flyer" style="display:block;width:100%;height:auto;" loading="lazy"></figure>{% elif event.thumbnail %}<img class="ua-card-media" src="{{ event.thumbnail.url }}" alt="{{ event.name }}" loading="lazy">{% endif %}
+      </div>
+    </section>
+  </article>
+</main>
+{% endblock %}

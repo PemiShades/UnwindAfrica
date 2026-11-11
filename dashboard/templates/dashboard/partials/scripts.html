@@ -8,6 +8,94 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <script>
+// Chart.js instances are circular mutable objects; keep them outside Alpine state.
+window.__cmsCharts = window.__cmsCharts || Object.create(null);
+document.addEventListener('mousedown', event => {
+  if (event.target.closest('.blog-studio__toolbar button')) event.preventDefault();
+});
+window.blogFormat = function(command, value) {
+  const editor = document.getElementById('blogRichEditor');
+  if (!editor) return;
+  editor.focus();
+  document.execCommand(command, false, value || null);
+  window.updateBlogMetrics(editor);
+};
+window.insertBlogLink = function() {
+  const url = window.prompt('Link address (https://…)');
+  if (!url) return;
+  try { const parsed = new URL(url); if (!['http:', 'https:', 'mailto:'].includes(parsed.protocol)) throw new Error(); }
+  catch (_) { return window.alert('Enter a valid web or email link.'); }
+  window.blogFormat('createLink', url);
+};
+window.insertBlogImage = function() {
+  const url = window.prompt('Image address (https://…)');
+  if (!url) return;
+  try { if (!['http:', 'https:'].includes(new URL(url).protocol)) throw new Error(); }
+  catch (_) { return window.alert('Enter a valid image URL.'); }
+  const editor = document.getElementById('blogRichEditor');
+  if (!editor) return;
+  editor.focus(); document.execCommand('insertImage', false, url); window.updateBlogMetrics(editor);
+};
+window.insertBlogVideo = function() {
+  const url = window.prompt('YouTube or Vimeo embed URL');
+  if (!url) return;
+  let parsed; try { parsed = new URL(url); } catch (_) { return window.alert('Enter a valid video URL.'); }
+  const hosts = ['youtube.com', 'www.youtube.com', 'youtube-nocookie.com', 'www.youtube-nocookie.com', 'player.vimeo.com'];
+  if (!hosts.includes(parsed.hostname) || !parsed.pathname.startsWith('/embed/')) return window.alert('Use a YouTube or Vimeo embed URL.');
+  const editor = document.getElementById('blogRichEditor'); if (!editor) return;
+  const frame = document.createElement('iframe'); frame.src = parsed.href; frame.title = 'Embedded video'; frame.width = '100%'; frame.height = '360'; frame.loading = 'lazy'; frame.setAttribute('allowfullscreen', '');
+  editor.focus(); const selection = window.getSelection();
+  if (selection && selection.rangeCount) { const range = selection.getRangeAt(0); range.deleteContents(); range.insertNode(frame); range.setStartAfter(frame); range.collapse(true); selection.removeAllRanges(); selection.addRange(range); }
+  else editor.append(frame);
+  window.updateBlogMetrics(editor);
+};
+window.setBlogPreview = function(width) {
+  const preview = document.getElementById('blogArticlePreview'); if (preview) preview.dataset.width = width;
+};
+window.previewBlogImage = function(input) {
+  const image = document.getElementById('blogPreviewImage'); if (!image || !input.files?.[0]) return;
+  if (image.dataset.objectUrl) URL.revokeObjectURL(image.dataset.objectUrl);
+  image.dataset.objectUrl = URL.createObjectURL(input.files[0]); image.src = image.dataset.objectUrl; image.hidden = false;
+};
+window.cleanPreviewHtml = function(html) {
+  const doc = new DOMParser().parseFromString(html || '', 'text/html');
+  const tags = new Set(['P','BR','HR','H2','H3','H4','BLOCKQUOTE','UL','OL','LI','STRONG','B','EM','I','U','A','IMG','SUB','SUP','IFRAME']);
+  doc.body.querySelectorAll('*').forEach(node => {
+    if (!tags.has(node.tagName)) { node.replaceWith(...node.childNodes); return; }
+    [...node.attributes].forEach(attr => {
+      const allowed = node.tagName === 'A' ? ['href','title','target','rel'] : node.tagName === 'IMG' ? ['src','alt','title','width','height'] : node.tagName === 'IFRAME' ? ['src','title','width','height','allow','allowfullscreen','loading'] : [];
+      if (!allowed.includes(attr.name) || /^on/i.test(attr.name)) node.removeAttribute(attr.name);
+    });
+    if ((node.tagName === 'A' || node.tagName === 'IMG') && node.hasAttribute('src') || node.tagName === 'A' && node.hasAttribute('href')) {
+      const key = node.tagName === 'A' ? 'href' : 'src'; if (/^\s*javascript:/i.test(node.getAttribute(key) || '')) node.removeAttribute(key);
+    }
+    if (node.tagName === 'IFRAME') { try { const u = new URL(node.src); if (!['youtube.com','www.youtube.com','youtube-nocookie.com','www.youtube-nocookie.com','player.vimeo.com'].includes(u.hostname) || !u.pathname.startsWith('/embed/')) node.remove(); } catch (_) { node.remove(); } }
+  });
+  return doc.body.innerHTML;
+};
+window.updateBlogMetrics = function(editor) {
+  if (!editor) return;
+  const text = (editor.innerText || '').replace(/\s+/g, ' ').trim();
+  const words = text ? text.split(' ').length : 0;
+  const count = document.getElementById('blogWordCount'); if (count) count.textContent = words.toLocaleString();
+  const title = document.getElementById('id_title')?.value.trim();
+  const titleNode = document.getElementById('blogPreviewTitle'); if (titleNode) titleNode.textContent = title || 'Your story title';
+  const summary = document.getElementById('blogPreviewSummary'); if (summary) summary.textContent = text.slice(0, 160) || 'A short introduction will appear here as you write.';
+  const category = document.getElementById('id_category')?.value;
+  const categoryNode = document.getElementById('blogPreviewCategory'); if (categoryNode) categoryNode.textContent = category || 'Journal';
+  const read = document.getElementById('blogPreviewRead'); if (read) read.textContent = Math.max(1, Math.ceil(words / 220)) + ' min read';
+  const previewContent = document.getElementById('blogPreviewContent'); if (previewContent) previewContent.innerHTML = window.cleanPreviewHtml(editor.innerHTML) || 'Your article text will appear here as you write.';
+  const author = document.getElementById('blogPreviewAuthor'); if (author) author.textContent = 'Unwind Africa Admin';
+  const dateValue = document.getElementById('id_publication_date')?.value;
+  const dateNode = document.getElementById('blogPreviewDate'); if (dateNode) dateNode.textContent = dateValue ? new Date(`${dateValue}T00:00:00`).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}) : '';
+  const tagsValue = document.getElementById('id_tags')?.value || '';
+  const tagsNode = document.getElementById('blogPreviewTags'); if (tagsNode) tagsNode.replaceChildren(...tagsValue.split(',').map(tag=>tag.trim()).filter(Boolean).slice(0,8).map(tag=>{const chip=document.createElement('span');chip.textContent=tag;return chip;}));
+  const layout = document.getElementById('id_design_template')?.value;
+  const articlePreview = document.getElementById('blogArticlePreview'); if (articlePreview) articlePreview.dataset.template = layout || 'editorial';
+  const summaryInput = document.getElementById('id_excerpt')?.value.trim(); const summaryNode = document.getElementById('blogPreviewSummary'); if (summaryNode && summaryInput) summaryNode.textContent = summaryInput;
+};
+document.addEventListener('input', event => { if (['id_title','id_excerpt','id_tags'].includes(event.target?.id)) window.updateBlogMetrics(document.getElementById('blogRichEditor')); });
+document.addEventListener('change', event => { if (['id_category','id_publication_date','id_design_template'].includes(event.target?.id)) window.updateBlogMetrics(document.getElementById('blogRichEditor')); });
 document.addEventListener('alpine:init', () => {
 
   // ===== ALPINE ROOT FUNCTION =====
@@ -25,6 +113,7 @@ document.addEventListener('alpine:init', () => {
       theme: theme,
       tab: 'overview',
       sidebarOpen: false,
+      engagementMonths: 12,
 
       // ===== EVENT MODAL STATE =====
       showEventModal: false,
@@ -69,10 +158,12 @@ document.addEventListener('alpine:init', () => {
       editNomineeForm: { id: null, name: '', number: '', story: '', instagram_handle: '', order: 0, campaign: '' },
 
       // ===== CHART STORAGE =====
-      charts: {},
+      // Chart.js instances are circular objects. Keep them outside Alpine's deep proxy.
 
       // ===== INIT =====
        init() {
+         window.cmsApp = this;
+         if (window.Chart) Chart.defaults.animation = false;
          this.bindShortcuts();
          this.$nextTick(() => {
            this.setupFormResetListener();
@@ -110,6 +201,16 @@ document.addEventListener('alpine:init', () => {
       },
 
       // ===== CHART HYDRATION =====
+       destroyCharts() {
+         Object.keys(window.__cmsCharts).forEach((key) => {
+           const chart = window.__cmsCharts[key];
+           if (chart) {
+             try { chart.destroy(); } catch (error) { console.warn('Could not dispose chart', key, error); }
+             delete window.__cmsCharts[key];
+           }
+         });
+       },
+
        hydrateCharts(refresh = false) {
          const cat = document.getElementById('categoryChart');
          const mon = document.getElementById('monthlyChart');
@@ -140,10 +241,10 @@ document.addEventListener('alpine:init', () => {
 
          // Helper: destroy if exists and refresh requested, skip if exists and no refresh
          const shouldInit = (key) => {
-           if (this.charts[key]) {
+           if (window.__cmsCharts[key]) {
              if (refresh) {
-               this.charts[key].destroy();
-               this.charts[key] = null;
+               window.__cmsCharts[key].destroy();
+               window.__cmsCharts[key] = null;
                return true;
              }
              return false; // already exists, no refresh — skip only this chart
@@ -153,7 +254,7 @@ document.addEventListener('alpine:init', () => {
 
          if (cat && shouldInit('category')) {
            try {
-             this.charts.category = new Chart(cat.getContext('2d'), {
+             window.__cmsCharts.category = new Chart(cat.getContext('2d'), {
                type: 'pie',
                data: {
                  labels: categoryLabels,
@@ -178,7 +279,7 @@ document.addEventListener('alpine:init', () => {
 
          if (mon && shouldInit('monthly')) {
            try {
-             this.charts.monthly = new Chart(mon.getContext('2d'), {
+             window.__cmsCharts.monthly = new Chart(mon.getContext('2d'), {
                type: 'line',
                data: {
                  labels: hydrateMonthlyLabels,
@@ -202,7 +303,7 @@ document.addEventListener('alpine:init', () => {
 
          if (nom && shouldInit('nominee')) {
            try {
-             this.charts.nominee = new Chart(nom.getContext('2d'), {
+             window.__cmsCharts.nominee = new Chart(nom.getContext('2d'), {
                type: 'bar',
                data: {
                  labels: nomineeLabels,
@@ -225,7 +326,7 @@ document.addEventListener('alpine:init', () => {
 
          if (cam && shouldInit('campaign')) {
            try {
-             this.charts.campaign = new Chart(cam.getContext('2d'), {
+             window.__cmsCharts.campaign = new Chart(cam.getContext('2d'), {
                type: 'doughnut',
                data: {
                  labels: campaignLabels,
@@ -248,7 +349,7 @@ document.addEventListener('alpine:init', () => {
 
          if (vtr && shouldInit('trends')) {
            try {
-             this.charts.trends = new Chart(vtr.getContext('2d'), {
+             window.__cmsCharts.trends = new Chart(vtr.getContext('2d'), {
                type: 'line',
                data: {
                  labels: votesMonthlyLabels,
@@ -313,14 +414,9 @@ document.addEventListener('alpine:init', () => {
             "X-CSRFToken": csrf
           }
         })
-        .then(res => {
-          if (!res.ok) {
-            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-          }
-          return res.json();
-        })
-        .then(json => {
-          if (json.ok) {
+        .then(async res => ({ httpOk: res.ok, json: await res.json() }))
+        .then(({httpOk, json}) => {
+          if (httpOk && json.ok) {
             this.toast("Event saved successfully!", "success");
             this.closeEventModal();
             // Refresh page to show updated data
@@ -328,7 +424,8 @@ document.addEventListener('alpine:init', () => {
               window.location.reload();
             }, 1000);
           } else {
-            this.toast(json.error || "Save failed", "error");
+            const detail = Object.values(json.errors || {})[0];
+            this.toast((Array.isArray(detail) ? detail[0] : detail) || json.error || "Save failed", "error");
           }
         })
         .catch(err => {
@@ -346,6 +443,9 @@ document.addEventListener('alpine:init', () => {
         const csrf = this.getCsrfToken();
         if (!csrf) return this.toast("CSRF token missing", "error");
 
+        const editor = form.querySelector('[data-rich-editor]');
+        const contentField = form.querySelector('[name="content"]');
+        if (editor && contentField) contentField.value = editor.innerHTML.trim();
         const data = new FormData(form);
         data.set("action", publish ? "publish" : "draft");
 
@@ -377,6 +477,9 @@ document.addEventListener('alpine:init', () => {
             
             // Reset form and switch to overview
             form.reset();
+            const editor = form.querySelector('[data-rich-editor]');
+            if (editor) editor.innerHTML = '';
+            this.destroyCharts();
             this.tab = 'overview';
             
             // Refresh charts and reload page to show updated data
@@ -394,7 +497,7 @@ document.addEventListener('alpine:init', () => {
       },
 
       // ===== LOAD POST INTO EDITOR =====
-      loadPostIntoEditor(slug, title, content, category, isPub, isFeat) {
+      loadPostIntoEditor(slug, title, content, category, excerpt, isFeat, publicationDate, tags, designTemplate) {
         this.tab = 'create_blog';
         
         this.$nextTick(() => {
@@ -410,7 +513,7 @@ document.addEventListener('alpine:init', () => {
             if (!el) return;
             
             if (el.type === 'checkbox') {
-              el.checked = v === 'True' || v === true;
+              el.checked = v === true || String(v).toLowerCase() === 'true';
             } else {
               el.value = v ?? '';
             }
@@ -420,8 +523,13 @@ document.addEventListener('alpine:init', () => {
           // Set form values
           set('title', title);
           set('category', category);
+          set('excerpt', excerpt);
+          set('publication_date', publicationDate);
+          set('tags', tags);
+          set('design_template', designTemplate || 'editorial');
           set('content', content);
-          set('is_published', isPub);
+          const editor = form.querySelector('[data-rich-editor]');
+          if (editor) { editor.innerHTML = content || ''; window.updateBlogMetrics(editor); }
           set('is_featured', isFeat);
 
           this.toast("Post loaded into editor", "info");
@@ -430,17 +538,35 @@ document.addEventListener('alpine:init', () => {
 
       // ===== EVENT MODAL HELPERS =====
       openEventModal() {
+        this.editingEvent = false;
+        this.eventFormAction = "{% url 'create_event' %}";
+        this.eventForm = { id:'', name:'', description:'', location:'', date:'', thumbnail:'', flier:'' };
         this.showEventModal = true;
+      },
+
+      editEvent(identifier) {
+        fetch(`/cms/event/${encodeURIComponent(identifier)}/edit/`)
+          .then(async response => ({ ok: response.ok, data: await response.json() }))
+          .then(({ok, data}) => {
+            if (!ok || !data.ok) return this.toast(data.error || 'Could not load event details.', 'error');
+            this.editingEvent = true;
+            this.eventFormAction = `/cms/event/${encodeURIComponent(identifier)}/edit/`;
+            this.eventForm = data.event;
+            this.showEventModal = true;
+          })
+          .catch(() => this.toast('Could not load event details.', 'error'));
       },
 
       closeEventModal() {
         this.showEventModal = false;
         this.editingEvent = false;
+        this.eventFormAction = "{% url 'create_event' %}";
         this.eventForm = { id:'', name:'', description:'', location:'', date:'', thumbnail:'', flier:'' };
       },
 
       // ===== UI TAB HELPERS =====
-       setTab(t) { 
+       setTab(t) {
+        if (this.tab !== t) this.destroyCharts();
         this.tab = t; 
         this.sidebarOpen = false;
         
@@ -451,6 +577,8 @@ document.addEventListener('alpine:init', () => {
             if (form) {
               form.action = "{% url 'blog_create' %}";
               form.reset();
+              const editor = form.querySelector('[data-rich-editor]');
+              if (editor) editor.innerHTML = '';
             }
           });
         }
@@ -475,12 +603,8 @@ document.addEventListener('alpine:init', () => {
 
       // ===== ADDITIONAL FUNCTIONS FROM MAIN INDEX.HTML =====
       loadNotifications() {
-        // Simulate real-time notifications
-        this.notifications = [
-          { id: 1, message: 'John Doe paid ₦5000 for 10 votes to Queen Joe', time: '2 minutes ago', type: 'success' },
-          { id: 2, message: 'Jane Smith paid ₦10000 for 20 votes to King James', time: '5 minutes ago', type: 'success' },
-          { id: 3, message: 'Mike Johnson paid ₦30000 for 60 votes to Royal Couple', time: '10 minutes ago', type: 'success' }
-        ];
+        // Do not display demo/fabricated activity as live customer data.
+        this.notifications = [];
       },
 
       bindShortcuts() {
@@ -732,15 +856,15 @@ document.addEventListener('alpine:init', () => {
         
         // Check if canvas has context
         const ctx = canvas.getContext('2d');
-        if (!ctx) {
+        if (!ctx || !canvas.isConnected) {
           console.warn('Canvas context not available');
           return;
         }
         
         // Properly destroy existing chart before reinitialization
-        if (this.charts.overview) {
+        if (window.__cmsCharts.overview) {
           try {
-            this.charts.overview.destroy();
+            window.__cmsCharts.overview.destroy();
           } catch (error) {
             console.error('Error destroying chart:', error);
           }
@@ -751,7 +875,7 @@ document.addEventListener('alpine:init', () => {
         const overviewChartData = {{ monthly_chart_counts|default:"[]"|safe }};
 
         try {
-          this.charts.overview = new Chart(ctx, {
+          window.__cmsCharts.overview = new Chart(ctx, {
             type: 'line',
             data: {
               labels: overviewLabels.length ? overviewLabels : ['No data'],
@@ -787,28 +911,28 @@ document.addEventListener('alpine:init', () => {
       // Fetch latest engagement data and update the overview chart in-place
       pollEngagementData() {
         // Guard: only proceed if chart exists
-        if (!document.getElementById('chart-overview') || !this.charts.overview) {
+        if (!document.getElementById('chart-overview') || !window.__cmsCharts.overview) {
           return;
         }
 
-        fetch('/cms/engagement-data/')
+        fetch(`/cms/engagement-data/?months=${this.engagementMonths}`)
           .then(r => {
             if (!r.ok) throw new Error('Network error');
             return r.json();
           })
           .then(json => {
-            if (!json.ok || !this.charts.overview) return;
+            if (!json.ok || !window.__cmsCharts.overview) return;
             
             const labels = json.labels || [];
             const data = json.counts || [];
             
             try {
               // Use proper data update without infinite recursion
-              const chartData = this.charts.overview.data;
+              const chartData = window.__cmsCharts.overview.data;
               if (chartData && chartData.labels && chartData.datasets && chartData.datasets[0]) {
                 chartData.labels = labels;
                 chartData.datasets[0].data = data;
-                this.charts.overview.update('none'); // Use 'none' animation to prevent overhead
+                window.__cmsCharts.overview.update('none'); // Use 'none' animation to prevent overhead
               }
             } catch (e) {
               console.error('Chart update error', e);
@@ -816,6 +940,22 @@ document.addEventListener('alpine:init', () => {
             }
           })
           .catch(err => console.error('Engagement poll error', err));
+      },
+
+      setEngagementRange(months) {
+        if (![3, 6, 12].includes(months)) return;
+        this.engagementMonths = months;
+        if (!window.__cmsCharts.overview) return;
+        fetch(`/cms/engagement-data/?months=${months}`)
+          .then(async response => ({ok: response.ok, data: await response.json()}))
+          .then(({ok, data}) => {
+            if (!ok || !data.ok || !window.__cmsCharts.overview) throw new Error(data.error || 'Could not load chart range.');
+            const chart = window.__cmsCharts.overview;
+            chart.data.labels = data.labels || [];
+            chart.data.datasets[0].data = data.counts || [];
+            chart.update('none');
+          })
+          .catch(error => this.toast(error.message || 'Could not update chart range.', 'error'));
       },
 
       exportRestCards: function() {
@@ -1408,84 +1548,69 @@ document.addEventListener('alpine:init', () => {
       // ===== PACKAGE MODAL =====
       openPkgModal() {
         this.pkgModal = { id: null, name: '', price_per_person: '', short_description: '', description: '', inclusions: '', instalment_charge_percent: '', instalment_charge_flat: '', available_durations: '3,6,9,12', is_active: true };
-        document.getElementById('pkgModal')?.classList.add('is-open');
+        this.showPkgModal = true;
       },
-      closePkgModal() { document.getElementById('pkgModal')?.classList.remove('is-open'); },
+      closePkgModal() { this.showPkgModal = false; },
       editPkg(id) {
         fetch(`/cms/packages/${id}/edit/`)
           .then(r => r.json()).then(d => {
-            if (d.ok) { this.pkgModal = d.package; document.getElementById('pkgModal')?.classList.add('is-open'); }
+            if (d.ok) { this.pkgModal = d.package; this.showPkgModal = true; }
             else { this.toast(d.error || 'Load failed', 'error'); }
-          });
+          }).catch(() => this.toast('Could not load package details.', 'error'));
       },
       savePkg() {
-        const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || document.cookie.match(/(?:^|; )csrftoken=([^;]+)/)?.[1] || '';
         const url = this.pkgModal.id ? `/cms/packages/${this.pkgModal.id}/edit/` : '/cms/packages/create/';
         fetch(url, {
           method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
           body: JSON.stringify(this.pkgModal)
-        }).then(r => r.json()).then(d => {
-          if (d.ok) { this.toast('Package saved', 'success'); this.closePkgModal(); setTimeout(() => location.reload(), 800); }
+        }).then(r => r.json().then(d => ({ ok: r.ok, data: d }))).then(({ok, data: d}) => {
+          if (ok && d.ok) { this.toast('Package saved', 'success'); this.closePkgModal(); setTimeout(() => location.reload(), 800); }
           else { this.toast(d.error || 'Save failed', 'error'); }
-        });
+        }).catch(() => this.toast('Could not save package. Check the values and try again.', 'error'));
       },
       deletePkg(id, name) {
         if (!confirm('Delete package "' + name + '"?')) return;
-        const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || document.cookie.match(/(?:^|; )csrftoken=([^;]+)/)?.[1] || '';
         fetch(`/cms/packages/${id}/delete/`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf } })
           .then(r => r.json()).then(d => { if (d.ok) { this.toast('Deleted', 'success'); setTimeout(() => location.reload(), 500); } else { this.toast(d.error, 'error'); } });
       },
       // ===== ADD-ON MODAL =====
       openAddonModal() {
         this.addonModal = { id: null, name: '', description: '', price: '', regular_price: '', is_active: true };
-        document.getElementById('addonModal')?.classList.add('is-open');
+        this.showAddonModal = true;
       },
-      closeAddonModal() { document.getElementById('addonModal')?.classList.remove('is-open'); },
+      closeAddonModal() { this.showAddonModal = false; },
       editAddon(id) {
         fetch(`/cms/addons/${id}/edit/`).then(r => r.json()).then(d => {
-          if (d.ok) { this.addonModal = d.addon; document.getElementById('addonModal')?.classList.add('is-open'); }
+          if (d.ok) { this.addonModal = d.addon; this.showAddonModal = true; }
           else { this.toast(d.error || 'Load failed', 'error'); }
-        });
+        }).catch(() => this.toast('Could not load add-on details.', 'error'));
       },
       saveAddon() {
-        const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || document.cookie.match(/(?:^|; )csrftoken=([^;]+)/)?.[1] || '';
         const url = this.addonModal.id ? `/cms/addons/${this.addonModal.id}/edit/` : '/cms/addons/create/';
         fetch(url, {
           method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
           body: JSON.stringify(this.addonModal)
-        }).then(r => r.json()).then(d => {
-          if (d.ok) { this.toast('Add-on saved', 'success'); this.closeAddonModal(); setTimeout(() => location.reload(), 800); }
+        }).then(r => r.json().then(d => ({ ok: r.ok, data: d }))).then(({ok, data: d}) => {
+          if (ok && d.ok) { this.toast('Add-on saved', 'success'); this.closeAddonModal(); setTimeout(() => location.reload(), 800); }
           else { this.toast(d.error || 'Save failed', 'error'); }
-        });
+        }).catch(() => this.toast('Could not save add-on. Check the values and try again.', 'error'));
       },
       deleteAddon(id, name) {
         if (!confirm('Delete add-on "' + name + '"?')) return;
-        const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || document.cookie.match(/(?:^|; )csrftoken=([^;]+)/)?.[1] || '';
         fetch(`/cms/addons/${id}/delete/`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf } })
           .then(r => r.json()).then(d => { if (d.ok) { this.toast('Deleted', 'success'); setTimeout(() => location.reload(), 500); } else { this.toast(d.error, 'error'); } });
       },
-        event.preventDefault();
-        if (!confirm('Are you sure you want to delete this book?')) return;
-        
-        const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || this.getCsrfToken();
-        fetch(`/cms/books/${bookId}/delete/`, {
-          method: 'POST',
-          headers: { 'X-CSRFToken': csrf }
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.ok) {
-            this.toast('Book deleted successfully', 'success');
-            location.reload();
-          } else {
-            this.toast(data.error || 'Error deleting book', 'error');
-          }
-        })
-        .catch(error => {
-          this.toast('Error deleting book', 'error');
-        });
+      retryPaymentEmails(id) {
+        const csrf = this.getCsrfToken();
+        fetch(`/cms/payments/${id}/retry-emails/`, { method: 'POST', headers: { 'X-CSRFToken': csrf } })
+          .then(async response => ({ ok: response.ok, data: await response.json() }))
+          .then(({ok, data}) => { this.toast(data.message || (ok ? 'Email notices sent.' : 'Email notices could not be sent.'), ok ? 'success' : 'error'); if (ok) setTimeout(() => location.reload(), 700); })
+          .catch(() => this.toast('Could not retry email notices.', 'error'));
       },
-
       toggleTheme() {
         this.theme = this.theme === 'dark' ? 'light' : 'dark';
         try {
@@ -1512,8 +1637,7 @@ document.addEventListener('alpine:init', () => {
   window.appProxy = function(method, ...args) {
     try {
       const root = document.querySelector('[x-data]');
-      if (!root || !root.__x) return console.warn('Alpine root not found');
-      const data = root.__x.$data || root.__x.getUnobservedData?.();
+      const data = window.cmsApp || (root && window.Alpine?.$data ? window.Alpine.$data(root) : null);
       if (data && typeof data[method] === 'function') return data[method](...args);
       console.warn('Method not found on Alpine root:', method);
     } catch (e) {
@@ -1526,6 +1650,7 @@ document.addEventListener('alpine:init', () => {
   window.resendRestCard = function(id){ return window.appProxy('resendRestCard', id); };
   window.toggleRestCardStatus = function(id){ return window.appProxy('toggleRestCardStatus', id); };
   window.editRestCard = function(id){ return window.appProxy('editRestCard', id); };
+  window.__editPost = function(...args){ return window.appProxy('loadPostIntoEditor', ...args); };
 
 });
 </script>

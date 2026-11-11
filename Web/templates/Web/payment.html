@@ -34,36 +34,18 @@
     <div class="ua-wrap">
       <form class="ua-form-shell" method="post">
         {% csrf_token %}
-        <p class="ua-kicker">Payment method</p>
+        <p class="ua-kicker">Secure checkout</p>
+        <input type="hidden" name="payment_method" value="paystack">
         <div class="ua-field">
-          <label><input type="radio" id="paystack" name="payment_method" value="paystack" checked> Paystack card payment</label>
+          <label for="payment-email">Email address</label>
+          <input id="payment-email" type="email" name="email" value="{{ payment_email }}" autocomplete="email" required>
         </div>
-        <div class="ua-field">
-          <label><input type="radio" id="bank_transfer" name="payment_method" value="bank_transfer"> Bank transfer</label>
-        </div>
-
-        <div id="bank-details" class="ua-status-note" style="display:none; margin-top:1rem;">
-          <strong>Bank transfer details</strong>
-          <p>Please make payment to the account details provided by the Unwind Africa team, then complete the form for verification.</p>
-        </div>
-
         <div class="ua-actions">
-          <button type="submit" class="ua-button">Complete payment</button>
+          <button type="submit" class="ua-button">Continue to secure Paystack checkout</button>
         </div>
       </form>
     </div>
   </section>
 </main>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const paymentMethodRadios = document.querySelectorAll('input[name="payment_method"]');
-  const bankDetails = document.getElementById('bank-details');
-  paymentMethodRadios.forEach(radio => {
-    radio.addEventListener('change', function() {
-      bankDetails.style.display = this.value === 'bank_transfer' ? 'block' : 'none';
-    });
-  });
-});
-</script>
 {% endblock %}

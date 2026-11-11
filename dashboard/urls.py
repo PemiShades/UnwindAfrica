@@ -70,6 +70,8 @@ urlpatterns = [
 
     # Group Getaway Packages
     path("packages/", views.packages_dashboard, name="packages_dashboard"),
+    path("export/all-data/", views.export_all_dashboard_data, name="export_all_dashboard_data"),
+    path("payments/<int:payment_id>/retry-emails/", views.retry_package_payment_emails, name="retry_package_payment_emails"),
     path("packages/create/", views.create_package, name="create_package"),
     path("packages/<int:package_id>/edit/", views.edit_package, name="edit_package"),
     path("packages/<int:package_id>/delete/", views.delete_package, name="delete_package"),

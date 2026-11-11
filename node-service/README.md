@@ -12,3 +12,22 @@ Set `DJANGO_WORKDIR=.` and `DJANGO_INTERNAL_ORIGIN=http://127.0.0.1:8000`. The g
 - `GET /health` checks both Node and Django.
 
 Payment secrets stay in Django's server environment and are never added to Node's public response or the mobile bundle. Render still needs a persistent PostgreSQL database and configured Paystack/email credentials.
+
+## Production release checks
+
+Before exposing the service, set `DEBUG=False`, a newly generated `SECRET_KEY`
+(at least 50 random characters), the exact `ALLOWED_HOSTS` and HTTPS
+`CSRF_TRUSTED_ORIGINS`, a persistent PostgreSQL `DATABASE_URL`, SMTP settings,
+and matching live Paystack keys (`pk_live_...` / `sk_live_...`) in the server
+environment. Keep media on persistent storage and back up both media and the
+database. Do not copy the development `.env` or SQLite database to production.
+
+Run `python manage.py migrate --noinput` and `python manage.py collectstatic
+--noinput` as deployment steps before restarting the service. Configure the
+Paystack dashboard webhook to `https://YOUR_DOMAIN/voting/webhook/paystack/`;
+this endpoint verifies the signed event and reconciles voting and package
+payments. The browser return callback also verifies directly with Paystack.
+
+For native app builds, set `EXPO_PUBLIC_API_BASE_URL` to the same public HTTPS
+origin. It defaults to `https://unwindafrica.com`; staging builds should set
+their own origin explicitly.

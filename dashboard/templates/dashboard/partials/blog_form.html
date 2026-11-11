@@ -1,56 +1,78 @@
-{# templates/dashboard/partials/blog_form.html #}
-{# expects: blog_form, editing (bool), and when editing: post #}
 {% load static widget_tweaks %}
+{% if editing and post %}{% url 'blog_edit' slug=post.slug as action_url %}{% else %}{% url 'blog_create' as action_url %}{% endif %}
 
-{% if editing and post %}
-  {% url 'blog_edit' slug=post.slug as action_url %}
-{% else %}
-  {% url 'blog_create' as action_url %}
-{% endif %}
-
-<form id="blogForm" method="post" action="{{ action_url }}" enctype="multipart/form-data" class="grid gap-4">
-  {% csrf_token %}
-
-  <div class="grid gap-1">
-    <label class="text-sm font-medium">Title</label>
-    {{ blog_form.title|add_class:"field ring-brand" }}
-    {{ blog_form.title.errors }}
+<section class="blog-studio">
+  <div class="blog-studio__return-row">
+    <button type="button" class="blog-studio__return" @click="setTab('overview')"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Return to dashboard</span></button>
+    <span class="blog-studio__workspace-label">EDITORIAL WORKSPACE <span aria-hidden="true">/</span> JOURNAL</span>
   </div>
+  <header class="blog-studio__header">
+    <div><p class="admin-kicker">Unwind Africa Journal</p><h1>{% if editing %}Edit article{% else %}Create a new article{% endif %}</h1><p>Build a polished story for the Unwind Africa journal.</p></div>
+    <div class="blog-studio__status"><span class="blog-studio__status-dot"></span><span>Autosave is off</span><small>Save draft when you are ready.</small></div>
+  </header>
 
-  <div class="grid gap-1">
-    <label class="text-sm font-medium">Category</label>
-    {{ blog_form.category|add_class:"field ring-brand" }}
-    {{ blog_form.category.errors }}
-  </div>
+  <form id="blogForm" method="post" action="{{ action_url }}" enctype="multipart/form-data" class="blog-studio__grid">
+    {% csrf_token %}
+    <div class="blog-studio__main">
+      <label class="blog-studio__label" for="{{ blog_form.title.id_for_label }}">Story title</label>
+      {{ blog_form.title|add_class:"blog-studio__title-input" }}
+      {{ blog_form.title.errors }}
+      <div class="blog-studio__meta-row">
+        <label class="blog-studio__label" for="{{ blog_form.category.id_for_label }}">Journal category</label>
+        {{ blog_form.category|add_class:"field ring-brand blog-studio__category" }}
+      </div>
 
-  <div class="grid gap-1">
-    <label class="text-sm font-medium">Content</label>
-    {{ blog_form.content|add_class:"field ring-brand" }}
-    {{ blog_form.content.errors }}
-  </div>
-
-  <div class="grid md:grid-cols-2 gap-3">
-    <div class="grid gap-1">
-      <label class="text-sm font-medium">Thumbnail</label>
-      {{ blog_form.thumbnail|add_class:"field ring-brand" }}
-      {{ blog_form.thumbnail.errors }}
+      <div class="blog-studio__editor-shell">
+        <div class="blog-studio__editor-head"><div><span class="blog-studio__eyebrow">THE STORY</span><h2>Write with room to breathe</h2></div><span class="blog-studio__word-count"><b id="blogWordCount">0</b> words</span></div>
+        <div class="blog-studio__toolbar" role="toolbar" aria-label="Story formatting">
+          <button type="button" onclick="window.blogFormat('bold')" title="Bold"><b>B</b></button>
+          <button type="button" onclick="window.blogFormat('italic')" title="Italic"><i>I</i></button>
+          <button type="button" onclick="window.blogFormat('underline')" title="Underline"><u>U</u></button>
+          <span aria-hidden="true"></span>
+          <button type="button" onclick="window.blogFormat('formatBlock','h2')" title="Section heading">H2</button>
+          <button type="button" onclick="window.blogFormat('formatBlock','h3')" title="Subheading">H3</button>
+          <button type="button" onclick="window.blogFormat('formatBlock','p')" title="Paragraph">Body</button>
+          <button type="button" onclick="window.blogFormat('formatBlock','blockquote')" title="Pull quote">“ ”</button>
+          <span aria-hidden="true"></span>
+          <button type="button" onclick="window.blogFormat('insertUnorderedList')" title="Bulleted list">• List</button>
+          <button type="button" onclick="window.blogFormat('insertOrderedList')" title="Numbered list">1. List</button>
+          <button type="button" onclick="window.blogFormat('justifyLeft')" title="Align left">Left</button>
+          <button type="button" onclick="window.blogFormat('justifyCenter')" title="Align center">Center</button>
+          <button type="button" onclick="window.blogFormat('insertHorizontalRule')" title="Section divider">Divider</button>
+          <span aria-hidden="true"></span>
+          <button type="button" onclick="window.insertBlogLink()" title="Insert link">Link</button>
+          <button type="button" onclick="window.insertBlogImage()" title="Insert image from URL">Image URL</button>
+          <button type="button" onclick="window.insertBlogVideo()" title="Embed a YouTube or Vimeo video">Video</button>
+          <button type="button" onclick="window.blogFormat('undo')" title="Undo">Undo</button>
+          <button type="button" onclick="window.blogFormat('redo')" title="Redo">Redo</button>
+          <button type="button" onclick="window.blogFormat('removeFormat')" title="Clear formatting">Clear</button>
+        </div>
+        {{ blog_form.content|add_class:"sr-only"|attr:"aria-hidden:true"|attr:"tabindex:-1" }}
+        <div id="blogRichEditor" data-rich-editor contenteditable="true" role="textbox" aria-label="Blog story content" aria-multiline="true" data-placeholder="Begin with a moment, a place, or a useful idea…" oninput="window.updateBlogMetrics(this)"></div>
+        <div class="blog-studio__editor-foot"><span>Use headings and short paragraphs to make the story easy to read.</span><span>Formatting is cleaned before publishing.</span></div>
+      </div>
     </div>
-    <div class="grid gap-1">
-      <label class="text-sm font-medium">Image</label>
-      {{ blog_form.image|add_class:"field ring-brand" }}
-      {{ blog_form.image.errors }}
-    </div>
-  </div>
 
-  {# Remove the hidden action input - it conflicts with form.action #}
-  {# The action is set dynamically in JavaScript via data.set("action", ...) #}
+    <aside class="blog-studio__rail">
+      <section class="blog-studio__rail-card"><p class="blog-studio__eyebrow">PUBLISHING</p><h3>Prepare the story</h3><p class="blog-studio__hint">Choose an image with a clear subject and enough detail for the journal card.</p>
+        <div class="blog-studio__author-lock"><span>AUTHOR</span><strong>Unwind Africa Admin</strong><small>Published under the journal team.</small></div>
+        <label class="blog-studio__label" for="{{ blog_form.publication_date.id_for_label }}">Publication date</label>
+        {{ blog_form.publication_date|add_class:"field ring-brand blog-studio__excerpt blog-studio__metadata-input" }}{{ blog_form.publication_date.errors }}
+        <label class="blog-studio__label" for="{{ blog_form.tags.id_for_label }}">Story tags <small>Comma separated</small></label>
+        {{ blog_form.tags|add_class:"field ring-brand blog-studio__metadata-input" }}{{ blog_form.tags.errors }}
+        <label class="blog-studio__label" for="{{ blog_form.design_template.id_for_label }}">Article layout</label>
+        {{ blog_form.design_template|add_class:"field ring-brand blog-studio__category blog-studio__layout-select" }}
+        <label class="blog-studio__label" for="{{ blog_form.excerpt.id_for_label }}">Journal introduction <small>Optional</small></label>
+        {{ blog_form.excerpt|add_class:"field ring-brand blog-studio__excerpt" }}{{ blog_form.excerpt.errors }}
+        <label class="blog-studio__label" for="{{ blog_form.thumbnail.id_for_label }}">Card image <em>Required</em></label>
+        {{ blog_form.thumbnail|add_class:"blog-studio__file" }}{{ blog_form.thumbnail.errors }}
+        <label class="blog-studio__label blog-studio__image-label" for="{{ blog_form.image.id_for_label }}">Article image <small>Optional</small></label>
+        {{ blog_form.image|add_class:"blog-studio__file"|attr:"onchange:window.previewBlogImage(this)" }}{{ blog_form.image.errors }}
+        <label class="blog-studio__featured">{{ blog_form.is_featured }}<span><b>Feature this story</b><small>Give it priority in the journal.</small></span></label>
+      </section>
+      <section class="blog-studio__rail-card blog-studio__preview-card"><div class="blog-studio__preview-tools"><p class="blog-studio__eyebrow">LIVE ARTICLE PREVIEW</p><div role="group" aria-label="Preview width"><button type="button" onclick="window.setBlogPreview('wide')" aria-label="Wide preview">Wide</button><button type="button" onclick="window.setBlogPreview('tablet')" aria-label="Tablet preview">Tablet</button><button type="button" onclick="window.setBlogPreview('mobile')" aria-label="Mobile preview">Mobile</button></div></div><article id="blogArticlePreview" class="blog-studio__preview" data-template="editorial" data-width="wide"><img id="blogPreviewImage" alt="Article image preview" hidden><p id="blogPreviewCategory" class="blog-studio__preview-category">Travel</p><h3 id="blogPreviewTitle">Your story title</h3><p id="blogPreviewSummary">A short introduction will appear here as you write.</p><div class="blog-studio__preview-meta"><span id="blogPreviewAuthor">Unwind Africa Admin</span><span id="blogPreviewDate"></span><span id="blogPreviewRead">1 min read</span></div><div id="blogPreviewTags" class="blog-studio__preview-tags"></div><div id="blogPreviewContent" class="blog-studio__preview-content">Your article text will appear here as you write.</div></article></section>
+      <section class="blog-studio__actions"><button type="button" class="btn-ghost" @click="submitBlog(false)"><i class="fa-regular fa-floppy-disk mr-2"></i>Save as draft</button><button type="button" class="btn-primary" @click="submitBlog(true)"><i class="fa-solid fa-arrow-up-right-from-square mr-2"></i>Publish story</button><p>Publishing makes this story visible in the Journal.</p></section>
+    </aside>
+  </form>
+</section>
 
-  <button type="button" class="btn-ghost" @click="submitBlog(false)">
-    Save Draft
-  </button>
-
-  <button type="button" class="btn-primary" @click="submitBlog(true)">
-    Publish
-  </button>
-
-</form>

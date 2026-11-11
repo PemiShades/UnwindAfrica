@@ -1,4 +1,4 @@
-﻿{% load static %}
+﻿{% load static humanize %}
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
@@ -112,7 +112,7 @@
     ::-webkit-scrollbar-thumb { background: rgba(100,100,120,.35); border-radius: 999px; }
     .dark ::-webkit-scrollbar-thumb { background: rgba(180,180,200,.25); }
   </style>
-  <link rel="stylesheet" href="{% static 'css/admin-dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin-dashboard.css' %}?v=20261110-2">
   <script>
     document.documentElement.classList.add('admin-loading');
     window.addEventListener('load', () => {
@@ -136,7 +136,7 @@
   <div class="board admin-app">
     <div class="flex h-screen">
       <!-- Sidebar -->
-      <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
+      <aside :class="(sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0') + (tab==='create_blog' ? ' admin-sidebar--hidden' : '')"
              class="admin-sidebar fixed md:static z-40 inset-y-0 left-0 w-72 p-5 transition-transform duration-300">
         <div class="admin-sidebar__panel shadow-soft rounded-3xl h-full flex flex-col">
           <div class="admin-brand flex items-center justify-between px-3 py-4">
@@ -226,9 +226,9 @@
       </aside>
 
       <!-- Main Content -->
-      <div class="admin-main flex-1 flex flex-col overflow-hidden">
+      <div :class="tab==='create_blog' ? 'admin-main admin-main--editor flex-1 flex flex-col overflow-hidden' : 'admin-main flex-1 flex flex-col overflow-hidden'">
         <!-- Header -->
-        <header class="admin-topbar shadow-soft rounded-2xl px-4 py-3 flex items-center gap-3 m-4 md:m-6">
+        <header :class="tab==='create_blog' ? 'admin-topbar admin-topbar--hidden shadow-soft rounded-2xl px-4 py-3 flex items-center gap-3 m-4 md:m-6' : 'admin-topbar shadow-soft rounded-2xl px-4 py-3 flex items-center gap-3 m-4 md:m-6'">
           <button class="md:hidden btn-ghost" @click="sidebarOpen=true" aria-label="Open sidebar"><i class="fa-solid fa-bars"></i></button>
           <div class="admin-topbar__title">
             <strong>CMS Dashboard</strong>
@@ -238,6 +238,7 @@
             <input type="search" placeholder="Search posts, events, users…" class="field ring-brand" />
             <span class="absolute right-2 top-1/2 -translate-y-1/2 text-xs opacity-70">/</span>
           </div>
+          <a href="{% url 'export_all_dashboard_data' %}" class="btn-ghost" title="Download every CMS data table as CSV files in a ZIP archive"><i class="fa-solid fa-file-csv mr-2"></i><span class="hidden sm:inline">Export all data</span></a>
           <button @click="setTab('notifications')" class="btn-ghost relative" aria-label="Notifications">
             <i class="fa-regular fa-bell"></i>
             <span class="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 text-[10px] rounded-full text-white"
@@ -447,14 +448,6 @@
 
         <!-- Content Switcher -->
         <main class="grid gap-6">
-          <section class="admin-hero">
-            <div>
-              <p class="admin-kicker">Unwind Africa operations</p>
-              <h1>Run the brand with the same care guests feel on arrival.</h1>
-              <p>Monitor content, campaigns, rest cards, books, and community touchpoints from one calm workspace.</p>
-            </div>
-          </section>
-
           <!-- OVERVIEW -->
           <div x-show="tab==='overview'">
             <section class="grid gap-6">
@@ -496,11 +489,11 @@
               <div class="grid lg:grid-cols-3 gap-6">
                 <div class=" panel-sky rounded-2xl p-4 shadow-soft lg:col-span-2 h-[280px]">
                   <div class="flex items-center justify-between mb-3">
-                    <h3 class="font-bold">Engagement (7d)</h3>
+                    <h3 class="font-bold">Voting activity <span class="ml-1 text-xs font-normal opacity-60" x-text="`· ${engagementMonths} months`"></span></h3>
                     <div class="flex items-center gap-2 text-xs">
-                      <button class="btn-ghost">7d</button>
-                      <button class="btn-ghost">30d</button>
-                      <button class="btn-ghost">90d</button>
+                      <button @click="setEngagementRange(3)" :aria-pressed="engagementMonths===3" :class="engagementMonths===3 ? 'btn-primary' : 'btn-ghost'">3m</button>
+                      <button @click="setEngagementRange(6)" :aria-pressed="engagementMonths===6" :class="engagementMonths===6 ? 'btn-primary' : 'btn-ghost'">6m</button>
+                      <button @click="setEngagementRange(12)" :aria-pressed="engagementMonths===12" :class="engagementMonths===12 ? 'btn-primary' : 'btn-ghost'">12m</button>
                     </div>
                   </div>
                   <div class="h-[200px]"><canvas id="chart-overview"></canvas></div>
@@ -512,16 +505,16 @@
                     <div class="grid gap-2">
                       <a @click.prevent="setTab('create_blog')" href="#" class="btn-primary">Create Blog Post</a>
                       <button @click="openEventModal()" class="btn-ghost border border-purple-400/30 hover:border-purple-400/60">Schedule Event</button>
-                      <a href="/tiaras-grateful-heart" class="btn-ghost border border-emerald-400/30 hover:border-emerald-400/60">Open Book Page</a>
+                      <a href="/test/#book" class="btn-ghost border border-emerald-400/30 hover:border-emerald-400/60">Open Book Page</a>
                     </div>
                   </div>
 
                   <div class=" rounded-2xl p-4 shadow-soft">
                     <h3 class="font-bold mb-2">System</h3>
                     <ul class="text-sm space-y-1 opacity-80">
-                      <li>Uptime <span class="text-emerald-600 dark:text-emerald-400 font-semibold">99.9%</span></li>
-                      <li>API latency <span class="font-medium">220ms</span></li>
-                      <li>Build <span class="font-mono">#{{ now|date:'Y.m.d' }}</span></li>
+                      <li>Environment <span class="font-semibold">{% if debug %}Development{% else %}Production{% endif %}</span></li>
+                      <li>Email channel <span class="font-medium">{{ email_delivery.backend }}</span></li>
+                      <li>Staff recipients <span class="font-medium">{{ email_delivery.recipient_count }}</span></li>
                     </ul>
                   </div>
                 </div>
@@ -556,7 +549,7 @@
                   <div class="text-xs opacity-70">Total Revenue</div>
                   <div class="text-2xl font-extrabold">
                     {% with total=total_revenue %}
-                      {% if total %}₦{{ total|floatformat:0 }}{% else %}₦0{% endif %}
+                      {% if total %}₦{{ total|floatformat:0|intcomma }}{% else %}₦0{% endif %}
                     {% endwith %}
                   </div>
                   <div class="text-xs opacity-70">From successful transactions</div>
@@ -659,7 +652,7 @@
                         <span class="opacity-70">Revenue Generated</span>
                         <span class="font-bold text-lg text-green-400">
                           {% with total=total_revenue %}
-                            {% if total %}₦{{ total|floatformat:0 }}{% else %}₦0{% endif %}
+                            {% if total %}₦{{ total|floatformat:0|intcomma }}{% else %}₦0{% endif %}
                           {% endwith %}
                         </span>
                       </div>
@@ -755,7 +748,7 @@
                         <td class="py-3">{{ transaction.nominee.name }}</td>
                         <td class="py-3">{{ transaction.campaign.name }}</td>
                         <td class="py-3">{{ transaction.vote_count }}</td>
-                        <td class="py-3">₦{{ transaction.amount|floatformat:0 }}</td>
+                        <td class="py-3">₦{{ transaction.amount|floatformat:0|intcomma }}</td>
                         <td class="py-3">
                           <span class="px-3 py-1 text-xs rounded-full {% if transaction.status == 'success' %}bg-green-500/20 text-green-400 border border-green-500/30{% elif transaction.status == 'pending' %}bg-yellow-500/20 text-yellow-400 border border-yellow-500/30{% else %}bg-red-500/20 text-red-400 border border-red-500/30{% endif %}">
                             {{ transaction.status }}
@@ -1100,6 +1093,45 @@
                 <p>Set package prices, savings-plan durations, instalment charges and optional add-on prices. Changes apply instantly to checkout calculations.</p>
               </div>
 
+              <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <article class="kpi"><span class="text-xs uppercase tracking-wider opacity-65">Payment attempts</span><strong class="text-2xl">{{ payment_counts.total }}</strong><span class="text-xs opacity-60">Recorded across package orders</span></article>
+                <article class="kpi"><span class="text-xs uppercase tracking-wider opacity-65">Started</span><strong class="text-2xl text-amber-300">{{ payment_counts.started }}</strong><span class="text-xs opacity-60">Awaiting verified completion</span></article>
+                <article class="kpi"><span class="text-xs uppercase tracking-wider opacity-65">Successful</span><strong class="text-2xl text-emerald-300">{{ payment_counts.successful }}</strong><span class="text-xs opacity-60">Confirmed by Paystack</span></article>
+                <article class="kpi"><span class="text-xs uppercase tracking-wider opacity-65">Failed</span><strong class="text-2xl text-rose-300">{{ payment_counts.failed }}</strong><span class="text-xs opacity-60">May need follow-up</span></article>
+              </div>
+
+              <div class="rounded-2xl p-6 shadow-soft bg-white/5 border border-white/10">
+                <div class="flex flex-wrap justify-between items-start gap-3 mb-4">
+                  <div><p class="admin-kicker">Payment activity</p><h3 class="text-xl font-bold">Recent payment attempts</h3><p class="text-sm opacity-65 mt-1">A payment is marked successful only after Paystack verification.</p></div>
+                  <a class="btn-ghost" href="{% url 'admin:Web_packagepayment_changelist' %}">Open full payment ledger <i class="fa-solid fa-arrow-up-right-from-square ml-1" aria-hidden="true"></i></a>
+                </div>
+                <div class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/10 px-4 py-3 text-xs">
+                  <span><strong class="mr-2">Email delivery · {{ email_delivery.backend }}</strong>{% if email_delivery.console_mode %}<span class="text-amber-200">Local console mode: messages are logged by Django and are not sent to inboxes.</span>{% elif email_delivery.smtp_ready and email_delivery.recipient_count %}<span class="text-emerald-200">SMTP credentials are present; {{ email_delivery.recipient_count }} staff recipient(s) can receive payment notices.</span>{% else %}<span class="text-rose-200">Email delivery needs SMTP credentials and at least one staff recipient address.</span>{% endif %}</span>
+                  <span class="opacity-60">Guest receipts are sent to the email on each order.</span>
+                </div>
+                {% if package_payments %}
+                <div class="overflow-x-auto">
+                  <table class="w-full min-w-[780px] text-sm">
+                    <thead><tr class="border-b border-white/10 text-left"><th class="py-3 pr-4">Customer</th><th class="py-3 pr-4">Experience</th><th class="py-3 pr-4">Amount</th><th class="py-3 pr-4">Reference</th><th class="py-3 pr-4">State</th><th class="py-3 pr-4">Email notices</th><th class="py-3">Attempt created</th></tr></thead>
+                    <tbody>
+                      {% for payment in package_payments %}
+                      <tr class="border-b border-white/5">
+                        <td class="py-3 pr-4"><span class="block font-semibold">{{ payment.order.customer_name|default:payment.order.customer_email }}</span><span class="text-xs opacity-60">{{ payment.order.customer_email }}</span></td>
+                        <td class="py-3 pr-4">{{ payment.order.package.name }} <span class="opacity-55">· order #{{ payment.order_id }}</span></td>
+                        <td class="py-3 pr-4 font-semibold">₦{{ payment.amount|floatformat:0|intcomma }}</td>
+                        <td class="py-3 pr-4 font-mono text-xs">{{ payment.paystack_reference|default:payment.reference }}</td>
+                        <td class="py-3 pr-4"><span class="px-2.5 py-1 rounded-full text-xs {% if payment.status == 'success' %}bg-emerald-400/10 text-emerald-300{% elif payment.status == 'pending' %}bg-amber-300/10 text-amber-200{% else %}bg-rose-400/10 text-rose-300{% endif %}">{% if payment.status == 'pending' %}Started{% else %}{{ payment.get_status_display }}{% endif %}</span></td>
+                        <td class="py-3 pr-4 text-xs"><span class="{% if payment.admin_confirmation_sent_at or payment.started_email_sent_at %}text-emerald-300{% else %}text-amber-200{% endif %}">{% if payment.status == 'pending' %}{% if payment.started_email_sent_at %}Staff notified{% else %}No delivery record{% endif %}{% else %}{% if payment.admin_confirmation_sent_at %}Staff notified{% else %}No delivery record{% endif %}{% endif %}</span>{% if payment.status == 'success' %}<span class="block mt-1 {% if payment.customer_confirmation_sent_at %}text-emerald-300{% else %}text-amber-200{% endif %}">{% if payment.customer_confirmation_sent_at %}Guest emailed{% else %}No delivery record{% endif %}</span>{% endif %}<button type="button" @click="retryPaymentEmails({{ payment.id }})" class="mt-2 block text-emerald-200 underline underline-offset-2">Retry notices</button></td>
+                        <td class="py-3 text-xs opacity-70">{{ payment.paid_at|date:"M j, Y · g:i a" }}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                {% else %}<div class="py-8 text-center text-sm opacity-60">No package payment attempts have been recorded yet.</div>{% endif %}
+                <p class="mt-4 text-xs opacity-55">Showing the latest 50 attempts, from the time each attempt was created. Use the full payment ledger to search all records and filter by status.</p>
+              </div>
+
               <!-- Packages -->
               <div class="rounded-2xl p-6 shadow-soft bg-white/5 border border-white/10">
                 <div class="flex justify-between items-center mb-4">
@@ -1123,9 +1155,9 @@
                     {% for p in packages %}
                     <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
                       <td class="py-3">{{ p.name }}</td>
-                      <td class="text-right py-3 font-bold">₦{{ p.price_per_person|floatformat:0 }}</td>
+                      <td class="text-right py-3 font-bold">₦{{ p.price_per_person|floatformat:0|intcomma }}</td>
                       <td class="text-right py-3">{{ p.instalment_charge_percent }}%</td>
-                      <td class="text-right py-3">₦{{ p.instalment_charge_flat|floatformat:0 }}</td>
+                      <td class="text-right py-3">₦{{ p.instalment_charge_flat|floatformat:0|intcomma }}</td>
                       <td class="py-3">{{ p.available_durations }}</td>
                       <td class="text-center py-3"><span class="px-2 py-1 text-xs rounded-full {% if p.is_active %}bg-green-500/20 text-green-400 border border-green-500/30{% else %}bg-red-500/20 text-red-400 border border-red-500/30{% endif %}">{% if p.is_active %}Yes{% else %}No{% endif %}</span></td>
                       <td class="text-center py-3">
@@ -1162,8 +1194,8 @@
                     {% for a in addons %}
                     <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
                       <td class="py-3">{{ a.name }}</td>
-                      <td class="text-right py-3 font-bold">₦{{ a.price|floatformat:0 }}</td>
-                      <td class="text-right py-3 text-gray-400">₦{{ a.regular_price|floatformat:0 }}</td>
+                      <td class="text-right py-3 font-bold">₦{{ a.price|floatformat:0|intcomma }}</td>
+                      <td class="text-right py-3 text-gray-400">₦{{ a.regular_price|floatformat:0|intcomma }}</td>
                       <td class="text-center py-3"><span class="px-2 py-1 text-xs rounded-full {% if a.is_active %}bg-green-500/20 text-green-400 border border-green-500/30{% else %}bg-red-500/20 text-red-400 border border-red-500/30{% endif %}">{% if a.is_active %}Yes{% else %}No{% endif %}</span></td>
                       <td class="text-center py-3">
                         <button @click="editAddon({{ a.id }})" class="text-xs btn-ghost border border-indigo-400/30 hover:border-indigo-400/60">Edit</button>
@@ -1199,10 +1231,10 @@
                     <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
                       <td class="py-3">{{ o.customer_name|default:o.customer_email }}</td>
                       <td class="py-3">{{ o.package.name }}</td>
-                      <td class="text-right py-3 font-bold">₦{{ o.grand_total|floatformat:0 }}</td>
-                      <td class="text-right py-3">₦{{ o.amount_paid|floatformat:0 }}</td>
-                      <td class="text-right py-3">₦{{ o.outstanding_balance|floatformat:0 }}</td>
-                      <td class="text-right py-3">{% if o.rest_forward_selected %}₦{{ o.rest_forward_balance|floatformat:0 }}{% else %}&mdash;{% endif %}</td>
+                      <td class="text-right py-3 font-bold">₦{{ o.grand_total|floatformat:0|intcomma }}</td>
+                      <td class="text-right py-3">₦{{ o.amount_paid|floatformat:0|intcomma }}</td>
+                      <td class="text-right py-3">₦{{ o.outstanding_balance|floatformat:0|intcomma }}</td>
+                      <td class="text-right py-3">{% if o.rest_forward_selected %}₦{{ o.rest_forward_balance|floatformat:0|intcomma }}{% else %}&mdash;{% endif %}</td>
                       <td class="text-center py-3"><span class="px-2 py-1 text-xs rounded-full {% if o.status == 'completed' %}bg-green-500/20 text-green-400 border border-green-500/30{% elif o.status == 'pending' %}bg-yellow-500/20 text-yellow-400 border border-yellow-500/30{% else %}bg-red-500/20 text-red-400 border border-red-500/30{% endif %}">{{ o.get_status_display }}</span></td>
                     </tr>
                     {% endfor %}
@@ -1263,10 +1295,8 @@
 
           <!-- CREATE BLOG -->
           <template x-if="tab==='create_blog'">
-            <section class="grid gap-6">
-              <div class=" rounded-2xl p-4 shadow-soft">
-                {% include 'dashboard/partials/blog_form.html' with blog_form=post_form only %}
-              </div>
+            <section class="blog-editor-screen">
+              {% include 'dashboard/partials/blog_form.html' with blog_form=post_form only %}
             </section>
           </template>
 
@@ -1286,7 +1316,7 @@
                 <h3 class="font-bold text-lg">Events</h3>
                 <div class="flex gap-2">
                   <button @click="openEventModal()" class="btn-primary"><i class="fa-solid fa-plus mr-2"></i>New Event</button>
-                  <button class="btn-ghost border border-emerald-400/30 hover:border-emerald-400/60"><i class="fa-solid fa-file-export mr-2"></i>Export</button>
+                  <a href="{% url 'export_all_dashboard_data' %}" class="btn-ghost border border-emerald-400/30 hover:border-emerald-400/60"><i class="fa-solid fa-file-export mr-2"></i>Export data</a>
                 </div>
               </div>
               <div class=" rounded-2xl p-4 shadow-soft">
@@ -1302,48 +1332,28 @@
   </div>
 
   <!-- Event Modal -->
-  <div id="eventModal" x-show="showEventModal" x-transition.opacity class="fixed inset-0 z-50 grid place-items-center p-4" x-cloak>
-    <div class="absolute inset-0 bg-black/50" @click="closeEventModal()"></div>
-    <div class="relative w-full max-w-2xl  rounded-3xl shadow-soft p-6 overflow-y-auto max-h-[90vh]">
-      <h2 class="text-xl font-bold mb-4" x-text="editingEvent ? 'Edit Event' : 'Add Event'"></h2>
-      <form method="post" :action="eventFormAction" enctype="multipart/form-data" class="grid gap-3">
+  <div id="eventModal" x-show="showEventModal" x-transition.opacity class="fixed inset-0 z-[70] grid place-items-center bg-black/70 backdrop-blur-sm p-4" x-cloak @keydown.escape.window="closeEventModal()">
+    <div class="absolute inset-0" @click="closeEventModal()"></div>
+    <section class="event-editor relative w-full max-w-3xl max-h-[92vh] overflow-y-auto rounded-2xl shadow-2xl">
+      <header class="event-editor__head sticky top-0 z-10 flex items-start justify-between gap-4 px-6 py-5">
+        <div><p class="admin-kicker">Unwind Africa calendar</p><h2 class="text-2xl font-semibold" x-text="editingEvent ? 'Edit event' : 'Create an event'"></h2><p class="mt-1 text-sm">Give guests the essential details and a clear visual preview.</p></div>
+        <button type="button" @click="closeEventModal()" class="btn-ghost" aria-label="Close event editor"><i class="fa-solid fa-xmark"></i></button>
+      </header>
+      <form method="post" :action="eventFormAction" @submit.prevent="submitEvent()" enctype="multipart/form-data" class="grid gap-5 p-6">
         {% csrf_token %}
-        <label class="text-sm font-medium">Event Name</label>
-        <input type="text" name="name" x-model="eventForm.name" class="field ring-brand" required>
-
-        <label class="text-sm font-medium">Description</label>
-        <textarea name="description" x-model="eventForm.description" rows="4" class="field ring-brand" required></textarea>
-
-        <div class="grid md:grid-cols-3 gap-3">
-          <div>
-            <label class="text-sm font-medium">Date</label>
-            <input type="date" name="date" x-model="eventForm.date" class="field ring-brand w-full" required>
-          </div>
-          <div class="md:col-span-2">
-            <label class="text-sm font-medium">Location</label>
-            <input type="text" name="location" x-model="eventForm.location" class="field ring-brand w-full" required>
-          </div>
+        <label class="event-editor__field block text-sm font-medium">Event name<input type="text" name="name" x-model="eventForm.name" class="field ring-brand mt-2 w-full" placeholder="Name this experience" required></label>
+        <label class="event-editor__field block text-sm font-medium">Description<textarea name="description" x-model="eventForm.description" rows="5" class="field ring-brand mt-2 w-full" placeholder="What should guests know?" required></textarea></label>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="event-editor__field block text-sm font-medium">Date<input type="date" name="date" x-model="eventForm.date" class="field ring-brand mt-2 w-full" required></label>
+          <label class="event-editor__field block text-sm font-medium">Location<input type="text" name="location" x-model="eventForm.location" class="field ring-brand mt-2 w-full" placeholder="Venue or destination" required></label>
         </div>
-
-        <div class="grid md:grid-cols-2 gap-3">
-          <div>
-            <label class="text-sm font-medium">Thumbnail</label>
-            <template x-if="eventForm.thumbnail"><img :src="eventForm.thumbnail" alt="Current Thumbnail" class="w-32 h-32 object-cover rounded-xl mb-2"></template>
-            <input type="file" name="thumbnail" class="field ring-brand file:mr-3 file:px-3 file:py-2 file:rounded-lg file:border-0 file:text-white file:cursor-pointer file:bg-gradient-to-r file:from-purple-500 file:to-indigo-500 w-full text-sm">
-          </div>
-          <div>
-            <label class="text-sm font-medium">Event Flier</label>
-            <template x-if="eventForm.flier"><img :src="eventForm.flier" alt="Current Flier" class="w-32 h-32 object-cover rounded-xl mb-2"></template>
-            <input type="file" name="flier" class="field ring-brand file:mr-3 file:px-3 file:py-2 file:rounded-lg file:border-0 file:text-white file:cursor-pointer file:bg-gradient-to-r file:from-emerald-500 file:to-teal-500 w-full text-sm">
-          </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="event-editor__field event-editor__upload block text-sm font-medium">Thumbnail<template x-if="eventForm.thumbnail"><img :src="eventForm.thumbnail" alt="Current event thumbnail" class="mt-3 h-36 w-full rounded-xl object-cover"></template><input type="file" name="thumbnail" accept="image/*" :required="!editingEvent" class="field ring-brand mt-2 w-full text-sm"></label>
+          <label class="event-editor__field event-editor__upload block text-sm font-medium">Event flier<template x-if="eventForm.flier"><img :src="eventForm.flier" alt="Current event flier" class="mt-3 h-36 w-full rounded-xl object-cover"></template><input type="file" name="flier" accept="image/*" :required="!editingEvent" class="field ring-brand mt-2 w-full text-sm"></label>
         </div>
-
-        <div class="flex justify-end gap-2 pt-2">
-          <button type="button" @click="closeEventModal()" class="btn-ghost">Cancel</button>
-          <button type="submit" class="btn-primary">Save</button>
-        </div>
+        <footer class="event-editor__footer flex flex-col-reverse gap-3 pt-5 sm:flex-row sm:justify-end"><button type="button" @click="closeEventModal()" class="btn-ghost">Cancel</button><button type="submit" class="btn-primary"><i class="fa-solid fa-check mr-2"></i><span x-text="editingEvent ? 'Save changes' : 'Create event'"></span></button></footer>
       </form>
-    </div>
+    </section>
   </div>
 
   <!-- Rest Card Edit Modal -->
@@ -1603,6 +1613,54 @@
         </button>
       </div>
     </div>
+  </div>
+
+  <!-- Package editor -->
+  <div x-show="showPkgModal" x-transition.opacity class="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" x-cloak @keydown.escape.window="closePkgModal()">
+    <section class="w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#111411] text-white shadow-2xl" @click.outside="closePkgModal()">
+      <header class="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-white/10 bg-[#111411] px-6 py-5">
+        <div><p class="admin-kicker">Experience catalogue</p><h2 class="text-2xl font-semibold" x-text="pkgModal.id ? 'Edit package' : 'Add package'"></h2><p class="mt-1 text-sm text-white/60">Set the price and savings terms used by checkout.</p></div>
+        <button type="button" @click="closePkgModal()" class="btn-ghost" aria-label="Close package editor"><i class="fa-solid fa-xmark"></i></button>
+      </header>
+      <form @submit.prevent="savePkg()" class="space-y-5 p-6">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="block text-sm sm:col-span-2">Package name<input required maxlength="255" x-model.trim="pkgModal.name" class="field ring-brand mt-2 w-full" placeholder="e.g. Couples Escape" /></label>
+          <label class="block text-sm">Price (₦)<input required type="number" min="0" step="0.01" x-model="pkgModal.price_per_person" class="field ring-brand mt-2 w-full" /></label>
+          <label class="block text-sm">Instalment charge (%)<input type="number" min="0" step="0.01" x-model="pkgModal.instalment_charge_percent" class="field ring-brand mt-2 w-full" /></label>
+          <label class="block text-sm">Flat charge per month (₦)<input type="number" min="0" step="0.01" x-model="pkgModal.instalment_charge_flat" class="field ring-brand mt-2 w-full" /></label>
+          <label class="block text-sm">Plan durations (months)<input required x-model.trim="pkgModal.available_durations" class="field ring-brand mt-2 w-full" placeholder="3,6,9,12" /><span class="mt-1 block text-xs text-white/50">Comma separated, for example 3,6,9,12.</span></label>
+          <label class="block text-sm sm:col-span-2">Short description<input x-model="pkgModal.short_description" class="field ring-brand mt-2 w-full" /></label>
+          <label class="block text-sm sm:col-span-2">Description<textarea rows="3" x-model="pkgModal.description" class="field ring-brand mt-2 w-full"></textarea></label>
+          <label class="block text-sm sm:col-span-2">What's included<textarea rows="4" x-model="pkgModal.inclusions" class="field ring-brand mt-2 w-full" placeholder="One inclusion per line"></textarea></label>
+        </div>
+        <label class="flex items-center gap-3 text-sm"><input type="checkbox" x-model="pkgModal.is_active" class="h-4 w-4 accent-emerald-500" />Available for booking</label>
+        <footer class="flex flex-col-reverse gap-3 border-t border-white/10 pt-5 sm:flex-row sm:justify-end">
+          <button type="button" @click="closePkgModal()" class="btn-ghost">Cancel</button><button type="submit" class="btn-primary"><i class="fa-solid fa-check mr-2"></i>Save package</button>
+        </footer>
+      </form>
+    </section>
+  </div>
+
+  <!-- Add-on editor -->
+  <div x-show="showAddonModal" x-transition.opacity class="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" x-cloak @keydown.escape.window="closeAddonModal()">
+    <section class="w-full max-w-xl max-h-[92vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#111411] text-white shadow-2xl" @click.outside="closeAddonModal()">
+      <header class="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-white/10 bg-[#111411] px-6 py-5">
+        <div><p class="admin-kicker">Optional extra</p><h2 class="text-2xl font-semibold" x-text="addonModal.id ? 'Edit add-on' : 'Add add-on'"></h2><p class="mt-1 text-sm text-white/60">Set the customer price and reference price for this extra.</p></div>
+        <button type="button" @click="closeAddonModal()" class="btn-ghost" aria-label="Close add-on editor"><i class="fa-solid fa-xmark"></i></button>
+      </header>
+      <form @submit.prevent="saveAddon()" class="space-y-5 p-6">
+        <label class="block text-sm">Add-on name<input required maxlength="255" x-model.trim="addonModal.name" class="field ring-brand mt-2 w-full" placeholder="e.g. My Doctor & I" /></label>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="block text-sm">Customer price (₦)<input required type="number" min="0" step="0.01" x-model="addonModal.price" class="field ring-brand mt-2 w-full" /></label>
+          <label class="block text-sm">Regular price (₦)<input type="number" min="0" step="0.01" x-model="addonModal.regular_price" class="field ring-brand mt-2 w-full" /></label>
+        </div>
+        <label class="block text-sm">Description<textarea rows="3" x-model="addonModal.description" class="field ring-brand mt-2 w-full"></textarea></label>
+        <label class="flex items-center gap-3 text-sm"><input type="checkbox" x-model="addonModal.is_active" class="h-4 w-4 accent-emerald-500" />Available at checkout</label>
+        <footer class="flex flex-col-reverse gap-3 border-t border-white/10 pt-5 sm:flex-row sm:justify-end">
+          <button type="button" @click="closeAddonModal()" class="btn-ghost">Cancel</button><button type="submit" class="btn-primary"><i class="fa-solid fa-check mr-2"></i>Save add-on</button>
+        </footer>
+      </form>
+    </section>
   </div>
 
   <!-- Toasts -->

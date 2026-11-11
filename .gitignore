@@ -131,3 +131,6 @@ yarn-error.log
 *.key
 *.cert
 secrets.json
+
+# Local-only scratch pages, test fixtures, and unused source assets
+.local_archive/

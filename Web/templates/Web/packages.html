@@ -2,7 +2,12 @@
 {% load static %}
 
 {% block title %}Curated Getaways | Unwind Africa{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}"><link rel="stylesheet" href="{% static 'css/package-experiences.css' %}">{% endblock %}
+{% block meta_description %}Explore Unwind Africa getaways, from solo resets and couples escapes to group retreats and celebration experiences. Choose the experience that suits your time away.{% endblock %}
+{% block og_title %}Curated Getaways | Unwind Africa{% endblock %}
+{% block og_description %}Explore solo resets, couples escapes, group retreats, and celebration experiences by Unwind Africa.{% endblock %}
+{% block twitter_title %}Curated Getaways | Unwind Africa{% endblock %}
+{% block twitter_description %}Explore solo resets, couples escapes, group retreats, and celebration experiences by Unwind Africa.{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}?v=20261111"><link rel="stylesheet" href="{% static 'css/package-experiences.css' %}?v=20261111">{% endblock %}
 {% block content %}
 <main class="experience-page">
   <section class="experience-intro">
@@ -40,11 +45,7 @@
       {% with category=package.category %}
       <article class="experience-card" data-category="{{ category }}">
         <a class="experience-card__photo" href="{% url 'package_detail' package.slug %}" aria-label="Explore {{ package.name }}">
-          {% if package.flyer %}<img src="{{ package.flyer.url }}" alt="{{ package.name }} getaway" loading="lazy">
-          {% elif category == 'couples' %}<img src="{% static 'assets/home/photography/show_2.jpg' %}" alt="A couple sharing a moment together" loading="lazy">
-          {% elif category == 'family' %}<img src="{% static 'assets/home/family.jpg' %}" alt="A family enjoying time together by the sea" loading="lazy">
-          {% elif package.experience_duration == 'two_days_one_night' %}<img src="{% static 'assets/home/packages/sunset.jpg' %}" alt="Palm trees beside the sea at sunset" loading="lazy">
-          {% else %}<img src="{% static 'assets/home/photography/show_1.jpeg' %}" alt="Unwind Africa guests at a beach gathering" loading="lazy">{% endif %}
+          <img src="{{ package.card_image_url }}" alt="{{ package.name }} — an Unwind Africa {{ package.get_category_display|lower }} experience" loading="lazy">
           <span class="experience-card__number">0{{ forloop.counter }}</span>
           <span class="experience-card__duration">{{ package.get_experience_duration_display }}</span>
         </a>

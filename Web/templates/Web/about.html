@@ -2,9 +2,14 @@
 {% load static %}
 
 {% block title %}About Unwind Africa - Restorative Luxury Travel{% endblock %}
+{% block meta_description %}Learn about Unwind Africa and our approach to restorative travel, wellness retreats, cultural experiences, and thoughtful hospitality across Africa.{% endblock %}
+{% block og_title %}About Unwind Africa{% endblock %}
+{% block og_description %}Meet Unwind Africa and discover our approach to restorative travel and thoughtful hospitality.{% endblock %}
+{% block twitter_title %}About Unwind Africa{% endblock %}
+{% block twitter_description %}Meet Unwind Africa and discover our approach to restorative travel and thoughtful hospitality.{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}" />
+<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}?v=20261111" />
 {% endblock %}
 
 {% block content %}
@@ -47,44 +52,45 @@
   </section>
 
   <section class="ua-section ua-page-dark">
-    <div class="ua-wrap">
+    <div class="ua-wrap ua-method">
       <div class="ua-section-head">
         <p class="ua-kicker">The Unwind Method</p>
-        <h2 class="ua-title">Four disciplines guide every escape.</h2>
+        <h2 class="ua-title">Considered from the first welcome to the final morning.</h2>
+        <p class="ua-method-intro">A quieter kind of luxury is built through a sequence of thoughtful decisions. Each one shapes how an experience feels, not simply how it looks.</p>
       </div>
-      <div class="ua-grid">
-        <article class="ua-card">
-          <h3>Listen before designing</h3>
-          <p>We begin with what the guest needs to feel, not with a pre-built package. Pace, privacy, food, movement, and social energy are all considered.</p>
+      <div class="ua-method-grid">
+        <article class="ua-method-item">
+          <span class="ua-method-number">01</span><div><h3>Begin with how you want to feel</h3>
+          <p>We shape the pace, privacy, food, movement, and company around what would make this time away meaningful.</p></div>
         </article>
-        <article class="ua-card">
-          <h3>Curate with restraint</h3>
-          <p>Luxury is not doing everything. It is knowing what to remove so the guest can arrive, exhale, and feel held without being overmanaged.</p>
+        <article class="ua-method-item">
+          <span class="ua-method-number">02</span><div><h3>Make room for what matters</h3>
+          <p>We keep the details that deepen the experience and leave out anything that makes it feel overplanned.</p></div>
         </article>
-        <article class="ua-card">
-          <h3>Anchor the experience in place</h3>
-          <p>We use African landscapes, hospitality, cuisine, music, art, and rhythm with respect. The destination should feel alive, not staged.</p>
+        <article class="ua-method-item">
+          <span class="ua-method-number">03</span><div><h3>Let the place lead</h3>
+          <p>Landscape, cuisine, music, craft, and local hospitality are brought together with care and respect.</p></div>
         </article>
-        <article class="ua-card">
-          <h3>Protect the emotional arc</h3>
-          <p>Every journey moves from decompression to delight, then into a gentle re-entry. Guests should leave lighter than they arrived.</p>
+        <article class="ua-method-item">
+          <span class="ua-method-number">04</span><div><h3>Carry the feeling home</h3>
+          <p>From a gentle arrival to an unhurried return, the experience is designed to leave you with more ease than you came with.</p></div>
         </article>
       </div>
     </div>
   </section>
 
   <section class="ua-section">
-    <div class="ua-wrap ua-hero-grid">
-      <div class="ua-card">
+      <div class="ua-wrap ua-care-grid">
+      <div class="ua-card ua-care-card">
         <img class="ua-card-media" src="{% static 'assets/about/olivia-bauso-8qnHYPEKtU0-unsplash 1.jpg' %}" alt="A calm Unwind Africa arrival moment">
-        <h2>Our standard of care</h2>
-        <p>Warmth without intrusion. Beauty without noise. Structure without pressure. We build each experience around trust because restoration cannot happen when guests are still managing everything themselves.</p>
+        <p class="ua-kicker">The details guests remember</p><h2>Our standard of care</h2>
+        <p>Warmth that gives you room. Beauty with a sense of place. A thoughtful rhythm that lets you settle in. We take care of the moving parts so your attention can return to the people and moments in front of you.</p>
       </div>
-      <div class="ua-list">
+      <div class="ua-list ua-care-list">
         <div class="ua-list-item">
           <div>
             <h3>Concierge planning</h3>
-            <p>Private briefing, itinerary shaping, guest preferences, logistics, and thoughtful arrival details.</p>
+            <p>Itinerary planning, guest preferences, logistics, and thoughtful arrival details.</p>
           </div>
         </div>
         <div class="ua-list-item">
@@ -111,39 +117,64 @@
 
   <section class="ua-section">
     <div class="ua-wrap">
-      <div class="ua-section-head">
+      <div class="ua-section-head ua-served-head">
         <p class="ua-kicker">Who we serve</p>
-        <h2 class="ua-title">Escapes for the moment life is asking for.</h2>
+        <h2 class="ua-title">Time away, shaped around what this season calls for.</h2>
+        <p class="ua-copy">A restorative pause can mean something different to everyone. Choose the feeling you want to make room for.</p>
       </div>
-      <div class="ua-list">
-        <div class="ua-list-item">
-          <div>
+      <div class="ua-served-grid">
+        <article class="ua-served-card ua-served-card--featured">
+          <span class="ua-served-index">01 / REST</span><div>
             <h3>Reset</h3>
             <p>For guests who need quiet, body care, nourishing food, and a slower internal tempo.</p>
           </div>
           <a class="ua-link-button" href="{% url 'packages' %}#solo">Solo resets</a>
-        </div>
-        <div class="ua-list-item">
-          <div>
+        </article>
+        <article class="ua-served-card">
+          <span class="ua-served-index">02 / TOGETHER</span><div>
             <h3>Romance</h3>
-            <p>Private escapes for couples who want attention, beauty, and intimacy without logistical stress.</p>
+            <p>Beautifully paced escapes for couples who want attention, intimacy, and time together.</p>
           </div>
           <a class="ua-link-button" href="{% url 'packages' %}#packages">Romantic escapes</a>
-        </div>
-        <div class="ua-list-item">
-          <div>
+        </article>
+        <article class="ua-served-card">
+          <span class="ua-served-index">03 / CELEBRATE</span><div>
             <h3>Celebration</h3>
             <p>Birthdays, proposals, weddings, and milestone weekends planned with elegance and emotional texture.</p>
           </div>
           <a class="ua-link-button" href="{% url 'packages' %}#photo">Celebrations</a>
-        </div>
-        <div class="ua-list-item">
-          <div>
+        </article>
+        <article class="ua-served-card">
+          <span class="ua-served-index">04 / GATHER</span><div>
             <h3>Corporate retreats</h3>
             <p>Offsites that help teams think clearly, reconnect, and return with renewed energy.</p>
           </div>
           <a class="ua-link-button" href="{% url 'packages' %}#group">Groups</a>
-        </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="ua-section ua-team-section">
+    <div class="ua-wrap">
+      <header class="ua-section-head ua-team-heading">
+        <p class="ua-kicker">The people behind each welcome</p>
+        <h2 class="ua-title">Care is carried by people.</h2>
+        <p class="ua-copy">The details guests remember begin with the people who listen, plan, host, and make every moment feel considered.</p>
+      </header>
+      <div class="ua-team-grid">
+        <article class="ua-team-card">
+          <img src="{% static 'assets/about/DSC_0745.jpg' %}" alt="A member of the Unwind Africa team" loading="lazy">
+          <div><span>01 · DIRECTION</span><h3>A point of view, made personal.</h3></div>
+        </article>
+        <article class="ua-team-card ua-team-card--offset">
+          <img src="{% static 'assets/about/DSC_0024.jpg' %}" alt="A member of the Unwind Africa team" loading="lazy">
+          <div><span>02 · EXPERIENCE</span><h3>Thought in every detail.</h3></div>
+        </article>
+        <article class="ua-team-card">
+          <img src="{% static 'assets/about/IMG-20250517-WA0019 (1).jpg' %}" alt="A member of the Unwind Africa team" loading="lazy">
+          <div><span>03 · HOSPITALITY</span><h3>A warm welcome, all the way through.</h3></div>
+        </article>
       </div>
     </div>
   </section>
@@ -156,7 +187,7 @@
         <p class="ua-copy">We will translate that into a considered Unwind Africa experience: destination, pace, service, wellness, culture, and the details that make it feel personal.</p>
       </div>
       <div class="ua-actions">
-        <a class="ua-button ua-button--light" href="{% url 'contact' %}">Start a private brief</a>
+        <a class="ua-button ua-button--light" href="{% url 'packages' %}">Explore our experiences</a>
         <a class="ua-button ua-button--ghost" href="{% url 'blog' %}">Read the journal</a>
       </div>
     </div>

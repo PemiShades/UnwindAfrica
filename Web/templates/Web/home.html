@@ -2,12 +2,17 @@
 {% load static %}
 
 {% block title %}Unwind Africa - Restorative Luxury Travel & Retreats{% endblock %}
+{% block meta_description %}Discover restorative escapes with Unwind Africa: thoughtfully hosted retreats, romantic getaways, wellness experiences, and group celebrations across Africa.{% endblock %}
+{% block og_title %}Unwind Africa | Restorative Luxury Getaways{% endblock %}
+{% block og_description %}Thoughtfully hosted retreats, romantic escapes, wellness experiences, and group celebrations across Africa.{% endblock %}
+{% block twitter_title %}Unwind Africa | Restorative Luxury Getaways{% endblock %}
+{% block twitter_description %}Thoughtfully hosted retreats, romantic escapes, wellness experiences, and group celebrations across Africa.{% endblock %}
 
 {% block extra_css %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'css/brand-home.css' %}?v=booking-collection-20261110">
+<link rel="stylesheet" href="{% static 'css/brand-home.css' %}?v=experience-path-20261110">
 {% endblock %}
 
 {% block content %}
@@ -21,7 +26,7 @@
           Private retreats, romantic escapes, and celebration weekends, thoughtfully planned around you.
         </p>
         <div class="hero-actions">
-          <a href="{% url 'contact' %}" class="ua-button ua-button--light">Begin a private brief</a>
+          <a href="{% url 'packages' %}" class="ua-button ua-button--light">Discover your escape</a>
           <a href="{% url 'packages' %}" class="ua-link">Explore experiences</a>
         </div>
       </div>
@@ -88,17 +93,17 @@
       </header>
       <div class="experience-gallery" aria-label="Unwind Africa experiences">
         <a class="experience-card" href="{% url 'packages' %}#getaways">
-          <img src="{% static 'assets/home/about-2.jpg' %}" alt="A woman enjoying a quiet moment beside a pool" loading="lazy">
+          <img src="{% static 'assets/home/optimized/book-solo.webp' %}" alt="A woman enjoying a quiet moment beside a pool" loading="lazy">
           <span class="experience-card__index">01 <i>RETREATS</i></span>
           <span class="experience-card__caption"><strong>Solo &amp; reset</strong><span>Space to return to yourself</span><b aria-hidden="true">&nearr;</b></span>
         </a>
         <a class="experience-card" href="{% url 'packages' %}#getaways">
-          <img src="{% static 'assets/home/packages/couple-enjoying-picnic-together-outdoors-summertime.jpg' %}" alt="A couple sharing a quiet sunset together" loading="lazy">
+          <img src="{% static 'assets/home/optimized/book-couples.webp' %}" alt="A couple sharing a quiet sunset together" loading="lazy">
           <span class="experience-card__index">02 <i>TOGETHER</i></span>
           <span class="experience-card__caption"><strong>Couples &amp; celebrations</strong><span>Private moments, beautifully held</span><b aria-hidden="true">&nearr;</b></span>
         </a>
         <a class="experience-card" href="{% url 'packages' %}#getaways">
-          <img src="{% static 'assets/home/group.jpeg' %}" alt="Friends celebrating together at sunset" loading="lazy">
+          <img src="{% static 'assets/home/optimized/book-groups.webp' %}" alt="Friends celebrating together at sunset" loading="lazy">
           <span class="experience-card__index">03 <i>IN COMPANY</i></span>
           <span class="experience-card__caption"><strong>Groups &amp; teams</strong><span>Room to reconnect and celebrate</span><b aria-hidden="true">&nearr;</b></span>
         </a>
@@ -106,16 +111,44 @@
     </div>
   </section>
 
+  <section class="ua-section nomination-section">
+    <div class="ua-container nomination-layout">
+      <div class="nomination-copy">
+        <p class="ua-kicker">Nominate to Unwind</p>
+        {% if campaign %}
+          <h2 class="ua-title">Give someone a reason to pause.</h2>
+          <p class="ua-subtitle">{{ campaign.tagline|default:"Tell us about someone who has spent a long time showing up for everyone else." }}</p>
+          <div class="nomination-meta"><span class="nomination-live"><i></i> CURRENT CAMPAIGN</span><span>{{ total_nominations }} stories shared</span>{% if days_remaining %}<span>{{ days_remaining }} days remaining</span>{% endif %}</div>
+          <a href="{{ campaign.get_absolute_url }}" class="nomination-link">Meet the nominees <span aria-hidden="true">&rarr;</span></a>
+        {% else %}
+          <h2 class="ua-title">Somebody in your life deserves room to breathe.</h2>
+          <p class="ua-subtitle">Share their story. When the next Nominate to Unwind campaign opens, their name can be part of it.</p>
+          <a href="{% url 'nominate' %}" class="nomination-link">Tell us who comes to mind <span aria-hidden="true">&rarr;</span></a>
+        {% endif %}
+      </div>
+      <div class="nomination-visual">
+        {% if campaign and campaign.banner_image %}
+          <img src="{{ campaign.banner_image.url }}" alt="{{ campaign.name }}" loading="lazy">
+        {% else %}
+          <img src="{% static 'assets/home/team_quote_img.png' %}" alt="People sharing a moment of rest and connection" loading="lazy">
+        {% endif %}
+        <span class="nomination-seal">REST<br>CHANGES<br>THINGS</span>
+      </div>
+    </div>
+  </section>
+
   <section class="ua-section booking-section">
-    <div class="ua-container">
+    <div class="ua-container booking-layout">
       <div class="booking-copy">
-        <p class="ua-kicker">Begin gently</p>
-        <h2 class="ua-title">Tell us what kind of rest you are ready to invest in.</h2>
-        <p class="ua-subtitle">
-          Share the occasion, the people, the pressure, and the feeling you want to leave with.
-          We will shape the right retreat around it.
-        </p>
-        <a href="{% url 'contact' %}" class="ua-button ua-button--light">Start your private brief</a>
+        <p class="ua-kicker">A more considered getaway</p>
+        <h2 class="ua-title">All you need to do is arrive.</h2>
+        <p class="ua-subtitle">Thoughtful places, warm hosting, and the small details that let you be fully present.</p>
+      </div>
+      <div class="booking-promises" aria-label="The Unwind Africa experience">
+        <div><span>01</span><strong>Beautifully considered</strong><p>Each experience is designed around its own sense of place.</p></div>
+        <div><span>02</span><strong>Easy to make yours</strong><p>Choose the getaway and options that feel right for you.</p></div>
+        <div><span>03</span><strong>Space to be present</strong><p>We take care of the details while you enjoy the moment.</p></div>
+        <a href="{% url 'packages' %}" class="ua-button ua-button--light">Explore all experiences</a>
       </div>
     </div>
   </section>

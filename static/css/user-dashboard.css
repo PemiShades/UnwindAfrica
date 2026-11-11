@@ -105,6 +105,25 @@
 .member-modal__card > p { color: var(--ua-muted); font-size: .9rem; line-height: 1.6; }
 .member-modal__card > p strong { color: var(--ua-ink); }
 .member-modal__actions { display: flex; justify-content: flex-end; gap: .75rem; }
+.member-payment-modal { z-index: 1600; backdrop-filter: blur(7px); }
+.member-payment-modal__card { width: min(480px, 100%); padding: clamp(1.4rem, 4vw, 2rem); border: 0; border-radius: 22px; }
+.member-payment-modal__eyebrow { display: block; margin-bottom: .4rem; color: var(--ua-accent-gold); font: 800 .62rem "Space Grotesk", sans-serif; letter-spacing: .18em; }
+.member-payment-modal__card .member-modal__header h2 { font-size: 1.55rem; }
+.member-payment-modal__intro { margin: .7rem 0 1.4rem !important; color: var(--ua-muted); font-size: .88rem; line-height: 1.6; }
+.member-payment-modal__form { display: grid; gap: 1.25rem; }
+.member-payment-modal__balance { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .75rem; padding: 1rem 1.05rem; border: 1px solid rgba(16, 55, 44, .1); border-radius: 13px; background: #f7f8f5; color: var(--ua-muted); font-size: .8rem; }
+.member-payment-modal__balance strong { color: var(--ua-ink); font: 700 1.08rem "Space Grotesk", sans-serif; font-variant-numeric: tabular-nums; }
+.member-payment-modal__field { display: grid; gap: .55rem; }
+.member-payment-modal__label { display: block; color: var(--ua-ink); font-size: .78rem; font-weight: 700; letter-spacing: .02em; }
+.member-payment-modal__input { display: flex; align-items: center; gap: .7rem; min-height: 56px; padding: 0 1rem; border: 1px solid #d9ded8; border-radius: 12px; background: #fff; }
+.member-payment-modal__input:focus-within { border-color: var(--ua-accent-gold); box-shadow: 0 0 0 3px rgba(185, 145, 57, .13); }
+.member-payment-modal__input > span { color: var(--ua-accent-gold); font: 700 1.1rem "Playfair Display", Georgia, serif; }
+.member-payment-modal__input input { display: block; width: 100%; min-width: 0; height: 54px; padding: .75rem 0; border: 0 !important; outline: 0; background: transparent !important; box-shadow: none !important; color: var(--ua-ink); font: 600 1.08rem "Space Grotesk", sans-serif; }
+.member-payment-modal__error { margin: .5rem 0 0 !important; color: #a53d34 !important; font-size: .8rem !important; }
+.member-payment-modal__card .member-modal__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .75rem; margin-top: .15rem; }
+.member-payment-modal__card .member-schedule-link { cursor: pointer; }
+.member-payment-modal__secure { display: block; margin-top: .9rem; color: var(--ua-muted); font-size: .7rem; text-align: center; }
+body.modal-open { overflow: hidden; }
 
 @media (max-width: 850px) {
   .member-overview, .member-content-grid { grid-template-columns: minmax(0, 1fr); }
@@ -131,6 +150,12 @@
   .member-order__amounts .member-label { font-size: .58rem; letter-spacing: .08em; }
   .member-order__actions { align-items: stretch; flex-direction: column; }
   .member-pay-button, .member-schedule-link { justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .member-payment-modal__card { padding: 1.25rem; border-radius: 18px; }
+  .member-payment-modal__card .member-modal__actions { display: grid; grid-template-columns: 1fr; }
+  .member-payment-modal__card .member-modal__actions > button { width: 100%; justify-content: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {

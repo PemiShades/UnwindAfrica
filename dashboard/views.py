@@ -4,18 +4,114 @@ from collections import Counter
 from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST, require_http_methods
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse, StreamingHttpResponse
 from django.utils.text import slugify
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.csrf import csrf_protect
-from django.contrib.auth import login as auth_login
+from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.db.models import Avg, Count, Sum
 from django.utils.timezone import now
 
 from .models import Post, Event
 from .forms import PostForm, EventForm, AdminAuthenticationForm, VotingCampaignForm, NomineeForm
 from Web.models import PageView, Session, VotingCampaign, Nominee, Vote, Transaction, Book
-from Web.models import GroupGetawayPackage, PackageAddOn, PackageOrder
+from Web.models import GroupGetawayPackage, PackageAddOn, PackageOrder, PackagePayment
+
+
+def login_required(view_func):
+    """All CMS routes require an authenticated staff account, including JSON actions."""
+    return user_passes_test(
+        lambda user: user.is_authenticated and user.is_staff,
+        login_url='/cms/login/',
+    )(view_func)
+
+
+@login_required
+def export_all_dashboard_data(request):
+    """Download the operational Web app dataset as one ZIP containing CSVs."""
+    import csv
+    import io
+    import tempfile
+    import zipfile
+    from django.apps import apps
+    from django.utils import timezone
+
+    sensitive_models = {'PackageCustomerCredential', 'MobileLoginChallenge'}
+    archive = tempfile.SpooledTemporaryFile(max_size=8 * 1024 * 1024, mode='w+b')
+    exported_tables = 0
+    with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=6) as bundle:
+        for model in sorted(apps.get_app_config('Web').get_models(), key=lambda item: item._meta.label_lower):
+            if model.__name__ in sensitive_models or model._meta.proxy or model._meta.auto_created:
+                continue
+            fields = [field for field in model._meta.concrete_fields if not field.many_to_many]
+            entry = bundle.open(f'{model._meta.model_name}.csv', 'w')
+            text = io.TextIOWrapper(entry, encoding='utf-8-sig', newline='')
+            try:
+                writer = csv.writer(text)
+                writer.writerow([field.name for field in fields])
+                for instance in model.objects.all().iterator(chunk_size=1000):
+                    row = []
+                    for field in fields:
+                        value = getattr(instance, field.attname)
+                        if value is None:
+                            value = ''
+                        elif hasattr(value, 'isoformat'):
+                            value = value.isoformat()
+                        elif not isinstance(value, (str, int, float, bool, Decimal)):
+                            value = str(value)
+                        # Prevent spreadsheet formula execution when staff open exported text fields.
+                        if isinstance(value, str) and value[:1] in ('=', '+', '-', '@', '\t', '\r'):
+                            value = "'" + value
+                        row.append(value)
+                    writer.writerow(row)
+                text.flush()
+            finally:
+                text.detach()
+                entry.close()
+            exported_tables += 1
+        readme = (
+            'Unwind Africa CMS data export\n'
+            f'Generated: {timezone.now().isoformat()}\n'
+            f'CSV tables included: {exported_tables}\n'
+            'Security: package login credentials and one-time mobile sign-in challenges are excluded.\n'
+            'Foreign keys are exported as their database ID values.\n'
+        )
+        bundle.writestr('README.txt', readme)
+    archive.seek(0)
+    def stream_archive():
+        try:
+            while chunk := archive.read(1024 * 1024):
+                yield chunk
+        finally:
+            archive.close()
+    response = StreamingHttpResponse(stream_archive(), content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="unwind-africa-dashboard-data.zip"'
+    response['Cache-Control'] = 'no-store'
+    return response
+
+
+@require_POST
+@login_required
+def retry_package_payment_emails(request, payment_id):
+    """Retry missing notices and return the persisted delivery state."""
+    payment = get_object_or_404(PackagePayment.objects.select_related('order', 'order__package'), pk=payment_id)
+    from Web.views import _send_package_payment_notifications
+    _send_package_payment_notifications(payment, payment.order, started=(payment.status == 'pending'))
+    payment.refresh_from_db()
+    sent, missing = [], []
+    if payment.status == 'pending':
+        (sent if payment.started_email_sent_at else missing).append('staff start notice')
+    else:
+        (sent if payment.admin_confirmation_sent_at else missing).append('staff payment notice')
+        (sent if payment.customer_confirmation_sent_at else missing).append('customer receipt')
+    ok = not missing
+    return JsonResponse({
+        'ok': ok,
+        'sent': sent,
+        'missing': missing,
+        'message': ('All applicable notices were sent.' if ok else
+                    'Some notices remain unsent. Check SMTP credentials and recipient email addresses, then retry.'),
+    }, status=200 if ok else 503)
 
 
 def _ensure_unique_slug(instance, base_text: str):
@@ -68,6 +164,11 @@ def add_months(d, n):
 def dashboard_home(request):
     from collections import Counter
     posts_qs = Post.objects.all().order_by("-created_at")
+    from .forms import PostForm
+    from Web.blog_content import clean_blog_html
+    recent_posts = list(posts_qs[:18])
+    for post in recent_posts:
+        post.editor_content = clean_blog_html(post.content)
     events_qs = Event.objects.all().order_by("-created_at")
 
     # Forms required by includes (even if tab is hidden by Alpine)
@@ -166,6 +267,27 @@ def dashboard_home(request):
     packages = GroupGetawayPackage.objects.all().order_by('price_per_person')
     addons = PackageAddOn.objects.all().order_by('name')
     orders = PackageOrder.objects.all().order_by('-created_at')[:50]
+    package_payments = PackagePayment.objects.select_related(
+        'order', 'order__package'
+    ).order_by('-paid_at')
+    payment_counts = {
+        'started': package_payments.filter(status='pending').count(),
+        'successful': package_payments.filter(status='success').count(),
+        'failed': package_payments.filter(status='failed').count(),
+        'total': package_payments.count(),
+    }
+    recent_package_payments = package_payments[:50]
+    from django.conf import settings
+    from Web.views import _package_payment_admin_recipients
+    email_backend = getattr(settings, 'EMAIL_BACKEND', '')
+    email_console_mode = email_backend.endswith('console.EmailBackend')
+    email_recipients = _package_payment_admin_recipients()
+    email_delivery = {
+        'console_mode': email_console_mode,
+        'recipient_count': len(email_recipients),
+        'smtp_ready': bool(settings.EMAIL_HOST and settings.EMAIL_HOST_USER and settings.EMAIL_HOST_PASSWORD),
+        'backend': 'Console' if email_console_mode else 'SMTP',
+    }
     # Calculate average votes per nominee
     avg_votes_per_nominee = 0
     if nominees.count() > 0:
@@ -197,7 +319,8 @@ def dashboard_home(request):
         votes_monthly_counts.append(month_votes)
     
     ctx = {
-        "posts": list(posts_qs[:18]),
+        "debug": settings.DEBUG,
+        "posts": recent_posts,
         "events": events_qs[:12],
         "kpis": kpis,
         "category_chart_labels": category_chart_labels,
@@ -229,13 +352,18 @@ def dashboard_home(request):
         "packages": packages,
         "addons": addons,
         "orders": orders,
+        "package_payments": recent_package_payments,
+        "payment_counts": payment_counts,
+        "email_delivery": email_delivery,
     }
     return render(request, "dashboard/index.html", ctx)
 
 
 def login_view(request):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and request.user.is_staff:
         return redirect("dashboard_home")
+    if request.user.is_authenticated:
+        auth_logout(request)
 
     form = AdminAuthenticationForm(request, data=request.POST or None)
     if request.method == "POST" and form.is_valid():
@@ -253,8 +381,12 @@ def create_blog(request):
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
+            post.author = "Unwind Africa Admin"
             action = request.POST.get("action", "draft")
             post.is_published = (action == "publish")
+            if post.is_published and not post.publication_date:
+                from django.utils import timezone
+                post.publication_date = timezone.localdate()
             
             # Ensure unique slug
             if not post.slug:
@@ -283,10 +415,14 @@ def edit_blog(request, slug):
         
         if form.is_valid():
             post = form.save(commit=False)
+            post.author = "Unwind Africa Admin"
             action = request.POST.get("action", "draft")
             
             if action in {"publish", "draft"}:
                 post.is_published = (action == "publish")
+            if post.is_published and not post.publication_date:
+                from django.utils import timezone
+                post.publication_date = timezone.localdate()
             
             # Ensure slug is still unique if title changed
             if not post.slug or form.has_changed() and 'title' in form.changed_data:
@@ -348,11 +484,19 @@ def create_event(request):
 def edit_event(request, identifier):
     """Edit an existing event via AJAX"""
     try:
-        # Try slug first, then pk
-        try:
-            event = get_object_or_404(Event, slug=identifier)
-        except:
-            event = get_object_or_404(Event, pk=identifier)
+        event = Event.objects.filter(slug=identifier).first()
+        if event is None and str(identifier).isdigit():
+            event = Event.objects.filter(pk=int(identifier)).first()
+        if event is None:
+            return JsonResponse({"ok": False, "error": "Event not found."}, status=404)
+
+        if request.method == "GET":
+            return JsonResponse({"ok": True, "event": {
+                "id": event.pk, "name": event.name, "description": event.description,
+                "location": event.location, "date": event.date.isoformat(),
+                "thumbnail": event.thumbnail.url if event.thumbnail else "",
+                "flier": event.flier.url if event.flier else "",
+            }})
 
         if request.method == "POST":
             form = EventForm(request.POST, request.FILES, instance=event)
@@ -1513,27 +1657,23 @@ def track_card_email(request, card_id):
 
 @login_required
 def engagement_data(request):
-    """Return monthly engagement (votes) labels and counts for chart polling"""
+    """Return bounded, database-aggregated monthly vote counts for the CMS chart."""
     try:
         from Web.models import Vote
-        from collections import Counter
-        from datetime import date
-
-        votes = Vote.objects.all()
-        by_month = Counter(v.created_at.strftime("%Y-%m") for v in votes)
-
-        def add_months(d, n):
-            y = d.year + (d.month - 1 + n) // 12
-            m = (d.month - 1 + n) % 12 + 1
-            return d.replace(year=y, month=m)
-
+        from django.db.models.functions import TruncMonth
+        months = int(request.GET.get('months', 12))
+        months = months if months in (3, 6, 12) else 12
         first_of_this_month = date.today().replace(day=1)
+        first_month = add_months(first_of_this_month, -(months - 1))
+        votes_by_month = Vote.objects.filter(created_at__date__gte=first_month).annotate(
+            month=TruncMonth('created_at')
+        ).values('month').annotate(count=Count('id'))
+        by_month = {(row['month'].year, row['month'].month): row['count'] for row in votes_by_month if row['month']}
         monthly_chart_labels, monthly_chart_counts = [], []
-        for i in range(-11, 1):
+        for i in range(-(months - 1), 1):
             d = add_months(first_of_this_month, i)
-            key = d.strftime("%Y-%m")
             monthly_chart_labels.append(d.strftime("%b %Y"))
-            monthly_chart_counts.append(by_month.get(key, 0))
+            monthly_chart_counts.append(by_month.get((d.year, d.month), 0))
 
         return JsonResponse({"ok": True, "labels": monthly_chart_labels, "counts": monthly_chart_counts})
     except Exception as e:
@@ -2124,6 +2264,32 @@ def get_book(request, book_id):
 
 # ========== Group Getaway Packages - CMS management ==========
 
+def _cms_decimal(data, key, *, current=Decimal('0'), required=False):
+    raw = data.get(key, current)
+    if raw in (None, ''):
+        if required:
+            raise ValueError(f'{key.replace("_", " ").capitalize()} is required.')
+        raw = current
+    try:
+        value = Decimal(str(raw))
+    except Exception as exc:
+        raise ValueError(f'{key.replace("_", " ").capitalize()} must be a valid number.') from exc
+    if not value.is_finite() or value < 0:
+        raise ValueError(f'{key.replace("_", " ").capitalize()} must be zero or greater.')
+    return value
+
+
+def _cms_durations(raw):
+    try:
+        durations = [int(part.strip()) for part in str(raw).split(',') if part.strip()]
+    except (TypeError, ValueError) as exc:
+        raise ValueError('Enter plan durations as comma-separated whole months, such as 3,6,9,12.') from exc
+    if not durations or any(month < 1 or month > 60 for month in durations):
+        raise ValueError('Plan durations must be whole months between 1 and 60.')
+    if len(set(durations)) != len(durations):
+        raise ValueError('Plan durations cannot contain duplicates.')
+    return ','.join(str(month) for month in durations)
+
 @login_required
 def packages_dashboard(request):
     """Packages tab data for the admin dashboard."""
@@ -2140,19 +2306,20 @@ def packages_dashboard(request):
 @require_POST
 @login_required
 def create_package(request):
+    import json
+    from django.db import IntegrityError, transaction
     try:
-        import json
         data = json.loads(request.body)
         name = (data.get('name') or '').strip()
         if not name:
             return JsonResponse({"ok": False, "error": "Package name is required."}, status=400)
-        price = Decimal(data.get('price_per_person') or 0)
-        pct = Decimal(data.get('instalment_charge_percent') or 0)
-        flat = Decimal(data.get('instalment_charge_flat') or 0)
-        durations = data.get('available_durations') or '3,6,9,12'
-        pkg = GroupGetawayPackage.objects.create(
+        price = _cms_decimal(data, 'price_per_person', required=True)
+        pct = _cms_decimal(data, 'instalment_charge_percent')
+        flat = _cms_decimal(data, 'instalment_charge_flat')
+        durations = _cms_durations(data.get('available_durations') or '3,6,9,12')
+        with transaction.atomic():
+            pkg = GroupGetawayPackage.objects.create(
             name=name,
-            slug=slugify(name),
             price_per_person=price,
             short_description=data.get('short_description', '') or '',
             description=data.get('description', '') or '',
@@ -2161,7 +2328,7 @@ def create_package(request):
             instalment_charge_flat=flat,
             available_durations=durations,
             is_active=bool(data.get('is_active', True)),
-        )
+            )
         return JsonResponse({"ok": True, "package": {
             "id": pkg.id, "name": pkg.name, "slug": pkg.slug,
             "price_per_person": str(pkg.price_per_person),
@@ -2170,12 +2337,16 @@ def create_package(request):
             "available_durations": pkg.available_durations,
             "is_active": pkg.is_active,
         }})
-    except Exception as e:
-        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+    except (ValueError, TypeError, json.JSONDecodeError) as e:
+        return JsonResponse({"ok": False, "error": str(e) or "Invalid package values."}, status=400)
+    except IntegrityError:
+        return JsonResponse({"ok": False, "error": "A package with this name already exists."}, status=400)
 
 
 @login_required
 def edit_package(request, package_id):
+    import json
+    from django.db import IntegrityError, transaction
     try:
         pkg = get_object_or_404(GroupGetawayPackage, id=package_id)
         if request.method == "GET":
@@ -2193,33 +2364,39 @@ def edit_package(request, package_id):
                     "is_active": pkg.is_active,
                 }
             })
-        import json
         data = json.loads(request.body)
-        pkg.name = data.get('name', pkg.name).strip()
+        pkg.name = (data.get('name', pkg.name) or '').strip()
         if not pkg.name:
             return JsonResponse({"ok": False, "error": "Name is required."}, status=400)
-        pkg.price_per_person = Decimal(data.get('price_per_person') or pkg.price_per_person)
+        pkg.price_per_person = _cms_decimal(data, 'price_per_person', current=pkg.price_per_person, required=True)
         pkg.short_description = data.get('short_description', pkg.short_description)
         pkg.description = data.get('description', pkg.description)
         pkg.inclusions = data.get('inclusions', pkg.inclusions)
-        pkg.instalment_charge_percent = Decimal(data.get('instalment_charge_percent') or pkg.instalment_charge_percent)
-        pkg.instalment_charge_flat = Decimal(data.get('instalment_charge_flat') or pkg.instalment_charge_flat)
-        pkg.available_durations = data.get('available_durations', pkg.available_durations)
+        pkg.instalment_charge_percent = _cms_decimal(data, 'instalment_charge_percent', current=pkg.instalment_charge_percent)
+        pkg.instalment_charge_flat = _cms_decimal(data, 'instalment_charge_flat', current=pkg.instalment_charge_flat)
+        pkg.available_durations = _cms_durations(data.get('available_durations', pkg.available_durations))
         pkg.is_active = bool(data.get('is_active', pkg.is_active))
-        pkg.slug = slugify(pkg.name)
-        pkg.save()
+        if pkg.name != GroupGetawayPackage.objects.get(pk=pkg.pk).name:
+            pkg.slug = ''
+        with transaction.atomic():
+            pkg.save()
         return JsonResponse({"ok": True})
-    except Exception as e:
-        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+    except (ValueError, TypeError, json.JSONDecodeError) as e:
+        return JsonResponse({"ok": False, "error": str(e) or "Invalid package values."}, status=400)
+    except IntegrityError:
+        return JsonResponse({"ok": False, "error": "A package with this name or URL already exists."}, status=400)
 
 
 @require_POST
 @login_required
 def delete_package(request, package_id):
+    from django.db.models.deletion import ProtectedError
     try:
         pkg = get_object_or_404(GroupGetawayPackage, id=package_id)
         pkg.delete()
         return JsonResponse({"ok": True})
+    except ProtectedError:
+        return JsonResponse({"ok": False, "error": "This package has customer orders. Deactivate it instead so payment history stays intact."}, status=409)
     except Exception as e:
         return JsonResponse({"ok": False, "error": str(e)}, status=500)
 
@@ -2227,8 +2404,9 @@ def delete_package(request, package_id):
 @require_POST
 @login_required
 def create_addon(request):
+    import json
+    from django.db import IntegrityError
     try:
-        import json
         data = json.loads(request.body)
         name = (data.get('name') or '').strip()
         if not name:
@@ -2236,20 +2414,24 @@ def create_addon(request):
         addon = PackageAddOn.objects.create(
             name=name,
             description=data.get('description', '') or '',
-            price=Decimal(data.get('price') or 0),
-            regular_price=Decimal(data.get('regular_price') or 0),
+            price=_cms_decimal(data, 'price', required=True),
+            regular_price=_cms_decimal(data, 'regular_price'),
             is_active=bool(data.get('is_active', True)),
         )
         return JsonResponse({"ok": True, "addon": {
             "id": addon.id, "name": addon.name, "price": str(addon.price),
             "regular_price": str(addon.regular_price), "is_active": addon.is_active,
         }})
-    except Exception as e:
-        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+    except (ValueError, TypeError, json.JSONDecodeError) as e:
+        return JsonResponse({"ok": False, "error": str(e) or "Invalid add-on values."}, status=400)
+    except IntegrityError:
+        return JsonResponse({"ok": False, "error": "Could not create this add-on; check for a duplicate."}, status=400)
 
 
 @login_required
 def edit_addon(request, addon_id):
+    import json
+    from django.db import IntegrityError
     try:
         addon = get_object_or_404(PackageAddOn, id=addon_id)
         if request.method == "GET":
@@ -2261,19 +2443,20 @@ def edit_addon(request, addon_id):
                     "is_active": addon.is_active,
                 }
             })
-        import json
         data = json.loads(request.body)
-        addon.name = data.get('name', addon.name).strip()
+        addon.name = (data.get('name', addon.name) or '').strip()
         if not addon.name:
             return JsonResponse({"ok": False, "error": "Name is required."}, status=400)
         addon.description = data.get('description', addon.description)
-        addon.price = Decimal(data.get('price') or addon.price)
-        addon.regular_price = Decimal(data.get('regular_price') or addon.regular_price)
+        addon.price = _cms_decimal(data, 'price', current=addon.price, required=True)
+        addon.regular_price = _cms_decimal(data, 'regular_price', current=addon.regular_price)
         addon.is_active = bool(data.get('is_active', addon.is_active))
         addon.save()
         return JsonResponse({"ok": True})
-    except Exception as e:
-        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+    except (ValueError, TypeError, json.JSONDecodeError) as e:
+        return JsonResponse({"ok": False, "error": str(e) or "Invalid add-on values."}, status=400)
+    except IntegrityError:
+        return JsonResponse({"ok": False, "error": "Could not save this add-on; check for a duplicate."}, status=400)
 
 
 @require_POST

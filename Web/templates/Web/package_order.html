@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block title %}Order #{{ order.id }} - Unwind Africa{% endblock %}
+{% block robots_meta %}noindex, nofollow{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}" />
@@ -39,6 +40,27 @@ table.po-table tr.total td { border-top: 2px solid var(--ua-primary); color: var
 .po-empty { color: var(--ua-muted); text-align: center; padding: 2rem; }
 .po-note { font-size: 0.85rem; color: var(--ua-muted); margin-top: .5rem; }
 .po-outstanding { color: #dc2626; font-weight: 800; }
+.po-payment-overlay { position: fixed; inset: 0; z-index: 2000; display: none; align-items: center; justify-content: center; padding: 1rem; background: rgba(9, 18, 15, .66); backdrop-filter: blur(7px); }
+.po-payment-overlay.is-open { display: flex; }
+.po-payment-modal { width: min(460px, 100%); padding: clamp(1.25rem, 4vw, 2rem); border-radius: 22px; background: #fff; color: #17352c; box-shadow: 0 30px 90px rgba(0,0,0,.24); }
+.po-payment-top { display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; }
+.po-payment-eyebrow { display:block; margin-bottom:.45rem; color:#ae852e; font-size:.65rem; font-weight:800; letter-spacing:.18em; }
+.po-payment-modal h2 { margin:0; font:700 1.55rem/1.15 "Playfair Display", Georgia, serif; }
+.po-payment-close { width:2.5rem; height:2.5rem; border:0; border-radius:50%; background:#f4f2ed; color:#17352c; font-size:1.5rem; cursor:pointer; }
+.po-payment-intro { margin:.8rem 0 1.25rem; color:#6b756f; line-height:1.6; }
+.po-payment-balance { display:flex; justify-content:space-between; gap:1rem; padding:.9rem 0; margin-bottom:1rem; border-top:1px solid #e9e5dc; border-bottom:1px solid #e9e5dc; font-size:.85rem; color:#6b756f; }
+.po-payment-balance strong { color:#17352c; font-variant-numeric:tabular-nums; }
+.po-payment-label { display:block; margin-bottom:.45rem; font-size:.8rem; font-weight:700; }
+.po-payment-input { display:flex; align-items:center; gap:.65rem; padding:.15rem .95rem; border:1px solid #d8d5cb; border-radius:12px; background:#fff; }
+.po-payment-input:focus-within { border-color:#ad842e; box-shadow:0 0 0 3px rgba(173,132,46,.13); }
+.po-payment-input span { color:#ad842e; font:700 1.15rem "Playfair Display", Georgia, serif; }
+.po-payment-input input { width:100%; min-width:0; padding:.8rem 0; border:0; outline:0; color:#17352c; font:600 1.15rem "Inter", sans-serif; }
+.po-payment-error { margin:.55rem 0 0; color:#a53d34; font-size:.82rem; }
+.po-payment-actions { display:flex; gap:.75rem; margin-top:1.25rem; }
+.po-payment-actions button { flex:1; cursor:pointer; }
+.po-payment-cancel { border:0; background:transparent; color:#52625b; font-weight:700; }
+.po-payment-secure { display:block; margin-top:1rem; color:#849089; font-size:.72rem; text-align:center; }
+body.po-modal-open { overflow:hidden; }
 </style>
 <link rel="stylesheet" href="{% static 'css/package-flow.css' %}" />
 {% endblock %}
@@ -182,15 +204,43 @@ table.po-table tr.total td { border-top: 2px solid var(--ua-primary); color: var
     {% if order.customer_email %}<a class="po-button po-button--ghost" href="{% url 'user_dashboard_login' %}">Go to dashboard</a>{% endif %}
   </div>
 </div></main>
+<div class="po-payment-overlay" id="po-payment-modal" role="dialog" aria-modal="true" aria-labelledby="po-payment-title" aria-hidden="true">
+  <div class="po-payment-modal">
+    <div class="po-payment-top"><div><span class="po-payment-eyebrow">SECURE PAYMENT</span><h2 id="po-payment-title">Add to your getaway</h2></div><button class="po-payment-close" id="po-payment-close" type="button" aria-label="Close">&times;</button></div>
+    <p class="po-payment-intro">Choose how much you would like to pay toward your remaining balance.</p>
+    <div class="po-payment-balance"><span>Outstanding balance</span><strong id="po-payment-balance">₦0</strong></div>
+    <label class="po-payment-label" for="po-payment-amount">Payment amount</label>
+    <div class="po-payment-input"><span>₦</span><input id="po-payment-amount" type="number" min="1" step="1" inputmode="numeric" autocomplete="off" aria-describedby="po-payment-error"></div>
+    <p class="po-payment-error" id="po-payment-error" role="alert" hidden></p>
+    <div class="po-payment-actions"><button class="po-payment-cancel" id="po-payment-cancel" type="button">Cancel</button><button class="po-button po-button--primary" id="po-payment-continue" type="button">Continue to payment</button></div>
+    <small class="po-payment-secure">Payments are securely processed by Paystack.</small>
+  </div>
+</div>
 <script src="https://js.paystack.co/v1/inline.js"></script>
 <script>
-async function payBalance(button, balance) {
-  const amount = Number.parseFloat(window.prompt('Enter amount to pay (₦):', balance));
-  if (!amount || amount <= 0) return;
-  if (amount > balance) { alert('Payment cannot exceed the outstanding balance.'); return; }
-  const original = button.innerHTML;
-  button.disabled = true;
-  button.textContent = 'Initializing payment…';
+const poModal = document.getElementById('po-payment-modal');
+const poAmount = document.getElementById('po-payment-amount');
+const poError = document.getElementById('po-payment-error');
+let poPayment = null;
+function closePackagePayment() { poModal.classList.remove('is-open'); poModal.setAttribute('aria-hidden', 'true'); document.body.classList.remove('po-modal-open'); poPayment = null; }
+function payBalance(button, balance) {
+  poPayment = { button, balance: Number(balance), original: button.innerHTML };
+  document.getElementById('po-payment-balance').textContent = '₦' + Number(balance).toLocaleString('en-NG');
+  poAmount.max = balance; poAmount.value = balance; poError.hidden = true;
+  poModal.classList.add('is-open'); poModal.setAttribute('aria-hidden', 'false'); document.body.classList.add('po-modal-open');
+  window.setTimeout(() => poAmount.focus(), 50);
+}
+document.getElementById('po-payment-close').addEventListener('click', closePackagePayment);
+document.getElementById('po-payment-cancel').addEventListener('click', closePackagePayment);
+poModal.addEventListener('click', event => { if (event.target === poModal) closePackagePayment(); });
+document.addEventListener('keydown', event => { if (event.key === 'Escape' && poModal.classList.contains('is-open')) closePackagePayment(); });
+document.getElementById('po-payment-continue').addEventListener('click', async function () {
+  if (!poPayment) return;
+  const { button, balance, original } = poPayment;
+  const amount = Number(poAmount.value);
+  if (!Number.isFinite(amount) || amount <= 0 || !Number.isInteger(amount)) { poError.textContent = 'Enter a valid whole amount in naira.'; poError.hidden = false; poAmount.focus(); return; }
+  if (amount > balance) { poError.textContent = 'This amount is higher than the outstanding balance.'; poError.hidden = false; poAmount.focus(); return; }
+  this.disabled = true; this.textContent = 'Preparing secure payment…'; button.disabled = true; button.textContent = 'Initializing payment…';
   try {
     const response = await fetch('/dashboard/packages/{{ order.id }}/contribute/', {
       method: 'POST',
@@ -199,6 +249,7 @@ async function payBalance(button, balance) {
     });
     const result = await response.json();
     if (!response.ok || !result.success) throw new Error(result.message || result.error || 'Unable to initialize payment.');
+    closePackagePayment();
     const handler = PaystackPop.setup({
       key: '{{ paystack_public_key }}', email: '{{ order.customer_email|escapejs }}',
       amount: Math.round(Number(result.amount) * 100), ref: result.reference, currency: 'NGN',
@@ -212,10 +263,13 @@ async function payBalance(button, balance) {
     });
     handler.openIframe();
   } catch (error) {
+    closePackagePayment();
     alert(error.message || 'Payment initialization failed.');
     button.disabled = false;
     button.innerHTML = original;
+  } finally {
+    const continueButton = document.getElementById('po-payment-continue'); continueButton.disabled = false; continueButton.textContent = 'Continue to payment';
   }
-}
+});
 </script>
 {% endblock %}

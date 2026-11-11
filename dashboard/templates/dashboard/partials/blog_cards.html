@@ -39,10 +39,13 @@
                    window.__editPost(
                      '{{ post.slug|default_if_none:'' }}',
                      '{{ post.title|escapejs }}',
-                     '{{ post.content|default_if_none:''|escapejs }}',
+                     '{{ post.editor_content|default_if_none:''|escapejs }}',
                      '{{ post.category|default_if_none:''|escapejs }}',
-                     '{{ post.is_published|yesno:"true,false" }}',
-                     '{{ post.is_featured|yesno:"true,false" }}'
+                     '{{ post.excerpt|default_if_none:''|escapejs }}',
+                     '{{ post.is_featured|yesno:"true,false" }}',
+                     '{{ post.publication_date|date:"Y-m-d"|default_if_none:'' }}',
+                     '{{ post.tags|default_if_none:''|escapejs }}',
+                     '{{ post.design_template|default:"editorial" }}'
                    )">
           <i class="fa-solid fa-pen mr-2"></i>Edit
         </button>
