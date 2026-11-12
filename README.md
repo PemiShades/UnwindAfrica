@@ -1,4 +1,4 @@
-# 🌴 Unwind Africa
+# ðŸŒ´ Unwind Africa
 
 **Curated rest experiences across Africa** - A Django-powered platform for wellness tourism, event management, and community engagement.
 
@@ -8,20 +8,20 @@
 
 ---
 
-## 📖 About
+## ðŸ“– About
 
 Unwind Africa is a comprehensive web platform that promotes rest, wellness, and mindful experiences across Africa. The platform features:
 
-- **📝 Travel Blog** - Stories, guides, and wellness content
-- **🎉 Event Management** - Curated rest experiences and wellness events
-- **📦 Packages** - Customized travel and wellness packages
-- **🗳️ Nominate to Unwind** - Community voting system with reward points
-- **🎫 Rest Card System** - Membership rewards and exclusive benefits
-- **💰 Payment Integration** - Secure payments via Paystack
+- **ðŸ“ Travel Blog** - Stories, guides, and wellness content
+- **ðŸŽ‰ Event Management** - Curated rest experiences and wellness events
+- **ðŸ“¦ Packages** - Customized travel and wellness packages
+- **ðŸ—³ï¸ Nominate to Unwind** - Community voting system with reward points
+- **ðŸŽ« Rest Card System** - Membership rewards and exclusive benefits
+- **ðŸ’° Payment Integration** - Secure payments via Paystack
 
 ---
 
-## ✨ Key Features
+## âœ¨ Key Features
 
 ### 1. **Content Management**
 - Dynamic blog with categorization (Travel, Health, Wellness, etc.)
@@ -36,7 +36,7 @@ Unwind Africa is a comprehensive web platform that promotes rest, wellness, and 
 ### 3. **Voting & Community Engagement**
 - **Nominate to Unwind** monthly campaigns
 - Multi-nominee voting with Paystack payment integration
-- **Rest Points** reward system (earn ₦100 per vote by default)
+- **Rest Points** reward system (earn â‚¦100 per vote by default)
 - Real-time vote counting and leaderboards
 - Referral tracking
 
@@ -44,7 +44,7 @@ Unwind Africa is a comprehensive web platform that promotes rest, wellness, and 
 - Membership card system with unique card numbers
 - Rest Points accumulation from voting
 - Waitlist and activation management
-- Status tracking (Waitlist → Active → Expired)
+- Status tracking (Waitlist â†’ Active â†’ Expired)
 
 ### 5. **Payment Processing**
 - Paystack integration for secure payments
@@ -54,7 +54,7 @@ Unwind Africa is a comprehensive web platform that promotes rest, wellness, and 
 
 ---
 
-## 🚀 Quick Start
+## ðŸš€ Quick Start
 
 ### Prerequisites
 - Python 3.11 or higher
@@ -133,42 +133,42 @@ Paystack webhook URL: https://your-domain/voting/webhook/paystack/. This webhook
 
 ---
 
-## 📁 Project Structure
+## ðŸ“ Project Structure
 
 ```
 UnwindAfrica/
-├── config/              # Django settings and configuration
-│   ├── settings.py      # Main settings file
-│   ├── urls.py          # Root URL configuration
-│   └── wsgi.py          # WSGI configuration
-├── Web/                 # Main application
-│   ├── models.py        # Database models (Post, Event, Vote, etc.)
-│   ├── views.py         # View functions
-│   ├── voting_views.py  # Voting system views
-│   ├── admin.py         # Admin panel configuration
-│   ├── urls.py          # App URL routing
-│   ├── templates/       # HTML templates
-│   └── migrations/      # Database migrations
-├── dashboard/           # Admin dashboard app
-├── static/              # Static files (CSS, JS, images)
-├── media/               # User-uploaded files (gitignored)
-├── .env.example         # Environment variables template
-├── .gitignore           # Git ignore rules
-├── requirements.txt     # Python dependencies
-├── SETUP_NOTES.txt      # Detailed setup instructions
-└── README.md            # This file
+â”œâ”€â”€ config/              # Django settings and configuration
+â”‚   â”œâ”€â”€ settings.py      # Main settings file
+â”‚   â”œâ”€â”€ urls.py          # Root URL configuration
+â”‚   â””â”€â”€ wsgi.py          # WSGI configuration
+â”œâ”€â”€ Web/                 # Main application
+â”‚   â”œâ”€â”€ models.py        # Database models (Post, Event, Vote, etc.)
+â”‚   â”œâ”€â”€ views.py         # View functions
+â”‚   â”œâ”€â”€ voting_views.py  # Voting system views
+â”‚   â”œâ”€â”€ admin.py         # Admin panel configuration
+â”‚   â”œâ”€â”€ urls.py          # App URL routing
+â”‚   â”œâ”€â”€ templates/       # HTML templates
+â”‚   â””â”€â”€ migrations/      # Database migrations
+â”œâ”€â”€ dashboard/           # Admin dashboard app
+â”œâ”€â”€ static/              # Static files (CSS, JS, images)
+â”œâ”€â”€ media/               # User-uploaded files (gitignored)
+â”œâ”€â”€ .env.example         # Environment variables template
+â”œâ”€â”€ .gitignore           # Git ignore rules
+â”œâ”€â”€ requirements.txt     # Python dependencies
+â”œâ”€â”€ SETUP_NOTES.txt      # Detailed setup instructions
+â””â”€â”€ README.md            # This file
 ```
 
 ---
 
-## 🗳️ Voting System
+## ðŸ—³ï¸ Voting System
 
 ### How It Works
 
 1. **Campaign Creation** (Admin)
-   - Create a monthly campaign (e.g., "Nominate to Unwind – November 2025")
-   - Set vote price (default: ₦500 per vote)
-   - Set rest points per vote (default: ₦100)
+   - Create a monthly campaign (e.g., "Nominate to Unwind â€“ November 2025")
+   - Set vote price (default: â‚¦500 per vote)
+   - Set rest points per vote (default: â‚¦100)
 
 2. **Nominee Addition** (Admin)
    - Add nominees with photos and stories
@@ -182,8 +182,8 @@ UnwindAfrica/
 
 4. **Rest Points Rewards**
    ```
-   Rest Points = Number of Votes × Rest Points Per Vote
-   Example: 5 votes × ₦100 = ₦500 Rest Points
+   Rest Points = Number of Votes Ã— Rest Points Per Vote
+   Example: 5 votes Ã— â‚¦100 = â‚¦500 Rest Points
    ```
 
 ### Testing Voting System
@@ -199,7 +199,7 @@ python manage.py test Web.testcases.test_voting
 
 ---
 
-## 🔧 Configuration
+## ðŸ”§ Configuration
 
 ### Database
 
@@ -235,7 +235,7 @@ DB_PORT=5432
 
 ---
 
-## 🛠️ Development
+## ðŸ› ï¸ Development
 
 ### Running Tests
 ```bash
@@ -259,9 +259,9 @@ python manage.py migrate
 
 ---
 
-## 🔐 Security Notes
+## ðŸ” Security Notes
 
-⚠️ **IMPORTANT:**
+âš ï¸ **IMPORTANT:**
 - Never commit `.env` to version control
 - Use TEST Paystack keys for development
 - Use LIVE Paystack keys only in production
@@ -271,13 +271,13 @@ python manage.py migrate
 
 ---
 
-## 📄 Documentation
+## ðŸ“„ Documentation
 
 For detailed setup instructions, see [SETUP_NOTES.txt](SETUP_NOTES.txt)
 
 ---
 
-## 🤝 Contributing
+## ðŸ¤ Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
@@ -287,7 +287,7 @@ For detailed setup instructions, see [SETUP_NOTES.txt](SETUP_NOTES.txt)
 
 ---
 
-## 📧 Contact
+## ðŸ“§ Contact
 
 - **Website:** [unwindafrica.com](https://unwindafrica.com)
 - **Email:** contact@unwindafrica.com
@@ -295,13 +295,13 @@ For detailed setup instructions, see [SETUP_NOTES.txt](SETUP_NOTES.txt)
 
 ---
 
-## 📝 License
+## ðŸ“ License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
-## 🙏 Acknowledgments
+## ðŸ™ Acknowledgments
 
 - Django Framework
 - Paystack Payment Gateway
@@ -310,7 +310,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-**Made with ❤️ in Africa**
+**Made with â¤ï¸ in Africa**
 
 
 ### Native app API origin
@@ -321,3 +321,10 @@ The app uses https://unwindafrica.com by default. For staging or local device te
 ## RackNerd PostgreSQL setup
 
 See [PRODUCTION_DATABASE.md](PRODUCTION_DATABASE.md) for the production database role, local-only PostgreSQL setup, Django connection string, migrations, backups, and media retention.
+
+## RackNerd VPS deployment
+
+- Run [deploy-racknerd.bat](deploy-racknerd.bat) on Windows for the automated Ubuntu Nginx and static-file setup.
+- [Nginx routing and production setup](VPS_NGINX_SETUP.md)
+- [Production environment template](ops/env.production.example)
+- [PostgreSQL setup](PRODUCTION_DATABASE.md)
