@@ -1,6 +1,7 @@
 # settings.py
 from pathlib import Path
 import os
+from urllib.parse import urlsplit
 from dotenv import load_dotenv
 import dj_database_url
 
@@ -109,13 +110,22 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # SQLite is for local development. Production must provide PostgreSQL DATABASE_URL.
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL:
+    database_url = urlsplit(DATABASE_URL)
+    local_database_hosts = {"", "localhost", "127.0.0.1", "::1"}
     DATABASES = {
         'default': dj_database_url.parse(
             DATABASE_URL,
             conn_max_age=600,
-            ssl_require=False  # local Postgres on same VPS, no SSL needed
+            conn_health_checks=True,
+            # RackNerd's PostgreSQL is local-only. Require TLS automatically
+            # whenever DATABASE_URL points to a remote database host.
+            ssl_require=database_url.hostname not in local_database_hosts,
         )
     }
+    if DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql':
+        DATABASES['default'].setdefault('OPTIONS', {}).setdefault('connect_timeout', 5)
+    elif not DEBUG:
+        raise RuntimeError("Production DATABASE_URL must use PostgreSQL.")
 elif DEBUG:
     DATABASES = {
         'default': {

@@ -12,6 +12,7 @@ urlpatterns = [
     path('api/v1/voting/campaigns/', views.mobile_voting_campaigns_api, name='mobile_voting_campaigns_api'),
     path('api/v1/auth/request-code/', views.mobile_request_login_code, name='mobile_request_login_code'),
     path('api/v1/auth/verify-code/', views.mobile_verify_login_code, name='mobile_verify_login_code'),
+    path('api/v1/auth/register/', views.mobile_register_member_api, name='mobile_register_member_api'),
     path('api/v1/dashboard/', views.mobile_dashboard_api, name='mobile_dashboard_api'),
     path('api/v1/voting/initialize/', views.mobile_initialize_vote_api, name='mobile_initialize_vote_api'),
     path('packages/<slug:slug>/',views.package_detail,name="package_detail"),

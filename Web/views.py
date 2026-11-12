@@ -107,6 +107,7 @@ def mobile_voting_campaigns_api(request):
 def mobile_request_login_code(request):
     """Send a one-time code to an existing Unwind Africa member."""
     from django.contrib.auth.hashers import make_password
+    from django.conf import settings
     from django.core.cache import cache
     from django.core.mail import send_mail
     from django.http import JsonResponse
@@ -167,6 +168,77 @@ def mobile_request_login_code(request):
         MobileLoginChallenge.objects.filter(email=email).update(is_used=True)
         return JsonResponse({'success': False, 'error': 'We could not deliver your code. Please try again shortly.'}, status=503)
     return JsonResponse({'success': True})
+
+
+@csrf_exempt
+@require_POST
+def mobile_register_member_api(request):
+    """Create a Rest Card waitlist application from the standalone mobile app."""
+    from django.conf import settings
+    from django.core.mail import send_mail
+    from django.core.validators import validate_email
+    from django.core.exceptions import ValidationError
+    from django.http import JsonResponse
+    from .models import RestCard
+
+    try:
+        data = json.loads(request.body or '{}')
+    except (TypeError, json.JSONDecodeError):
+        return JsonResponse({'success': False, 'error': 'Invalid request.'}, status=400)
+
+    name = str(data.get('name', '')).strip()
+    email = str(data.get('email', '')).strip().lower()
+    phone = str(data.get('phone', '')).strip()
+    if not name or len(name) > 255 or not phone or len(phone) > 20:
+        return JsonResponse({'success': False, 'error': 'Enter your name and phone number.'}, status=400)
+    try:
+        validate_email(email)
+    except ValidationError:
+        return JsonResponse({'success': False, 'error': 'Enter a valid email address.'}, status=400)
+
+    existing = RestCard.objects.filter(member_email__iexact=email).first()
+    if existing:
+        return JsonResponse({
+            'success': False,
+            'error': 'This email already has a Rest Card record. Sign in with this email instead.',
+        }, status=409)
+    if RestCard.objects.filter(status='waitlist').count() >= 1000:
+        return JsonResponse({'success': False, 'error': 'Rest Card requests are currently full. Please try again soon.'}, status=400)
+
+    try:
+        card = RestCard.objects.create(
+            member_name=name,
+            member_email=email,
+            member_phone=phone,
+            status='waitlist',
+        )
+    except Exception:
+        logger.exception('Unable to create mobile Rest Card request')
+        return JsonResponse({'success': False, 'error': 'We could not save your request. Please try again.'}, status=500)
+
+    user_message = (
+        f'Dear {name},\n\nThank you for requesting your Unwind Africa Rest Card. '
+        f'Your request is on our waitlist at position #{card.waitlist_position}. '
+        'We will email you when there is an update.\n\nThe Unwind Africa Team'
+    )
+    staff_message = (
+        f'New Rest Card request from the mobile app.\n\nName: {name}\nEmail: {email}\n'
+        f'Phone: {phone}\nWaitlist position: #{card.waitlist_position}'
+    )
+    try:
+        send_mail('Your Unwind Africa Rest Card request', user_message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+    except Exception:
+        logger.exception('Rest Card request confirmation email failed for %s', email)
+    try:
+        send_mail(f'New Rest Card request from {name}', staff_message, settings.DEFAULT_FROM_EMAIL, ['clientservicesunwindafrica@gmail.com'], fail_silently=False)
+    except Exception:
+        logger.exception('Staff notification for mobile Rest Card request failed')
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Your Rest Card request is received.',
+        'waitlist_position': card.waitlist_position,
+    }, status=201)
 
 
 @csrf_exempt

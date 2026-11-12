@@ -316,3 +316,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ### Native app API origin
 
 The app uses https://unwindafrica.com by default. For staging or local device testing, set EXPO_PUBLIC_API_BASE_URL before running Expo or building the app. This value is public and must be an HTTPS URL for production.
+
+
+## RackNerd PostgreSQL setup
+
+See [PRODUCTION_DATABASE.md](PRODUCTION_DATABASE.md) for the production database role, local-only PostgreSQL setup, Django connection string, migrations, backups, and media retention.
