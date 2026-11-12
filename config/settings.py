@@ -36,11 +36,7 @@ ALLOWED_HOSTS = [
 # Required for HTTPS + CSRF protection
 CSRF_TRUSTED_ORIGINS = [
     "https://unwindafrica.com",
-    "http://unwindafrica.com",
-    "https://server1.unwindafrica.com",
-    "http://server1.unwindafrica.com",
     "https://www.unwindafrica.com",
-    "http://www.unwindafrica.com",
 ]
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
@@ -54,6 +50,8 @@ CSRF_TRUSTED_ORIGINS = [
 # If you're behind Nginx/Certbot, tell Django to trust X-Forwarded-Proto=https
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
+CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", not DEBUG)
+SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", not DEBUG)
 
 # --- Auth redirects ---
 LOGIN_URL = 'dashboard_login'
@@ -213,8 +211,6 @@ PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "")
 # --- Extra Security (enable once HTTPS is ready) ---
 if not DEBUG:
     SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", True)
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000"))  # 1 year
     SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", True)
     SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", True)
