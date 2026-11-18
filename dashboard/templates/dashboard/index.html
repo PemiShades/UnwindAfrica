@@ -1617,21 +1617,31 @@
 
   <!-- Package editor -->
   <div x-show="showPkgModal" x-transition.opacity class="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" x-cloak @keydown.escape.window="closePkgModal()">
-    <section class="w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#111411] text-white shadow-2xl" @click.outside="closePkgModal()">
+    <section class="w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#111411] text-white shadow-2xl" @click.outside="closePkgModal()">
       <header class="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-white/10 bg-[#111411] px-6 py-5">
-        <div><p class="admin-kicker">Experience catalogue</p><h2 class="text-2xl font-semibold" x-text="pkgModal.id ? 'Edit package' : 'Add package'"></h2><p class="mt-1 text-sm text-white/60">Set the price and savings terms used by checkout.</p></div>
+        <div><p class="admin-kicker">Shared website and app catalogue</p><h2 class="text-2xl font-semibold" x-text="pkgModal.id ? 'Edit package' : 'Add package'"></h2><p class="mt-1 text-sm text-white/60">One saved package updates the website and mobile app feed together.</p></div>
         <button type="button" @click="closePkgModal()" class="btn-ghost" aria-label="Close package editor"><i class="fa-solid fa-xmark"></i></button>
       </header>
       <form @submit.prevent="savePkg()" class="space-y-5 p-6">
         <div class="grid gap-4 sm:grid-cols-2">
           <label class="block text-sm sm:col-span-2">Package name<input required maxlength="255" x-model.trim="pkgModal.name" class="field ring-brand mt-2 w-full" placeholder="e.g. Couples Escape" /></label>
+          <label class="block text-sm">Category<select x-model="pkgModal.category" class="field ring-brand mt-2 w-full"><option value="group">Group Getaway</option><option value="couples">Couples Escape</option><option value="family">Family Moments</option></select></label>
+          <label class="block text-sm">Experience duration<select x-model="pkgModal.experience_duration" class="field ring-brand mt-2 w-full"><option value="one_day">One day</option><option value="two_days_one_night">Two days, one night</option></select></label>
           <label class="block text-sm">Price (₦)<input required type="number" min="0" step="0.01" x-model="pkgModal.price_per_person" class="field ring-brand mt-2 w-full" /></label>
+          <label class="block text-sm">Price applies to<select x-model="pkgModal.pricing_basis" @change="pkgModal.included_adults = pkgModal.pricing_basis === 'person' ? 1 : 2; pkgModal.included_children = pkgModal.pricing_basis === 'family' ? 2 : 0" class="field ring-brand mt-2 w-full"><option value="person">Per person</option><option value="couple">Per couple</option><option value="family">Per family</option></select></label>
+          <label class="block text-sm">Adults included<input type="number" min="0" max="20" x-model="pkgModal.included_adults" class="field ring-brand mt-2 w-full" /></label>
+          <label class="block text-sm">Children included<input type="number" min="0" max="20" x-model="pkgModal.included_children" class="field ring-brand mt-2 w-full" /></label>
           <label class="block text-sm">Instalment charge (%)<input type="number" min="0" step="0.01" x-model="pkgModal.instalment_charge_percent" class="field ring-brand mt-2 w-full" /></label>
           <label class="block text-sm">Flat charge per month (₦)<input type="number" min="0" step="0.01" x-model="pkgModal.instalment_charge_flat" class="field ring-brand mt-2 w-full" /></label>
           <label class="block text-sm">Plan durations (months)<input required x-model.trim="pkgModal.available_durations" class="field ring-brand mt-2 w-full" placeholder="3,6,9,12" /><span class="mt-1 block text-xs text-white/50">Comma separated, for example 3,6,9,12.</span></label>
+          <label class="block text-sm sm:col-span-2">Card tagline<input maxlength="255" x-model="pkgModal.tagline" class="field ring-brand mt-2 w-full" placeholder="A refreshing day away with your favourite people." /></label>
           <label class="block text-sm sm:col-span-2">Short description<input x-model="pkgModal.short_description" class="field ring-brand mt-2 w-full" /></label>
-          <label class="block text-sm sm:col-span-2">Description<textarea rows="3" x-model="pkgModal.description" class="field ring-brand mt-2 w-full"></textarea></label>
+          <label class="block text-sm sm:col-span-2">Full experience description<textarea rows="8" x-model="pkgModal.description" class="field ring-brand mt-2 w-full" placeholder="Describe the experience in readable paragraphs. Do not promise unconfirmed inclusions."></textarea></label>
+          <label class="block text-sm sm:col-span-2">Who it is for<textarea rows="4" x-model="pkgModal.who_is_it_for" class="field ring-brand mt-2 w-full" placeholder="One audience per line"></textarea></label>
+          <label class="block text-sm sm:col-span-2">Family coverage note<input maxlength="255" x-model="pkgModal.family_coverage" class="field ring-brand mt-2 w-full" placeholder="Price covers two adults and two children." /></label>
           <label class="block text-sm sm:col-span-2">What's included<textarea rows="4" x-model="pkgModal.inclusions" class="field ring-brand mt-2 w-full" placeholder="One inclusion per line"></textarea></label>
+          <label class="block text-sm">Listing card image<input id="pkgCardImageFile" type="file" accept="image/*" class="field mt-2 w-full" /><span class="mt-1 block text-xs text-white/50" x-text="pkgModal.card_image_url ? 'Current image is live. Choose a file to replace it.' : 'Choose a clear image for the package card.'"></span></label>
+          <label class="block text-sm">Detail page image<input id="pkgDetailImageFile" type="file" accept="image/*" class="field mt-2 w-full" /><span class="mt-1 block text-xs text-white/50" x-text="pkgModal.flyer_url ? 'Current image is live. Choose a file to replace it.' : 'Choose a wide image for package details.'"></span></label>
         </div>
         <label class="flex items-center gap-3 text-sm"><input type="checkbox" x-model="pkgModal.is_active" class="h-4 w-4 accent-emerald-500" />Available for booking</label>
         <footer class="flex flex-col-reverse gap-3 border-t border-white/10 pt-5 sm:flex-row sm:justify-end">

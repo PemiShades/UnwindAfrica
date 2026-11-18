@@ -1547,23 +1547,41 @@ document.addEventListener('alpine:init', () => {
 
       // ===== PACKAGE MODAL =====
       openPkgModal() {
-        this.pkgModal = { id: null, name: '', price_per_person: '', short_description: '', description: '', inclusions: '', instalment_charge_percent: '', instalment_charge_flat: '', available_durations: '3,6,9,12', is_active: true };
+        this.pkgModal = { id: null, name: '', category: 'group', experience_duration: 'one_day', pricing_basis: 'person', included_adults: 1, included_children: 0, price_per_person: '', tagline: '', short_description: '', description: '', who_is_it_for: '', family_coverage: '', inclusions: '', card_image_url: '', flyer_url: '', instalment_charge_percent: '0', instalment_charge_flat: '0', available_durations: '3,6,9,12', is_active: true };
+        document.getElementById('pkgCardImageFile')?.value && (document.getElementById('pkgCardImageFile').value = '');
+        document.getElementById('pkgDetailImageFile')?.value && (document.getElementById('pkgDetailImageFile').value = '');
         this.showPkgModal = true;
       },
       closePkgModal() { this.showPkgModal = false; },
       editPkg(id) {
         fetch(`/cms/packages/${id}/edit/`)
           .then(r => r.json()).then(d => {
-            if (d.ok) { this.pkgModal = d.package; this.showPkgModal = true; }
+            if (d.ok) {
+              this.pkgModal = d.package;
+              const cardInput = document.getElementById('pkgCardImageFile');
+              const detailInput = document.getElementById('pkgDetailImageFile');
+              if (cardInput) cardInput.value = '';
+              if (detailInput) detailInput.value = '';
+              this.showPkgModal = true;
+            }
             else { this.toast(d.error || 'Load failed', 'error'); }
           }).catch(() => this.toast('Could not load package details.', 'error'));
       },
       savePkg() {
         const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || document.cookie.match(/(?:^|; )csrftoken=([^;]+)/)?.[1] || '';
         const url = this.pkgModal.id ? `/cms/packages/${this.pkgModal.id}/edit/` : '/cms/packages/create/';
+        const form = new FormData();
+        Object.entries(this.pkgModal).forEach(([key, value]) => {
+          if (key === 'id' || key === 'card_image_url' || key === 'flyer_url') return;
+          form.append(key, value === undefined || value === null ? '' : String(value));
+        });
+        const cardFile = document.getElementById('pkgCardImageFile')?.files?.[0];
+        const detailFile = document.getElementById('pkgDetailImageFile')?.files?.[0];
+        if (cardFile) form.append('card_image', cardFile);
+        if (detailFile) form.append('flyer', detailFile);
         fetch(url, {
-          method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
-          body: JSON.stringify(this.pkgModal)
+          method: 'POST', headers: { 'X-CSRFToken': csrf },
+          body: form
         }).then(r => r.json().then(d => ({ ok: r.ok, data: d }))).then(({ok, data: d}) => {
           if (ok && d.ok) { this.toast('Package saved', 'success'); this.closePkgModal(); setTimeout(() => location.reload(), 800); }
           else { this.toast(d.error || 'Save failed', 'error'); }

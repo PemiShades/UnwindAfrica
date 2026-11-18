@@ -22,19 +22,21 @@ logger = logging.getLogger(__name__)
 
 
 PACKAGE_ARTWORK = {
-    'classic': 'assets/packages/11d3b59cfc4cb172640087f3bb9404c8.jpg',
-    'paradise': 'assets/packages/2148141989.jpg',
-    'imperial': 'assets/packages/boat-cruize-3.jpeg',
-    'family-break-beach-day': 'assets/home/packages/family-ties.jpg',
+    'classic': 'assets/home/packages/classic.jpg',
+    'imperial': 'assets/home/packages/freepik__the-style-is-candid-image-photography-with-natural__82508.jpeg',
+    'paradise': 'assets/home/optimized/book-couples.webp',
     'oasis': 'assets/packages/46001 1.jpg',
-    'oakwood': 'assets/packages/47a0d81bb8958003bb72b7a1b94eadaa.jpg',
+    'family-break-beach-day': 'assets/home/family.jpg',
+    'oakwood': 'assets/home/packages/family-ties.jpg',
 }
 
 
-def _package_artwork_url(package):
+def _package_artwork_url(package, *, card=False):
+    if card and package.card_image:
+        return package.card_image.url
     if package.flyer:
         return package.flyer.url
-    artwork = PACKAGE_ARTWORK.get(package.slug, 'assets/packages/group-getaway.jpeg')
+    artwork = PACKAGE_ARTWORK.get(package.slug, 'assets/home/optimized/book-groups.webp')
     return static_url(artwork)
 
 
@@ -57,8 +59,15 @@ def _paystack_charge_matches(data, reference, expected_amount):
 def mobile_packages_api(request):
     """Public, read-only getaway package feed for the React Native client."""
     from .models import GroupGetawayPackage
+    from django.db.models import Case, When, Value, IntegerField
+    category_order = Case(
+        When(category='group', then=Value(0)),
+        When(category='couples', then=Value(1)),
+        When(category='family', then=Value(2)),
+        default=Value(3), output_field=IntegerField(),
+    )
     rows = GroupGetawayPackage.objects.filter(is_active=True).order_by(
-        'category', 'experience_duration', 'price_per_person'
+        category_order, 'experience_duration', 'price_per_person'
     )
     from .models import PackageAddOn
     addons = list(PackageAddOn.objects.filter(is_active=True).values('id', 'name', 'description', 'price'))
@@ -77,7 +86,15 @@ def mobile_packages_api(request):
             'included_children': package.included_children,
             'price': str(package.price_per_person),
             'description': package.short_description or package.description,
+            'short_description': package.short_description,
+            'tagline': package.tagline or package.short_description,
+            'full_description': package.description,
+            'who_is_it_for': package.who_is_it_for,
+            'family_coverage': package.family_coverage,
             'inclusions': package.inclusions,
+            'card_image_url': request.build_absolute_uri(_package_artwork_url(package, card=True)),
+            'detail_image_url': request.build_absolute_uri(_package_artwork_url(package)),
+            'image_url': request.build_absolute_uri(_package_artwork_url(package, card=True)),
             'available_durations': package.durations,
             'instalment_charge_percent': str(package.instalment_charge_percent),
             'instalment_charge_flat': str(package.instalment_charge_flat),
@@ -609,10 +626,19 @@ def home(request):
 
     package_starts = []
     seen_categories = set()
+    from django.db.models import Case, When, Value, IntegerField
+    category_order = Case(
+        When(category='group', then=Value(0)),
+        When(category='couples', then=Value(1)),
+        When(category='family', then=Value(2)),
+        default=Value(3), output_field=IntegerField(),
+    )
     for package in GroupGetawayPackage.objects.filter(is_active=True).only(
-        'name', 'slug', 'category', 'pricing_basis', 'price_per_person'
-    ).order_by('category', 'price_per_person', 'name'):
+        'name', 'slug', 'category', 'pricing_basis', 'price_per_person',
+        'tagline', 'short_description', 'card_image', 'flyer',
+    ).order_by(category_order, 'price_per_person', 'name'):
         if package.category not in seen_categories:
+            package.card_image_url = _package_artwork_url(package, card=True)
             package_starts.append(package)
             seen_categories.add(package.category)
     
@@ -778,13 +804,22 @@ def raising_readers(request):
 
 def packages(request):
     from .models import GroupGetawayPackage, PackageAddOn
-    packages_qs = GroupGetawayPackage.objects.filter(is_active=True).order_by('category', 'experience_duration', 'price_per_person')
+    from django.db.models import Case, When, Value, IntegerField
+    category_order = Case(
+        When(category='group', then=Value(0)),
+        When(category='couples', then=Value(1)),
+        When(category='family', then=Value(2)),
+        default=Value(3), output_field=IntegerField(),
+    )
+    packages_qs = GroupGetawayPackage.objects.filter(is_active=True).order_by(category_order, 'experience_duration', 'price_per_person')
     for package in packages_qs:
-        package.card_image_url = _package_artwork_url(package)
+        package.card_image_url = _package_artwork_url(package, card=True)
     addons_qs = PackageAddOn.objects.filter(is_active=True).order_by('name')
     return render(request, 'Web/packages.html', context={
         'packages': packages_qs,
         'addons': addons_qs,
+        'doctor_addon': addons_qs.filter(name__icontains='doctor').first(),
+        'transport_addon': addons_qs.filter(name__icontains='transport').first(),
     })
 
 
@@ -1226,7 +1261,7 @@ def event_list(request):
     })
 
 def unwind_thrive(request):
-    return render(request, 'Web/unwind-thrive.html', context={})
+    return redirect('packages')
 
 
 def event_detail(request, slug):
@@ -1249,7 +1284,7 @@ def contact(request):
 
 
 def test(request):
-    return render(request, 'Web/tss.html', {})
+    return redirect('packages')
 
 # Web/views.py
 from django.http import JsonResponse

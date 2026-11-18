@@ -749,7 +749,11 @@ class GroupGetawayPackage(models.Model):
         help_text="Base price per person in Naira")
     short_description = models.TextField(blank=True)
     description = models.TextField(blank=True)
+    tagline = models.CharField(max_length=255, blank=True)
+    who_is_it_for = models.TextField(blank=True, help_text="One audience description per line")
+    family_coverage = models.CharField(max_length=255, blank=True)
     inclusions = models.TextField(blank=True, help_text="Experience inclusions from the approved package flyer")
+    card_image = models.ImageField(upload_to='packages/cards/', blank=True, null=True)
     flyer = models.ImageField(upload_to='packages/flyers/', blank=True, null=True)
     is_active = models.BooleanField(default=True)
 

@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}{{ package.name }} | Unwind Africa{% endblock %}
-{% block meta_description %}Discover {{ package.name }}, a thoughtfully hosted Unwind Africa experience. Explore what is included, available options, and ways to reserve your getaway.{% endblock %}
+{% block meta_description %}{{ package.tagline|default:package.short_description|default:package.name }} {{ package.get_experience_duration_display }} · {{ package.get_pricing_basis_display }}.{% endblock %}
 {% block og_title %}{{ package.name }} | Unwind Africa{% endblock %}
 {% block og_description %}Explore {{ package.name }}, what is included, and the options available for your Unwind Africa getaway.{% endblock %}
 {% block twitter_title %}{{ package.name }} | Unwind Africa{% endblock %}
@@ -69,19 +69,18 @@
         </figure>
         <span class="ua-kicker">{{ package.get_category_display }} · {{ package.get_experience_duration_display }}</span>
         <h1>{{ package.name }}</h1>
-        <p class="gg-detail__category">A considered Unwind Africa experience, shaped around time together and room to rest.</p>
+        <p class="gg-detail__category">{{ package.tagline|default:package.short_description|default:"A considered Unwind Africa experience, shaped around time together and room to rest." }}</p>
         <p class="gg-detail__price">₦{{ package.price_per_person|floatformat:0 }}</p>
         <p class="gg-detail__price-note">Starting price · {{ package.get_pricing_basis_display }}</p>
-        <p class="gg-detail__note"><strong>Early access:</strong> The first 20 eligible confirmed deposits receive 5% off the experience price. Optional add-ons and transport are excluded. Any discount credited after an outright payment is shown on your account.</p>
-        {% if package.pricing_basis == 'family' %}
-        <p class="gg-detail__note">Family starting price covers two adults and two children. For a larger family, extended stay, or custom experience, <a href="{% url 'contact' %}?package={{ package.name|urlencode }}">request a tailored quote</a>.</p>
+        {% if package.family_coverage %}
+        <p class="gg-detail__note">{{ package.family_coverage }} For a larger family or a customised experience, <a href="{% url 'contact' %}?package={{ package.name|urlencode }}">request a tailored quote</a>.</p>
         {% endif %}
         <div class="gg-detail__experience">
-          <h2>Experience details</h2>
-          <p>{{ package.description|default:package.short_description }}{% if package.inclusions %}
-
-{{ package.inclusions }}{% endif %}</p>
+          <h2>Your time away</h2>
+          <p>{{ package.description|default:package.short_description }}</p>
+          {% if package.inclusions %}<p class="gg-detail__inclusions">{{ package.inclusions }}</p>{% endif %}
         </div>
+        {% if package.who_is_it_for %}<div class="gg-detail__experience"><h2>Made for</h2><p>{{ package.who_is_it_for|linebreaksbr }}</p></div>{% endif %}
       </section>
 
       <form class="gg-detail__form" method="post" action="{% url 'package_checkout' package.slug %}">

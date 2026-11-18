@@ -2290,6 +2290,49 @@ def _cms_durations(raw):
         raise ValueError('Plan durations cannot contain duplicates.')
     return ','.join(str(month) for month in durations)
 
+
+def _cms_bool(value, default=True):
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in {'1', 'true', 'yes', 'on'}
+
+
+def _package_editor_data(request):
+    import json
+    if request.content_type and request.content_type.startswith('multipart/form-data'):
+        return request.POST
+    return json.loads(request.body or '{}')
+
+
+def _cms_small_integer(data, key, current=0):
+    raw = data.get(key, current)
+    try:
+        value = int(raw)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f'{key.replace("_", " ").capitalize()} must be a whole number.') from exc
+    if value < 0 or value > 20:
+        raise ValueError(f'{key.replace("_", " ").capitalize()} must be between 0 and 20.')
+    return value
+
+
+def _cms_image(data_file, label):
+    if not data_file:
+        return None
+    if data_file.size > 12 * 1024 * 1024:
+        raise ValueError(f'{label} must be 12 MB or smaller.')
+    from django.core.files.images import get_image_dimensions
+    try:
+        width, height = get_image_dimensions(data_file)
+    except Exception as exc:
+        raise ValueError(f'{label} must be a valid image file.') from exc
+    finally:
+        data_file.seek(0)
+    if not width or not height:
+        raise ValueError(f'{label} must be a valid image file.')
+    return data_file
+
 @login_required
 def packages_dashboard(request):
     """Packages tab data for the admin dashboard."""
@@ -2309,7 +2352,7 @@ def create_package(request):
     import json
     from django.db import IntegrityError, transaction
     try:
-        data = json.loads(request.body)
+        data = _package_editor_data(request)
         name = (data.get('name') or '').strip()
         if not name:
             return JsonResponse({"ok": False, "error": "Package name is required."}, status=400)
@@ -2317,17 +2360,36 @@ def create_package(request):
         pct = _cms_decimal(data, 'instalment_charge_percent')
         flat = _cms_decimal(data, 'instalment_charge_flat')
         durations = _cms_durations(data.get('available_durations') or '3,6,9,12')
+        category = data.get('category', 'group')
+        duration = data.get('experience_duration', 'one_day')
+        basis = data.get('pricing_basis', 'person')
+        if category not in dict(GroupGetawayPackage.CATEGORY_CHOICES):
+            raise ValueError('Choose a valid experience category.')
+        if duration not in dict(GroupGetawayPackage.DURATION_CHOICES):
+            raise ValueError('Choose a valid experience duration.')
+        if basis not in dict(GroupGetawayPackage.PRICING_BASIS_CHOICES):
+            raise ValueError('Choose a valid pricing basis.')
         with transaction.atomic():
             pkg = GroupGetawayPackage.objects.create(
             name=name,
+            category=category,
+            experience_duration=duration,
+            pricing_basis=basis,
+            included_adults=_cms_small_integer(data, 'included_adults', 2 if basis in {'couple', 'family'} else 1),
+            included_children=_cms_small_integer(data, 'included_children', 2 if basis == 'family' else 0),
             price_per_person=price,
             short_description=data.get('short_description', '') or '',
+            tagline=data.get('tagline', '') or '',
             description=data.get('description', '') or '',
+            who_is_it_for=data.get('who_is_it_for', '') or '',
+            family_coverage=data.get('family_coverage', '') or '',
             inclusions=data.get('inclusions', '') or '',
             instalment_charge_percent=pct,
             instalment_charge_flat=flat,
             available_durations=durations,
-            is_active=bool(data.get('is_active', True)),
+            is_active=_cms_bool(data.get('is_active'), True),
+            card_image=_cms_image(request.FILES.get('card_image'), 'Card image'),
+            flyer=_cms_image(request.FILES.get('flyer'), 'Detail image'),
             )
         return JsonResponse({"ok": True, "package": {
             "id": pkg.id, "name": pkg.name, "slug": pkg.slug,
@@ -2355,27 +2417,58 @@ def edit_package(request, package_id):
                 "package": {
                     "id": pkg.id, "name": pkg.name, "slug": pkg.slug,
                     "price_per_person": str(pkg.price_per_person),
+                    "category": pkg.category,
+                    "experience_duration": pkg.experience_duration,
+                    "pricing_basis": pkg.pricing_basis,
+                    "included_adults": pkg.included_adults,
+                    "included_children": pkg.included_children,
                     "short_description": pkg.short_description or "",
+                    "tagline": pkg.tagline or "",
                     "description": pkg.description or "",
+                    "who_is_it_for": pkg.who_is_it_for or "",
+                    "family_coverage": pkg.family_coverage or "",
                     "inclusions": pkg.inclusions or "",
+                    "card_image_url": pkg.card_image.url if pkg.card_image else '',
+                    "flyer_url": pkg.flyer.url if pkg.flyer else '',
                     "instalment_charge_percent": str(pkg.instalment_charge_percent),
                     "instalment_charge_flat": str(pkg.instalment_charge_flat),
                     "available_durations": pkg.available_durations,
                     "is_active": pkg.is_active,
                 }
             })
-        data = json.loads(request.body)
+        data = _package_editor_data(request)
         pkg.name = (data.get('name', pkg.name) or '').strip()
         if not pkg.name:
             return JsonResponse({"ok": False, "error": "Name is required."}, status=400)
         pkg.price_per_person = _cms_decimal(data, 'price_per_person', current=pkg.price_per_person, required=True)
+        category = data.get('category', pkg.category)
+        duration = data.get('experience_duration', pkg.experience_duration)
+        basis = data.get('pricing_basis', pkg.pricing_basis)
+        if category not in dict(GroupGetawayPackage.CATEGORY_CHOICES):
+            raise ValueError('Choose a valid experience category.')
+        if duration not in dict(GroupGetawayPackage.DURATION_CHOICES):
+            raise ValueError('Choose a valid experience duration.')
+        if basis not in dict(GroupGetawayPackage.PRICING_BASIS_CHOICES):
+            raise ValueError('Choose a valid pricing basis.')
+        pkg.category = category
+        pkg.experience_duration = duration
+        pkg.pricing_basis = basis
+        pkg.included_adults = _cms_small_integer(data, 'included_adults', pkg.included_adults)
+        pkg.included_children = _cms_small_integer(data, 'included_children', pkg.included_children)
         pkg.short_description = data.get('short_description', pkg.short_description)
+        pkg.tagline = data.get('tagline', pkg.tagline)
         pkg.description = data.get('description', pkg.description)
+        pkg.who_is_it_for = data.get('who_is_it_for', pkg.who_is_it_for)
+        pkg.family_coverage = data.get('family_coverage', pkg.family_coverage)
         pkg.inclusions = data.get('inclusions', pkg.inclusions)
         pkg.instalment_charge_percent = _cms_decimal(data, 'instalment_charge_percent', current=pkg.instalment_charge_percent)
         pkg.instalment_charge_flat = _cms_decimal(data, 'instalment_charge_flat', current=pkg.instalment_charge_flat)
         pkg.available_durations = _cms_durations(data.get('available_durations', pkg.available_durations))
-        pkg.is_active = bool(data.get('is_active', pkg.is_active))
+        pkg.is_active = _cms_bool(data.get('is_active'), pkg.is_active)
+        if request.FILES.get('card_image'):
+            pkg.card_image = _cms_image(request.FILES['card_image'], 'Card image')
+        if request.FILES.get('flyer'):
+            pkg.flyer = _cms_image(request.FILES['flyer'], 'Detail image')
         if pkg.name != GroupGetawayPackage.objects.get(pk=pkg.pk).name:
             pkg.slug = ''
         with transaction.atomic():
