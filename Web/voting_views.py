@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.db import transaction as db_transaction
 from django.db.models import Q
 from django.conf import settings
+from django.core.mail import send_mail
 from django.utils.timezone import now
 import requests
 import json
@@ -375,6 +376,7 @@ def initialize_payment(request):
                 if rest_card:
                     rest_card.free_votes_remaining = max(0, rest_card.free_votes_remaining - free_votes_used)
                     rest_card.save()
+            _send_vote_confirmation(created_transactions, free=True)
             
             # Return success response for free votes
             return JsonResponse({
@@ -407,7 +409,9 @@ def initialize_payment(request):
             'email': voter_email,
             'amount': amount_in_kobo,
             'reference': reference,
-            'callback_url': request.build_absolute_uri(f'/voting/payment/verify/{reference}/'),
+            'callback_url': request.build_absolute_uri(
+                f'/voting/payment/verify/{reference}/' + ('?mobile=1' if request.headers.get('X-Unwind-Mobile') == '1' else '')
+            ),
             'metadata': {
                 'voter_name': voter_name,
                 'voter_phone': voter_phone,
@@ -595,18 +599,68 @@ def update_token_wallet(vote):
     return wallet, created
 
 
+def _send_vote_confirmation(transaction_rows, *, free=False):
+    """Send the member a receipt once a paid or Rest Card vote is recorded."""
+    rows = list(transaction_rows)
+    if not rows:
+        return
+    first = rows[0].vote
+    votes = sum(row.vote.vote_quantity for row in rows)
+    amount = sum((row.amount for row in rows), Decimal('0'))
+    nominees = ', '.join(dict.fromkeys(row.vote.nominee.name for row in rows))
+    subject = 'Your Unwind Africa vote is confirmed'
+    charge_line = 'No payment was required; your Rest Card vote was applied.' if free else f'Payment received: ₦{amount:,.0f}.'
+    body = (
+        f'Hello {first.voter_name or "Unwind member"},\n\n'
+        f'Your vote for {nominees} has been recorded.\n'
+        f'Votes recorded: {votes}\n{charge_line}\n'
+        f'Reference: {rows[0].reference}\n\n'
+        'Thank you for supporting a Nominate to Unwind campaign.\n\nUnwind Africa'
+    )
+    try:
+        send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [first.voter_email], fail_silently=False)
+    except Exception:
+        logger.exception('Could not email voting confirmation for %s', rows[0].reference)
+    if free:
+        return
+    try:
+        from .views import _package_payment_admin_recipients
+        recipients = _package_payment_admin_recipients()
+        if recipients:
+            staff_body = (
+                f'A voting payment has been verified.\n\nVoter: {first.voter_name}\n'
+                f'Email: {first.voter_email}\nCampaign: {first.nominee.campaign.name}\n'
+                f'Nominees: {nominees}\nVotes: {votes}\nAmount: ₦{amount:,.0f}\n'
+                f'Reference: {rows[0].reference}'
+            )
+            send_mail(f'Voting payment confirmed: {first.nominee.campaign.name}', staff_body,
+                      settings.DEFAULT_FROM_EMAIL, recipients, fail_silently=False)
+    except Exception:
+        logger.exception('Could not email staff about voting payment %s', rows[0].reference)
+
+
 def verify_payment(request, reference):
     """Verify a vote charge with Paystack before awarding votes or points."""
+    mobile_return = request.GET.get('mobile') == '1'
+    mobile_json = 'application/json' in request.headers.get('Accept', '')
     try:
         transactions = Transaction.objects.filter(reference=reference).select_related(
             'vote__nominee__campaign'
         )
         if not transactions.exists():
+            if mobile_json:
+                return JsonResponse({'success': False, 'message': 'Transaction not found.'}, status=404)
+            if mobile_return:
+                return redirect('home')
             messages.error(request, 'Transaction not found')
             return redirect('voting_campaigns_list')
 
         paystack_secret = settings.PAYSTACK_SECRET_KEY
         if not paystack_secret:
+            if mobile_json:
+                return JsonResponse({'success': False, 'message': 'Payment verification is temporarily unavailable.'}, status=503)
+            if mobile_return:
+                return redirect('home')
             messages.error(request, 'Payment verification is temporarily unavailable.')
             return redirect('voting_campaigns_list')
         response = requests.get(
@@ -619,9 +673,15 @@ def verify_payment(request, reference):
         data = response_data.get('data') or {}
         if not (response.ok and response_data.get('status')
                 and _paystack_charge_matches(data, reference, expected_amount)):
+            if mobile_json:
+                return JsonResponse({'success': False, 'message': 'Payment was not successful or could not be verified.'}, status=400)
+            if mobile_return:
+                from django.http import HttpResponseRedirect
+                return HttpResponseRedirect(f'unwindafrica://payment-result?reference={reference}&status=failed')
             messages.error(request, 'Payment was not successful or could not be verified.')
             return redirect('voting_campaigns_list')
 
+        newly_confirmed = []
         with db_transaction.atomic():
             for transaction_row in transactions.select_for_update():
                 if transaction_row.status == 'success':
@@ -642,6 +702,9 @@ def verify_payment(request, reference):
                 nominee.save(update_fields=['vote_count'])
                 update_rest_card_points(vote)
                 update_token_wallet(vote)
+                newly_confirmed.append(transaction_row)
+
+        _send_vote_confirmation(newly_confirmed)
 
         total_votes = sum(item.vote.vote_quantity for item in transactions)
         total_rest_points = sum((item.vote.rest_points_earned for item in transactions), Decimal('0'))
@@ -659,13 +722,28 @@ def verify_payment(request, reference):
             'frozen_points': float(total_rest_points),
         }
         messages.success(request, f'Your vote has been recorded. You voted {total_votes} times.')
+        if mobile_json:
+            return JsonResponse({'success': True, 'votes': total_votes, 'rest_points': str(total_rest_points), 'tokens': total_tokens})
+        if mobile_return:
+            from django.http import HttpResponseRedirect
+            return HttpResponseRedirect(f'unwindafrica://payment-result?reference={reference}&status=success')
         return redirect('voting_thank_you')
     except (requests.RequestException, ValueError):
         logger.exception('Unable to verify voting payment with Paystack')
+        if mobile_json:
+            return JsonResponse({'success': False, 'message': 'Unable to reach the payment service.'}, status=502)
+        if mobile_return:
+            from django.http import HttpResponseRedirect
+            return HttpResponseRedirect(f'unwindafrica://payment-result?reference={reference}&status=check')
         messages.error(request, 'Unable to reach the payment service. Please try again shortly.')
         return redirect('voting_campaigns_list')
     except Exception:
         logger.exception('Unable to process verified voting payment')
+        if mobile_json:
+            return JsonResponse({'success': False, 'message': 'Payment verification needs another check.'}, status=500)
+        if mobile_return:
+            from django.http import HttpResponseRedirect
+            return HttpResponseRedirect(f'unwindafrica://payment-result?reference={reference}&status=check')
         messages.error(request, 'Unable to verify your payment right now. Please contact support if you were charged.')
         return redirect('voting_campaigns_list')
 
@@ -707,7 +785,8 @@ def paystack_webhook(request):
         )
         if not order:
             return HttpResponse('Payment details did not match the order', status=400)
-        if newly_confirmed and package_payment.is_initial_deposit:
+        metadata = ((package_payment.paystack_response or {}).get('data') or {}).get('metadata') or {}
+        if newly_confirmed and package_payment.is_initial_deposit and metadata.get('source') != 'unwind_mobile_app':
             _send_package_dashboard_password(order.customer_email, order.customer_name)
         return HttpResponse('OK', status=200)
 
@@ -722,6 +801,7 @@ def paystack_webhook(request):
     if not _paystack_charge_matches(data, reference, expected_amount):
         return HttpResponse('Payment details did not match the vote', status=400)
 
+    newly_confirmed = []
     with db_transaction.atomic():
         for transaction_row in transactions.select_for_update():
             if transaction_row.status == 'success':
@@ -742,6 +822,9 @@ def paystack_webhook(request):
             nominee.save(update_fields=['vote_count'])
             update_rest_card_points(vote)
             update_token_wallet(vote)
+            newly_confirmed.append(transaction_row)
+
+    _send_vote_confirmation(newly_confirmed)
 
     return HttpResponse('OK', status=200)
 

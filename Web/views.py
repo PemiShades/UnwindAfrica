@@ -60,7 +60,10 @@ def mobile_packages_api(request):
     rows = GroupGetawayPackage.objects.filter(is_active=True).order_by(
         'category', 'experience_duration', 'price_per_person'
     )
+    from .models import PackageAddOn
+    addons = list(PackageAddOn.objects.filter(is_active=True).values('id', 'name', 'description', 'price'))
     return JsonResponse({
+        'addons': [{**row, 'price': str(row['price'])} for row in addons],
         'results': [{
             'id': package.pk,
             'name': package.name,
@@ -69,9 +72,15 @@ def mobile_packages_api(request):
             'category_label': package.get_category_display(),
             'duration_label': package.get_experience_duration_display(),
             'pricing_basis': package.get_pricing_basis_display(),
+            'pricing_basis_code': package.pricing_basis,
+            'included_adults': package.included_adults,
+            'included_children': package.included_children,
             'price': str(package.price_per_person),
             'description': package.short_description or package.description,
             'inclusions': package.inclusions,
+            'available_durations': package.durations,
+            'instalment_charge_percent': str(package.instalment_charge_percent),
+            'instalment_charge_flat': str(package.instalment_charge_flat),
         } for package in rows],
     })
 
@@ -230,7 +239,10 @@ def mobile_register_member_api(request):
     except Exception:
         logger.exception('Rest Card request confirmation email failed for %s', email)
     try:
-        send_mail(f'New Rest Card request from {name}', staff_message, settings.DEFAULT_FROM_EMAIL, ['clientservicesunwindafrica@gmail.com'], fail_silently=False)
+        staff_recipients = _package_payment_admin_recipients() or ['clientservicesunwindafrica@gmail.com']
+        if 'clientservicesunwindafrica@gmail.com' not in staff_recipients:
+            staff_recipients.append('clientservicesunwindafrica@gmail.com')
+        send_mail(f'New Rest Card request from {name}', staff_message, settings.DEFAULT_FROM_EMAIL, staff_recipients, fail_silently=False)
     except Exception:
         logger.exception('Staff notification for mobile Rest Card request failed')
 
@@ -351,6 +363,154 @@ def mobile_dashboard_api(request):
             'progress': round(float(order.payment_progress)),
         } for order in orders],
     })
+
+
+@csrf_exempt
+@require_POST
+def mobile_package_checkout_api(request):
+    """Create an authenticated package order and initialize its first Paystack payment."""
+    from django.core import signing
+    from django.http import JsonResponse
+    from .models import GroupGetawayPackage, PackageAddOn, PackageOrder, PackageInstalment, PackagePayment
+
+    authorization = request.headers.get('Authorization', '')
+    if not authorization.startswith('Bearer '):
+        return JsonResponse({'success': False, 'message': 'Sign in before booking.'}, status=401)
+    try:
+        email = signing.TimestampSigner(salt='unwind.mobile.auth').unsign(authorization[7:].strip(), max_age=2592000)
+        data = json.loads(request.body or '{}')
+        if not isinstance(data, dict):
+            return JsonResponse({'success': False, 'message': 'Check the booking details and try again.'}, status=400)
+        package = GroupGetawayPackage.objects.get(pk=int(data.get('package_id')), is_active=True)
+        months = int(data.get('duration_months') or 1)
+        party_size = int(data.get('party_size') or 1)
+        deposit = Decimal(str(data.get('initial_deposit') or '0')).quantize(Decimal('0.01'))
+    except (signing.BadSignature, TypeError, ValueError, json.JSONDecodeError, GroupGetawayPackage.DoesNotExist):
+        return JsonResponse({'success': False, 'message': 'Check the booking details and try again.'}, status=400)
+    except ArithmeticError:
+        return JsonResponse({'success': False, 'message': 'Enter a valid starting payment.'}, status=400)
+
+    if not deposit.is_finite():
+        return JsonResponse({'success': False, 'message': 'Enter a valid starting payment.'}, status=400)
+
+    if package.pricing_basis == 'person':
+        if not 1 <= party_size <= 20:
+            return JsonResponse({'success': False, 'message': 'Choose between 1 and 20 participants.'}, status=400)
+        units, transport_headcount = party_size, party_size
+    elif package.pricing_basis == 'couple':
+        units, transport_headcount, party_size = 1, 2, 2
+    else:
+        units = 1
+        transport_headcount = package.included_adults + package.included_children
+        party_size = transport_headcount
+    if months != 1 and months not in package.durations:
+        return JsonResponse({'success': False, 'message': 'That payment plan is not available for this experience.'}, status=400)
+    outright = months == 1
+    doctor = data.get('my_doctor') is True
+    transportation = data.get('transportation') is True
+    pickup = str(data.get('pickup_location') or '').strip()[:255]
+    if transportation and not pickup:
+        return JsonResponse({'success': False, 'message': 'Add a pickup location for transportation.'}, status=400)
+    doctor_addon = PackageAddOn.objects.filter(name__icontains='doctor', is_active=True).first()
+    doctor_price = doctor_addon.price if doctor_addon else Decimal('35000')
+    transport_price = PackageAddOn.objects.filter(name__icontains='transport', is_active=True).values_list('price', flat=True).first() or Decimal('20000')
+    package_total = package.price_per_person * units
+    transport_total = transport_price * transport_headcount if transportation else Decimal('0')
+    addon_total = transport_total + (doctor_price if doctor else Decimal('0'))
+    plan = package.calculate_plan(months, addon_total=addon_total, package_total=package_total)
+    if deposit <= 0 or deposit > plan['grand_total']:
+        return JsonResponse({'success': False, 'message': 'Starting payment must be greater than zero and no more than the experience total.'}, status=400)
+    if not settings.PAYSTACK_SECRET_KEY:
+        return JsonResponse({'success': False, 'message': 'Secure payments are temporarily unavailable. Please contact Unwind Africa.'}, status=503)
+
+    from .models import RestCard, CommunityMember, TokenWallet, Vote, PackageOrder as OrderModel
+    known = (RestCard.objects.filter(member_email__iexact=email).exists()
+             or CommunityMember.objects.filter(email__iexact=email).exists()
+             or TokenWallet.objects.filter(member_email__iexact=email).exists()
+             or Vote.objects.filter(voter_email__iexact=email).exists()
+             or OrderModel.objects.filter(customer_email__iexact=email).exists())
+    if not known:
+        return JsonResponse({'success': False, 'message': 'This account is not eligible to book yet. Request a Rest Card to get started.'}, status=403)
+    member = RestCard.objects.filter(member_email__iexact=email).only('member_name').first()
+    name = member.member_name if member else ''
+    monthly = plan['monthly_contribution']
+    order = PackageOrder.objects.create(
+        customer_email=email, customer_name=name, package=package, package_price=package_total,
+        duration_months=months, my_doctor_selected=doctor, my_doctor_price=doctor_price if doctor else 0,
+        transportation_selected=transportation, transportation_price=transport_total,
+        transportation_pickup_location=pickup, party_size=party_size, subtotal=plan['subtotal'],
+        instalment_charges=plan['instalment_charges'], grand_total=plan['grand_total'],
+        monthly_contribution=monthly, amount_paid=0, outstanding_balance=plan['grand_total'], status='pending')
+    for index in range(1, months + 1):
+        due_date = add_months(date.today(), index - 1)
+        amount_due = plan['grand_total'] - (monthly * (months - 1)) if index == months else monthly
+        PackageInstalment.objects.create(order=order, month_number=index, due_date=due_date,
+            main_amount_due=amount_due, rest_forward_portion=0, total_due=amount_due, amount_paid=0, status='pending')
+    reference = f"GG-{secrets.token_urlsafe(18)}"
+    payment = PackagePayment.objects.create(order=order, amount=deposit, reference=reference,
+        is_initial_deposit=True, status='pending')
+    callback = request.build_absolute_uri(f'/dashboard/packages/verify/{reference}/?mobile=1')
+    payload = {'email': email, 'amount': int(deposit * 100), 'reference': reference,
+        'callback_url': callback, 'metadata': {'order_id': order.pk, 'customer_name': name,
+        'package_name': package.name, 'initial_deposit': True, 'source': 'unwind_mobile_app'}}
+    try:
+        response = requests.post('https://api.paystack.co/transaction/initialize',
+            headers={'Authorization': f'Bearer {settings.PAYSTACK_SECRET_KEY}', 'Content-Type': 'application/json'},
+            json=payload, timeout=15)
+        response_data = response.json()
+        paystack_data = response_data.get('data') or {}
+        if not response.ok or not response_data.get('status') or not paystack_data.get('authorization_url'):
+            payment.status = 'failed'
+            payment.paystack_response = response_data
+            payment.save(update_fields=['status', 'paystack_response'])
+            return JsonResponse({'success': False, 'message': 'Paystack could not start this payment. Please try again.'}, status=502)
+        payment.paystack_reference = paystack_data.get('reference', reference)
+        payment.authorization_url = paystack_data['authorization_url']
+        payment.paystack_response = response_data
+        payment.save(update_fields=['paystack_reference', 'authorization_url', 'paystack_response'])
+        _send_package_payment_notifications(payment, order, started=True)
+        return JsonResponse({'success': True, 'authorization_url': payment.authorization_url,
+            'reference': payment.paystack_reference, 'order_id': order.pk,
+            'amount': str(deposit), 'total': str(plan['grand_total']), 'monthly': str(monthly)})
+    except (requests.RequestException, ValueError):
+        logger.exception('Mobile package payment initialization failed')
+        payment.status = 'failed'
+        payment.save(update_fields=['status'])
+        return JsonResponse({'success': False, 'message': 'We could not reach the secure payment service. Please try again.'}, status=502)
+
+
+@csrf_exempt
+@require_GET
+def mobile_verify_package_payment_api(request, reference):
+    """Verify a Paystack return in the app and bind it to the signed-in account."""
+    from django.core import signing
+    from .models import PackagePayment
+    authorization = request.headers.get('Authorization', '')
+    if not authorization.startswith('Bearer '):
+        return JsonResponse({'success': False, 'message': 'Sign in to verify this payment.'}, status=401)
+    try:
+        email = signing.TimestampSigner(salt='unwind.mobile.auth').unsign(authorization[7:].strip(), max_age=2592000)
+        payment = PackagePayment.objects.select_related('order').get(
+            Q(reference=reference) | Q(paystack_reference=reference),
+            order__customer_email__iexact=email)
+    except (signing.BadSignature, PackagePayment.DoesNotExist):
+        return JsonResponse({'success': False, 'message': 'We could not match this payment to your account.'}, status=404)
+    request.session['dashboard_user_email'] = email
+    request.session['dashboard_authenticated'] = True
+    request.headers  # request header is immutable; invoke the existing verifier as a JSON client.
+    from django.test.client import RequestFactory
+    verify_request = RequestFactory().get(
+        f'/dashboard/packages/verify/{payment.reference}/',
+        HTTP_ACCEPT='application/json', HTTP_X_UNWIND_MOBILE='1')
+    verify_request.session = request.session
+    result = verify_installment_payment(verify_request, reference)
+    try:
+        response_data = json.loads(result.content.decode('utf-8'))
+    except (ValueError, AttributeError):
+        response_data = {'success': False, 'message': 'Payment verification could not be completed.'}
+    response_data.setdefault('status', payment.status)
+    response_data.setdefault('order_id', payment.order_id)
+    return JsonResponse(response_data, status=result.status_code)
 
 
 @csrf_exempt
@@ -2764,8 +2924,9 @@ def verify_installment_payment(request, reference):
     from django.utils.timezone import now
 
     ajax_request = 'application/json' in request.headers.get('Accept', '')
+    mobile_return = request.GET.get('mobile') == '1'
     try:
-        payment = get_object_or_404(PackagePayment, reference=reference)
+        payment = get_object_or_404(PackagePayment, Q(reference=reference) | Q(paystack_reference=reference))
         email = request.session.get('dashboard_user_email')
         if not payment.is_initial_deposit and email != payment.order.customer_email:
             if ajax_request:
@@ -2779,6 +2940,9 @@ def verify_installment_payment(request, reference):
             _send_package_payment_notifications(payment, payment.order)
             if ajax_request:
                 return JsonResponse({'success': True, 'already_verified': True})
+            if mobile_return:
+                from django.http import HttpResponseRedirect
+                return HttpResponseRedirect(f'unwindafrica://payment-result?reference={payment.paystack_reference or payment.reference}')
             return redirect('user_dashboard')
 
         if not settings.PAYSTACK_SECRET_KEY:
@@ -2787,7 +2951,7 @@ def verify_installment_payment(request, reference):
             messages.error(request, 'Payment verification is temporarily unavailable.')
             return redirect('user_dashboard')
         response = requests.get(
-            f'https://api.paystack.co/transaction/verify/{reference}',
+            f'https://api.paystack.co/transaction/verify/{payment.paystack_reference or payment.reference}',
             headers={'Authorization': f'Bearer {settings.PAYSTACK_SECRET_KEY}'},
             timeout=15,
         )
@@ -2808,6 +2972,9 @@ def verify_installment_payment(request, reference):
                 payment.save(update_fields=['status', 'paystack_response'])
             if ajax_request:
                 return JsonResponse({'success': False, 'message': 'Payment could not be confirmed.'}, status=400)
+            if mobile_return:
+                from django.http import HttpResponseRedirect
+                return HttpResponseRedirect(f'unwindafrica://payment-result?reference={payment.paystack_reference or payment.reference}&status=failed')
             messages.error(request, 'Payment could not be confirmed. Please try again or contact support.')
             return redirect('user_dashboard')
 
@@ -2823,7 +2990,9 @@ def verify_installment_payment(request, reference):
         if payment.is_initial_deposit:
             request.session['dashboard_user_email'] = order.customer_email
             request.session['dashboard_authenticated'] = True
-            _send_package_dashboard_password(order.customer_email, order.customer_name)
+            metadata = ((payment.paystack_response or {}).get('data') or {}).get('metadata') or {}
+            if not mobile_return and request.headers.get('X-Unwind-Mobile') != '1' and metadata.get('source') != 'unwind_mobile_app':
+                _send_package_dashboard_password(order.customer_email, order.customer_name)
         payment.refresh_from_db()
         _send_package_payment_notifications(payment, order)
         if ajax_request:
@@ -2832,12 +3001,18 @@ def verify_installment_payment(request, reference):
                 'discount': str(order.early_access_discount),
                 'early_access_slot': order.early_access_slot,
             })
+        if mobile_return:
+            from django.http import HttpResponseRedirect
+            return HttpResponseRedirect(f'unwindafrica://payment-result?reference={payment.paystack_reference or payment.reference}&status=success')
         messages.success(request, f'₦{payment.amount:,.0f} payment confirmed for {order.package.name}.')
         return redirect('user_dashboard')
     except (requests.RequestException, ValueError):
         logger.exception('Unable to verify package payment with Paystack')
         if ajax_request:
             return JsonResponse({'success': False, 'message': 'Unable to reach the payment gateway.'}, status=502)
+        if mobile_return:
+            from django.http import HttpResponseRedirect
+            return HttpResponseRedirect(f'unwindafrica://payment-result?reference={reference}&status=check')
         messages.error(request, 'Unable to reach the payment gateway. Please try again shortly.')
         return redirect('user_dashboard')
 

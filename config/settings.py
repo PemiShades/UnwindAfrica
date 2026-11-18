@@ -4,6 +4,7 @@ import os
 from urllib.parse import urlsplit
 from dotenv import load_dotenv
 import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
@@ -189,13 +190,16 @@ if USE_CONSOLE_EMAIL:
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.go54mail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
 EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', True)
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'no-reply@unwindafrica.com')
+EMAIL_USE_SSL = env_bool('EMAIL_USE_SSL', False)
+if EMAIL_USE_TLS and EMAIL_USE_SSL:
+    raise ImproperlyConfigured('Use SMTP STARTTLS or SSL, not both.')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'info@unwindafrica.com')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Unwind Africa <no-reply@unwindafrica.com>')
-SERVER_EMAIL = os.getenv('SERVER_EMAIL', 'no-reply@unwindafrica.com')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Unwind Africa <info@unwindafrica.com>')
+SERVER_EMAIL = os.getenv('SERVER_EMAIL', 'info@unwindafrica.com')
 PACKAGE_PAYMENT_NOTIFY_EMAILS = [
     address.strip()
     for address in os.getenv('PACKAGE_PAYMENT_NOTIFY_EMAILS', '').split(',')

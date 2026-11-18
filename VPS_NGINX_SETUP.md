@@ -96,7 +96,7 @@ The repository's Node gateway is optional for this specific layout. Nginx can se
 
 ## Production environment and credential rotation
 
-The production `.env` must have one assignment per setting. Use the final domain values from `ops/env.production.example`; remove duplicate old lines so there is no ambiguity. Set `DEBUG=False` before serving the public domain. Leave `USE_CONSOLE_EMAIL=True` only for local development; production login codes and payment notices require working SMTP credentials and `USE_CONSOLE_EMAIL=False`. Replace Paystack placeholders with the live keys before accepting production payments.
+The production `.env` must have one assignment per setting. Use the final domain values from `ops/env.production.example`; remove duplicate old lines so there is no ambiguity. Set `DEBUG=False` before serving the public domain. Leave `USE_CONSOLE_EMAIL=True` only for local development; production login codes and payment notices require working SMTP credentials and `USE_CONSOLE_EMAIL=False`. For the Go54 mailbox, use `smtp.go54mail.com`, port `587`, `EMAIL_USE_TLS=True`, `EMAIL_USE_SSL=False`, and `info@unwindafrica.com` as both SMTP username and sender. Set the actual mailbox password only in the private server `.env`; never commit it. IMAP is not needed for app email delivery. Replace Paystack placeholders with the live keys before accepting production payments.
 
 Credentials were pasted into a support conversation while troubleshooting. Treat the Django `SECRET_KEY` and PostgreSQL password as exposed and rotate both before production traffic:
 
