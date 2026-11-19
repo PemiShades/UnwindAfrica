@@ -53,6 +53,10 @@
 .gg-detail__experience { margin-top: 1.2rem; padding: 1.2rem; border: 1px solid var(--ua-border); border-radius: 16px; background: rgba(255,255,255,.72); }
 .gg-detail__experience h2 { margin: 0 0 .55rem; font: 700 1.2rem 'Playfair Display', Georgia, serif; }
 .gg-detail__experience p { margin: 0; color: var(--ua-muted); font-size: .88rem; line-height: 1.65; white-space: pre-line; }
+.gg-detail__experience .gg-detail__description p { margin: 0 0 .9rem; white-space: normal; }
+.gg-detail__experience .gg-detail__description p:last-child { margin-bottom: 0; }
+.gg-detail__inclusions { margin-top: 1rem; padding-top: .9rem; border-top: 1px solid var(--ua-border); }
+.gg-detail__inclusions p { margin: 0 0 .4rem; color: var(--ua-ink); }
 @media (max-width: 850px) { .gg-detail__intro { grid-template-columns: 1fr; gap: .5rem; } .gg-detail__copy { padding: .5rem 0; } }
 @media (max-width: 540px) { .gg-detail { padding: 6rem .8rem 2.5rem; } .gg-fields { grid-template-columns: 1fr; gap: 0; } .gg-field--wide { grid-column: auto; } .gg-plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 </style>
@@ -77,8 +81,8 @@
         {% endif %}
         <div class="gg-detail__experience">
           <h2>Your time away</h2>
-          <p>{{ package.description|default:package.short_description }}</p>
-          {% if package.inclusions %}<p class="gg-detail__inclusions">{{ package.inclusions }}</p>{% endif %}
+          <div class="gg-detail__description">{{ package.description|default:package.short_description|linebreaks }}</div>
+          {% if package.inclusions %}<div class="gg-detail__inclusions"><h2>Included in your experience</h2>{{ package.inclusions|linebreaks }}</div>{% endif %}
         </div>
         {% if package.who_is_it_for %}<div class="gg-detail__experience"><h2>Made for</h2><p>{{ package.who_is_it_for|linebreaksbr }}</p></div>{% endif %}
       </section>

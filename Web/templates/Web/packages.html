@@ -53,7 +53,7 @@
         <div class="experience-card__content">
           <p class="experience-card__category">{{ package.get_category_display }}</p>
           <h3>{{ package.name }}</h3>
-          <p class="experience-card__description">{{ package.tagline|default:package.short_description|default:package.description|truncatechars:145 }}</p>
+          <p class="experience-card__description">{{ package.short_description|default:package.tagline|default:package.description|truncatechars:160 }}</p>
           <div class="experience-card__price"><div><span>From</span><strong>₦{{ package.price_per_person|floatformat:0 }}</strong></div><small>{{ package.get_pricing_basis_display }}</small></div>
           {% if package.family_coverage %}<p class="experience-card__footnote">{{ package.family_coverage }}</p>{% endif %}
           <a class="experience-card__link" href="{% url 'package_detail' package.slug %}">View details <span aria-hidden="true">↗</span></a>

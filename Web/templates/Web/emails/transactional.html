@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>{{ title }}</title>
+</head>
+<body style="margin:0;padding:0;background:#f3f1eb;color:#18251f;font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%;">
+  <div style="display:none!important;visibility:hidden;opacity:0;color:transparent;height:0;width:0;overflow:hidden;mso-hide:all;">{{ preheader }}</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f3f1eb;width:100%;">
+    <tr><td align="center" style="padding:34px 16px;">
+      <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;background:#fffefa;border-collapse:separate;border-spacing:0;">
+        <tr><td style="padding:25px 34px;background:#173d31;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr>
+            <td align="left" style="color:#fffefa;font-size:13px;font-weight:700;letter-spacing:2.4px;text-transform:uppercase;">
+              <img src="https://unwindafrica.com/static/assets/LOGO-cropped.png" width="38" height="38" alt="" style="display:inline-block;width:38px;height:38px;vertical-align:middle;border:0;border-radius:50%;margin-right:11px;">
+              <span style="vertical-align:middle;">Unwind Africa</span>
+            </td>
+            <td align="right" style="color:#d7bd80;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;">Your time, well spent</td>
+          </tr></table>
+        </td></tr>
+        <tr><td style="height:4px;background:#c7a96b;font-size:0;line-height:4px;">&nbsp;</td></tr>
+        <tr><td style="padding:38px 38px 12px;">
+          <p style="margin:0 0 12px;color:#9c7a3e;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">A note from Unwind Africa</p>
+          <h1 style="margin:0;color:#173d31;font-family:Georgia,'Times New Roman',serif;font-size:30px;line-height:1.18;font-weight:400;">{{ title }}</h1>
+        </td></tr>
+        <tr><td style="padding:8px 38px 30px;color:#56625b;font-size:15px;line-height:1.75;">
+          {% for paragraph in paragraphs %}<p style="margin:0 0 16px;">{{ paragraph }}</p>{% endfor %}
+          {% if code %}
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:22px 0 20px;width:100%;background:#f3f1eb;">
+              <tr><td align="center" style="padding:19px 12px 7px;color:#7a8079;font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;">Your secure sign-in code</td></tr>
+              <tr><td align="center" style="padding:0 12px 19px;color:#173d31;font-family:Georgia,'Times New Roman',serif;font-size:34px;font-weight:700;letter-spacing:9px;">{{ code }}</td></tr>
+            </table>
+          {% endif %}
+          {% if details %}
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:20px 0;background:#f7f6f1;border-collapse:collapse;">
+              {% for label, value in details %}<tr>
+                <td style="padding:11px 14px;border-bottom:1px solid #e8e5dc;color:#7a8079;font-size:11px;letter-spacing:.5px;">{{ label }}</td>
+                <td align="right" style="padding:11px 14px;border-bottom:1px solid #e8e5dc;color:#20392f;font-size:13px;font-weight:700;">{{ value }}</td>
+              </tr>{% endfor %}
+            </table>
+          {% endif %}
+          {% if button_label and button_url %}
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:24px 0 8px;"><tr><td bgcolor="#173d31" style="background:#173d31;">
+              <a href="{{ button_url }}" style="display:inline-block;padding:14px 22px;color:#fffefa;text-decoration:none;font-size:13px;font-weight:700;">{{ button_label }}</a>
+            </td></tr></table>
+          {% endif %}
+          {% if footer_note %}<p style="margin:20px 0 0;color:#777d76;font-size:12px;line-height:1.65;">{{ footer_note }}</p>{% endif %}
+        </td></tr>
+        <tr><td style="padding:20px 38px 24px;border-top:1px solid #e9e6de;color:#7c817b;font-size:11px;line-height:1.7;">
+          <strong style="color:#173d31;letter-spacing:.7px;">UNWIND AFRICA</strong><br>
+          Thoughtful escapes, made personal.<br>
+          <a href="https://unwindafrica.com" style="color:#876b35;text-decoration:none;">unwindafrica.com</a>
+          <span style="display:block;margin-top:10px;color:#9a9e98;">This is a service email about your Unwind Africa account or booking. If you need help, contact info@unwindafrica.com.</span>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>

@@ -17,6 +17,7 @@ import secrets
 
 from .models import Post, Event, BlogCategory
 from .forms import PostForm, EventForm
+from .emailing import send_branded_email
 
 logger = logging.getLogger(__name__)
 
@@ -135,7 +136,6 @@ def mobile_request_login_code(request):
     from django.contrib.auth.hashers import make_password
     from django.conf import settings
     from django.core.cache import cache
-    from django.core.mail import send_mail
     from django.http import JsonResponse
     from django.utils import timezone
     from .models import (
@@ -182,11 +182,14 @@ def mobile_request_login_code(request):
         },
     )
     try:
-        send_mail(
+        send_branded_email(
             'Your Unwind Africa sign-in code',
-            f'Your sign-in code is {code}. It expires in 10 minutes. If you did not request this, you can ignore this email.',
-            settings.DEFAULT_FROM_EMAIL,
             [email],
+            preheader='Your secure sign-in code is ready.',
+            title='Your sign-in code',
+            paragraphs=['Use this one-time code to securely access your Unwind Africa account.'],
+            code=code,
+            footer_note='This code expires in 10 minutes. Never share it with anyone. If you did not request it, you can safely ignore this email.',
             fail_silently=False,
         )
     except Exception:
@@ -201,7 +204,6 @@ def mobile_request_login_code(request):
 def mobile_register_member_api(request):
     """Create a Rest Card waitlist application from the standalone mobile app."""
     from django.conf import settings
-    from django.core.mail import send_mail
     from django.core.validators import validate_email
     from django.core.exceptions import ValidationError
     from django.http import JsonResponse
@@ -242,24 +244,30 @@ def mobile_register_member_api(request):
         logger.exception('Unable to create mobile Rest Card request')
         return JsonResponse({'success': False, 'error': 'We could not save your request. Please try again.'}, status=500)
 
-    user_message = (
-        f'Dear {name},\n\nThank you for requesting your Unwind Africa Rest Card. '
-        f'Your request is on our waitlist at position #{card.waitlist_position}. '
-        'We will email you when there is an update.\n\nThe Unwind Africa Team'
-    )
-    staff_message = (
-        f'New Rest Card request from the mobile app.\n\nName: {name}\nEmail: {email}\n'
-        f'Phone: {phone}\nWaitlist position: #{card.waitlist_position}'
-    )
     try:
-        send_mail('Your Unwind Africa Rest Card request', user_message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+        send_branded_email(
+            'Your Unwind Africa Rest Card request', [email],
+            preheader='We have received your Rest Card request.',
+            title='Your request is with us',
+            paragraphs=[f'Dear {name}, thank you for requesting your Unwind Africa Rest Card. We have added your request to our waitlist and will email you when there is an update.'],
+            details=[('Waitlist position', f'#{card.waitlist_position}')],
+            footer_note='You do not need to submit another request. We will be in touch when your status changes.',
+            fail_silently=False,
+        )
     except Exception:
         logger.exception('Rest Card request confirmation email failed for %s', email)
     try:
         staff_recipients = _package_payment_admin_recipients() or ['clientservicesunwindafrica@gmail.com']
         if 'clientservicesunwindafrica@gmail.com' not in staff_recipients:
             staff_recipients.append('clientservicesunwindafrica@gmail.com')
-        send_mail(f'New Rest Card request from {name}', staff_message, settings.DEFAULT_FROM_EMAIL, staff_recipients, fail_silently=False)
+        send_branded_email(
+            f'New Rest Card request from {name}', staff_recipients,
+            preheader='A new member has requested a Rest Card.',
+            title='New Rest Card request',
+            paragraphs=['A member has submitted a Rest Card request through the mobile app.'],
+            details=[('Name', name), ('Email', email), ('Phone', phone), ('Waitlist position', f'#{card.waitlist_position}')],
+            fail_silently=False,
+        )
     except Exception:
         logger.exception('Staff notification for mobile Rest Card request failed')
 
@@ -2212,12 +2220,14 @@ def user_dashboard_login(request):
             
             # Send OTP email
             try:
-                send_mail(
-                    'Your Unwind Africa Dashboard Login Code',
-                    f'Your verification code is: {otp}\n\nThis code expires in 10 minutes.\n\nIf you did not request this, please ignore this email.',
-                    settings.DEFAULT_FROM_EMAIL,
-                    [email],
-                    fail_silently=True,
+                send_branded_email(
+                    'Your Unwind Africa dashboard sign-in code', [email],
+                    preheader='Your secure dashboard sign-in code is ready.',
+                    title='Sign in securely',
+                    paragraphs=['Enter this one-time code on the sign-in screen to view your Unwind Africa account.'],
+                    code=otp,
+                    footer_note='This code expires in 10 minutes. Never share it with anyone. If you did not request it, you can safely ignore this email.',
+                    fail_silently=False,
                 )
             except Exception as e:
                 print(f"OTP email error: {e}")
@@ -2775,23 +2785,23 @@ def _send_package_payment_notifications(payment, order, *, started=False):
     recipients = _package_payment_admin_recipients()
     package_name = order.package.name
     reference = payment.paystack_reference or payment.reference
-    amount = f'₦{payment.amount:,.0f}'
+    amount = f'\u20a6{payment.amount:,.0f}'
 
     if started and not payment.started_email_sent_at and recipients:
         subject = f'Package payment started: {package_name}'
-        body = (
-            'A customer has started a package payment.\n\n'
-            f'Customer: {order.customer_name or "Not provided"}\n'
-            f'Email: {order.customer_email}\n'
-            f'Package: {package_name}\n'
-            f'Order: #{order.pk}\n'
-            f'Attempt amount: {amount}\n'
-            f'Reference: {reference}\n'
-            'State: Awaiting Paystack verification\n\n'
-            'Review the package payment ledger in the Unwind Africa developer dashboard.'
-        )
         try:
-            if send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, recipients, fail_silently=False):
+            if send_branded_email(
+                subject, recipients,
+                preheader='A customer has started a getaway payment.',
+                title='Payment started',
+                paragraphs=['A customer has started checkout. The payment is awaiting server-side verification.'],
+                details=[('Customer', order.customer_name or 'Not provided'), ('Email', order.customer_email),
+                         ('Package', package_name), ('Order', f'#{order.pk}'),
+                         ('Attempt amount', amount), ('Reference', reference),
+                         ('State', 'Awaiting Paystack verification')],
+                footer_note='Review the payment ledger in the Unwind Africa developer dashboard.',
+                fail_silently=False,
+            ):
                 payment.started_email_sent_at = now()
                 payment.save(update_fields=['started_email_sent_at'])
         except Exception:
@@ -2802,21 +2812,20 @@ def _send_package_payment_notifications(payment, order, *, started=False):
 
     if not payment.admin_confirmation_sent_at and recipients:
         subject = f'Package payment confirmed: {package_name}'
-        body = (
-            'Paystack has verified a package payment.\n\n'
-            f'Customer: {order.customer_name or "Not provided"}\n'
-            f'Email: {order.customer_email}\n'
-            f'Package: {package_name}\n'
-            f'Order: #{order.pk}\n'
-            f'Payment received: {amount}\n'
-            f'Order paid to date: ₦{order.amount_paid:,.0f}\n'
-            f'Balance remaining: ₦{order.outstanding_balance:,.0f}\n'
-            f'Order state: {order.get_status_display()}\n'
-            f'Paystack reference: {reference}\n\n'
-            'This payment was verified server-side before the order balance was updated.'
-        )
         try:
-            if send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, recipients, fail_silently=False):
+            if send_branded_email(
+                subject, recipients,
+                preheader='Paystack has confirmed a getaway payment.',
+                title='Payment confirmed',
+                paragraphs=['Paystack verified this payment successfully. The order balance has been updated.'],
+                details=[('Customer', order.customer_name or 'Not provided'), ('Email', order.customer_email),
+                         ('Package', package_name), ('Order', f'#{order.pk}'),
+                         ('Payment received', amount), ('Paid to date', f'\u20a6{order.amount_paid:,.0f}'),
+                         ('Balance remaining', f'\u20a6{order.outstanding_balance:,.0f}'),
+                         ('Order state', order.get_status_display()), ('Paystack reference', reference)],
+                footer_note='This payment was verified server-side before the order balance was updated.',
+                fail_silently=False,
+            ):
                 payment.admin_confirmation_sent_at = now()
                 payment.save(update_fields=['admin_confirmation_sent_at'])
         except Exception:
@@ -2825,32 +2834,34 @@ def _send_package_payment_notifications(payment, order, *, started=False):
     if not payment.customer_confirmation_sent_at and order.customer_email:
         completed = order.status == 'completed'
         subject = (
-            f'Congratulations — your {package_name} getaway is fully paid'
+            f'Congratulations: your {package_name} getaway is fully paid'
             if completed else f'Payment received for your {package_name} getaway'
         )
         greeting = order.customer_name or 'there'
         completion_line = (
             'Congratulations, your getaway is fully paid and confirmed.'
             if completed else
-            f'Your remaining balance is ₦{order.outstanding_balance:,.0f}. You can continue your payment plan from your Unwind Africa dashboard.'
-        )
-        body = (
-            f'Hello {greeting},\n\n'
-            f'We have confirmed your payment of {amount} for {package_name}.\n'
-            f'Paid to date: ₦{order.amount_paid:,.0f}\n'
-            f'Package balance: ₦{order.outstanding_balance:,.0f}\n\n'
-            f'{completion_line}\n\n'
-            f'Payment reference: {reference}\n'
-            'Thank you for choosing Unwind Africa. We look forward to welcoming you.\n\n'
-            'Unwind Africa Guest Experience Team'
+            f'Your remaining balance is \u20a6{order.outstanding_balance:,.0f}. You can continue your payment plan from your Unwind Africa dashboard.'
         )
         try:
-            if send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [order.customer_email], fail_silently=False):
+            if send_branded_email(
+                subject, [order.customer_email],
+                preheader=f'Your payment for {package_name} has been confirmed.',
+                title='Your getaway is confirmed' if completed else 'Payment received',
+                paragraphs=[f'Hello {greeting}, we have confirmed your payment of {amount} for {package_name}.',
+                            completion_line,
+                            'Thank you for choosing Unwind Africa. We look forward to welcoming you.'],
+                details=[('Paid to date', f'\u20a6{order.amount_paid:,.0f}'),
+                         ('Remaining balance', f'\u20a6{order.outstanding_balance:,.0f}'),
+                         ('Payment reference', reference)],
+                button_label='Open your getaway dashboard',
+                button_url='https://unwindafrica.com/dashboard/login/',
+                fail_silently=False,
+            ):
                 payment.customer_confirmation_sent_at = now()
                 payment.save(update_fields=['customer_confirmation_sent_at'])
         except Exception:
             logger.exception('Could not email customer about confirmed package payment %s', reference)
-
 
 def _confirm_package_payment(payment, response_data, paystack_data):
     """Apply one verified Paystack charge once, under row locks."""
