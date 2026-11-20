@@ -1,74 +1,69 @@
 {% extends "Web/main.html" %}
 {% load static %}
 
-{% block title %}Curated Getaways | Unwind Africa{% endblock %}
-{% block meta_description %}Explore six Unwind Africa experiences for groups, couples and families. Compare the stay length, price and payment options, then reserve in a few simple steps.{% endblock %}
-{% block og_title %}Curated Getaways | Unwind Africa{% endblock %}
-{% block og_description %}Explore considered day escapes and overnight stays for groups, couples and families.{% endblock %}
-{% block twitter_title %}Curated Getaways | Unwind Africa{% endblock %}
-{% block twitter_description %}Explore considered day escapes and overnight stays for groups, couples and families.{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}?v=20261111"><link rel="stylesheet" href="{% static 'css/package-experiences.css' %}?v=20261111">{% endblock %}
+{% block title %}Getaways and Package Prices | Unwind Africa{% endblock %}
+{% block meta_description %}Compare Unwind Africa day trips and overnight getaways for groups, couples and families. See package prices, duration and payment options.{% endblock %}
+{% block og_title %}Getaways and Package Prices | Unwind Africa{% endblock %}
+{% block og_description %}Compare hosted day trips and overnight getaways for groups, couples and families.{% endblock %}
+{% block twitter_title %}Getaways and Package Prices | Unwind Africa{% endblock %}
+{% block twitter_description %}Compare hosted day trips and overnight getaways for groups, couples and families.{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}?v=20261120"><link rel="stylesheet" href="{% static 'css/package-experiences.css' %}?v=getaway-grid-20261120">{% endblock %}
 {% block content %}
 <main class="experience-page">
   <section class="experience-intro">
     <div class="experience-intro__copy">
-      <p class="experience-kicker">UNWIND AFRICA · 2026 / 2027</p>
-      <h1>Time away,<br><em>well spent.</em></h1>
-      <p>Rest by the water. Reconnect with your people. Let us take care of the details.</p>
-      <a href="#getaways" class="experience-text-link">Explore the getaways <span aria-hidden="true">↓</span></a>
+      <p class="experience-kicker">UNWIND AFRICA GETAWAYS</p>
+      <h1>Day trips and<br><em>overnight stays.</em></h1>
+      <p>Hosted day trips and overnight stays for groups, couples and families.</p>
+      <a href="#getaways" class="experience-text-link">Browse the getaways <span aria-hidden="true">↓</span></a>
     </div>
     <figure class="experience-intro__image">
-      <img src="{% static 'assets/home/photography/show_1.jpeg' %}" alt="Unwind Africa guests enjoying time together by the water" fetchpriority="high">
-      <figcaption>Room to slow down.<br>Space to feel present.</figcaption>
+      <img src="{% static 'assets/home/photography/show_1.jpeg' %}" alt="Guests enjoying time together by the water" fetchpriority="high">
+      <figcaption>Day trips and overnight stays</figcaption>
     </figure>
-    <div class="experience-intro__stamp" aria-hidden="true">REST<br>RECHARGE<br>RECONNECT</div>
   </section>
 
-  <section class="experience-values" aria-label="Experience details">
-    <span>Thoughtfully hosted</span><span>Easy payment plans</span><span>Made for real connection</span>
+  <section class="experience-values" aria-label="Booking options">
+    <span>Clear package prices</span><span>Outright or monthly plans</span><span>No Rest Card required to book</span>
   </section>
 
   <section class="experience-collection" id="getaways">
     <header class="experience-heading">
-      <div><p class="experience-kicker">THE COLLECTION</p><h2>Choose your kind of escape.</h2></div>
-      <p>Outright payment or a 3, 6, 9, or 12 month savings plan. Begin with any amount.</p>
+      <div><p class="experience-kicker">THE COLLECTION</p><h2>Explore getaways.</h2></div>
+      <p>Compare the duration, price and package coverage, then open a getaway for the full details.</p>
     </header>
-    <nav class="experience-filter" aria-label="Filter packages">
-      <button class="is-active" type="button" data-filter="all">All experiences</button>
-      <button type="button" data-filter="group">Group getaway</button>
-      <button type="button" data-filter="couples">Couples escape</button>
-      <button type="button" data-filter="family">Family moments</button>
+    <nav class="experience-filter" aria-label="Filter getaways">
+      <button class="is-active" type="button" data-filter="all" aria-pressed="true">All</button>
+      <button type="button" data-filter="group" aria-pressed="false">Groups</button>
+      <button type="button" data-filter="couples" aria-pressed="false">Couples</button>
+      <button type="button" data-filter="family" aria-pressed="false">Families</button>
     </nav>
 
     <div class="experience-grid">
       {% for package in packages %}
-      {% with category=package.category %}
-      {% ifchanged package.category %}<h2 class="experience-category-heading" data-category="{{ package.category }}">{{ package.get_category_display }}</h2>{% endifchanged %}
-      <article class="experience-card" data-category="{{ category }}">
-        <a class="experience-card__photo" href="{% url 'package_detail' package.slug %}" aria-label="Explore {{ package.name }}">
-          <img src="{{ package.card_image_url }}" alt="{{ package.name }} — an Unwind Africa {{ package.get_category_display|lower }} experience" loading="lazy">
-          <span class="experience-card__number">0{{ forloop.counter }}</span>
-          <span class="experience-card__duration">{{ package.get_experience_duration_display }}</span>
+      <article class="experience-card" data-category="{{ package.category }}">
+        <a class="experience-card__photo" href="{% url 'package_detail' package.slug %}" aria-label="View {{ package.name }} package details">
+          <img src="{{ package.card_image_url }}" alt="{{ package.name }} getaway" loading="lazy">
         </a>
         <div class="experience-card__content">
-          <p class="experience-card__category">{{ package.get_category_display }}</p>
           <h3>{{ package.name }}</h3>
-          <p class="experience-card__description">{{ package.short_description|default:package.tagline|default:package.description|truncatechars:160 }}</p>
-          <div class="experience-card__price"><div><span>From</span><strong>₦{{ package.price_per_person|floatformat:0 }}</strong></div><small>{{ package.get_pricing_basis_display }}</small></div>
-          {% if package.family_coverage %}<p class="experience-card__footnote">{{ package.family_coverage }}</p>{% endif %}
-          <a class="experience-card__link" href="{% url 'package_detail' package.slug %}">View details <span aria-hidden="true">↗</span></a>
+          <p class="experience-card__duration-copy">{{ package.get_experience_duration_display }}</p>
+          <p class="experience-card__description">{{ package.short_description|default:package.tagline|default:package.description|truncatechars:125 }}</p>
+          <div class="experience-card__price"><div><span>Package price</span><strong>₦{{ package.price_per_person|floatformat:0 }}</strong></div><small>{% if package.pricing_basis == 'family' %}per family{% elif package.pricing_basis == 'couple' %}per couple{% else %}per person{% endif %}</small></div>
+          {% if package.family_coverage %}<p class="experience-card__footnote">{{ package.family_coverage }}</p>{% elif package.pricing_basis == 'family' %}<p class="experience-card__footnote">Covers {{ package.included_adults }} adults and {{ package.included_children }} children.</p>{% endif %}
+          <a class="experience-card__link" href="{% url 'package_detail' package.slug %}" aria-label="View {{ package.name }}">View package <span aria-hidden="true">→</span></a>
         </div>
       </article>
-      {% endwith %}
       {% empty %}
-      <div class="experience-empty">New experiences are being prepared. Please check back soon.</div>
+      <div class="experience-empty">New getaways are being prepared. Please check back soon.</div>
       {% endfor %}
+      <p class="experience-filter-empty" hidden>No getaways in this collection yet.</p>
     </div>
   </section>
 
   <section class="experience-note">
-    <div><p class="experience-kicker">A LITTLE MORE ROOM TO UNWIND</p><h2>Make the journey yours.</h2></div>
-    <p>{% if doctor_addon %}{{ doctor_addon.name }} is available as an optional extra for ₦{{ doctor_addon.price|floatformat:0 }} per booking. {% endif %}{% if transport_addon %}{{ transport_addon.name }} can be requested from ₦{{ transport_addon.price|floatformat:0 }} per person; final pricing depends on pickup location and arrangement. {% endif %}The first 20 eligible guests with a confirmed deposit receive 5% off their experience.</p>
+    <div><p class="experience-kicker">PLAN YOUR GETAWAY</p><h2>Need help choosing</h2></div>
+    <p>{% if doctor_addon %}{{ doctor_addon.name }} is an optional extra at ₦{{ doctor_addon.price|floatformat:0 }} per booking. {% endif %}{% if transport_addon %}{{ transport_addon.name }} can be requested from ₦{{ transport_addon.price|floatformat:0 }} per person. {% endif %}Larger family groups can contact our team about their plans.</p>
     <a href="mailto:unwindafrica24@gmail.com">Talk to our team <span aria-hidden="true">↗</span></a>
   </section>
 </main>
@@ -76,13 +71,22 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const buttons = document.querySelectorAll('.experience-filter button');
-  const cards = document.querySelectorAll('.experience-card');
-  const headings = document.querySelectorAll('.experience-category-heading');
+  const buttons = [...document.querySelectorAll('.experience-filter button')];
+  const cards = [...document.querySelectorAll('.experience-grid > .experience-card')];
+  const empty = document.querySelector('.experience-filter-empty');
   buttons.forEach(button => button.addEventListener('click', () => {
-    buttons.forEach(item => item.classList.toggle('is-active', item === button));
-    cards.forEach(card => { card.hidden = button.dataset.filter !== 'all' && card.dataset.category !== button.dataset.filter; });
-    headings.forEach(heading => { heading.hidden = button.dataset.filter !== 'all' && heading.dataset.category !== button.dataset.filter; });
+    buttons.forEach(item => {
+      const active = item === button;
+      item.classList.toggle('is-active', active);
+      item.setAttribute('aria-pressed', String(active));
+    });
+    let visible = 0;
+    cards.forEach(card => {
+      const show = button.dataset.filter === 'all' || card.dataset.category === button.dataset.filter;
+      card.hidden = !show;
+      if (show) visible += 1;
+    });
+    if (empty) empty.hidden = visible !== 0 || button.dataset.filter === 'all';
   }));
 });
 </script>

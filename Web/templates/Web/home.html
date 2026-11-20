@@ -1,105 +1,69 @@
 {% extends "Web/main.html" %}
 {% load static %}
 
-{% block title %}Unwind Africa — Rest, Recharge, Reconnect{% endblock %}
-{% block meta_description %}Discover Unwind Africa day escapes and overnight getaways for groups, couples and families, with flexible ways to pay.{% endblock %}
-{% block og_title %}Unwind Africa | Restorative Luxury Getaways{% endblock %}
-{% block og_description %}Thoughtfully considered day escapes and overnight getaways for groups, couples and families.{% endblock %}
-{% block twitter_title %}Unwind Africa | Restorative Luxury Getaways{% endblock %}
-{% block twitter_description %}Thoughtfully considered day escapes and overnight getaways for groups, couples and families.{% endblock %}
+{% block title %}Unwind Africa | Hosted Getaways{% endblock %}
+{% block meta_description %}Hosted day trips and overnight getaways for groups, couples and families, with clear package prices and flexible payment plans.{% endblock %}
+{% block og_title %}Unwind Africa | Hosted Getaways{% endblock %}
+{% block og_description %}Explore hosted day trips and overnight getaways for groups, couples and families.{% endblock %}
+{% block twitter_title %}Unwind Africa | Hosted Getaways{% endblock %}
+{% block twitter_description %}Explore hosted day trips and overnight getaways for groups, couples and families.{% endblock %}
 
 {% block extra_css %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'css/brand-home.css' %}?v=experience-path-20261110">
+<link rel="stylesheet" href="{% static 'css/brand-home.css' %}?v=getaways-content-cards-20261120">
 {% endblock %}
 
 {% block content %}
 <main class="brand-home" id="main-content">
-  <section class="editorial-hero" aria-label="Unwind Africa">
+  <section class="editorial-hero" aria-label="Unwind Africa getaways">
     <div class="hero-inner">
       <div class="hero-copy">
-        <p class="ua-kicker">Restorative luxury across Africa</p>
-        <h1 class="ua-title">There is a kind of rest you cannot book from a search bar.</h1>
-        <p class="ua-subtitle">
-          Day escapes and overnight getaways for groups, couples and families, thoughtfully planned around you.
-        </p>
+        <p class="ua-kicker">Time away, well spent.</p>
+        <h1 class="ua-title">Hosted day trips and overnight getaways for groups, couples and families.</h1>
         <div class="hero-actions">
-          <a href="{% url 'packages' %}" class="ua-button ua-button--light">Discover your escape</a>
-          <a href="{% url 'packages' %}" class="ua-link">Explore experiences</a>
+          <a href="{% url 'packages' %}" class="ua-button ua-button--light">Browse getaways</a>
         </div>
-      </div>
-
-      <div class="hero-note">
-        <strong>For the overextended, the devoted, the always-on.</strong>
-        <p>
-          Considered places, thoughtful hosting, and quiet details, held for you from arrival to departure.
-        </p>
       </div>
     </div>
   </section>
 
-  <section class="ua-section method-section">
-    <div class="ua-container method-layout">
-      <header class="method-heading">
-        <div>
-          <p class="ua-kicker">The Unwind Method</p>
-          <h2 class="ua-title">Thoughtful from the very first detail.</h2>
-        </div>
-        <p class="ua-subtitle">Hospitality, wellness, and cultural hosting shaped around what you need from your time away.</p>
-      </header>
-
-      <div class="method-steps" aria-label="How we plan your experience">
-        <article class="method-step">
-          <div class="method-step__top">
-            <span class="method-step__number">01</span>
-            <svg class="method-step__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.5 19v-2.2a3.5 3.5 0 0 1 7 0V19M6.5 9.5a5.5 5.5 0 1 1 11 0v1.2a4.2 4.2 0 0 1-4.2 4.2h-.8"/><path d="M9.5 8.5a2 2 0 0 1 4 0v1.2"/></svg>
-          </div>
-          <p class="method-step__label">Listen closely</p>
-          <h3>We begin with what matters.</h3>
-          <p>Privacy, celebration, quiet, beauty, or room to think. We start with how you want to feel.</p>
+  <section class="ua-section getaway-overview" id="getaways">
+    <div class="ua-container getaway-overview__choices">
+      <p class="ua-kicker">The getaway collection</p>
+      <h2 class="ua-title">Getaways for groups, couples and families.</h2>
+      <p class="getaway-overview__intro">Choose the kind of time away that suits the people coming with you.</p>
+      <div class="getaway-categories">
+        <article class="getaway-category getaway-category--groups">
+          <h3>Groups</h3>
+          <p>Choose a hosted day trip with friends or colleagues, or make more time for a two-day stay with one night away. Group prices are per person.</p>
         </article>
-        <article class="method-step">
-          <div class="method-step__top">
-            <span class="method-step__number">02</span>
-            <svg class="method-step__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m15.8 8.2-2.5 5.1-5.1 2.5 2.5-5.1zM12 3v2M21 12h-2M12 21v-2M3 12h2"/></svg>
-          </div>
-          <p class="method-step__label">Compose with care</p>
-          <h3>Every detail has a reason.</h3>
-          <p>Place, pace, meals, and thoughtful touches come together around your time away.</p>
+        <article class="getaway-category getaway-category--couples">
+          <h3>Couples</h3>
+          <p>Spend a day together or choose an overnight stay for two. Couples prices cover both guests.</p>
         </article>
-        <article class="method-step">
-          <div class="method-step__top">
-            <span class="method-step__number">03</span>
-            <svg class="method-step__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 8.7c0 5.1-8 10.3-8 10.3S4 13.8 4 8.7a4.1 4.1 0 0 1 7.3-2.6A4.1 4.1 0 0 1 20 8.7Z"/><path d="m9.4 11.8 1.7 1.7 3.8-4"/></svg>
-          </div>
-          <p class="method-step__label">Care, quietly handled</p>
-          <h3>You arrive with room to breathe.</h3>
-          <p>Transfers, timing, guest care, and changes are handled quietly by one considered team.</p>
+        <article class="getaway-category getaway-category--families">
+          <h3>Families</h3>
+          <p>Pick a beach day or an overnight getaway. Starting prices cover two adults and two children; larger families can request a quote.</p>
         </article>
       </div>
     </div>
   </section>
 
-  <section class="ua-section experiences-section">
-    <div class="ua-container experience-collection">
-      <header class="experiences-heading">
-        <div>
-          <p class="ua-kicker">The launch collection</p>
-          <h2 class="ua-title">Time away, made personal.</h2>
-        </div>
-        <p class="experiences-intro">Choose a day to reset or a longer stay to reconnect, with people who matter to you.</p>
+  <section class="ua-section booking-section-home" aria-labelledby="booking-guide-title">
+    <div class="ua-container booking-section-home__layout">
+      <header class="booking-section-home__intro">
+        <p class="ua-kicker">A clear way to get away</p>
+        <h2 id="booking-guide-title" class="ua-title">How to book and pay.</h2>
       </header>
-      <div class="experience-gallery" aria-label="Unwind Africa experiences">
-        {% for package in package_starts %}
-        <a class="experience-card" href="{% url 'package_detail' package.slug %}">
-          <img src="{{ package.card_image_url }}" alt="{{ package.name }} — {{ package.get_category_display|lower }}" loading="lazy">
-          <span class="experience-card__index">0{{ forloop.counter }} <i>{{ package.get_category_display|upper }}</i></span>
-          <span class="experience-card__caption"><strong>{{ package.name }}</strong><span>{{ package.tagline|default:package.short_description|default:package.get_experience_duration_display }}</span><b aria-hidden="true">&nearr;</b></span>
-        </a>
-        {% empty %}<a class="experience-card" href="{% url 'packages' %}#getaways"><img src="{% static 'assets/home/optimized/book-groups.webp' %}" alt="Unwind Africa group getaway" loading="lazy"><span class="experience-card__caption"><strong>Explore getaways</strong><span>Discover the collection</span><b aria-hidden="true">&nearr;</b></span></a>{% endfor %}
-      </div>
+      <ol class="booking-flow">
+        <li><span class="booking-flow__number">01</span><h3>Choose your getaway</h3><p>Review the duration, inclusions, price coverage and available extras.</p></li>
+        <li><span class="booking-flow__number">02</span><h3>Choose how to pay</h3><p>Pay in full or select an available 3, 6, 9 or 12 month plan. Enter any amount as your first payment.</p></li>
+        <li><span class="booking-flow__number">03</span><h3>Pay and track your balance</h3><p>After payment is verified, follow your order, payments and remaining balance in your account.</p></li>
+      </ol>
+      <p class="booking-date-note">Your first payment starts the order and balance tracking; it does not reserve a travel date. <a href="{% url 'contact' %}">Contact us to confirm date availability.</a></p>
+      <a href="{% url 'packages' %}" class="booking-flow__link">Browse getaway packages</a>
     </div>
   </section>
 
@@ -109,38 +73,21 @@
         <p class="ua-kicker">Nominate to Unwind</p>
         {% if campaign %}
           <h2 class="ua-title">Give someone a reason to pause.</h2>
-          <p class="ua-subtitle">{{ campaign.tagline|default:"Tell us about someone who has spent a long time showing up for everyone else." }}</p>
-          <div class="nomination-meta"><span class="nomination-live"><i></i> CURRENT CAMPAIGN</span><span>{{ total_nominations }} stories shared</span>{% if days_remaining %}<span>{{ days_remaining }} days remaining</span>{% endif %}</div>
-          <a href="{{ campaign.get_absolute_url }}" class="nomination-link">Meet the nominees <span aria-hidden="true">&rarr;</span></a>
+          <p class="ua-subtitle">{{ campaign.tagline|default:"Share the story of someone who deserves time to rest." }}</p>
+          <div class="nomination-meta"><span class="nomination-live"><i></i> CAMPAIGN LIVE</span><span>{{ total_nominations }} nominees</span>{% if days_remaining %}<span>{{ days_remaining }} days remaining</span>{% endif %}</div>
+          <a href="{{ campaign.get_absolute_url }}" class="nomination-link">View nominees and vote</a>
+          {% if nominations_open %}<a href="{% url 'nominate' %}" class="nomination-link">Submit a nomination</a>{% else %}<p class="nomination-status">Nominations are closed. Voting is open while this campaign is live.</p>{% endif %}
         {% else %}
-          <h2 class="ua-title">Somebody in your life deserves room to breathe.</h2>
-          <p class="ua-subtitle">Share their story. When the next Nominate to Unwind campaign opens, their name can be part of it.</p>
-          <a href="{% url 'nominate' %}" class="nomination-link">Tell us who comes to mind <span aria-hidden="true">&rarr;</span></a>
+          <h2 class="ua-title">No active campaign right now.</h2>
+          <p class="ua-subtitle">Nominations and voting are closed. Campaign details will appear here when the next one opens.</p>
         {% endif %}
       </div>
       <div class="nomination-visual">
         {% if campaign and campaign.banner_image %}
           <img src="{{ campaign.banner_image.url }}" alt="{{ campaign.name }}" loading="lazy">
         {% else %}
-          <img src="{% static 'assets/home/team_quote_img.png' %}" alt="People sharing a moment of rest and connection" loading="lazy">
+          <img src="{% static 'assets/home/team_quote_img.png' %}" alt="People sharing time together" loading="lazy">
         {% endif %}
-        <span class="nomination-seal">REST<br>CHANGES<br>THINGS</span>
-      </div>
-    </div>
-  </section>
-
-  <section class="ua-section booking-section">
-    <div class="ua-container booking-layout">
-      <div class="booking-copy">
-        <p class="ua-kicker">A more considered getaway</p>
-        <h2 class="ua-title">All you need to do is arrive.</h2>
-        <p class="ua-subtitle">Thoughtful places, warm hosting, and the small details that let you be fully present.</p>
-      </div>
-      <div class="booking-promises" aria-label="The Unwind Africa experience">
-        <div><span>01</span><strong>Beautifully considered</strong><p>Each experience is designed around its own sense of place.</p></div>
-        <div><span>02</span><strong>Easy to make yours</strong><p>Choose the getaway and options that feel right for you.</p></div>
-        <div><span>03</span><strong>Space to be present</strong><p>We take care of the details while you enjoy the moment.</p></div>
-        <a href="{% url 'packages' %}" class="ua-button ua-button--light">Explore all experiences</a>
       </div>
     </div>
   </section>

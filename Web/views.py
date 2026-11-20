@@ -590,10 +590,9 @@ def mobile_initialize_vote_api(request):
 
 
 def home(request):
-    from .models import VotingCampaign, Nominee, GroupGetawayPackage
+    from .models import VotingCampaign, Nominee
+    from django.utils import timezone
     from django.utils.timezone import now as get_now
-    from django.db.models import Count
-    
     # Get active campaigns
     current_time = get_now()
     active_campaigns = VotingCampaign.objects.filter(
@@ -602,61 +601,32 @@ def home(request):
         end_date__gte=current_time
     ).order_by('-start_date')
     
-    # Get the latest campaign
-    latest_campaign = VotingCampaign.objects.filter(is_active=True).order_by('-start_date').first()
-    
-    # Calculate additional campaign data
-    total_nominations = 0
+    campaign = active_campaigns.first() if active_campaigns else None
+    total_nominations = Nominee.objects.filter(campaign=campaign).count() if campaign else 0
     days_remaining = 0
-    top_nominees = []
-    
-    if latest_campaign:
-        total_nominations = Nominee.objects.filter(campaign=latest_campaign).count()
-        
-        # Calculate days remaining
-        from datetime import date
-        if latest_campaign.end_date:
-            today = date.today()
-            end_date = latest_campaign.end_date.date() if hasattr(latest_campaign.end_date, 'date') else latest_campaign.end_date
-            delta = end_date - today
-            days_remaining = max(0, delta.days)
+    if campaign and campaign.end_date:
+        days_remaining = max(0, (timezone.localtime(campaign.end_date).date() - timezone.localdate()).days)
     
     # Get top nominees across all active campaigns (top 15 by votes)
+    top_nominees = []
     if active_campaigns:
         campaign_ids = [c.id for c in active_campaigns]
         top_nominees = Nominee.objects.filter(
             campaign_id__in=campaign_ids
         ).order_by('-vote_count')[:15]
     else:
-        # Fallback to latest campaign if no active ones
-        if latest_campaign:
-            top_nominees = Nominee.objects.filter(campaign=latest_campaign).order_by('-vote_count')[:15]
-
-    package_starts = []
-    seen_categories = set()
-    from django.db.models import Case, When, Value, IntegerField
-    category_order = Case(
-        When(category='group', then=Value(0)),
-        When(category='couples', then=Value(1)),
-        When(category='family', then=Value(2)),
-        default=Value(3), output_field=IntegerField(),
+        top_nominees = []
+    nominations_open = bool(
+        campaign and (not campaign.nomination_deadline or campaign.nomination_deadline >= current_time)
     )
-    for package in GroupGetawayPackage.objects.filter(is_active=True).only(
-        'name', 'slug', 'category', 'pricing_basis', 'price_per_person',
-        'tagline', 'short_description', 'card_image', 'flyer',
-    ).order_by(category_order, 'price_per_person', 'name'):
-        if package.category not in seen_categories:
-            package.card_image_url = _package_artwork_url(package, card=True)
-            package_starts.append(package)
-            seen_categories.add(package.category)
-    
+
     return render(request, 'Web/home.html', {
-        'campaign': active_campaigns.first() if active_campaigns else None,
+        'campaign': campaign,
+        'nominations_open': nominations_open,
         'total_nominations': total_nominations,
         'days_remaining': days_remaining,
         'top_nominees': top_nominees,
         'active_campaigns': active_campaigns,
-        'package_starts': package_starts,
     })
 
 

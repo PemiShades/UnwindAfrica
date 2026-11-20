@@ -17,7 +17,7 @@
       <nav class="ua-menu__primary" aria-label="Primary navigation">
         <a href="{% url 'home' %}">Home</a>
         <a href="{% url 'about' %}">About</a>
-        <a href="{% url 'packages' %}">Packages</a>
+        <a href="{% url 'packages' %}">Getaways</a>
         <a href="{% url 'blog' %}">Journal</a>
         <a href="{% url 'event_list' %}">Events</a>
         <a href="{% url 'contact' %}">Contact</a>
@@ -25,15 +25,14 @@
 
       <div class="ua-menu__secondary" aria-label="Secondary navigation">
         <div>
-          <p>Experiences</p>
-          <a href="{% url 'packages' %}#solo">Solo Reset</a>
-          <a href="{% url 'packages' %}#group">Group Retreats</a>
-          <a href="{% url 'packages' %}#urs">Relaxation Services</a>
+          <p>Getaways</p>
+          <a href="{% url 'packages' %}">Browse getaway packages</a>
         </div>
         <div>
           <p>Community</p>
           <a href="{% url 'rest_card_signup' %}">Rest Card</a>
-          <a href="{% url 'voting_campaigns_list' %}">Nominate to Unwind</a>
+          <a href="{% url 'voting_campaigns_list' %}">View voting campaigns</a>
+          <a href="{% url 'nominate' %}">Submit a nomination</a>
           <a href="{% url 'user_dashboard' %}">Dashboard</a>
         </div>
         <div>
@@ -43,10 +42,10 @@
         </div>
       </div>
 
-      <a href="{% url 'packages' %}" class="ua-menu__feature">
+      <a href="{% url 'contact' %}" class="ua-menu__feature">
         <span>Private Concierge</span>
-        <strong>Begin with what you need to feel. We will design the escape around it.</strong>
-        <em>Explore packages</em>
+        <strong>Personal plans and larger groups can be arranged with our team.</strong>
+        <em>Enquire about a private getaway</em>
       </a>
     </div>
   </aside>
