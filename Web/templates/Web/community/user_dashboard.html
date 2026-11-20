@@ -66,8 +66,14 @@
         {% else %}
         <div class="member-account-card__restcard member-account-card__restcard--empty">
           <span class="member-label">Rest Card</span>
+          {% if rest_card_invite_after_deposit %}
+          <strong>Your first deposit is confirmed.</strong>
+          <span>Request a Rest Card to join the member community and keep your Unwind benefits together.</span>
+          <a href="{% url 'rest_card_signup' %}">Request a Rest Card <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+          {% else %}
           <strong>Make room for more rest.</strong>
           <a href="{% url 'rest_card_signup' %}">Explore membership <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+          {% endif %}
         </div>
         {% endif %}
         <div class="member-points-row">

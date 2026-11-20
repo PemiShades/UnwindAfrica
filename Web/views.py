@@ -877,8 +877,7 @@ def package_detail(request, slug):
 def package_checkout(request, slug):
     """Create the booking and securely collect its first deposit through Paystack."""
     from .models import (GroupGetawayPackage, PackageAddOn, PackageOrder, PackageInstalment,
-                         PackagePayment, CommunityMember, RestCard, FrozenRestPoints,
-                         TokenWallet, Vote)
+                         PackagePayment)
     package = get_object_or_404(GroupGetawayPackage, slug=slug, is_active=True)
 
     customer_email = request.POST.get('customer_email', '').strip().lower()
@@ -899,18 +898,6 @@ def package_checkout(request, slug):
 
     if not customer_email:
         return redirect(f"/packages/{package.slug}/?registration_error=email")
-
-    # Launch registration is for people already known through the community, Rest Card, or voting.
-    is_known_member = (
-        CommunityMember.objects.filter(email__iexact=customer_email).exists()
-        or RestCard.objects.filter(member_email__iexact=customer_email).exists()
-        or FrozenRestPoints.objects.filter(member_email__iexact=customer_email).exists()
-        or TokenWallet.objects.filter(member_email__iexact=customer_email).exists()
-        or Vote.objects.filter(voter_email__iexact=customer_email).exists()
-        or PackageOrder.objects.filter(customer_email__iexact=customer_email).exists()
-    )
-    if not is_known_member:
-        return redirect(f"/packages/{package.slug}/?registration_error=member")
 
     if package.pricing_basis == 'person':
         if party_size < 1 or party_size > 20:
@@ -2316,6 +2303,17 @@ def user_dashboard(request):
         rest_card = RestCard.objects.filter(member_email=email).first()
     except RestCard.DoesNotExist:
         rest_card = None
+
+    # Package purchases do not require a Rest Card. Invite first-time depositors
+    # to request one once their initial payment has been confirmed.
+    rest_card_invite_after_deposit = (
+        not rest_card
+        and PackageOrder.objects.filter(
+            customer_email__iexact=email,
+            payments__status='success',
+            payments__is_initial_deposit=True,
+        ).exists()
+    )
     
     # Get frozen points total
     frozen_entries = FrozenRestPoints.objects.filter(member_email=email)
@@ -2559,6 +2557,7 @@ def user_dashboard(request):
     context = {
         'email': email,
         'rest_card': rest_card,
+        'rest_card_invite_after_deposit': rest_card_invite_after_deposit,
         'frozen_points': total_frozen_points,
         'frozen_entries': frozen_entries,
         'token_wallet': token_wallet,

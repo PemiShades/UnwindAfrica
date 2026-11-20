@@ -15,6 +15,7 @@ body{background:#fff}
 .gg-detail__form{padding:clamp(1.2rem,3vw,2rem)}
 .gg-detail__form h2,.gg-detail__experience h2{color:#17352c}
 .gg-detail__form>p,.gg-detail__experience p{color:#6c766f}
+.gg-detail__form>.gg-detail__membership-note{margin:.25rem 0 1.1rem;padding:.75rem .9rem;border-left:2px solid #bd8c39;background:#f8f8f5;color:#52635a;font-size:.88rem}
 .gg-plan-mode,.gg-plan-grid{gap:.55rem}
 .gg-choice,.gg-plan-choice{border-radius:10px;border-color:#e3e9e4}
 .gg-choice.is-active,.gg-plan-choice.is-active{border-color:#174f3d;background:#174f3d}

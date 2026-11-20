@@ -91,10 +91,9 @@
         {% csrf_token %}
         <h2>Reserve your experience</h2>
         <p>Choose a payment plan, select any extras, then enter the amount you want to start with.</p>
+        <p class="gg-detail__membership-note">A Rest Card is not required to book. After your first deposit is confirmed, you can request one from your account.</p>
         {% if checkout_error %}
-          {% if checkout_error == 'member' %}
-          <div class="gg-alert">This launch registration is for existing Unwind Africa community members. If you have not used our forms or taken part in voting, send a short introduction to <a href="mailto:unwindafrica24@gmail.com">unwindafrica24@gmail.com</a>.</div>
-          {% elif checkout_error == 'pickup' %}<div class="gg-alert">Add your pickup location to request transportation pricing.</div>
+          {% if checkout_error == 'pickup' %}<div class="gg-alert">Add your pickup location to request transportation pricing.</div>
           {% elif checkout_error == 'deposit' %}<div class="gg-alert">Enter a deposit greater than zero and no more than the total payable.</div>
           {% elif checkout_error == 'party' %}<div class="gg-alert">Choose a group size from 1 to 20 people.</div>
           {% elif checkout_error == 'plan' %}<div class="gg-alert">Choose one of the available payment durations.</div>
