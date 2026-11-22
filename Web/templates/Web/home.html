@@ -1,95 +1,37 @@
-{% extends "Web/main.html" %}
+{% extends 'Web/main.html' %}
 {% load static %}
 
-{% block title %}Unwind Africa | Hosted Getaways{% endblock %}
-{% block meta_description %}Hosted day trips and overnight getaways for groups, couples and families, with clear package prices and flexible payment plans.{% endblock %}
-{% block og_title %}Unwind Africa | Hosted Getaways{% endblock %}
-{% block og_description %}Explore hosted day trips and overnight getaways for groups, couples and families.{% endblock %}
-{% block twitter_title %}Unwind Africa | Hosted Getaways{% endblock %}
-{% block twitter_description %}Explore hosted day trips and overnight getaways for groups, couples and families.{% endblock %}
+{% block title %}Unwind Africa | Make Room for Rest{% endblock %}
+{% block meta_description %}Beautiful getaways. Meaningful moments. Time to unwind.{% endblock %}
+{% block og_title %}Unwind Africa | Make Room for Rest{% endblock %}
+{% block og_description %}Beautiful getaways. Meaningful moments. Time to unwind.{% endblock %}
+{% block twitter_title %}Unwind Africa | Make Room for Rest{% endblock %}
+{% block twitter_description %}Beautiful getaways. Meaningful moments. Time to unwind.{% endblock %}
+{% block body_class %}homepage-body{% endblock %}
 
 {% block extra_css %}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'css/brand-home.css' %}?v=getaways-content-cards-20261120">
+  <link rel="stylesheet" href="{% static 'css/brand-home.css' %}?v=rest-cinematic-nav-20261122" />
 {% endblock %}
 
 {% block content %}
-<main class="brand-home" id="main-content">
-  <section class="editorial-hero" aria-label="Unwind Africa getaways">
-    <div class="hero-inner">
-      <div class="hero-copy">
-        <p class="ua-kicker">Time away, well spent.</p>
-        <h1 class="ua-title">Hosted day trips and overnight getaways for groups, couples and families.</h1>
-        <div class="hero-actions">
-          <a href="{% url 'packages' %}" class="ua-button ua-button--light">Browse getaways</a>
-        </div>
-      </div>
-    </div>
-  </section>
+<main id="main-content" class="homepage-intro">
+  <picture class="homepage-intro__picture">
+    <source media="(max-width: 640px)" srcset="{% static 'assets/home/optimized/home-rest-mobile.webp' %}" type="image/webp">
+    <img
+      class="homepage-intro__image"
+      src="{% static 'assets/home/optimized/home-rest-desktop.webp' %}"
+      alt="A woman relaxing beside the sea at a tropical resort at sunset"
+      width="1672"
+      height="941"
+      fetchpriority="high"
+      loading="eager"
+      decoding="async">
+  </picture>
 
-  <section class="ua-section getaway-overview" id="getaways">
-    <div class="ua-container getaway-overview__choices">
-      <p class="ua-kicker">The getaway collection</p>
-      <h2 class="ua-title">Getaways for groups, couples and families.</h2>
-      <p class="getaway-overview__intro">Choose the kind of time away that suits the people coming with you.</p>
-      <div class="getaway-categories">
-        <article class="getaway-category getaway-category--groups">
-          <h3>Groups</h3>
-          <p>Choose a hosted day trip with friends or colleagues, or make more time for a two-day stay with one night away. Group prices are per person.</p>
-        </article>
-        <article class="getaway-category getaway-category--couples">
-          <h3>Couples</h3>
-          <p>Spend a day together or choose an overnight stay for two. Couples prices cover both guests.</p>
-        </article>
-        <article class="getaway-category getaway-category--families">
-          <h3>Families</h3>
-          <p>Pick a beach day or an overnight getaway. Starting prices cover two adults and two children; larger families can request a quote.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="ua-section booking-section-home" aria-labelledby="booking-guide-title">
-    <div class="ua-container booking-section-home__layout">
-      <header class="booking-section-home__intro">
-        <p class="ua-kicker">A clear way to get away</p>
-        <h2 id="booking-guide-title" class="ua-title">How to book and pay.</h2>
-      </header>
-      <ol class="booking-flow">
-        <li><span class="booking-flow__number">01</span><h3>Choose your getaway</h3><p>Review the duration, inclusions, price coverage and available extras.</p></li>
-        <li><span class="booking-flow__number">02</span><h3>Choose how to pay</h3><p>Pay in full or select an available 3, 6, 9 or 12 month plan. Enter any amount as your first payment.</p></li>
-        <li><span class="booking-flow__number">03</span><h3>Pay and track your balance</h3><p>After payment is verified, follow your order, payments and remaining balance in your account.</p></li>
-      </ol>
-      <p class="booking-date-note">Your first payment starts the order and balance tracking; it does not reserve a travel date. <a href="{% url 'contact' %}">Contact us to confirm date availability.</a></p>
-      <a href="{% url 'packages' %}" class="booking-flow__link">Browse getaway packages</a>
-    </div>
-  </section>
-
-  <section class="ua-section nomination-section">
-    <div class="ua-container nomination-layout">
-      <div class="nomination-copy">
-        <p class="ua-kicker">Nominate to Unwind</p>
-        {% if campaign %}
-          <h2 class="ua-title">Give someone a reason to pause.</h2>
-          <p class="ua-subtitle">{{ campaign.tagline|default:"Share the story of someone who deserves time to rest." }}</p>
-          <div class="nomination-meta"><span class="nomination-live"><i></i> CAMPAIGN LIVE</span><span>{{ total_nominations }} nominees</span>{% if days_remaining %}<span>{{ days_remaining }} days remaining</span>{% endif %}</div>
-          <a href="{{ campaign.get_absolute_url }}" class="nomination-link">View nominees and vote</a>
-          {% if nominations_open %}<a href="{% url 'nominate' %}" class="nomination-link">Submit a nomination</a>{% else %}<p class="nomination-status">Nominations are closed. Voting is open while this campaign is live.</p>{% endif %}
-        {% else %}
-          <h2 class="ua-title">No active campaign right now.</h2>
-          <p class="ua-subtitle">Nominations and voting are closed. Campaign details will appear here when the next one opens.</p>
-        {% endif %}
-      </div>
-      <div class="nomination-visual">
-        {% if campaign and campaign.banner_image %}
-          <img src="{{ campaign.banner_image.url }}" alt="{{ campaign.name }}" loading="lazy">
-        {% else %}
-          <img src="{% static 'assets/home/team_quote_img.png' %}" alt="People sharing time together" loading="lazy">
-        {% endif %}
-      </div>
-    </div>
+  <section class="homepage-intro__copy" aria-labelledby="homepage-title">
+    <h1 id="homepage-title">MAKE ROOM FOR REST.</h1>
+    <p>Beautiful getaways. Meaningful moments. Time to unwind.</p>
+    <a class="homepage-intro__button" href="{% url 'packages' %}">Explore Experiences</a>
   </section>
 </main>
 {% endblock %}

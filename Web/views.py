@@ -590,44 +590,7 @@ def mobile_initialize_vote_api(request):
 
 
 def home(request):
-    from .models import VotingCampaign, Nominee
-    from django.utils import timezone
-    from django.utils.timezone import now as get_now
-    # Get active campaigns
-    current_time = get_now()
-    active_campaigns = VotingCampaign.objects.filter(
-        is_active=True, 
-        start_date__lte=current_time,
-        end_date__gte=current_time
-    ).order_by('-start_date')
-    
-    campaign = active_campaigns.first() if active_campaigns else None
-    total_nominations = Nominee.objects.filter(campaign=campaign).count() if campaign else 0
-    days_remaining = 0
-    if campaign and campaign.end_date:
-        days_remaining = max(0, (timezone.localtime(campaign.end_date).date() - timezone.localdate()).days)
-    
-    # Get top nominees across all active campaigns (top 15 by votes)
-    top_nominees = []
-    if active_campaigns:
-        campaign_ids = [c.id for c in active_campaigns]
-        top_nominees = Nominee.objects.filter(
-            campaign_id__in=campaign_ids
-        ).order_by('-vote_count')[:15]
-    else:
-        top_nominees = []
-    nominations_open = bool(
-        campaign and (not campaign.nomination_deadline or campaign.nomination_deadline >= current_time)
-    )
-
-    return render(request, 'Web/home.html', {
-        'campaign': campaign,
-        'nominations_open': nominations_open,
-        'total_nominations': total_nominations,
-        'days_remaining': days_remaining,
-        'top_nominees': top_nominees,
-        'active_campaigns': active_campaigns,
-    })
+    return render(request, 'Web/home.html', {'theme': 'dark'})
 
 
 def explore(request):
