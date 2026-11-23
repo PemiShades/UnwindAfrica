@@ -23,7 +23,8 @@ logger = logging.getLogger(__name__)
 
 
 PACKAGE_ARTWORK = {
-    'classic': 'assets/home/packages/classic.jpg',
+    'classic-premium': 'assets/packages/group-classic-premium/resort.webp',
+    'classic': 'assets/packages/group-classic/lounge.webp',
     'imperial': 'assets/home/packages/freepik__the-style-is-candid-image-photography-with-natural__82508.jpeg',
     'paradise': 'assets/home/optimized/book-couples.webp',
     'oasis': 'assets/packages/46001 1.jpg',
@@ -752,12 +753,44 @@ def packages(request):
         When(category='family', then=Value(2)),
         default=Value(3), output_field=IntegerField(),
     )
-    packages_qs = GroupGetawayPackage.objects.filter(is_active=True).order_by(category_order, 'experience_duration', 'price_per_person')
+    all_packages = GroupGetawayPackage.objects.filter(is_active=True).order_by(category_order, 'experience_duration', 'price_per_person')
+    premium = all_packages.filter(slug='classic-premium').first()
+    classic = all_packages.filter(slug='classic').first()
+    group_featured_packages = []
+    if premium:
+        group_featured_packages.append({
+            'package': premium,
+            'eyebrow': 'THE ELEVATED ESCAPE',
+            'gallery_id': 'classic-premium-gallery',
+            'gallery': [
+                {'src': static_url('assets/packages/group-classic-premium/resort.webp'), 'alt': 'A tropical beachfront resort framed by palms and the sea', 'caption': 'A day by the water'},
+                {'src': static_url('assets/packages/group-classic-premium/massage.webp'), 'alt': 'A guest enjoying a massage during a beach getaway', 'caption': 'A restorative massage'},
+                {'src': static_url('assets/packages/group-classic-premium/manicure.webp'), 'alt': 'A guest receiving a manicure in a coastal spa cabana', 'caption': 'Manicure'},
+                {'src': static_url('assets/packages/group-classic-premium/pedicure.webp'), 'alt': 'A guest receiving a pedicure in a coastal spa cabana', 'caption': 'Pedicure'},
+            ],
+        })
+    if classic:
+        group_featured_packages.append({
+            'package': classic,
+            'eyebrow': 'THE CLASSIC DAY AWAY',
+            'gallery_id': 'classic-gallery',
+            'gallery': [
+                {'src': static_url('assets/packages/group-classic/volleyball.webp'), 'alt': 'Friends enjoying beach volleyball together', 'caption': 'Room to play'},
+                {'src': static_url('assets/packages/group-classic/dining.webp'), 'alt': 'A beachside meal shared during a group getaway', 'caption': 'A good meal together'},
+                {'src': static_url('assets/packages/group-classic/refreshments.webp'), 'alt': 'Fresh tropical drinks and fruit by the beach', 'caption': 'Fresh refreshments'},
+                {'src': static_url('assets/packages/group-classic/group-dining.webp'), 'alt': 'Friends sharing a relaxed meal together', 'caption': 'Time around the table'},
+                {'src': static_url('assets/packages/group-classic/pool.webp'), 'alt': 'Guests relaxing together in a resort pool', 'caption': 'A cool afternoon'},
+                {'src': static_url('assets/packages/group-classic/lounge.webp'), 'alt': 'Friends relaxing together between beach activities', 'caption': 'Time to unwind'},
+            ],
+        })
+    featured_slugs = [item['package'].slug for item in group_featured_packages]
+    packages_qs = all_packages.exclude(slug__in=featured_slugs)
     for package in packages_qs:
         package.card_image_url = _package_artwork_url(package, card=True)
     addons_qs = PackageAddOn.objects.filter(is_active=True).order_by('name')
     return render(request, 'Web/packages.html', context={
         'packages': packages_qs,
+        'group_featured_packages': group_featured_packages,
         'addons': addons_qs,
         'doctor_addon': addons_qs.filter(name__icontains='doctor').first(),
         'transport_addon': addons_qs.filter(name__icontains='transport').first(),
