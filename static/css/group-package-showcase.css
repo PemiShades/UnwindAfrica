@@ -307,3 +307,120 @@
   .group-gallery__viewport { scroll-behavior: auto; }
   .group-gallery__arrows button { transition: none; }
 }
+
+/* Present the group packages as two clear, comparable choices. */
+.group-package-showcase {
+  display: block;
+  margin-bottom: clamp(3rem, 6vw, 5.5rem);
+}
+
+.group-package-showcase__heading {
+  max-width: 42rem;
+  margin: 0 auto clamp(1.5rem, 3vw, 2.5rem);
+  text-align: center;
+}
+
+.group-package-showcase__heading .experience-kicker {
+  margin-bottom: .65rem;
+}
+
+.group-package-showcase__heading h2 {
+  margin: 0;
+  color: #17352c;
+  font: 500 clamp(2rem, 4vw, 3.5rem)/1.06 "Playfair Display", Georgia, serif;
+  letter-spacing: -.035em;
+}
+
+.group-package-showcase__heading > p:last-child {
+  margin: .75rem auto 0;
+  color: #70756e;
+  font: 400 .95rem/1.65 Inter, sans-serif;
+}
+
+.group-package-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 1.75rem);
+}
+
+.group-package-story {
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 1.35rem;
+  min-width: 0;
+  padding: clamp(1.25rem, 2.5vw, 2rem);
+  border-radius: 4px;
+}
+
+.group-package-story__intro {
+  min-height: 9.5rem;
+}
+
+.group-package-story h3 {
+  font-size: clamp(2rem, 3vw, 2.7rem);
+}
+
+.group-package-story__description {
+  max-width: 42ch;
+  margin-top: .7rem;
+}
+
+.group-gallery__slide {
+  flex-basis: 86%;
+  aspect-ratio: 1.6;
+}
+
+.group-package-story__booking {
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 1.15rem;
+}
+
+.group-package-story__price strong {
+  font-size: clamp(1.65rem, 2.5vw, 2.25rem);
+}
+
+.group-package-story__select {
+  min-height: 46px;
+  margin-left: auto;
+  padding-inline: 1rem;
+}
+
+@media (max-width: 780px) {
+  .group-package-choice-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .group-package-story {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .group-package-story__intro {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .group-package-showcase__heading {
+    text-align: left;
+  }
+
+  .group-package-story {
+    padding: 1.2rem 1rem 1rem;
+  }
+
+  .group-gallery__slide {
+    flex-basis: 88%;
+    aspect-ratio: 1.25;
+  }
+
+  .group-package-story__booking {
+    align-items: stretch;
+  }
+
+  .group-package-story__select {
+    margin-left: 0;
+  }
+}

@@ -7,7 +7,7 @@
 {% block og_description %}Compare hosted day trips and overnight getaways for groups, couples and families.{% endblock %}
 {% block twitter_title %}Getaways and Package Prices | Unwind Africa{% endblock %}
 {% block twitter_description %}Compare hosted day trips and overnight getaways for groups, couples and families.{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}?v=20261120"><link rel="stylesheet" href="{% static 'css/package-experiences.css' %}?v=getaway-grid-20261120"><link rel="stylesheet" href="{% static 'css/group-package-showcase.css' %}?v=classic-gallery-20261123">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}?v=20261120"><link rel="stylesheet" href="{% static 'css/package-experiences.css' %}?v=getaway-grid-20261120"><link rel="stylesheet" href="{% static 'css/group-package-showcase.css' %}?v=classic-choice-cards-20261123">{% endblock %}
 {% block content %}
 <main class="experience-page">
   <section class="experience-intro">
@@ -41,6 +41,12 @@
 
     {% if group_featured_packages %}
     <div class="group-package-showcase" data-category="group" aria-label="Group Getaway packages">
+      <header class="group-package-showcase__heading">
+        <p class="experience-kicker">GROUP GETAWAY</p>
+        <h2>Choose your experience.</h2>
+        <p>Two ways to spend a day away. Compare the details and choose the one that suits you.</p>
+      </header>
+      <div class="group-package-choice-grid">
       {% for feature in group_featured_packages %}
       <article class="group-package-story {% if forloop.first %}group-package-story--premium{% else %}group-package-story--classic{% endif %}">
         <div class="group-package-story__intro">
@@ -84,6 +90,7 @@
         </div>
       </article>
       {% endfor %}
+      </div>
     </div>
     {% endif %}
 
