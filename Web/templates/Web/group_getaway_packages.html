@@ -18,7 +18,6 @@
 {% block content %}
 <main class="group-getaway-page">
   <header class="group-getaway-page__heading">
-    <a class="group-getaway-page__back" href="{% url 'packages' %}">Back to all getaways</a>
     <p class="experience-kicker">GROUP GETAWAY</p>
     <h1>Choose your experience.</h1>
     <p>Two ways to spend a day away. Compare the details, then choose the getaway that suits you.</p>
@@ -69,6 +68,7 @@
     <p class="group-getaway-page__empty">Group Getaway options are being prepared. Please check back soon.</p>
     {% endfor %}
   </section>
+  <a class="group-getaway-page__back" href="{% url 'packages' %}">Back to all getaways</a>
 </main>
 {% endblock %}
 
