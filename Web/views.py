@@ -744,23 +744,14 @@ def raising_readers(request):
     return render(request, 'Web/raising_readers.html', context={'books': books})
 
 
-def packages(request):
-    from .models import GroupGetawayPackage, PackageAddOn
-    from django.db.models import Case, When, Value, IntegerField
-    category_order = Case(
-        When(category='group', then=Value(0)),
-        When(category='couples', then=Value(1)),
-        When(category='family', then=Value(2)),
-        default=Value(3), output_field=IntegerField(),
-    )
-    all_packages = GroupGetawayPackage.objects.filter(is_active=True).order_by(category_order, 'experience_duration', 'price_per_person')
-    premium = all_packages.filter(slug='classic-premium').first()
-    classic = all_packages.filter(slug='classic').first()
-    group_featured_packages = []
+def _group_getaway_choices(packages):
+    premium = packages.filter(slug='classic-premium', category='group').first()
+    classic = packages.filter(slug='classic', category='group').first()
+    choices = []
     if premium:
-        group_featured_packages.append({
+        choices.append({
             'package': premium,
-            'eyebrow': 'THE ELEVATED ESCAPE',
+            'eyebrow': 'CLASSIC PREMIUM',
             'gallery_id': 'classic-premium-gallery',
             'gallery': [
                 {'src': static_url('assets/packages/group-classic-premium/resort.webp'), 'alt': 'A tropical beachfront resort framed by palms and the sea', 'caption': 'A day by the water'},
@@ -770,9 +761,9 @@ def packages(request):
             ],
         })
     if classic:
-        group_featured_packages.append({
+        choices.append({
             'package': classic,
-            'eyebrow': 'THE CLASSIC DAY AWAY',
+            'eyebrow': 'CLASSIC',
             'gallery_id': 'classic-gallery',
             'gallery': [
                 {'src': static_url('assets/packages/group-classic/volleyball.webp'), 'alt': 'Friends enjoying beach volleyball together', 'caption': 'Room to play'},
@@ -783,17 +774,38 @@ def packages(request):
                 {'src': static_url('assets/packages/group-classic/lounge.webp'), 'alt': 'Friends relaxing together between beach activities', 'caption': 'Time to unwind'},
             ],
         })
-    featured_slugs = [item['package'].slug for item in group_featured_packages]
-    packages_qs = all_packages.exclude(slug__in=featured_slugs)
-    for package in packages_qs:
+    return choices
+
+
+def packages(request):
+    from .models import GroupGetawayPackage, PackageAddOn
+    from django.db.models import Case, When, Value, IntegerField
+    category_order = Case(
+        When(category='group', then=Value(0)),
+        When(category='couples', then=Value(1)),
+        When(category='family', then=Value(2)),
+        default=Value(3), output_field=IntegerField(),
+    )
+    all_packages = GroupGetawayPackage.objects.filter(is_active=True).order_by(category_order, 'experience_duration', 'price_per_person')
+    group_getaway_available = all_packages.filter(category='group').exists()
+    catalogue_packages = all_packages.exclude(category='group')
+    for package in catalogue_packages:
         package.card_image_url = _package_artwork_url(package, card=True)
     addons_qs = PackageAddOn.objects.filter(is_active=True).order_by('name')
     return render(request, 'Web/packages.html', context={
-        'packages': packages_qs,
-        'group_featured_packages': group_featured_packages,
+        'packages': catalogue_packages,
+        'group_getaway_available': group_getaway_available,
         'addons': addons_qs,
         'doctor_addon': addons_qs.filter(name__icontains='doctor').first(),
         'transport_addon': addons_qs.filter(name__icontains='transport').first(),
+    })
+
+
+def group_getaway_packages(request):
+    from .models import GroupGetawayPackage
+    packages = GroupGetawayPackage.objects.filter(is_active=True)
+    return render(request, 'Web/group_getaway_packages.html', {
+        'group_choices': _group_getaway_choices(packages),
     })
 
 

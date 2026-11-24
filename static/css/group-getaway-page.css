@@ -1,0 +1,142 @@
+.group-getaway-page {
+  width: min(1320px, calc(100% - 3rem));
+  margin: 0 auto;
+  padding: clamp(7.5rem, 12vw, 10rem) 0 clamp(4rem, 8vw, 7rem);
+}
+
+.group-getaway-page__heading {
+  max-width: 58rem;
+  margin: 0 auto clamp(2rem, 4vw, 3.5rem);
+  text-align: center;
+}
+
+.group-getaway-page__back {
+  display: inline-block;
+  margin-bottom: 2.5rem;
+  color: #345847;
+  font-size: .9rem;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .25em;
+}
+
+.group-getaway-page__heading .experience-kicker {
+  margin-bottom: .7rem;
+}
+
+.group-getaway-page__heading h1 {
+  margin: 0;
+  color: #17352c;
+  font: 500 clamp(2.4rem, 5.5vw, 4.8rem)/1.02 "Playfair Display", Georgia, serif;
+  letter-spacing: -.04em;
+}
+
+.group-getaway-page__heading > p:last-child {
+  max-width: 38rem;
+  margin: 1rem auto 0;
+  color: #68736b;
+  font: 400 1rem/1.7 Inter, sans-serif;
+}
+
+.group-getaway-page .group-package-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: clamp(1rem, 2.4vw, 2rem);
+}
+
+.group-getaway-page .group-package-story {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.4rem;
+  padding: clamp(1.25rem, 2.5vw, 2rem);
+}
+
+.group-getaway-page .group-package-story__intro {
+  min-height: 10.8rem;
+}
+
+.group-getaway-page .group-package-story h2 {
+  margin: 0;
+  color: inherit;
+  font: 600 clamp(2rem, 3vw, 2.85rem)/1 "Playfair Display", Georgia, serif;
+  letter-spacing: -.04em;
+}
+
+.group-getaway-page .group-package-story__description {
+  margin-top: .8rem;
+  font-size: .95rem;
+  line-height: 1.7;
+}
+
+.group-getaway-page .group-gallery__slide {
+  flex-basis: 90%;
+  aspect-ratio: 1.5;
+}
+
+.group-getaway-page .group-package-story__booking {
+  width: 100%;
+  margin-top: auto;
+}
+
+.group-getaway-page .group-package-story__select {
+  min-width: 9.5rem;
+  text-align: center;
+}
+
+.group-getaway-page__empty {
+  grid-column: 1 / -1;
+  padding: 3rem 1rem;
+  color: #68736b;
+  text-align: center;
+}
+
+@media (max-width: 680px) {
+  .group-getaway-page {
+    width: min(100% - 2rem, 38rem);
+    padding-top: 6.5rem;
+  }
+
+  .group-getaway-page__heading {
+    margin-bottom: 1.5rem;
+    text-align: left;
+  }
+
+  .group-getaway-page__back {
+    margin-bottom: 2rem;
+  }
+
+  .group-getaway-page .group-package-choice-grid {
+    display: flex;
+    gap: .9rem;
+    margin-right: -1rem;
+    padding: 0 1rem .6rem 0;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .group-getaway-page .group-package-story {
+    flex: 0 0 min(88vw, 34rem);
+    scroll-snap-align: start;
+  }
+
+  .group-getaway-page .group-package-story__intro {
+    min-height: 0;
+  }
+
+  .group-getaway-page .group-package-story__booking {
+    align-items: stretch;
+  }
+
+  .group-getaway-page .group-package-story__select {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group-getaway-page .group-package-choice-grid { scroll-behavior: auto; }
+}

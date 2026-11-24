@@ -1,0 +1,77 @@
+{% extends "Web/main.html" %}
+{% load static humanize %}
+
+{% block title %}Group Getaway Packages | Unwind Africa{% endblock %}
+{% block meta_description %}Choose between Classic Premium and Classic group getaway experiences from Unwind Africa.{% endblock %}
+{% block og_title %}Group Getaways | Unwind Africa{% endblock %}
+{% block og_description %}Compare our Classic Premium and Classic group getaway options.{% endblock %}
+{% block twitter_title %}Group Getaways | Unwind Africa{% endblock %}
+{% block twitter_description %}Compare our Classic Premium and Classic group getaway options.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}">
+<link rel="stylesheet" href="{% static 'css/package-experiences.css' %}">
+<link rel="stylesheet" href="{% static 'css/group-package-showcase.css' %}?v=group-page-horizontal-20261124">
+<link rel="stylesheet" href="{% static 'css/group-getaway-page.css' %}?v=horizontal-choice-20261124">
+{% endblock %}
+
+{% block content %}
+<main class="group-getaway-page">
+  <header class="group-getaway-page__heading">
+    <a class="group-getaway-page__back" href="{% url 'packages' %}">Back to all getaways</a>
+    <p class="experience-kicker">GROUP GETAWAY</p>
+    <h1>Choose your experience.</h1>
+    <p>Two ways to spend a day away. Compare the details, then choose the getaway that suits you.</p>
+  </header>
+
+  <section class="group-package-choice-grid" aria-label="Choose a Group Getaway package">
+    {% for feature in group_choices %}
+    <article class="group-package-story {% if feature.package.slug == 'classic-premium' %}group-package-story--premium{% else %}group-package-story--classic{% endif %}">
+      <div class="group-package-story__intro">
+        <p class="group-package-story__eyebrow">{{ feature.eyebrow }}</p>
+        <h2>{{ feature.package.name }}</h2>
+        <p class="group-package-story__description">{{ feature.package.short_description }}</p>
+      </div>
+
+      <div class="group-gallery" data-gallery id="{{ feature.gallery_id }}">
+        <div class="group-gallery__viewport" data-gallery-rail tabindex="0" aria-label="{{ feature.package.name }} photo gallery. Swipe or use the controls to browse photos.">
+          {% for photo in feature.gallery %}
+          <figure class="group-gallery__slide">
+            <img src="{{ photo.src }}" alt="{{ photo.alt }}" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async">
+            <figcaption><span>{{ photo.caption }}</span></figcaption>
+          </figure>
+          {% endfor %}
+        </div>
+        <div class="group-gallery__controls" aria-label="Gallery controls">
+          <div class="group-gallery__dots" aria-label="Choose a photo">
+            {% for photo in feature.gallery %}
+            <button type="button" data-gallery-dot aria-label="Show photo {{ forloop.counter }}" aria-current="{% if forloop.first %}true{% else %}false{% endif %}"></button>
+            {% endfor %}
+          </div>
+          <div class="group-gallery__arrows">
+            <button type="button" data-gallery-prev aria-label="Previous photo">&#8592;</button>
+            <button type="button" data-gallery-next aria-label="Next photo">&#8594;</button>
+          </div>
+        </div>
+      </div>
+
+      <footer class="group-package-story__booking">
+        <div class="group-package-story__price">
+          <strong>&#8358;{{ feature.package.price_per_person|floatformat:0|intcomma }}</strong>
+          <span>per person</span>
+          <i aria-hidden="true"></i>
+          <span>One day</span>
+        </div>
+        <a class="group-package-story__select" href="{% url 'package_detail' feature.package.slug %}">Select Package</a>
+      </footer>
+    </article>
+    {% empty %}
+    <p class="group-getaway-page__empty">Group Getaway options are being prepared. Please check back soon.</p>
+    {% endfor %}
+  </section>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/group-gallery.js' %}" defer></script>
+{% endblock %}

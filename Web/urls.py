@@ -8,6 +8,7 @@ urlpatterns = [
     path('test/', views.test, name='test'),
 	path('about/',views.about,name="about"),
     path('packages/',views.packages,name="packages"),
+    path('packages/group-getaway/', views.group_getaway_packages, name='group_getaway_packages'),
     path('api/v1/packages/', views.mobile_packages_api, name='mobile_packages_api'),
     path('api/v1/voting/campaigns/', views.mobile_voting_campaigns_api, name='mobile_voting_campaigns_api'),
     path('api/v1/auth/request-code/', views.mobile_request_login_code, name='mobile_request_login_code'),

@@ -7,7 +7,7 @@
 {% block og_description %}Compare hosted day trips and overnight getaways for groups, couples and families.{% endblock %}
 {% block twitter_title %}Getaways and Package Prices | Unwind Africa{% endblock %}
 {% block twitter_description %}Compare hosted day trips and overnight getaways for groups, couples and families.{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}?v=20261120"><link rel="stylesheet" href="{% static 'css/package-experiences.css' %}?v=getaway-grid-20261120"><link rel="stylesheet" href="{% static 'css/group-package-showcase.css' %}?v=classic-choice-cards-20261123">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}?v=20261120"><link rel="stylesheet" href="{% static 'css/package-experiences.css' %}?v=group-page-horizontal-20261124">{% endblock %}
 {% block content %}
 <main class="experience-page">
   <section class="experience-intro">
@@ -34,67 +34,26 @@
     </header>
     <nav class="experience-filter" aria-label="Filter getaways">
       <button class="is-active" type="button" data-filter="all" aria-pressed="true">All</button>
-      <button type="button" data-filter="group" aria-pressed="false">Group Getaway</button>
+      <a class="experience-filter__link" href="{% url 'group_getaway_packages' %}">Group Getaway</a>
       <button type="button" data-filter="couples" aria-pressed="false">Couples</button>
       <button type="button" data-filter="family" aria-pressed="false">Families</button>
     </nav>
 
-    {% if group_featured_packages %}
-    <div class="group-package-showcase" data-category="group" aria-label="Group Getaway packages">
-      <header class="group-package-showcase__heading">
-        <p class="experience-kicker">GROUP GETAWAY</p>
-        <h2>Choose your experience.</h2>
-        <p>Two ways to spend a day away. Compare the details and choose the one that suits you.</p>
-      </header>
-      <div class="group-package-choice-grid">
-      {% for feature in group_featured_packages %}
-      <article class="group-package-story {% if forloop.first %}group-package-story--premium{% else %}group-package-story--classic{% endif %}">
-        <div class="group-package-story__intro">
-          <p class="group-package-story__eyebrow"><span>0{{ forloop.counter }}</span>{{ feature.eyebrow }}</p>
-          <h3>{{ feature.package.name }}</h3>
-          <p class="group-package-story__description">{{ feature.package.short_description }}</p>
-        </div>
-
-        <div class="group-gallery" data-gallery id="{{ feature.gallery_id }}">
-          <div class="group-gallery__viewport" data-gallery-rail tabindex="0" aria-label="{{ feature.package.name }} photo gallery. Swipe or use the controls to browse photos.">
-            {% for photo in feature.gallery %}
-            <figure class="group-gallery__slide">
-              <img src="{{ photo.src }}" alt="{{ photo.alt }}" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async">
-              <figcaption><span>0{{ forloop.counter }}</span><span>{{ photo.caption }}</span></figcaption>
-            </figure>
-            {% endfor %}
-          </div>
-          <div class="group-gallery__controls" aria-label="Gallery controls">
-            <div class="group-gallery__dots" aria-label="Choose a photo">
-              {% for photo in feature.gallery %}
-              <button type="button" data-gallery-dot aria-label="Show photo {{ forloop.counter }}" aria-current="{% if forloop.first %}true{% else %}false{% endif %}"></button>
-              {% endfor %}
-            </div>
-            <div class="group-gallery__arrows">
-              <button type="button" data-gallery-prev aria-label="Previous photo">←</button>
-              <button type="button" data-gallery-next aria-label="Next photo">→</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="group-package-story__booking">
-          <div class="group-package-story__price">
-            <strong>₦{{ feature.package.price_per_person|floatformat:0|intcomma }}</strong>
-            <span>per person</span>
-            <i aria-hidden="true"></i>
-            <span>One day</span>
-          </div>
-          <a class="group-package-story__select" href="{% url 'package_detail' feature.package.slug %}">
-            Select Package <span aria-hidden="true">↗</span>
-          </a>
+    <div class="experience-grid">
+      {% if group_getaway_available %}
+      <article class="experience-card experience-card--group-entry" data-category="group">
+        <a class="experience-card__photo" href="{% url 'group_getaway_packages' %}" aria-label="Explore Group Getaway options">
+          <img src="{% static 'assets/packages/group-classic/lounge.webp' %}" alt="Friends relaxing together during a group beach getaway" loading="lazy">
+          <span class="experience-card__duration">TWO OPTIONS</span>
+        </a>
+        <div class="experience-card__content">
+          <p class="experience-card__category">GROUP GETAWAY</p>
+          <h3>Group Getaway</h3>
+          <p class="experience-card__description">Choose the Classic day away or step up to Classic Premium, with added moments of relaxation and care.</p>
+          <a class="experience-card__link" href="{% url 'group_getaway_packages' %}">Explore Group Getaway</a>
         </div>
       </article>
-      {% endfor %}
-      </div>
-    </div>
-    {% endif %}
-
-    <div class="experience-grid">
+      {% endif %}
       {% for package in packages %}
       <article class="experience-card" data-category="{{ package.category }}">
         <a class="experience-card__photo" href="{% url 'package_detail' package.slug %}" aria-label="View {{ package.name }} package details">
@@ -128,7 +87,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const buttons = [...document.querySelectorAll('.experience-filter button')];
   const cards = [...document.querySelectorAll('.experience-grid > .experience-card')];
-  const groupShowcase = document.querySelector('.group-package-showcase');
   const empty = document.querySelector('.experience-filter-empty');
   buttons.forEach(button => button.addEventListener('click', () => {
     buttons.forEach(item => {
@@ -137,11 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
       item.setAttribute('aria-pressed', String(active));
     });
     let visible = 0;
-    if (groupShowcase) {
-      const showGroup = button.dataset.filter === 'all' || button.dataset.filter === 'group';
-      groupShowcase.hidden = !showGroup;
-      if (showGroup) visible += groupShowcase.querySelectorAll('.group-package-story').length;
-    }
     cards.forEach(card => {
       const show = button.dataset.filter === 'all' || card.dataset.category === button.dataset.filter;
       card.hidden = !show;
@@ -150,37 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (empty) empty.hidden = visible !== 0 || button.dataset.filter === 'all';
   }));
 
-  document.querySelectorAll('[data-gallery]').forEach(gallery => {
-    const rail = gallery.querySelector('[data-gallery-rail]');
-    const slides = [...rail.querySelectorAll('.group-gallery__slide')];
-    const dots = [...gallery.querySelectorAll('[data-gallery-dot]')];
-    const previous = gallery.querySelector('[data-gallery-prev]');
-    const next = gallery.querySelector('[data-gallery-next]');
-    let ticking = false;
 
-    const activeIndex = () => {
-      const railLeft = rail.getBoundingClientRect().left;
-      return slides.reduce((best, slide, index) =>
-        Math.abs(slide.getBoundingClientRect().left - railLeft) < Math.abs(slides[best].getBoundingClientRect().left - railLeft) ? index : best, 0);
-    };
-    const update = () => {
-      const index = activeIndex();
-      dots.forEach((dot, dotIndex) => dot.setAttribute('aria-current', String(index === dotIndex)));
-      previous.disabled = index === 0;
-      next.disabled = index === slides.length - 1;
-      ticking = false;
-    };
-    rail.addEventListener('scroll', () => {
-      if (!ticking) {
-        window.requestAnimationFrame(update);
-        ticking = true;
-      }
-    }, { passive: true });
-    previous.addEventListener('click', () => slides[Math.max(0, activeIndex() - 1)].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' }));
-    next.addEventListener('click', () => slides[Math.min(slides.length - 1, activeIndex() + 1)].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' }));
-    dots.forEach((dot, index) => dot.addEventListener('click', () => slides[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })));
-    update();
-  });
 });
 </script>
 {% endblock %}
