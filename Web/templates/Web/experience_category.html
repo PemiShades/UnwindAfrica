@@ -18,16 +18,42 @@
     </figure>
   </section>
 
+  {% if category.highlights %}
+  <section class="experience-urs-highlights" aria-label="Unwind Relaxation Services benefits">
+    <div class="experience-urs-highlights__inner">
+      {% for highlight in category.highlights %}<span>{{ highlight }}</span>{% endfor %}
+    </div>
+    <p>Ask us about the annual plan and its quarterly payment options. Benefits and availability are confirmed with your selected plan.</p>
+  </section>
+  {% endif %}
+
   <section class="experience-collection experience-collection--category" aria-labelledby="category-packages-title">
     <header class="experience-heading">
       <div>
-        <p class="experience-kicker">THE PACKAGES</p>
-        <h2 id="category-packages-title">Find your escape.</h2>
+        <p class="experience-kicker">{% if subcategories %}URS COLLECTIONS{% else %}THE PACKAGES{% endif %}</p>
+        <h2 id="category-packages-title">{% if subcategories %}Choose your plan.{% else %}Find your escape.{% endif %}</h2>
       </div>
-      <p>Explore the details, then choose the experience that feels right.</p>
+      <p>{% if subcategories %}Choose a collection to see the experiences within it.{% else %}Explore the details, then choose the experience that feels right.{% endif %}</p>
     </header>
+    {% if subcategories %}
+    <div class="experience-category-grid">
+      {% for item in subcategories %}
+      <article class="experience-category-card">
+        <a class="experience-category-card__image" href="{{ item.url }}" aria-label="Explore {{ item.name }}"><img src="{{ item.image }}" alt="{{ item.name }}" loading="lazy" decoding="async"></a>
+        <div class="experience-category-card__body">
+          <p class="experience-category-card__eyebrow">URS MEMBERSHIP</p>
+          <h3>{{ item.name }}</h3>
+          <p>{{ item.description }}</p>
+          <a class="experience-category-card__link" href="{{ item.url }}">Explore collection <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% if not subcategories %}{% for group in package_groups %}
+    {% if group.title %}<h3 class="experience-subgroup-title">{{ group.title }}</h3>{% endif %}
     <div class="experience-grid">
-      {% for package in packages %}
+      {% for package in group.packages %}
       <article class="experience-card">
         <a class="experience-card__photo" href="{% url 'package_detail' package.slug %}" aria-label="View {{ package.name }} details">
           {% if package.card_image_url %}<img src="{{ package.card_image_url }}" alt="{{ package.name }} experience" loading="lazy" decoding="async">{% else %}<img src="{{ category_image }}" alt="{{ package.name }} experience" loading="lazy" decoding="async">{% endif %}
@@ -38,17 +64,25 @@
           <h3>{{ package.name }}</h3>
           <p class="experience-card__description">{{ package.short_description|default:package.description|truncatewords:28 }}</p>
           <div class="experience-card__price">
+            {% if package.quote_only or not package.price_per_person %}
+            <div><span>Pricing</span><strong class="experience-card__quote">By enquiry</strong></div>
+            <small>Customised to your request</small>
+            {% else %}
             <div><span>From</span><strong>₦{{ package.price_per_person|floatformat:0 }}</strong></div>
             <small>{% if package.pricing_basis == 'couple' %}per couple{% elif package.pricing_basis == 'family' %}per family{% else %}per person{% endif %}</small>
+            {% endif %}
           </div>
+          {% if package.quote_only or not package.price_per_person %}
+          <a class="experience-card__link" href="{% url 'contact' %}?package={{ package.name|urlencode }}">Enquire about this experience <span aria-hidden="true">↗</span></a>
+          {% else %}
           <a class="experience-card__link" href="{% url 'package_detail' package.slug %}">Explore package <span aria-hidden="true">↗</span></a>
+          {% endif %}
         </div>
       </article>
-      {% empty %}
-      <p class="experience-empty">Packages for this experience are being prepared. Please check back soon.</p>
       {% endfor %}
     </div>
-    <a class="experience-category-back" href="{% url 'packages' %}">← Back to Unwind Experiences</a>
+    {% empty %}<p class="experience-empty">Packages for this experience are being prepared. Please check back soon.</p>{% endfor %}{% endif %}
+    <a class="experience-category-back" href="{{ back_url|default_if_none:'' }}{% if not back_url %}{% url 'packages' %}{% endif %}">{{ back_label|default:'← Back to Unwind Experiences' }}</a>
   </section>
 </main>
 {% endblock %}

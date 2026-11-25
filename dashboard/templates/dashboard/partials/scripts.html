@@ -1547,7 +1547,7 @@ document.addEventListener('alpine:init', () => {
 
       // ===== PACKAGE MODAL =====
       openPkgModal() {
-        this.pkgModal = { id: null, name: '', category: 'group', experience_duration: 'one_day', pricing_basis: 'person', included_adults: 1, included_children: 0, price_per_person: '', tagline: '', short_description: '', description: '', who_is_it_for: '', family_coverage: '', inclusions: '', card_image_url: '', flyer_url: '', instalment_charge_percent: '0', instalment_charge_flat: '0', available_durations: '3,6,9,12', is_active: true };
+        this.pkgModal = { id: null, name: '', category: 'group', collection_group: '', quote_only: false, experience_duration: 'one_day', pricing_basis: 'person', included_adults: 1, included_children: 0, price_per_person: '', tagline: '', short_description: '', description: '', who_is_it_for: '', family_coverage: '', inclusions: '', card_image_url: '', flyer_url: '', instalment_charge_percent: '0', instalment_charge_flat: '0', available_durations: '3,6,9,12', is_active: true };
         document.getElementById('pkgCardImageFile')?.value && (document.getElementById('pkgCardImageFile').value = '');
         document.getElementById('pkgDetailImageFile')?.value && (document.getElementById('pkgDetailImageFile').value = '');
         this.showPkgModal = true;

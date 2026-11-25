@@ -2361,10 +2361,13 @@ def create_package(request):
         flat = _cms_decimal(data, 'instalment_charge_flat')
         durations = _cms_durations(data.get('available_durations') or '3,6,9,12')
         category = data.get('category', 'group')
+        collection_group = data.get('collection_group', '')
         duration = data.get('experience_duration', 'one_day')
         basis = data.get('pricing_basis', 'person')
         if category not in dict(GroupGetawayPackage.CATEGORY_CHOICES):
             raise ValueError('Choose a valid experience category.')
+        if collection_group and collection_group not in dict(GroupGetawayPackage.COLLECTION_GROUP_CHOICES):
+            raise ValueError('Choose a valid experience subgroup.')
         if duration not in dict(GroupGetawayPackage.DURATION_CHOICES):
             raise ValueError('Choose a valid experience duration.')
         if basis not in dict(GroupGetawayPackage.PRICING_BASIS_CHOICES):
@@ -2373,6 +2376,8 @@ def create_package(request):
             pkg = GroupGetawayPackage.objects.create(
             name=name,
             category=category,
+            collection_group=collection_group,
+            quote_only=_cms_bool(data.get('quote_only'), False),
             experience_duration=duration,
             pricing_basis=basis,
             included_adults=_cms_small_integer(data, 'included_adults', 2 if basis in {'couple', 'family'} else 1),
@@ -2418,6 +2423,8 @@ def edit_package(request, package_id):
                     "id": pkg.id, "name": pkg.name, "slug": pkg.slug,
                     "price_per_person": str(pkg.price_per_person),
                     "category": pkg.category,
+                    "collection_group": pkg.collection_group,
+                    "quote_only": pkg.quote_only,
                     "experience_duration": pkg.experience_duration,
                     "pricing_basis": pkg.pricing_basis,
                     "included_adults": pkg.included_adults,
@@ -2442,15 +2449,20 @@ def edit_package(request, package_id):
             return JsonResponse({"ok": False, "error": "Name is required."}, status=400)
         pkg.price_per_person = _cms_decimal(data, 'price_per_person', current=pkg.price_per_person, required=True)
         category = data.get('category', pkg.category)
+        collection_group = data.get('collection_group', pkg.collection_group)
         duration = data.get('experience_duration', pkg.experience_duration)
         basis = data.get('pricing_basis', pkg.pricing_basis)
         if category not in dict(GroupGetawayPackage.CATEGORY_CHOICES):
             raise ValueError('Choose a valid experience category.')
+        if collection_group and collection_group not in dict(GroupGetawayPackage.COLLECTION_GROUP_CHOICES):
+            raise ValueError('Choose a valid experience subgroup.')
         if duration not in dict(GroupGetawayPackage.DURATION_CHOICES):
             raise ValueError('Choose a valid experience duration.')
         if basis not in dict(GroupGetawayPackage.PRICING_BASIS_CHOICES):
             raise ValueError('Choose a valid pricing basis.')
         pkg.category = category
+        pkg.collection_group = collection_group
+        pkg.quote_only = _cms_bool(data.get('quote_only'), pkg.quote_only)
         pkg.experience_duration = duration
         pkg.pricing_basis = basis
         pkg.included_adults = _cms_small_integer(data, 'included_adults', pkg.included_adults)

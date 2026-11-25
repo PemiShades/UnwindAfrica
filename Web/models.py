@@ -727,10 +727,20 @@ class GroupGetawayPackage(models.Model):
         ('group', 'Group Getaway'),
         ('couples', 'Couples Escape'),
         ('family', 'Family Moments'),
+        ('urs', 'Unwind Relaxation Services'),
+        ('corporate', 'Corporate Retreats'),
+        ('boat', 'Boat Cruise Specials'),
+    ]
+    COLLECTION_GROUP_CHOICES = [
+        ('solo', 'Solo Packages'),
+        ('couples', 'Couples Packages'),
+        ('family', 'Family Packages'),
     ]
     DURATION_CHOICES = [
         ('one_day', 'One Day'),
         ('two_days_one_night', 'Two Days, One Night'),
+        ('annual', 'Annual Plan'),
+        ('custom', 'Arranged to Suit'),
     ]
     PRICING_BASIS_CHOICES = [
         ('person', 'Per person'),
@@ -741,6 +751,8 @@ class GroupGetawayPackage(models.Model):
     name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(unique=True, blank=True)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='group', db_index=True)
+    collection_group = models.CharField(max_length=20, choices=COLLECTION_GROUP_CHOICES, blank=True, db_index=True)
+    quote_only = models.BooleanField(default=False, help_text="Show enquiry details instead of checkout until a price is configured.")
     experience_duration = models.CharField(max_length=30, choices=DURATION_CHOICES, default='one_day', db_index=True)
     pricing_basis = models.CharField(max_length=20, choices=PRICING_BASIS_CHOICES, default='person')
     included_adults = models.PositiveSmallIntegerField(default=1)

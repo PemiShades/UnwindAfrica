@@ -74,8 +74,8 @@
         <span class="ua-kicker">{{ package.get_category_display }} · {{ package.get_experience_duration_display }}</span>
         <h1>{{ package.name }}</h1>
         <p class="gg-detail__category">{{ package.tagline|default:package.short_description|default:"A considered Unwind Africa experience, shaped around time together and room to rest." }}</p>
-        <p class="gg-detail__price">₦{{ package.price_per_person|floatformat:0 }}</p>
-        <p class="gg-detail__price-note">Starting price · {{ package.get_pricing_basis_display }}</p>
+        {% if quote_only %}<p class="gg-detail__price">Request pricing</p>{% else %}<p class="gg-detail__price">₦{{ package.price_per_person|floatformat:0 }}</p>
+        <p class="gg-detail__price-note">Starting price · {{ package.get_pricing_basis_display }}</p>{% endif %}
         {% if package.family_coverage %}
         <p class="gg-detail__note">{{ package.family_coverage }} For a larger family or a customised experience, <a href="{% url 'contact' %}?package={{ package.name|urlencode }}">request a tailored quote</a>.</p>
         {% endif %}
@@ -87,6 +87,13 @@
         {% if package.who_is_it_for %}<div class="gg-detail__experience"><h2>Made for</h2><p>{{ package.who_is_it_for|linebreaksbr }}</p></div>{% endif %}
       </section>
 
+      {% if quote_only %}
+      <aside class="gg-detail__form gg-detail__quote">
+        <h2>Make it yours</h2>
+        <p>This experience is tailored to your needs. Contact our team for current pricing, availability and plan details.</p>
+        <a class="gg-submit" href="{% url 'contact' %}?package={{ package.name|urlencode }}">Request details</a>
+      </aside>
+      {% else %}
       <form class="gg-detail__form" method="post" action="{% url 'package_checkout' package.slug %}">
         {% csrf_token %}
         <h2>Reserve your experience</h2>
@@ -144,6 +151,7 @@
         <div class="gg-field"><label for="initial_deposit">Your initial deposit (₦)</label><input id="initial_deposit" name="initial_deposit" type="number" min="1" step="1" value="" placeholder="Enter any amount to start" required></div>
         <button class="gg-submit" type="submit" id="submit-booking">Continue to secure payment</button>
       </form>
+      {% endif %}
     </div>
   </div>
 </main>

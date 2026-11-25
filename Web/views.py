@@ -15,6 +15,7 @@ import json
 import logging
 import requests
 import secrets
+from urllib.parse import urlencode
 
 from .models import Post, Event, BlogCategory
 from .forms import PostForm, EventForm
@@ -31,6 +32,20 @@ PACKAGE_ARTWORK = {
     'oasis': 'assets/packages/46001 1.jpg',
     'family-break-beach-day': 'assets/home/family.jpg',
     'oakwood': 'assets/home/packages/family-ties.jpg',
+    'sunflower': 'assets/home/solo.jpeg',
+    'daisy': 'assets/home/solo.jpeg',
+    'lily': 'assets/home/solo.jpeg',
+    'rose': 'assets/home/solo.jpeg',
+    'orchid': 'assets/home/solo.jpeg',
+    'romantic-escapes': 'assets/home/optimized/book-couples.webp',
+    'relaxation-retreats': 'assets/home/optimized/book-couples.webp',
+    'luxury-getaways': 'assets/home/optimized/book-couples.webp',
+    'family-wellness-escape': 'assets/home/optimized/families-card.webp',
+    'corporate-retreats': 'assets/home/optimized/book-groups.webp',
+    'coastal-breeze': 'assets/packages/boat-cruize.jpeg',
+    'ocean-oasis': 'assets/packages/boat-cruize-1.jpeg',
+    'sea-haven': 'assets/packages/boat-cruize-3.jpeg',
+    'luxury-voyager': 'assets/packages/boat-cruize-4.jpeg',
 }
 
 
@@ -69,7 +84,7 @@ def mobile_packages_api(request):
         When(category='family', then=Value(2)),
         default=Value(3), output_field=IntegerField(),
     )
-    rows = GroupGetawayPackage.objects.filter(is_active=True).order_by(
+    rows = GroupGetawayPackage.objects.filter(is_active=True, quote_only=False, price_per_person__gt=0).order_by(
         category_order, 'experience_duration', 'price_per_person'
     )
     from .models import PackageAddOn
@@ -803,6 +818,27 @@ def packages(request):
             'image': 'assets/home/optimized/families-card.webp',
             'url': reverse('experience_category', kwargs={'category': 'family'}),
         },
+        {
+            'key': 'urs',
+            'name': 'Unwind Relaxation Services',
+            'description': 'A year of wellness, restorative moments and meaningful time with the people you love.',
+            'image': 'assets/home/optimized/urs-pool-hero-desktop.webp',
+            'url': reverse('experience_category', kwargs={'category': 'urs'}),
+        },
+        {
+            'key': 'corporate',
+            'name': 'Corporate Retreats',
+            'description': 'Recharge, refocus and bring your team together with a retreat shaped around your goals.',
+            'image': 'assets/home/optimized/book-groups.webp',
+            'url': reverse('experience_category', kwargs={'category': 'corporate'}),
+        },
+        {
+            'key': 'boat',
+            'name': 'Boat Cruise Specials',
+            'description': 'Celebrate, reconnect or find a little calm out on the water.',
+            'image': 'assets/packages/boat-cruize.jpeg',
+            'url': reverse('experience_category', kwargs={'category': 'boat'}),
+        },
     ]
     categories = []
     for spec in category_specs:
@@ -827,18 +863,93 @@ def experience_category(request, category):
             'intro': 'Bring everyone together for an easy day away or a stay to remember.',
             'image': 'assets/home/optimized/families-card.webp',
         },
+        'urs': {
+            'name': 'Unwind Relaxation Services',
+            'intro': 'Unlock a year of relaxation and wellness, with quarterly payment options and annual benefits designed to offer value beyond your contributions.',
+            'image': 'assets/home/optimized/urs-pool-hero-desktop.webp',
+            'highlights': ['Massages and mani-pedi sessions', 'Boat cruises and weekend getaways', 'Exclusive events and birthday celebrations', 'Counselling and therapy sessions', 'Time to bond with family and friends'],
+        },
+        'corporate': {
+            'name': 'Corporate Retreats',
+            'intro': 'Recharge, refocus and rebuild your team with a retreat customised to your organisation.',
+            'image': 'assets/home/optimized/book-groups.webp',
+        },
+        'boat': {
+            'name': 'Boat Cruise Specials',
+            'intro': 'Set sail for romance, celebration or a peaceful escape. Choose a cruise style and ask us to shape the details around your occasion.',
+            'image': 'assets/packages/boat-cruize.jpeg',
+        },
     }
     details = category_content.get(category)
     if not details:
         from django.http import Http404
         raise Http404('Experience category not found')
-    packages = GroupGetawayPackage.objects.filter(category=category, is_active=True).order_by('experience_duration', 'price_per_person')
+    packages = GroupGetawayPackage.objects.filter(category=category, is_active=True).order_by('experience_duration', 'price_per_person', 'name')
+    package_groups = []
+    subcategories = []
+    if category == 'urs':
+        subgroup_descriptions = {
+            'solo': ('Solo Packages', 'Flower-inspired experiences for self-care and a little time to recharge.', 'assets/home/solo.jpeg'),
+            'couples': ('Couples Packages', 'Romantic escapes, shared retreats and time to reconnect.', 'assets/home/optimized/book-couples.webp'),
+            'family': ('Family Packages', 'Rest, reconnect and make lasting memories together.', 'assets/home/optimized/families-card.webp'),
+        }
+        for key, label in GroupGetawayPackage.COLLECTION_GROUP_CHOICES:
+            if packages.filter(collection_group=key).exists():
+                title, description, image = subgroup_descriptions[key]
+                subcategories.append({
+                    'name': title,
+                    'description': description,
+                    'image': static_url(image),
+                    'url': reverse('urs_subcategory', kwargs={'collection_group': key}),
+                })
+    else:
+        package_groups = [{'title': '', 'packages': list(packages)}]
+    for group in package_groups:
+        for package in group['packages']:
+            package.card_image_url = _package_artwork_url(package, card=True)
+    return render(request, 'Web/experience_category.html', {
+        'category': details,
+        'category_image': static_url(details['image']),
+        'package_groups': package_groups,
+        'subcategories': subcategories,
+    })
+
+
+def urs_subcategory(request, collection_group):
+    from .models import GroupGetawayPackage
+    group_content = {
+        'solo': {
+            'name': 'Solo Packages',
+            'intro': 'Choose a flower-inspired escape made for your own wellbeing and time to recharge.',
+            'image': 'assets/home/solo.jpeg',
+        },
+        'couples': {
+            'name': 'Couples Packages',
+            'intro': 'Choose a romantic experience, a restorative retreat or a more luxurious getaway for two.',
+            'image': 'assets/home/optimized/book-couples.webp',
+        },
+        'family': {
+            'name': 'Family Packages',
+            'intro': 'A customisable experience for quality time, rest and memorable moments together.',
+            'image': 'assets/home/optimized/families-card.webp',
+        },
+    }
+    details = group_content.get(collection_group)
+    if not details:
+        from django.http import Http404
+        raise Http404('URS collection not found')
+    packages = list(GroupGetawayPackage.objects.filter(
+        category='urs', collection_group=collection_group, is_active=True,
+    ).order_by('name'))
     for package in packages:
         package.card_image_url = _package_artwork_url(package, card=True)
     return render(request, 'Web/experience_category.html', {
         'category': details,
         'category_image': static_url(details['image']),
-        'packages': packages,
+        'package_groups': [{'title': '', 'packages': packages}],
+        'subcategories': [],
+        'back_url': reverse('experience_category', kwargs={'category': 'urs'}),
+        'back_label': 'Back to Unwind Relaxation Services',
     })
 
 
@@ -860,6 +971,12 @@ def package_detail(request, slug):
     """Group Getaway package page with Pay Outright / Start Your Savings Plan options."""
     from .models import GroupGetawayPackage, PackageAddOn
     package = get_object_or_404(GroupGetawayPackage, slug=slug, is_active=True)
+    if package.quote_only or package.price_per_person <= 0:
+        return render(request, 'Web/package_detail.html', {
+            'package': package,
+            'package_image_url': _package_artwork_url(package),
+            'quote_only': True,
+        })
     addons = PackageAddOn.objects.filter(is_active=True).order_by('name')
     doctor_addon = PackageAddOn.objects.filter(name__icontains='doctor', is_active=True).first()
     transport_addon = PackageAddOn.objects.filter(name__icontains='transport', is_active=True).first()
@@ -898,6 +1015,8 @@ def package_checkout(request, slug):
     from .models import (GroupGetawayPackage, PackageAddOn, PackageOrder, PackageInstalment,
                          PackagePayment)
     package = get_object_or_404(GroupGetawayPackage, slug=slug, is_active=True)
+    if package.quote_only or package.price_per_person <= 0:
+        return redirect(f"{reverse('contact')}?{urlencode({'package': package.name})}")
 
     customer_email = request.POST.get('customer_email', '').strip().lower()
     customer_name = request.POST.get('customer_name', '').strip()

@@ -1619,15 +1619,16 @@
   <div x-show="showPkgModal" x-transition.opacity class="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" x-cloak @keydown.escape.window="closePkgModal()">
     <section class="w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#111411] text-white shadow-2xl" @click.outside="closePkgModal()">
       <header class="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-white/10 bg-[#111411] px-6 py-5">
-        <div><p class="admin-kicker">Shared website and app catalogue</p><h2 class="text-2xl font-semibold" x-text="pkgModal.id ? 'Edit package' : 'Add package'"></h2><p class="mt-1 text-sm text-white/60">One saved package updates the website and mobile app feed together.</p></div>
+        <div><p class="admin-kicker">Website experience catalogue</p><h2 class="text-2xl font-semibold" x-text="pkgModal.id ? 'Edit package' : 'Add package'"></h2><p class="mt-1 text-sm text-white/60">Priced, bookable packages also appear in the mobile app catalogue. Quote-only experiences stay enquiry-led.</p></div>
         <button type="button" @click="closePkgModal()" class="btn-ghost" aria-label="Close package editor"><i class="fa-solid fa-xmark"></i></button>
       </header>
       <form @submit.prevent="savePkg()" class="space-y-5 p-6">
         <div class="grid gap-4 sm:grid-cols-2">
           <label class="block text-sm sm:col-span-2">Package name<input required maxlength="255" x-model.trim="pkgModal.name" class="field ring-brand mt-2 w-full" placeholder="e.g. Couples Escape" /></label>
-          <label class="block text-sm">Category<select x-model="pkgModal.category" class="field ring-brand mt-2 w-full"><option value="group">Group Getaway</option><option value="couples">Couples Escape</option><option value="family">Family Moments</option></select></label>
-          <label class="block text-sm">Experience duration<select x-model="pkgModal.experience_duration" class="field ring-brand mt-2 w-full"><option value="one_day">One day</option><option value="two_days_one_night">Two days, one night</option></select></label>
-          <label class="block text-sm">Price (₦)<input required type="number" min="0" step="0.01" x-model="pkgModal.price_per_person" class="field ring-brand mt-2 w-full" /></label>
+          <label class="block text-sm">Category<select x-model="pkgModal.category" class="field ring-brand mt-2 w-full"><option value="group">Group Getaway</option><option value="couples">Couples Escape</option><option value="family">Family Moments</option><option value="urs">Unwind Relaxation Services</option><option value="corporate">Corporate Retreats</option><option value="boat">Boat Cruise Specials</option></select></label>
+          <label class="block text-sm">URS collection<select x-model="pkgModal.collection_group" class="field ring-brand mt-2 w-full"><option value="">None</option><option value="solo">Solo Packages</option><option value="couples">Couples Packages</option><option value="family">Family Packages</option></select></label>
+          <label class="block text-sm">Experience duration<select x-model="pkgModal.experience_duration" class="field ring-brand mt-2 w-full"><option value="one_day">One day</option><option value="two_days_one_night">Two days, one night</option><option value="annual">Annual plan</option><option value="custom">Arranged to suit</option></select></label>
+          <label class="block text-sm">Price (₦; enter 0 when requesting a quote)<input required type="number" min="0" step="0.01" x-model="pkgModal.price_per_person" class="field ring-brand mt-2 w-full" /></label>
           <label class="block text-sm">Price applies to<select x-model="pkgModal.pricing_basis" @change="pkgModal.included_adults = pkgModal.pricing_basis === 'person' ? 1 : 2; pkgModal.included_children = pkgModal.pricing_basis === 'family' ? 2 : 0" class="field ring-brand mt-2 w-full"><option value="person">Per person</option><option value="couple">Per couple</option><option value="family">Per family</option></select></label>
           <label class="block text-sm">Adults included<input type="number" min="0" max="20" x-model="pkgModal.included_adults" class="field ring-brand mt-2 w-full" /></label>
           <label class="block text-sm">Children included<input type="number" min="0" max="20" x-model="pkgModal.included_children" class="field ring-brand mt-2 w-full" /></label>
@@ -1643,7 +1644,8 @@
           <label class="block text-sm">Listing card image<input id="pkgCardImageFile" type="file" accept="image/*" class="field mt-2 w-full" /><span class="mt-1 block text-xs text-white/50" x-text="pkgModal.card_image_url ? 'Current image is live. Choose a file to replace it.' : 'Choose a clear image for the package card.'"></span></label>
           <label class="block text-sm">Detail page image<input id="pkgDetailImageFile" type="file" accept="image/*" class="field mt-2 w-full" /><span class="mt-1 block text-xs text-white/50" x-text="pkgModal.flyer_url ? 'Current image is live. Choose a file to replace it.' : 'Choose a wide image for package details.'"></span></label>
         </div>
-        <label class="flex items-center gap-3 text-sm"><input type="checkbox" x-model="pkgModal.is_active" class="h-4 w-4 accent-emerald-500" />Available for booking</label>
+        <label class="flex items-center gap-3 text-sm"><input type="checkbox" x-model="pkgModal.is_active" class="h-4 w-4 accent-emerald-500" />Visible on the website</label>
+        <label class="flex items-center gap-3 text-sm"><input type="checkbox" x-model="pkgModal.quote_only" class="h-4 w-4 accent-emerald-500" />Request a quote instead of checkout</label>
         <footer class="flex flex-col-reverse gap-3 border-t border-white/10 pt-5 sm:flex-row sm:justify-end">
           <button type="button" @click="closePkgModal()" class="btn-ghost">Cancel</button><button type="submit" class="btn-primary"><i class="fa-solid fa-check mr-2"></i>Save package</button>
         </footer>
