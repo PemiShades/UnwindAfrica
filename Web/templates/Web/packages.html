@@ -7,7 +7,7 @@
 {% block og_description %}Choose a group, couples or family getaway and explore the packages within each experience.{% endblock %}
 {% block twitter_title %}Unwind Experiences | Unwind Africa{% endblock %}
 {% block twitter_description %}Choose a group, couples or family getaway and explore the packages within each experience.{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}?v=urs-hero-20261125"><link rel="stylesheet" href="{% static 'css/package-experiences.css' %}?v=experience-categories-20261125">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}?v=urs-hero-20261125"><link rel="stylesheet" href="{% static 'css/package-experiences.css' %}?v=experience-categories-20261125"><link rel="stylesheet" href="{% static 'css/story-quotes.css' %}?v=stories-20261125">{% endblock %}
 {% block content %}
 <main class="experience-page experience-page--overview">
   <section class="experience-intro">
@@ -49,5 +49,6 @@
       {% endfor %}
     </div>
   </section>
+  {% include "Web/partials/unwinder_story_quotes.html" %}
 </main>
 {% endblock %}

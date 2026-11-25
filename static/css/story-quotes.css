@@ -1,0 +1,15 @@
+.ua-story-quotes { width: min(1120px, 100%); margin: clamp(3rem, 7vw, 6rem) auto 0; padding-top: 2rem; border-top: 1px solid rgba(20,44,37,.12); }
+.ua-story-quotes__head { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; margin-bottom: 1.4rem; }
+.ua-story-quotes__head>div>p { margin: 0 0 .45rem; color: #9a7940; font: 700 .61rem/1.4 Inter,sans-serif; letter-spacing: .16em; }
+.ua-story-quotes__head h2 { margin: 0; color: #163b30; font: 500 clamp(1.65rem,3.5vw,2.7rem)/1.08 "Playfair Display",Georgia,serif; }
+.ua-story-quotes__head>a { flex: none; color: #235343; font-size: .7rem; font-weight: 700; }
+.ua-story-quotes__head>a span { margin-left: .35rem; color: #ac8d52; }
+.ua-story-quotes__grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: .8rem; }
+.ua-story-quote { display: flex; flex-direction: column; min-width: 0; margin: 0; padding: 1.2rem; border: 1px solid #e7e8e1; border-radius: 10px; background: #fafaf7; }
+.ua-story-quote__mark { height: 2rem; color: #b3975b; font: 3.5rem/.9 "Playfair Display",Georgia,serif; }
+.ua-story-quote h3 { margin: .2rem 0 .55rem; color: #18372e; font: 500 1.35rem/1.12 "Playfair Display",Georgia,serif; }
+.ua-story-quote>p { flex: 1; margin: 0 0 1.1rem; color: #69736d; font-size: .76rem; line-height: 1.7; }
+.ua-story-quote footer { display: grid; gap: .25rem; padding-top: .75rem; border-top: 1px solid #e4e5df; }
+.ua-story-quote footer strong { color: #18372e; font-size: .64rem; letter-spacing: .08em; text-transform: uppercase; }
+.ua-story-quote footer span { color: #9a7940; font-size: .61rem; }
+@media(max-width:760px) { .ua-story-quotes__head { align-items: start; flex-direction: column; }.ua-story-quotes__grid { grid-template-columns: 1fr; }.ua-story-quote { padding: 1.05rem; } }

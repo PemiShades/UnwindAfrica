@@ -11,8 +11,9 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}">
 <link rel="stylesheet" href="{% static 'css/package-experiences.css' %}">
-<link rel="stylesheet" href="{% static 'css/group-package-showcase.css' %}?v=group-page-horizontal-20261124">
+<link rel="stylesheet" href="{% static 'css/group-package-showcase.css' %}?v=classic-photo-gallery-20261125">
 <link rel="stylesheet" href="{% static 'css/group-getaway-page.css' %}?v=horizontal-choice-20261124">
+<link rel="stylesheet" href="{% static 'css/story-quotes.css' %}?v=stories-20261125">
 {% endblock %}
 
 {% block content %}
@@ -36,8 +37,7 @@
         <div class="group-gallery__viewport" data-gallery-rail tabindex="0" aria-label="{{ feature.package.name }} photo gallery. Swipe or use the controls to browse photos.">
           {% for photo in feature.gallery %}
           <figure class="group-gallery__slide">
-            <img src="{{ photo.src }}" alt="{{ photo.alt }}" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async">
-            <figcaption><span>{{ photo.caption }}</span></figcaption>
+            <img src="{{ photo.src }}" alt="{{ photo.alt }}" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async" tabindex="0" role="button" aria-label="View larger image: {{ photo.alt }}">
           </figure>
           {% endfor %}
         </div>
@@ -68,10 +68,11 @@
     <p class="group-getaway-page__empty">Group Getaway options are being prepared. Please check back soon.</p>
     {% endfor %}
   </section>
+  {% include "Web/partials/unwinder_story_quotes.html" %}
   <a class="group-getaway-page__back" href="{% url 'packages' %}">Back to Unwind Experiences</a>
 </main>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/group-gallery.js' %}" defer></script>
+<script src="{% static 'js/group-gallery.js' %}?v=classic-lightbox-20261125" defer></script>
 {% endblock %}

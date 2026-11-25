@@ -4,13 +4,24 @@ from django.db.models import Sum
 from django.http import HttpResponse
 import csv
 from .models import (Event, Post, BlogCategory, VotingCampaign, Nominee, Vote, Transaction,
-                     CommunityMember, RestCard, TokenWallet, TokenTransaction, FrozenRestPoints)
+                     CommunityMember, RestCard, TokenWallet, TokenTransaction, FrozenRestPoints,
+                     UnwinderStory)
 
 
 # ============= Existing Models =============
 admin.site.register(Event)
 admin.site.register(Post)
 admin.site.register(BlogCategory)
+
+
+@admin.register(UnwinderStory)
+class UnwinderStoryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'headline', 'package_label', 'display_order', 'is_active')
+    list_filter = ('is_active', 'package_label')
+    search_fields = ('name', 'headline', 'story', 'package_label')
+    list_editable = ('display_order', 'is_active')
+    list_display_links = ('name',)
+    ordering = ('display_order', 'id')
 
 
 # ============= Voting System Admin =============

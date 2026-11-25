@@ -848,6 +848,25 @@ class PackageAddOn(models.Model):
         return f"{self.name} – ₦{self.price:,.0f}"
 
 
+class UnwinderStory(models.Model):
+    """A participant reflection, shown on the public Unwinder Stories page."""
+    name = models.CharField(max_length=160)
+    headline = models.CharField(max_length=200)
+    story = models.TextField()
+    package_label = models.CharField(max_length=100, blank=True)
+    display_order = models.PositiveSmallIntegerField(default=0, db_index=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['display_order', 'id']
+        verbose_name = 'Unwinder Story'
+        verbose_name_plural = 'Unwinder Stories'
+
+    def __str__(self):
+        return f'{self.name} — {self.headline}'
+
+
 class PackageOrder(models.Model):
     """Customer order for a Group Getaway package."""
     STATUS_CHOICES = [

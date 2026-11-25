@@ -1,13 +1,41 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const lightbox = document.createElement('dialog');
+  lightbox.className = 'group-gallery-lightbox';
+  lightbox.setAttribute('aria-label', 'Expanded getaway photo');
+  lightbox.innerHTML = '<button class="group-gallery-lightbox__close" type="button" aria-label="Close expanded photo">&times;</button><img class="group-gallery-lightbox__image" alt="">';
+  document.body.append(lightbox);
+  const lightboxImage = lightbox.querySelector('img');
+  const closeLightbox = lightbox.querySelector('button');
+  closeLightbox.addEventListener('click', () => lightbox.close());
+  lightbox.addEventListener('click', (event) => {
+    if (event.target === lightbox) lightbox.close();
+  });
+
   document.querySelectorAll('[data-gallery]').forEach((gallery) => {
     const rail = gallery.querySelector('[data-gallery-rail]');
     if (!rail) return;
 
     const slides = [...rail.querySelectorAll('.group-gallery__slide')];
+    const images = [...rail.querySelectorAll('img')];
     const dots = [...gallery.querySelectorAll('[data-gallery-dot]')];
     const previous = gallery.querySelector('[data-gallery-prev]');
     const next = gallery.querySelector('[data-gallery-next]');
     if (!slides.length || !previous || !next) return;
+
+    const openImage = (image) => {
+      lightboxImage.src = image.currentSrc || image.src;
+      lightboxImage.alt = image.alt;
+      lightbox.showModal();
+    };
+    images.forEach((image) => {
+      image.addEventListener('click', () => openImage(image));
+      image.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openImage(image);
+        }
+      });
+    });
 
     let ticking = false;
     const activeIndex = () => {

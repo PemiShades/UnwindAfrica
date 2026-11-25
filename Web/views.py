@@ -58,6 +58,11 @@ def _package_artwork_url(package, *, card=False):
     return static_url(artwork)
 
 
+def _related_unwinder_stories(package_label):
+    from .models import UnwinderStory
+    return UnwinderStory.objects.filter(is_active=True, package_label=package_label)
+
+
 def _paystack_charge_matches(data, reference, expected_amount):
     """Bind a successful Paystack response to the requested NGN charge."""
     try:
@@ -610,6 +615,12 @@ def home(request):
     return render(request, 'Web/home.html', {'theme': 'dark'})
 
 
+def unwinder_stories(request):
+    from .models import UnwinderStory
+    stories = UnwinderStory.objects.filter(is_active=True)
+    return render(request, 'Web/unwinder_stories.html', {'stories': stories})
+
+
 def explore(request):
     """Explore page showing all website sections"""
     # Get latest blog posts
@@ -770,10 +781,13 @@ def _group_getaway_choices(packages):
             'eyebrow': 'CLASSIC PREMIUM',
             'gallery_id': 'classic-premium-gallery',
             'gallery': [
-                {'src': static_url('assets/packages/group-classic-premium/resort.webp'), 'alt': 'A tropical beachfront resort framed by palms and the sea', 'caption': 'A day by the water'},
-                {'src': static_url('assets/packages/group-classic-premium/massage.webp'), 'alt': 'A guest enjoying a massage during a beach getaway', 'caption': 'A restorative massage'},
-                {'src': static_url('assets/packages/group-classic-premium/manicure.webp'), 'alt': 'A guest receiving a manicure in a coastal spa cabana', 'caption': 'Manicure'},
-                {'src': static_url('assets/packages/group-classic-premium/pedicure.webp'), 'alt': 'A guest receiving a pedicure in a coastal spa cabana', 'caption': 'Pedicure'},
+                {'src': static_url('assets/packages/group-classic-premium/massage.webp'), 'alt': 'A guest enjoying a restorative massage', 'caption': 'A restorative massage'},
+                {'src': static_url('assets/packages/group-classic-premium/beach-volleyball.webp'), 'alt': 'Friends enjoying beach volleyball together', 'caption': 'Room to play'},
+                {'src': static_url('assets/packages/group-classic-premium/gourmet-dining.webp'), 'alt': 'A beautifully prepared meal served by the beach', 'caption': 'A thoughtful meal'},
+                {'src': static_url('assets/packages/group-classic-premium/signature-refreshments.webp'), 'alt': 'Fresh fruit and colorful drinks beside the ocean', 'caption': 'Signature refreshments'},
+                {'src': static_url('assets/packages/group-classic-premium/friends-and-drinks.webp'), 'alt': 'Friends sharing drinks and conversation at the getaway', 'caption': 'Good company'},
+                {'src': static_url('assets/packages/group-classic-premium/pool-day.webp'), 'alt': 'Friends enjoying a lively afternoon in the pool', 'caption': 'A poolside afternoon'},
+                {'src': static_url('assets/packages/group-classic-premium/poolside-lounge.webp'), 'alt': 'Friends unwinding together in a shaded poolside lounge', 'caption': 'Time to unwind'},
             ],
         })
     if classic:
@@ -782,19 +796,20 @@ def _group_getaway_choices(packages):
             'eyebrow': 'CLASSIC',
             'gallery_id': 'classic-gallery',
             'gallery': [
-                {'src': static_url('assets/packages/group-classic/volleyball.webp'), 'alt': 'Friends enjoying beach volleyball together', 'caption': 'Room to play'},
-                {'src': static_url('assets/packages/group-classic/dining.webp'), 'alt': 'A beachside meal shared during a group getaway', 'caption': 'A good meal together'},
-                {'src': static_url('assets/packages/group-classic/refreshments.webp'), 'alt': 'Fresh tropical drinks and fruit by the beach', 'caption': 'Fresh refreshments'},
-                {'src': static_url('assets/packages/group-classic/group-dining.webp'), 'alt': 'Friends sharing a relaxed meal together', 'caption': 'Time around the table'},
-                {'src': static_url('assets/packages/group-classic/pool.webp'), 'alt': 'Guests relaxing together in a resort pool', 'caption': 'A cool afternoon'},
-                {'src': static_url('assets/packages/group-classic/lounge.webp'), 'alt': 'Friends relaxing together between beach activities', 'caption': 'Time to unwind'},
+                {'src': static_url('assets/packages/group-classic/pool-gathering.webp'), 'alt': 'Friends sharing a relaxed afternoon together in the pool', 'caption': 'Poolside together'},
+                {'src': static_url('assets/packages/group-classic/breakfast.webp'), 'alt': 'A generous breakfast served beside the pool', 'caption': 'A slow breakfast'},
+                {'src': static_url('assets/packages/group-classic/welcome-bags.webp'), 'alt': 'Guests arriving for their getaway with Unwind Africa welcome bags', 'caption': 'A warm welcome'},
+                {'src': static_url('assets/packages/group-classic/football.webp'), 'alt': 'Friends enjoying a friendly football game on the lawn', 'caption': 'A little friendly play'},
+                {'src': static_url('assets/packages/group-classic/shared-meal.webp'), 'alt': 'Guests sharing a freshly prepared meal together', 'caption': 'Good food, shared'},
+                {'src': static_url('assets/packages/group-classic/beach-walk.webp'), 'alt': 'Friends enjoying the shoreline together', 'caption': 'Time by the shore'},
+                {'src': static_url('assets/packages/group-classic/poolside-lounge.webp'), 'alt': 'Friends unwinding together by the pool', 'caption': 'Room to unwind'},
             ],
         })
     return choices
 
 
 def packages(request):
-    from .models import GroupGetawayPackage
+    from .models import GroupGetawayPackage, UnwinderStory
     active_packages = GroupGetawayPackage.objects.filter(is_active=True)
     category_specs = [
         {
@@ -847,7 +862,10 @@ def packages(request):
             visible_packages = visible_packages.filter(slug__in=('classic-premium', 'classic'))
         count = visible_packages.count()
         categories.append({**spec, 'image': static_url(spec['image']), 'package_count': count})
-    return render(request, 'Web/packages.html', {'categories': categories})
+    return render(request, 'Web/packages.html', {
+        'categories': categories,
+        'stories': UnwinderStory.objects.filter(is_active=True)[:3],
+    })
 
 
 def experience_category(request, category):
@@ -958,6 +976,7 @@ def group_getaway_packages(request):
     packages = GroupGetawayPackage.objects.filter(is_active=True)
     return render(request, 'Web/group_getaway_packages.html', {
         'group_choices': _group_getaway_choices(packages),
+        'stories': _related_unwinder_stories('Group Getaway'),
     })
 
 
@@ -971,11 +990,14 @@ def package_detail(request, slug):
     """Group Getaway package page with Pay Outright / Start Your Savings Plan options."""
     from .models import GroupGetawayPackage, PackageAddOn
     package = get_object_or_404(GroupGetawayPackage, slug=slug, is_active=True)
+    story_label = 'Solo Packages' if package.category == 'urs' and package.collection_group == 'solo' else package.name
+    related_stories = _related_unwinder_stories(story_label)
     if package.quote_only or package.price_per_person <= 0:
         return render(request, 'Web/package_detail.html', {
             'package': package,
             'package_image_url': _package_artwork_url(package),
             'quote_only': True,
+            'stories': related_stories,
         })
     addons = PackageAddOn.objects.filter(is_active=True).order_by('name')
     doctor_addon = PackageAddOn.objects.filter(name__icontains='doctor', is_active=True).first()
@@ -1005,6 +1027,7 @@ def package_detail(request, slug):
         'package_total': package_total,
         'checkout_error': request.GET.get('registration_error'),
         'plan_mode_label': 'savings plan' if request.GET.get('mode') == 'plan' else 'payment',
+        'stories': related_stories,
     }
     return render(request, 'Web/package_detail.html', context)
 
