@@ -48,13 +48,32 @@ body { background:#fff; }
 .experience-card__link { display:flex; align-items:center; justify-content:space-between; padding-top:.9rem; border-top:1px solid var(--exp-rule); color:var(--exp-green); font-size:.72rem; font-weight:700; letter-spacing:.025em; }
 .experience-card__link span { font-size:1.1rem; }
 .experience-empty { grid-column:1/-1; padding:4rem 1rem; color:var(--exp-muted); text-align:center; }
+.experience-categories { width:min(1240px,90vw); margin:0 auto; padding:clamp(3.5rem,7vw,6rem) 0 7rem; }
+.experience-categories__heading { margin-bottom:1.8rem; }
+.experience-categories__heading h2 { margin:0; color:var(--exp-ink); font:600 clamp(2rem,4.2vw,3.5rem)/1.05 "Playfair Display",Georgia,serif; letter-spacing:-.035em; }
+.experience-category-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1.25rem; }
+.experience-category-card { overflow:hidden; border:1px solid #e8ece8; border-radius:14px; background:#fff; box-shadow:0 12px 34px rgba(16,43,37,.055); transition:transform .25s ease,box-shadow .25s ease; }
+.experience-category-card:hover { transform:translateY(-4px); box-shadow:0 20px 45px rgba(16,43,37,.11); }
+.experience-category-card__image { display:block; aspect-ratio:1.28; overflow:hidden; background:#edf1ed; }
+.experience-category-card__image img { width:100%; height:100%; object-fit:cover; transition:transform .65s cubic-bezier(.2,.7,.2,1); }
+.experience-category-card:hover .experience-category-card__image img { transform:scale(1.04); }
+.experience-category-card__body { padding:1.2rem 1.3rem 1.35rem; }
+.experience-category-card__eyebrow { margin:0 0 .6rem; color:#95713a; font-size:.61rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+.experience-category-card h3 { margin:0; color:var(--exp-ink); font:600 1.55rem/1.2 "Playfair Display",Georgia,serif; }
+.experience-category-card__body>p:not(.experience-category-card__eyebrow) { min-height:3.4em; margin:.55rem 0 1.1rem; color:var(--exp-muted); font-size:.78rem; line-height:1.7; }
+.experience-category-card__link { display:flex; justify-content:space-between; padding-top:.8rem; border-top:1px solid var(--exp-rule); color:var(--exp-green); font-size:.7rem; font-weight:700; }
+.experience-intro--category { min-height:500px; }
+.experience-collection--category { padding-top:2.5rem; }
+.experience-category-back { display:inline-flex; margin-top:2.2rem; padding:.75rem 0; color:var(--exp-green); font-size:.76rem; font-weight:700; }
 .experience-note { display:grid; grid-template-columns:1fr 1.1fr auto; align-items:center; gap:clamp(1.5rem,4vw,4rem); padding:clamp(2.5rem,5vw,4.5rem) max(5vw,calc((100vw - 1240px)/2)); border-top:1px solid var(--exp-rule); background:#fafbf9; }
 .experience-note .experience-kicker { margin-bottom:.6rem; }
 .experience-note h2 { font-size:clamp(1.75rem,3vw,2.7rem); }
 .experience-note>p { max-width:510px; margin:0; color:var(--exp-muted); font-size:.8rem; line-height:1.8; }
 .experience-note>a { color:var(--exp-green); font-size:.73rem; font-weight:700; white-space:nowrap; }
 @media(max-width:900px){.experience-intro{min-height:0;grid-template-columns:.9fr 1.1fr;gap:2rem}.experience-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.experience-note{grid-template-columns:1fr 1fr}.experience-note>a{grid-column:2}}
+@media(max-width:900px){.experience-category-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.experience-intro--category{min-height:0}}
 @media(max-width:620px){.experience-intro{width:min(100% - 2rem,500px);grid-template-columns:1fr;padding:6.8rem 0 2.2rem;gap:1.3rem}.experience-intro h1{font-size:clamp(3.5rem,15vw,5.2rem)}.experience-intro__copy>p:not(.experience-kicker){margin:.9rem 0 1rem}.experience-intro__image{height:340px;border-radius:48% 48% 3px 3px}.experience-intro__image figcaption{bottom:1.4rem;left:1.3rem}.experience-intro__stamp{right:-.15rem;bottom:1.5rem;padding:.8rem;font-size:.52rem}.experience-values{width:100%;justify-content:flex-start;gap:.65rem;overflow:auto;padding:1rem 5vw;white-space:nowrap;font-size:.62rem}.experience-values span+span:before{margin-right:.65rem}.experience-collection{width:calc(100% - 2rem);padding:4rem 0}.experience-heading{display:block;margin-bottom:1.7rem}.experience-heading>p{margin-top:.9rem}.experience-filter{flex-wrap:nowrap;overflow:auto;margin-right:-1rem;padding:0 1rem .5rem 0}.experience-filter button{flex:none}.experience-grid{grid-template-columns:1fr;gap:1rem}.experience-card__photo{height:260px}.experience-card__description{min-height:0}.experience-note{grid-template-columns:1fr;padding:2.5rem 1rem;gap:1rem}.experience-note>a{grid-column:auto}.experience-page .ua-hero,.experience-page section{scroll-margin-top:90px}}
+@media(max-width:620px){.experience-categories{width:calc(100% - 2rem);padding:3rem 0 4.5rem}.experience-category-grid{grid-template-columns:1fr;gap:1rem}.experience-category-card__image{aspect-ratio:1.5}.experience-category-card__body>p:not(.experience-category-card__eyebrow){min-height:0}.experience-intro--category{padding-top:6.2rem}.experience-collection--category{padding-top:1rem}.experience-category-back{margin-top:1.4rem}}
 
 /* Package comparison: one flowing grid, factual card hierarchy, no category dividers. */
 .experience-intro { min-height: 570px; padding-top: 7.5rem; padding-bottom: 3.5rem; }

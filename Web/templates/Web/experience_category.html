@@ -1,0 +1,54 @@
+{% extends "Web/main.html" %}
+{% load static %}
+
+{% block title %}{{ category.name }} | Unwind Experiences{% endblock %}
+{% block meta_description %}Explore {{ category.name|lower }} experiences from Unwind Africa and find the package that suits your time away.{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}?v=urs-hero-20261125"><link rel="stylesheet" href="{% static 'css/package-experiences.css' %}?v=experience-categories-20261125">{% endblock %}
+{% block content %}
+<main class="experience-page experience-page--category">
+  <section class="experience-intro experience-intro--category">
+    <div class="experience-intro__copy">
+      <p class="experience-kicker">UNWIND EXPERIENCES</p>
+      <h1>{{ category.name|cut:" Getaway" }}<br><em>your way.</em></h1>
+      <p>{{ category.intro }}</p>
+    </div>
+    <figure class="experience-intro__image">
+      <img src="{{ category_image }}" alt="{{ category.name }} experience" width="1200" height="800" fetchpriority="high" decoding="async">
+      <figcaption>Time well spent, together.</figcaption>
+    </figure>
+  </section>
+
+  <section class="experience-collection experience-collection--category" aria-labelledby="category-packages-title">
+    <header class="experience-heading">
+      <div>
+        <p class="experience-kicker">THE PACKAGES</p>
+        <h2 id="category-packages-title">Find your escape.</h2>
+      </div>
+      <p>Explore the details, then choose the experience that feels right.</p>
+    </header>
+    <div class="experience-grid">
+      {% for package in packages %}
+      <article class="experience-card">
+        <a class="experience-card__photo" href="{% url 'package_detail' package.slug %}" aria-label="View {{ package.name }} details">
+          {% if package.card_image_url %}<img src="{{ package.card_image_url }}" alt="{{ package.name }} experience" loading="lazy" decoding="async">{% else %}<img src="{{ category_image }}" alt="{{ package.name }} experience" loading="lazy" decoding="async">{% endif %}
+          <span class="experience-card__duration">{{ package.get_experience_duration_display }}</span>
+        </a>
+        <div class="experience-card__content">
+          <p class="experience-card__category">{{ category.name }}</p>
+          <h3>{{ package.name }}</h3>
+          <p class="experience-card__description">{{ package.short_description|default:package.description|truncatewords:28 }}</p>
+          <div class="experience-card__price">
+            <div><span>From</span><strong>₦{{ package.price_per_person|floatformat:0 }}</strong></div>
+            <small>{% if package.pricing_basis == 'couple' %}per couple{% elif package.pricing_basis == 'family' %}per family{% else %}per person{% endif %}</small>
+          </div>
+          <a class="experience-card__link" href="{% url 'package_detail' package.slug %}">Explore package <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+      {% empty %}
+      <p class="experience-empty">Packages for this experience are being prepared. Please check back soon.</p>
+      {% endfor %}
+    </div>
+    <a class="experience-category-back" href="{% url 'packages' %}">← Back to Unwind Experiences</a>
+  </section>
+</main>
+{% endblock %}

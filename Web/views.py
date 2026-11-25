@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.timezone import now
@@ -778,26 +779,66 @@ def _group_getaway_choices(packages):
 
 
 def packages(request):
-    from .models import GroupGetawayPackage, PackageAddOn
-    from django.db.models import Case, When, Value, IntegerField
-    category_order = Case(
-        When(category='group', then=Value(0)),
-        When(category='couples', then=Value(1)),
-        When(category='family', then=Value(2)),
-        default=Value(3), output_field=IntegerField(),
-    )
-    all_packages = GroupGetawayPackage.objects.filter(is_active=True).order_by(category_order, 'experience_duration', 'price_per_person')
-    group_getaway_available = all_packages.filter(category='group').exists()
-    catalogue_packages = all_packages.exclude(category='group')
-    for package in catalogue_packages:
+    from .models import GroupGetawayPackage
+    active_packages = GroupGetawayPackage.objects.filter(is_active=True)
+    category_specs = [
+        {
+            'key': 'group',
+            'name': 'Group Getaway',
+            'description': 'Make a day of it with friends, colleagues or your favourite people.',
+            'image': 'assets/home/optimized/group-card.webp',
+            'url': reverse('group_getaway_packages'),
+        },
+        {
+            'key': 'couples',
+            'name': 'Couples Getaway',
+            'description': 'A little time away together, made for reconnecting and celebrating.',
+            'image': 'assets/home/optimized/couples-card.webp',
+            'url': reverse('experience_category', kwargs={'category': 'couples'}),
+        },
+        {
+            'key': 'family',
+            'name': 'Family Getaway',
+            'description': 'Thoughtful escapes that bring the family together for time well spent.',
+            'image': 'assets/home/optimized/families-card.webp',
+            'url': reverse('experience_category', kwargs={'category': 'family'}),
+        },
+    ]
+    categories = []
+    for spec in category_specs:
+        visible_packages = active_packages.filter(category=spec['key'])
+        if spec['key'] == 'group':
+            visible_packages = visible_packages.filter(slug__in=('classic-premium', 'classic'))
+        count = visible_packages.count()
+        categories.append({**spec, 'image': static_url(spec['image']), 'package_count': count})
+    return render(request, 'Web/packages.html', {'categories': categories})
+
+
+def experience_category(request, category):
+    from .models import GroupGetawayPackage
+    category_content = {
+        'couples': {
+            'name': 'Couples Getaway',
+            'intro': 'Make room for time together, from a restorative day out to a longer escape.',
+            'image': 'assets/home/optimized/couples-card.webp',
+        },
+        'family': {
+            'name': 'Family Getaway',
+            'intro': 'Bring everyone together for an easy day away or a stay to remember.',
+            'image': 'assets/home/optimized/families-card.webp',
+        },
+    }
+    details = category_content.get(category)
+    if not details:
+        from django.http import Http404
+        raise Http404('Experience category not found')
+    packages = GroupGetawayPackage.objects.filter(category=category, is_active=True).order_by('experience_duration', 'price_per_person')
+    for package in packages:
         package.card_image_url = _package_artwork_url(package, card=True)
-    addons_qs = PackageAddOn.objects.filter(is_active=True).order_by('name')
-    return render(request, 'Web/packages.html', context={
-        'packages': catalogue_packages,
-        'group_getaway_available': group_getaway_available,
-        'addons': addons_qs,
-        'doctor_addon': addons_qs.filter(name__icontains='doctor').first(),
-        'transport_addon': addons_qs.filter(name__icontains='transport').first(),
+    return render(request, 'Web/experience_category.html', {
+        'category': details,
+        'category_image': static_url(details['image']),
+        'packages': packages,
     })
 
 
