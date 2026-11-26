@@ -128,7 +128,7 @@ body { background:#fff; }
   .experience-filter__link { flex:none; }
   .experience-intro { width: calc(100% - 2rem); padding-top: 6.2rem; padding-bottom: 2.4rem; }
   .experience-intro h1 { font-size: clamp(2.8rem, 13vw, 4.4rem); }
-  .experience-intro__image { height: auto; aspect-ratio: 1.12; border-radius: 12px; }
+  .experience-intro__image { height: auto; aspect-ratio: 16 / 9; border-radius: 12px; }
   .experience-intro__image figcaption { left: 1rem; bottom: 1rem; }
   .experience-values { gap: .7rem; white-space: normal; flex-wrap: wrap; }
   .experience-values span { flex: 1 1 40%; }

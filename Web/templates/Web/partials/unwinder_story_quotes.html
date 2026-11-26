@@ -1,16 +1,15 @@
 {% if stories %}
-<section class="ua-story-quotes" aria-label="Guest reflections">
-  <div class="ua-story-quotes__head">
-    <div><p>UNWINDER STORIES</p><h2>Rest, in their own words.</h2></div>
-    <a href="{% url 'unwinder_stories' %}">Read every story <span aria-hidden="true">↗</span></a>
-  </div>
-  <div class="ua-story-quotes__grid">
+<section class="ua-story-quotes" aria-label="Unwinder Stories">
+  <p class="ua-story-quotes__eyebrow">UNWINDER STORIES</p>
+  <div class="ua-story-quotes__list">
     {% for story in stories %}
     <blockquote class="ua-story-quote">
       <span class="ua-story-quote__mark" aria-hidden="true">“</span>
-      <h3>{{ story.headline }}</h3>
-      <p>{{ story.story|truncatewords:34 }}</p>
-      <footer><strong>{{ story.name }}</strong><span>{{ story.package_label }}</span></footer>
+      <div>
+        <h3>{{ story.headline }}</h3>
+        <p>{{ story.story }}</p>
+      </div>
+      <footer><strong>{{ story.name }}</strong></footer>
     </blockquote>
     {% endfor %}
   </div>

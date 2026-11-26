@@ -7,7 +7,7 @@
 {% block og_description %}Choose a group, couples or family getaway and explore the packages within each experience.{% endblock %}
 {% block twitter_title %}Unwind Experiences | Unwind Africa{% endblock %}
 {% block twitter_description %}Choose a group, couples or family getaway and explore the packages within each experience.{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}?v=urs-hero-20261125"><link rel="stylesheet" href="{% static 'css/package-experiences.css' %}?v=experience-categories-20261125"><link rel="stylesheet" href="{% static 'css/story-quotes.css' %}?v=stories-20261125">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}?v=experiences-boat-20261126"><link rel="stylesheet" href="{% static 'css/package-experiences.css' %}?v=experience-categories-20261125">{% endblock %}
 {% block content %}
 <main class="experience-page experience-page--overview">
   <section class="experience-intro">
@@ -19,8 +19,8 @@
     </div>
     <figure class="experience-intro__image">
       <picture>
-        <source media="(max-width: 640px)" srcset="{% static 'assets/home/optimized/urs-pool-hero-mobile.webp' %}" type="image/webp">
-        <img src="{% static 'assets/home/optimized/urs-pool-hero-desktop.webp' %}" alt="A guest relaxing in a tropical resort pool" width="1672" height="941" fetchpriority="high" decoding="async">
+        <source media="(max-width: 640px)" srcset="{% static 'assets/home/optimized/unwind-experiences-boat-mobile.webp' %}" type="image/webp">
+        <img src="{% static 'assets/home/optimized/unwind-experiences-boat-desktop.webp' %}" alt="Friends enjoying a boat cruise together on the water" width="1672" height="941" fetchpriority="high" decoding="async">
       </picture>
       <figcaption>Your time, well spent.</figcaption>
     </figure>
@@ -49,6 +49,5 @@
       {% endfor %}
     </div>
   </section>
-  {% include "Web/partials/unwinder_story_quotes.html" %}
 </main>
 {% endblock %}

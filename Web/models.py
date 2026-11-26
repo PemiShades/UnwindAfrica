@@ -849,7 +849,7 @@ class PackageAddOn(models.Model):
 
 
 class UnwinderStory(models.Model):
-    """A participant reflection, shown on the public Unwinder Stories page."""
+    """A participant reflection shown inline on relevant package pages."""
     name = models.CharField(max_length=160)
     headline = models.CharField(max_length=200)
     story = models.TextField()

@@ -5,7 +5,6 @@ from . import voting_views
 
 urlpatterns = [
 	path('',views.home,name="home"),
-    path('unwinder-stories/', views.unwinder_stories, name='unwinder_stories'),
     path('test/', views.test, name='test'),
 	path('about/',views.about,name="about"),
     path('packages/',views.packages,name="packages"),

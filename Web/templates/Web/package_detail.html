@@ -10,11 +10,15 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}">
+<link rel="stylesheet" href="{% static 'css/group-package-showcase.css' %}?v=package-gallery-stories-20261126">
 <style>
 .gg-detail { padding: 7rem 1.2rem 4rem; background: var(--ua-background); }
 .gg-detail__wrap { width: min(1120px, 100%); margin: 0 auto; }
 .gg-detail__intro { display: grid; grid-template-columns: 1.1fr .9fr; gap: 2.5rem; align-items: start; }
 .gg-detail__copy { padding: 1.25rem 0; }
+.gg-detail__gallery { margin: 0 0 1rem; }
+.gg-detail__gallery .group-gallery__slide { flex-basis: 92%; }
+.gg-detail__gallery .group-gallery__controls { padding-top: .45rem; }
 .gg-detail__copy h1 { margin: .5rem 0; font: 700 clamp(2.2rem, 5vw, 4rem)/1.04 'Playfair Display', Georgia, serif; }
 .gg-detail__category { margin: 0; color: var(--ua-muted); font-size: .95rem; }
 .gg-detail__price { margin: 1.4rem 0 .2rem; font: 700 clamp(1.8rem, 4vw, 2.8rem) 'Space Grotesk', sans-serif; color: var(--ua-ink); }
@@ -69,12 +73,28 @@
   <div class="gg-detail__wrap">
     <div class="gg-detail__intro">
       <section class="gg-detail__copy">
-        <figure class="gg-detail__photo">
-          <img src="{{ package_image_url }}" alt="{{ package.name }} getaway experience" fetchpriority="high">
-        </figure>
+        <div class="group-gallery gg-detail__gallery" data-gallery id="package-gallery-{{ package.slug }}">
+          <div class="group-gallery__viewport" data-gallery-rail tabindex="0" aria-label="{{ package.name }} photo gallery. Swipe or use the controls to browse photos.">
+            {% for photo in package_gallery %}
+            <figure class="group-gallery__slide">
+              <img src="{{ photo.src }}" alt="{{ photo.alt }}" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async" tabindex="0" role="button" aria-label="View larger image: {{ photo.alt }}">
+            </figure>
+            {% endfor %}
+          </div>
+          <div class="group-gallery__controls" aria-label="Gallery controls">
+            <div class="group-gallery__dots" aria-label="Choose a photo">
+              {% for photo in package_gallery %}<button type="button" data-gallery-dot aria-label="Show photo {{ forloop.counter }}" aria-current="{% if forloop.first %}true{% else %}false{% endif %}"></button>{% endfor %}
+            </div>
+            <div class="group-gallery__arrows">
+              <button type="button" data-gallery-prev aria-label="Previous photo">&#8592;</button>
+              <button type="button" data-gallery-next aria-label="Next photo">&#8594;</button>
+            </div>
+          </div>
+        </div>
         <span class="ua-kicker">{{ package.get_category_display }} · {{ package.get_experience_duration_display }}</span>
         <h1>{{ package.name }}</h1>
         <p class="gg-detail__category">{{ package.tagline|default:package.short_description|default:"A considered Unwind Africa experience, shaped around time together and room to rest." }}</p>
+        {% include "Web/partials/unwinder_story_quotes.html" %}
         {% if quote_only %}<p class="gg-detail__price">Request pricing</p>{% else %}<p class="gg-detail__price">₦{{ package.price_per_person|floatformat:0 }}</p>
         <p class="gg-detail__price-note">Starting price · {{ package.get_pricing_basis_display }}</p>{% endif %}
         {% if package.family_coverage %}
@@ -155,9 +175,9 @@
       {% endif %}
     </div>
   </div>
-  {% include "Web/partials/unwinder_story_quotes.html" %}
 </main>
 
+<script src="{% static 'js/group-gallery.js' %}?v=package-gallery-20261126" defer></script>
 <script>
 const packageSlug = '{{ package.slug|escapejs }}';
 let selectedDuration = {{ durations.0|default:3 }};

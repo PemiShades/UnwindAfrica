@@ -13,7 +13,6 @@
 <link rel="stylesheet" href="{% static 'css/package-experiences.css' %}">
 <link rel="stylesheet" href="{% static 'css/group-package-showcase.css' %}?v=classic-photo-gallery-20261125">
 <link rel="stylesheet" href="{% static 'css/group-getaway-page.css' %}?v=horizontal-choice-20261124">
-<link rel="stylesheet" href="{% static 'css/story-quotes.css' %}?v=stories-20261125">
 {% endblock %}
 
 {% block content %}
@@ -68,7 +67,6 @@
     <p class="group-getaway-page__empty">Group Getaway options are being prepared. Please check back soon.</p>
     {% endfor %}
   </section>
-  {% include "Web/partials/unwinder_story_quotes.html" %}
   <a class="group-getaway-page__back" href="{% url 'packages' %}">Back to Unwind Experiences</a>
 </main>
 {% endblock %}

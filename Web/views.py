@@ -615,12 +615,6 @@ def home(request):
     return render(request, 'Web/home.html', {'theme': 'dark'})
 
 
-def unwinder_stories(request):
-    from .models import UnwinderStory
-    stories = UnwinderStory.objects.filter(is_active=True)
-    return render(request, 'Web/unwinder_stories.html', {'stories': stories})
-
-
 def explore(request):
     """Explore page showing all website sections"""
     # Get latest blog posts
@@ -976,7 +970,6 @@ def group_getaway_packages(request):
     packages = GroupGetawayPackage.objects.filter(is_active=True)
     return render(request, 'Web/group_getaway_packages.html', {
         'group_choices': _group_getaway_choices(packages),
-        'stories': _related_unwinder_stories('Group Getaway'),
     })
 
 
@@ -991,11 +984,24 @@ def package_detail(request, slug):
     from .models import GroupGetawayPackage, PackageAddOn
     package = get_object_or_404(GroupGetawayPackage, slug=slug, is_active=True)
     story_label = 'Solo Packages' if package.category == 'urs' and package.collection_group == 'solo' else package.name
-    related_stories = _related_unwinder_stories(story_label)
+    related_stories = list(_related_unwinder_stories(story_label))
+    if package.category == 'group':
+        related_stories.extend(_related_unwinder_stories('Group Getaway'))
+    package_gallery = next((
+        choice['gallery'] for choice in _group_getaway_choices(
+            GroupGetawayPackage.objects.filter(is_active=True)
+        ) if choice['package'].pk == package.pk
+    ), None)
+    if not package_gallery:
+        package_gallery = [{
+            'src': _package_artwork_url(package),
+            'alt': f'{package.name} experience',
+        }]
     if package.quote_only or package.price_per_person <= 0:
         return render(request, 'Web/package_detail.html', {
             'package': package,
             'package_image_url': _package_artwork_url(package),
+            'package_gallery': package_gallery,
             'quote_only': True,
             'stories': related_stories,
         })
@@ -1016,6 +1022,7 @@ def package_detail(request, slug):
     context = {
         'package': package,
         'package_image_url': _package_artwork_url(package),
+        'package_gallery': package_gallery,
         'addons': addons,
         'doctor_addon': doctor_addon,
         'addon_price': doctor_addon.price if doctor_addon else Decimal('35000'),
