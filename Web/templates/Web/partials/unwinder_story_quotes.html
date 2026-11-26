@@ -10,7 +10,7 @@
   <div class="ua-story-quotes__viewport" data-story-viewport tabindex="0" aria-label="Swipe or use the arrow keys to read each story">
     {% for story in stories %}
     <article class="ua-story-quote" data-story-slide role="group" aria-roledescription="slide" aria-label="Story {{ forloop.counter }} of {{ stories|length }}"{% if not forloop.first %} aria-hidden="true" inert{% endif %}>
-      <span class="ua-story-quote__mark" aria-hidden="true">“</span>
+      <span class="ua-story-quote__mark" aria-hidden="true">&ldquo;</span>
       <div class="ua-story-quote__body">
         <h3>{{ story.headline }}</h3>
         <p>{{ story.story }}</p>
@@ -28,8 +28,8 @@
       {% endfor %}
     </div>
     <div class="ua-story-quotes__arrows">
-      <button class="ua-story-quotes__arrow" type="button" data-story-prev aria-label="Previous story">←</button>
-      <button class="ua-story-quotes__arrow" type="button" data-story-next aria-label="Next story">→</button>
+      <button class="ua-story-quotes__arrow" type="button" data-story-prev aria-label="Previous story">&#8592;</button>
+      <button class="ua-story-quotes__arrow" type="button" data-story-next aria-label="Next story">&#8594;</button>
     </div>
   </div>
   {% endif %}

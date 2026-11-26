@@ -21,17 +21,14 @@
 .ua-story-quotes__count span { color: #9ba49e; font-weight: 500; }
 
 .ua-story-quotes__viewport {
-  overflow-x: auto;
+  overflow: hidden;
   border: 1px solid rgba(23, 58, 48, .12);
   border-radius: 12px;
   background: linear-gradient(135deg, #fbfaf6 0%, #f6f4ed 100%);
-  scrollbar-width: none;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  overscroll-behavior-x: contain;
-  touch-action: pan-x pan-y;
+  touch-action: pan-y;
+  cursor: grab;
 }
-.ua-story-quotes__viewport::-webkit-scrollbar { display: none; }
+.ua-story-quotes__viewport:active { cursor: grabbing; }
 .ua-story-quotes__viewport:focus-visible { outline: 2px solid #b3975b; outline-offset: 3px; }
 
 .ua-story-quote {
@@ -40,12 +37,12 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: .1rem .75rem;
-  min-width: 100%;
+  min-width: 0;
   margin: 0;
   padding: 1rem 1rem .9rem;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
+  animation: ua-story-enter .38s ease both;
 }
+.ua-story-quote[aria-hidden="true"] { display: none; }
 .ua-story-quote__mark { grid-row: 1 / span 2; color: #b3975b; font: 2.8rem/.82 "Playfair Display", Georgia, serif; }
 .ua-story-quote__body { min-width: 0; }
 .ua-story-quote h3 { margin: 0 0 .45rem; color: #18372e; font: 500 1.16rem/1.2 "Playfair Display", Georgia, serif; }
@@ -63,6 +60,11 @@
 .ua-story-quotes__arrow { display: grid; width: 31px; height: 31px; padding: 0; place-items: center; border: 1px solid rgba(23, 58, 48, .28); border-radius: 50%; background: transparent; color: #173a30; font: 400 1rem/1 Inter, sans-serif; cursor: pointer; transition: color .2s ease, background-color .2s ease, border-color .2s ease; }
 .ua-story-quotes__arrow:hover { border-color: #173a30; background: #173a30; color: #fff; }
 
+@keyframes ua-story-enter {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @media (max-width: 600px) {
   .ua-story-quote { padding: .9rem .85rem .85rem; }
   .ua-story-quote h3 { font-size: 1.08rem; }
@@ -70,6 +72,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ua-story-quotes__viewport { scroll-behavior: auto; }
+  .ua-story-quote { animation: none; }
   .ua-story-quotes__dot, .ua-story-quotes__arrow { transition: none; }
 }

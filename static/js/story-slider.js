@@ -10,7 +10,9 @@
       if (!viewport || slides.length < 2) return;
 
       let activeIndex = 0;
-      let frame = 0;
+      let timer;
+      let touchStart;
+      const interval = 8000;
 
       const setActive = (index) => {
         activeIndex = (index + slides.length) % slides.length;
@@ -31,35 +33,24 @@
         }
       };
 
-      const goTo = (index) => {
-        const target = slides[(index + slides.length) % slides.length];
-        const left = target.getBoundingClientRect().left - viewport.getBoundingClientRect().left + viewport.scrollLeft;
-        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        viewport.scrollTo({ left, behavior: reduceMotion ? 'auto' : 'smooth' });
-        setActive((index + slides.length) % slides.length);
+      const goTo = (index, restartAuto = true) => {
+        setActive(index);
+        if (restartAuto) startAuto();
       };
 
-      const syncActiveToScroll = () => {
-        cancelAnimationFrame(frame);
-        frame = requestAnimationFrame(() => {
-          const viewportLeft = viewport.getBoundingClientRect().left;
-          let closestIndex = 0;
-          let closestDistance = Infinity;
-          slides.forEach((slide, index) => {
-            const distance = Math.abs(slide.getBoundingClientRect().left - viewportLeft);
-            if (distance < closestDistance) {
-              closestDistance = distance;
-              closestIndex = index;
-            }
-          });
-          if (closestIndex !== activeIndex) setActive(closestIndex);
-        });
+      const startAuto = () => {
+        window.clearInterval(timer);
+        if (!document.hidden && !slider.matches(':hover') && !slider.contains(document.activeElement)) {
+          timer = window.setInterval(() => setActive(activeIndex + 1), interval);
+        }
       };
+
+      const stopAuto = () => window.clearInterval(timer);
 
       dots.forEach((dot, index) => dot.addEventListener('click', () => goTo(index)));
       previous?.addEventListener('click', () => goTo(activeIndex - 1));
       next?.addEventListener('click', () => goTo(activeIndex + 1));
-      viewport.addEventListener('scroll', syncActiveToScroll, { passive: true });
+
       viewport.addEventListener('keydown', (event) => {
         if (event.key === 'ArrowLeft') {
           event.preventDefault();
@@ -69,8 +60,35 @@
           goTo(activeIndex + 1);
         }
       });
-      window.addEventListener('resize', () => goTo(activeIndex), { passive: true });
+
+      viewport.addEventListener('pointerdown', (event) => {
+        stopAuto();
+        touchStart = { x: event.clientX, y: event.clientY };
+      }, { passive: true });
+      viewport.addEventListener('pointerup', (event) => {
+        if (!touchStart) {
+          startAuto();
+          return;
+        }
+        const deltaX = event.clientX - touchStart.x;
+        const deltaY = event.clientY - touchStart.y;
+        touchStart = null;
+        if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY)) {
+          goTo(activeIndex + (deltaX < 0 ? 1 : -1));
+        } else startAuto();
+      }, { passive: true });
+      viewport.addEventListener('pointercancel', () => { touchStart = null; startAuto(); }, { passive: true });
+
+      slider.addEventListener('mouseenter', stopAuto);
+      slider.addEventListener('mouseleave', startAuto);
+      slider.addEventListener('focusin', stopAuto);
+      slider.addEventListener('focusout', (event) => {
+        if (!slider.contains(event.relatedTarget)) startAuto();
+      });
+      document.addEventListener('visibilitychange', () => document.hidden ? stopAuto() : startAuto());
+
       setActive(0);
+      startAuto();
     });
   };
 

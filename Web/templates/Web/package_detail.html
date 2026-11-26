@@ -65,7 +65,7 @@
 @media (max-width: 540px) { .gg-detail { padding: 6rem .8rem 2.5rem; } .gg-fields { grid-template-columns: 1fr; gap: 0; } .gg-field--wide { grid-column: auto; } .gg-plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 </style>
 <link rel="stylesheet" href="{% static 'css/package-flow.css' %}">
-<link rel="stylesheet" href="{% static 'css/story-quotes.css' %}?v=story-slider-20261126">
+<link rel="stylesheet" href="{% static 'css/story-quotes.css' %}?v=story-slider-auto-20261126">
 {% endblock %}
 
 {% block content %}
@@ -178,7 +178,7 @@
 </main>
 
 <script src="{% static 'js/group-gallery.js' %}?v=package-gallery-20261126" defer></script>
-<script src="{% static 'js/story-slider.js' %}?v=story-slider-20261126" defer></script>
+<script src="{% static 'js/story-slider.js' %}?v=story-slider-auto-20261126" defer></script>
 <script>
 const packageSlug = '{{ package.slug|escapejs }}';
 let selectedDuration = {{ durations.0|default:3 }};
