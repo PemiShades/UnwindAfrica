@@ -1,9 +1,75 @@
-.ua-story-quotes { width: 100%; margin: 1rem 0 0; padding-top: 1rem; border-top: 1px solid rgba(20,44,37,.14); }
-.ua-story-quotes__eyebrow { margin: 0 0 .65rem; color: #9a7940; font: 700 .58rem/1.4 Inter,sans-serif; letter-spacing: .15em; }
-.ua-story-quotes__list { display: grid; gap: .7rem; }
-.ua-story-quote { display: grid; grid-template-columns: auto minmax(0,1fr); gap: .15rem .75rem; min-width: 0; margin: 0; padding: .9rem 1rem; border: 1px solid rgba(23,58,48,.14); border-radius: 10px; background: rgba(255,255,255,.74); }
-.ua-story-quote__mark { grid-row: 1 / span 2; color: #b3975b; font: 2.6rem/.9 "Playfair Display",Georgia,serif; }
-.ua-story-quote h3 { margin: 0 0 .4rem; color: #18372e; font: 500 1.15rem/1.15 "Playfair Display",Georgia,serif; }
-.ua-story-quote p { margin: 0; color: #69736d; font-size: .75rem; line-height: 1.65; white-space: pre-line; }
-.ua-story-quote footer { grid-column: 2; padding-top: .55rem; }
-.ua-story-quote footer strong { color: #18372e; font-size: .6rem; letter-spacing: .08em; text-transform: uppercase; }
+.ua-story-quotes {
+  width: 100%;
+  margin: 1rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(20, 44, 37, .14);
+}
+
+.ua-story-quotes__header,
+.ua-story-quotes__controls,
+.ua-story-quotes__arrows,
+.ua-story-quotes__dots {
+  display: flex;
+  align-items: center;
+}
+
+.ua-story-quotes__header,
+.ua-story-quotes__controls { justify-content: space-between; }
+.ua-story-quotes__header { margin-bottom: .65rem; }
+.ua-story-quotes__eyebrow { margin: 0; color: #9a7940; font: 700 .58rem/1.4 Inter, sans-serif; letter-spacing: .15em; }
+.ua-story-quotes__count { color: #18372e; font: 700 .62rem/1 Inter, sans-serif; letter-spacing: .04em; }
+.ua-story-quotes__count span { color: #9ba49e; font-weight: 500; }
+
+.ua-story-quotes__viewport {
+  overflow-x: auto;
+  border: 1px solid rgba(23, 58, 48, .12);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fbfaf6 0%, #f6f4ed 100%);
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
+}
+.ua-story-quotes__viewport::-webkit-scrollbar { display: none; }
+.ua-story-quotes__viewport:focus-visible { outline: 2px solid #b3975b; outline-offset: 3px; }
+
+.ua-story-quote {
+  position: relative;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: .1rem .75rem;
+  min-width: 100%;
+  margin: 0;
+  padding: 1rem 1rem .9rem;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+.ua-story-quote__mark { grid-row: 1 / span 2; color: #b3975b; font: 2.8rem/.82 "Playfair Display", Georgia, serif; }
+.ua-story-quote__body { min-width: 0; }
+.ua-story-quote h3 { margin: 0 0 .45rem; color: #18372e; font: 500 1.16rem/1.2 "Playfair Display", Georgia, serif; }
+.ua-story-quote p { margin: 0; color: #69736d; font: 400 .76rem/1.65 Inter, sans-serif; white-space: pre-line; }
+.ua-story-quote footer { grid-column: 2; padding-top: .7rem; }
+.ua-story-quote footer strong { color: #18372e; font: 700 .58rem/1.4 Inter, sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+
+.ua-story-quotes__controls { gap: .75rem; padding-top: .7rem; }
+.ua-story-quotes__dots { gap: .35rem; }
+.ua-story-quotes__dot { width: 6px; height: 6px; padding: 0; border: 0; border-radius: 999px; background: #c8cec8; cursor: pointer; transition: width .2s ease, background-color .2s ease; }
+.ua-story-quotes__dot[aria-current="true"] { width: 19px; background: #173a30; }
+.ua-story-quotes__dot:focus-visible,
+.ua-story-quotes__arrow:focus-visible { outline: 2px solid #b3975b; outline-offset: 3px; }
+.ua-story-quotes__arrows { gap: .4rem; }
+.ua-story-quotes__arrow { display: grid; width: 31px; height: 31px; padding: 0; place-items: center; border: 1px solid rgba(23, 58, 48, .28); border-radius: 50%; background: transparent; color: #173a30; font: 400 1rem/1 Inter, sans-serif; cursor: pointer; transition: color .2s ease, background-color .2s ease, border-color .2s ease; }
+.ua-story-quotes__arrow:hover { border-color: #173a30; background: #173a30; color: #fff; }
+
+@media (max-width: 600px) {
+  .ua-story-quote { padding: .9rem .85rem .85rem; }
+  .ua-story-quote h3 { font-size: 1.08rem; }
+  .ua-story-quote p { font-size: .74rem; line-height: 1.58; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ua-story-quotes__viewport { scroll-behavior: auto; }
+  .ua-story-quotes__dot, .ua-story-quotes__arrow { transition: none; }
+}
