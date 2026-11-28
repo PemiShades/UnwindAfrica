@@ -40,7 +40,7 @@
 
       const startAuto = () => {
         window.clearInterval(timer);
-        if (!document.hidden && !slider.matches(':hover') && !slider.contains(document.activeElement)) {
+        if (!document.hidden) {
           timer = window.setInterval(() => setActive(activeIndex + 1), interval);
         }
       };
@@ -79,12 +79,6 @@
       }, { passive: true });
       viewport.addEventListener('pointercancel', () => { touchStart = null; startAuto(); }, { passive: true });
 
-      slider.addEventListener('mouseenter', stopAuto);
-      slider.addEventListener('mouseleave', startAuto);
-      slider.addEventListener('focusin', stopAuto);
-      slider.addEventListener('focusout', (event) => {
-        if (!slider.contains(event.relatedTarget)) startAuto();
-      });
       document.addEventListener('visibilitychange', () => document.hidden ? stopAuto() : startAuto());
 
       setActive(0);

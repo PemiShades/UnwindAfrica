@@ -32,11 +32,11 @@ PACKAGE_ARTWORK = {
     'oasis': 'assets/packages/46001 1.jpg',
     'family-break-beach-day': 'assets/home/family.jpg',
     'oakwood': 'assets/home/packages/family-ties.jpg',
-    'sunflower': 'assets/home/solo.jpeg',
-    'daisy': 'assets/home/solo.jpeg',
-    'lily': 'assets/home/solo.jpeg',
-    'rose': 'assets/home/solo.jpeg',
-    'orchid': 'assets/home/solo.jpeg',
+    'sunflower': 'assets/packages/solo/sunflower.webp',
+    'daisy': 'assets/packages/solo/daisy.webp',
+    'lily': 'assets/packages/solo/lily.webp',
+    'rose': 'assets/packages/solo/rose.webp',
+    'orchid': 'assets/packages/solo/orchid.webp',
     'romantic-escapes': 'assets/home/optimized/book-couples.webp',
     'relaxation-retreats': 'assets/home/optimized/book-couples.webp',
     'luxury-getaways': 'assets/home/optimized/book-couples.webp',
@@ -54,6 +54,8 @@ def _package_artwork_url(package, *, card=False):
         return package.card_image.url
     if package.flyer:
         return package.flyer.url
+    if package.card_image:
+        return package.card_image.url
     artwork = PACKAGE_ARTWORK.get(package.slug, 'assets/home/optimized/book-groups.webp')
     return static_url(artwork)
 
@@ -61,6 +63,20 @@ def _package_artwork_url(package, *, card=False):
 def _related_unwinder_stories(package_label):
     from .models import UnwinderStory
     return UnwinderStory.objects.filter(is_active=True, package_label=package_label)
+
+
+def _package_testimonial(package):
+    """Select one relevant participant story without attributing unrelated experiences."""
+    label = 'Solo Packages' if package.category == 'urs' and package.collection_group == 'solo' else package.name
+    return _related_unwinder_stories(label).first()
+
+
+def _package_gallery(package):
+    from .models import GroupGetawayPackage
+    for choice in _group_getaway_choices(GroupGetawayPackage.objects.filter(is_active=True)):
+        if choice['package'].pk == package.pk:
+            return choice['gallery']
+    return [{'src': _package_artwork_url(package), 'alt': f'{package.name} experience'}]
 
 
 def _paystack_charge_matches(data, reference, expected_amount):
@@ -799,6 +815,8 @@ def _group_getaway_choices(packages):
                 {'src': static_url('assets/packages/group-classic/poolside-lounge.webp'), 'alt': 'Friends unwinding together by the pool', 'caption': 'Room to unwind'},
             ],
         })
+    for choice in choices:
+        choice['testimonial'] = _package_testimonial(choice['package'])
     return choices
 
 
@@ -901,7 +919,7 @@ def experience_category(request, category):
     subcategories = []
     if category == 'urs':
         subgroup_descriptions = {
-            'solo': ('Solo Packages', 'Flower-inspired experiences for self-care and a little time to recharge.', 'assets/home/solo.jpeg'),
+            'solo': ('Solo Packages', 'Flower-inspired experiences for self-care and a little time to recharge.', 'assets/home/optimized/book-solo.webp'),
             'couples': ('Couples Packages', 'Romantic escapes, shared retreats and time to reconnect.', 'assets/home/optimized/book-couples.webp'),
             'family': ('Family Packages', 'Rest, reconnect and make lasting memories together.', 'assets/home/optimized/families-card.webp'),
         }
@@ -919,6 +937,8 @@ def experience_category(request, category):
     for group in package_groups:
         for package in group['packages']:
             package.card_image_url = _package_artwork_url(package, card=True)
+            package.presentation_gallery = _package_gallery(package)
+            package.presentation_testimonial = _package_testimonial(package)
     return render(request, 'Web/experience_category.html', {
         'category': details,
         'category_image': static_url(details['image']),
@@ -933,7 +953,7 @@ def urs_subcategory(request, collection_group):
         'solo': {
             'name': 'Solo Packages',
             'intro': 'Choose a flower-inspired escape made for your own wellbeing and time to recharge.',
-            'image': 'assets/home/solo.jpeg',
+            'image': 'assets/home/optimized/book-solo.webp',
         },
         'couples': {
             'name': 'Couples Packages',
@@ -955,6 +975,8 @@ def urs_subcategory(request, collection_group):
     ).order_by('name'))
     for package in packages:
         package.card_image_url = _package_artwork_url(package, card=True)
+        package.presentation_gallery = _package_gallery(package)
+        package.presentation_testimonial = _package_testimonial(package)
     return render(request, 'Web/experience_category.html', {
         'category': details,
         'category_image': static_url(details['image']),
@@ -983,27 +1005,26 @@ def package_detail(request, slug):
     """Group Getaway package page with Pay Outright / Start Your Savings Plan options."""
     from .models import GroupGetawayPackage, PackageAddOn
     package = get_object_or_404(GroupGetawayPackage, slug=slug, is_active=True)
-    story_label = 'Solo Packages' if package.category == 'urs' and package.collection_group == 'solo' else package.name
-    related_stories = list(_related_unwinder_stories(story_label))
     if package.category == 'group':
-        related_stories.extend(_related_unwinder_stories('Group Getaway'))
-    package_gallery = next((
-        choice['gallery'] for choice in _group_getaway_choices(
-            GroupGetawayPackage.objects.filter(is_active=True)
-        ) if choice['package'].pk == package.pk
-    ), None)
-    if not package_gallery:
-        package_gallery = [{
-            'src': _package_artwork_url(package),
-            'alt': f'{package.name} experience',
-        }]
+        package_back_url = reverse('group_getaway_packages')
+        package_back_label = 'Group Getaway'
+    elif package.category == 'urs' and package.collection_group:
+        package_back_url = reverse('urs_subcategory', kwargs={'collection_group': package.collection_group})
+        package_back_label = dict(GroupGetawayPackage.COLLECTION_GROUP_CHOICES).get(package.collection_group, 'Unwind Relaxation Services')
+    else:
+        package_back_url = reverse('experience_category', kwargs={'category': package.category})
+        package_back_label = package.get_category_display()
+    testimonial = _package_testimonial(package)
+    package_gallery = _package_gallery(package)
     if package.quote_only or package.price_per_person <= 0:
         return render(request, 'Web/package_detail.html', {
             'package': package,
+            'package_back_url': package_back_url,
+            'package_back_label': package_back_label,
             'package_image_url': _package_artwork_url(package),
             'package_gallery': package_gallery,
             'quote_only': True,
-            'stories': related_stories,
+            'testimonial': testimonial,
         })
     addons = PackageAddOn.objects.filter(is_active=True).order_by('name')
     doctor_addon = PackageAddOn.objects.filter(name__icontains='doctor', is_active=True).first()
@@ -1021,6 +1042,8 @@ def package_detail(request, slug):
     } for duration in durations]
     context = {
         'package': package,
+        'package_back_url': package_back_url,
+        'package_back_label': package_back_label,
         'package_image_url': _package_artwork_url(package),
         'package_gallery': package_gallery,
         'addons': addons,
@@ -1034,7 +1057,7 @@ def package_detail(request, slug):
         'package_total': package_total,
         'checkout_error': request.GET.get('registration_error'),
         'plan_mode_label': 'savings plan' if request.GET.get('mode') == 'plan' else 'payment',
-        'stories': related_stories,
+        'testimonial': testimonial,
     }
     return render(request, 'Web/package_detail.html', context)
 

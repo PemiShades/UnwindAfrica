@@ -75,3 +75,20 @@
   .ua-story-quote { animation: none; }
   .ua-story-quotes__dot, .ua-story-quotes__arrow { transition: none; }
 }
+
+/* A single participant reflection belongs to each package presentation. */
+.ua-story-quotes > .ua-story-quote { margin-top: .7rem; border-left: 2px solid #b3975b; border-radius: 0 10px 10px 0; background: #f8f7f2; animation: none; }
+.ua-story-quote time { display: block; margin-top: .3rem; color: #69736d; font: 400 .7rem/1.5 Inter, sans-serif; }
+.package-gallery-instruction { margin: 1rem 0 .7rem; color: #68776e; font: 400 .78rem/1.65 Inter, sans-serif; }
+.package-gallery-instruction strong { color: #9a7940; font-weight: 600; }
+.group-package-story--premium .ua-story-quote { background: rgba(255,255,255,.07); }
+.group-package-story--premium .ua-story-quote h3, .group-package-story--premium .ua-story-quote footer strong { color: #fff6e5; }
+.group-package-story--premium .ua-story-quote p, .group-package-story--premium .ua-story-quote time, .group-package-story--premium .package-gallery-instruction { color: #d4ded6; }
+.gg-detail__select { display: inline-flex; align-items: center; justify-content: center; margin-top: 1rem; padding: .75rem 1.5rem; text-decoration: none; }
+#package-booking { scroll-margin-top: 7rem; }
+
+.experience-card { min-width: 0; }
+.experience-card .gg-detail__gallery { min-width: 0; margin: .5rem 0 0; }
+.experience-card .group-gallery__slide { flex-basis: 100%; }
+.experience-card__duration-note { color: #68776e; font-size: .8rem; }
+.experience-card .ua-story-quotes { margin-bottom: 1rem; }

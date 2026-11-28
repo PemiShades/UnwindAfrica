@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dots = [...gallery.querySelectorAll('[data-gallery-dot]')];
     const previous = gallery.querySelector('[data-gallery-prev]');
     const next = gallery.querySelector('[data-gallery-next]');
-    if (!slides.length || !previous || !next) return;
+    if (!slides.length) return;
 
     const openImage = (image) => {
       lightboxImage.src = image.currentSrc || image.src;
@@ -36,6 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
+
+    if (!previous || !next) return;
 
     let ticking = false;
     const activeIndex = () => {
@@ -58,7 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const goTo = (index) => {
-      slides[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      const left = slides[index].getBoundingClientRect().left - rail.getBoundingClientRect().left + rail.scrollLeft;
+      rail.scrollTo({ left, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     };
 
     rail.addEventListener('scroll', () => {
@@ -66,6 +69,13 @@ document.addEventListener('DOMContentLoaded', () => {
       window.requestAnimationFrame(update);
       ticking = true;
     }, { passive: true });
+    rail.addEventListener('keydown', (event) => {
+      if (event.target !== rail) return;
+      if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+        event.preventDefault();
+        goTo(Math.max(0, Math.min(slides.length - 1, activeIndex() + (event.key === 'ArrowRight' ? 1 : -1))));
+      }
+    });
     previous.addEventListener('click', () => goTo(Math.max(0, activeIndex() - 1)));
     next.addEventListener('click', () => goTo(Math.min(slides.length - 1, activeIndex() + 1)));
     dots.forEach((dot, index) => dot.addEventListener('click', () => goTo(index)));

@@ -1,0 +1,20 @@
+        <div class="group-gallery gg-detail__gallery{% if package_gallery|length == 1 %} group-gallery--single{% endif %}" data-gallery id="package-gallery-{{ package.slug }}">
+          <div class="group-gallery__viewport" data-gallery-rail tabindex="0" aria-label="{{ package.name }} photo gallery{% if package_gallery|length > 1 %}. Swipe or use the controls to browse photos{% endif %}.">
+            {% for photo in package_gallery %}
+            <figure class="group-gallery__slide">
+              <img src="{{ photo.src }}" alt="{{ photo.alt }}" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async" tabindex="0" role="button" aria-label="View larger image: {{ photo.alt }}">
+            </figure>
+            {% endfor %}
+          </div>
+          {% if package_gallery|length > 1 %}
+          <div class="group-gallery__controls" aria-label="Gallery controls">
+            <div class="group-gallery__dots" aria-label="Choose a photo">
+              {% for photo in package_gallery %}<button type="button" data-gallery-dot aria-label="Show photo {{ forloop.counter }}" aria-current="{% if forloop.first %}true{% else %}false{% endif %}"></button>{% endfor %}
+            </div>
+            <div class="group-gallery__arrows">
+              <button type="button" data-gallery-prev aria-label="Previous photo">&#8592;</button>
+              <button type="button" data-gallery-next aria-label="Next photo">&#8594;</button>
+            </div>
+          </div>
+          {% endif %}
+        </div>

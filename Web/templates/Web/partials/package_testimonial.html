@@ -1,0 +1,13 @@
+{% if testimonial %}
+<section class="ua-story-quotes" aria-label="Unwinder Story">
+  <p class="ua-story-quotes__eyebrow">UNWINDER STORY</p>
+  <blockquote class="ua-story-quote">
+    <span class="ua-story-quote__mark" aria-hidden="true">&ldquo;</span>
+    <div class="ua-story-quote__body">
+      <h3>{{ testimonial.headline }}</h3>
+      <p>{{ testimonial.package_excerpt|default:testimonial.story }}</p>
+    </div>
+    <footer><strong>{{ testimonial.name }}</strong>{% if testimonial.experience_date %}<time datetime="{{ testimonial.experience_date|date:'Y-m' }}">{{ testimonial.experience_date|date:'F Y' }}</time>{% endif %}</footer>
+  </blockquote>
+</section>
+{% endif %}

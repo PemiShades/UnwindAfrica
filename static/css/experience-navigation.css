@@ -1,0 +1,40 @@
+.experience-back { display: inline-flex; align-items: center; gap: .65rem; min-height: 44px; color: #526c5d; font: 600 .78rem/1.3 Inter, sans-serif; text-decoration: none; }
+.experience-back span { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid #cad5cc; border-radius: 50%; font-size: 1rem; transition: background .2s, color .2s; }
+.experience-back:hover span { background: #173a30; color: #fff; border-color: #173a30; }
+.experience-back:focus-visible { outline: 2px solid #a78349; outline-offset: 4px; }
+.group-getaway-page > .experience-back { margin: 0 0 1.5rem; }
+.gg-detail__wrap > .experience-back { margin: 0 0 2rem; }
+.experience-category-top { width: min(1320px, calc(100% - 3rem)); margin: 0 auto; padding-top: 6.8rem; }
+.experience-category-top + .experience-intro { padding-top: 1.5rem; }
+
+.group-getaway-page { width: min(1240px, calc(100% - 3rem)); }
+.group-getaway-page__heading { max-width: 48rem; margin: 0 auto 2.5rem; }
+.group-getaway-page__heading h1 { font-size: clamp(2.6rem, 4vw, 3.8rem); }
+.group-getaway-page__heading > p:last-child { margin: .8rem auto 0; font-size: .94rem; }
+.group-getaway-page .group-package-choice-grid { gap: clamp(1.2rem, 2.5vw, 2rem); }
+.group-getaway-page .group-package-story { gap: 0; padding: clamp(1.35rem, 2.4vw, 2rem); border-radius: 4px; }
+.group-getaway-page .group-package-story__intro { min-height: 8rem; }
+.group-getaway-page .group-package-story h2 { font-size: clamp(2rem, 3vw, 2.7rem); font-weight: 500; }
+.group-getaway-page .group-package-story__description { max-width: 32rem; margin: .8rem 0 0; font-size: .9rem; line-height: 1.65; }
+.group-getaway-page .package-gallery-instruction { margin: 1.1rem 0 .75rem; font-size: .75rem; line-height: 1.6; }
+.group-getaway-page .group-gallery__viewport { gap: 0; padding: 0; }
+.group-getaway-page .group-gallery__slide { flex-basis: 100%; aspect-ratio: 1.68; }
+.group-getaway-page .group-gallery__controls { padding: .85rem 0 0; }
+.group-getaway-page .group-gallery__arrows button { width: 38px; height: 38px; }
+.group-getaway-page .ua-story-quotes { margin: 1.6rem 0 0; padding-top: 1.3rem; }
+.group-getaway-page .ua-story-quotes > .ua-story-quote { margin-top: .7rem; padding: 1rem; border-radius: 0; }
+.group-getaway-page .ua-story-quote h3 { font-size: 1.12rem; line-height: 1.25; }
+.group-getaway-page .ua-story-quote p { font-size: .78rem; line-height: 1.7; }
+.group-getaway-page .group-package-story__booking { gap: 1rem; margin-top: auto; padding-top: 1.2rem; }
+.group-getaway-page .group-package-story__price strong { font-size: clamp(1.8rem, 2.4vw, 2.25rem); letter-spacing: -.04em; }
+.group-getaway-page .group-package-story__select { min-height: 46px; padding: .9rem 1.2rem; }
+@media (max-width: 680px) {
+  .experience-category-top { width: calc(100% - 2rem); padding-top: 5.8rem; }
+  .gg-detail__wrap > .experience-back { margin-bottom: 1.2rem; }
+  .group-getaway-page > .experience-back { margin-bottom: 1.4rem; }
+  .group-getaway-page__heading { margin-bottom: 1.7rem; }
+  .group-getaway-page .group-package-choice-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; margin: 0; padding: 0; overflow: visible; }
+  .group-getaway-page .group-package-story { padding: 1.3rem; }
+  .group-getaway-page .group-package-story__intro { min-height: 0; }
+  .group-getaway-page .group-package-story__booking { margin-top: 1.3rem; }
+}

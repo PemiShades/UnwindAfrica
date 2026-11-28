@@ -16,7 +16,7 @@ admin.site.register(BlogCategory)
 
 @admin.register(UnwinderStory)
 class UnwinderStoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'headline', 'package_label', 'display_order', 'is_active')
+    list_display = ('name', 'headline', 'package_label', 'experience_date', 'display_order', 'is_active')
     list_filter = ('is_active', 'package_label')
     search_fields = ('name', 'headline', 'story', 'package_label')
     list_editable = ('display_order', 'is_active')

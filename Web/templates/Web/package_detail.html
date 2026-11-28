@@ -1,8 +1,8 @@
 {% extends "Web/main.html" %}
-{% load static %}
+{% load static humanize %}
 
 {% block title %}{{ package.name }} | Unwind Africa{% endblock %}
-{% block meta_description %}{{ package.tagline|default:package.short_description|default:package.name }} {{ package.get_experience_duration_display }} · {{ package.get_pricing_basis_display }}.{% endblock %}
+{% block meta_description %}{{ package.short_description|default:package.tagline|default:package.name }} {{ package.get_experience_duration_display }} · {{ package.get_pricing_basis_display }}.{% endblock %}
 {% block og_title %}{{ package.name }} | Unwind Africa{% endblock %}
 {% block og_description %}Explore {{ package.name }}, what is included, and the options available for your Unwind Africa getaway.{% endblock %}
 {% block twitter_title %}{{ package.name }} | Unwind Africa{% endblock %}
@@ -10,7 +10,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}">
-<link rel="stylesheet" href="{% static 'css/group-package-showcase.css' %}?v=package-gallery-stories-20261126">
+<link rel="stylesheet" href="{% static 'css/group-package-showcase.css' %}?v=photo-fit-20261128">
 <style>
 .gg-detail { padding: 7rem 1.2rem 4rem; background: var(--ua-background); }
 .gg-detail__wrap { width: min(1120px, 100%); margin: 0 auto; }
@@ -65,38 +65,33 @@
 @media (max-width: 540px) { .gg-detail { padding: 6rem .8rem 2.5rem; } .gg-fields { grid-template-columns: 1fr; gap: 0; } .gg-field--wide { grid-column: auto; } .gg-plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 </style>
 <link rel="stylesheet" href="{% static 'css/package-flow.css' %}">
-<link rel="stylesheet" href="{% static 'css/story-quotes.css' %}?v=story-slider-auto-20261126">
+<link rel="stylesheet" href="{% static 'css/story-quotes.css' %}?v=package-review-20261128">
+<link rel="stylesheet" href="{% static 'css/package-detail-refined.css' %}?v=photo-fit-20261128">
+<link rel="stylesheet" href="{% static 'css/experience-navigation.css' %}?v=20261128">
 {% endblock %}
 
 {% block content %}
 <main class="gg-detail">
   <div class="gg-detail__wrap">
+    <a class="experience-back" href="{{ package_back_url }}"><span aria-hidden="true">&#8592;</span> {{ package_back_label }}</a>
     <div class="gg-detail__intro">
       <section class="gg-detail__copy">
-        <div class="group-gallery gg-detail__gallery" data-gallery id="package-gallery-{{ package.slug }}">
-          <div class="group-gallery__viewport" data-gallery-rail tabindex="0" aria-label="{{ package.name }} photo gallery. Swipe or use the controls to browse photos.">
-            {% for photo in package_gallery %}
-            <figure class="group-gallery__slide">
-              <img src="{{ photo.src }}" alt="{{ photo.alt }}" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async" tabindex="0" role="button" aria-label="View larger image: {{ photo.alt }}">
-            </figure>
-            {% endfor %}
-          </div>
-          <div class="group-gallery__controls" aria-label="Gallery controls">
-            <div class="group-gallery__dots" aria-label="Choose a photo">
-              {% for photo in package_gallery %}<button type="button" data-gallery-dot aria-label="Show photo {{ forloop.counter }}" aria-current="{% if forloop.first %}true{% else %}false{% endif %}"></button>{% endfor %}
-            </div>
-            <div class="group-gallery__arrows">
-              <button type="button" data-gallery-prev aria-label="Previous photo">&#8592;</button>
-              <button type="button" data-gallery-next aria-label="Next photo">&#8594;</button>
-            </div>
-          </div>
+        <header class="gg-detail__header">
+          <p class="gg-detail__eyebrow">UNWIND EXPERIENCES <span aria-hidden="true">/</span> {{ package.get_category_display }}</p>
+          <h1>{{ package.name }}</h1>
+          <p class="gg-detail__category">{{ package.short_description|default:package.tagline|default:"A considered Unwind Africa experience, shaped around time together and room to rest." }}</p>
+        </header>
+        <p class="package-gallery-instruction"><strong>Explore the Experience</strong>{% if package_gallery|length > 1 %} &ndash; Swipe through the photographs to discover what is included in this package.{% endif %}</p>
+        {% include "Web/partials/package_gallery.html" %}
+        {% include "Web/partials/package_testimonial.html" %}
+        <div class="gg-detail__reservation">
+        <div class="gg-detail__reservation-price">
+        <p class="gg-detail__reservation-label">YOUR EXPERIENCE</p>
+        {% if quote_only %}<p class="gg-detail__price">Request pricing</p><p class="gg-detail__price-note">{{ package.get_experience_duration_display }}</p>{% else %}<p class="gg-detail__price">&#8358;{{ package.price_per_person|floatformat:0|intcomma }}</p>
+        <p class="gg-detail__price-note">Starting price &middot; {{ package.get_pricing_basis_display }} &middot; {{ package.get_experience_duration_display }}</p>{% endif %}
         </div>
-        <span class="ua-kicker">{{ package.get_category_display }} · {{ package.get_experience_duration_display }}</span>
-        <h1>{{ package.name }}</h1>
-        <p class="gg-detail__category">{{ package.tagline|default:package.short_description|default:"A considered Unwind Africa experience, shaped around time together and room to rest." }}</p>
-        {% include "Web/partials/unwinder_story_quotes.html" %}
-        {% if quote_only %}<p class="gg-detail__price">Request pricing</p>{% else %}<p class="gg-detail__price">₦{{ package.price_per_person|floatformat:0 }}</p>
-        <p class="gg-detail__price-note">Starting price · {{ package.get_pricing_basis_display }}</p>{% endif %}
+        <a class="gg-submit gg-detail__select" href="#package-booking" data-open-booking>Select Package <span aria-hidden="true">&#8599;</span></a>
+        </div>
         {% if package.family_coverage %}
         <p class="gg-detail__note">{{ package.family_coverage }} For a larger family or a customised experience, <a href="{% url 'contact' %}?package={{ package.name|urlencode }}">request a tailored quote</a>.</p>
         {% endif %}
@@ -108,6 +103,8 @@
         {% if package.who_is_it_for %}<div class="gg-detail__experience"><h2>Made for</h2><p>{{ package.who_is_it_for|linebreaksbr }}</p></div>{% endif %}
       </section>
 
+      <details class="package-booking-panel" id="package-booking"{% if checkout_error or request.GET.mode %} open{% endif %}>
+        <summary>Booking options <span aria-hidden="true">+</span></summary>
       {% if quote_only %}
       <aside class="gg-detail__form gg-detail__quote">
         <h2>Make it yours</h2>
@@ -115,7 +112,7 @@
         <a class="gg-submit" href="{% url 'contact' %}?package={{ package.name|urlencode }}">Request details</a>
       </aside>
       {% else %}
-      <form class="gg-detail__form" method="post" action="{% url 'package_checkout' package.slug %}">
+      <form id="package-booking-form" class="gg-detail__form" method="post" action="{% url 'package_checkout' package.slug %}">
         {% csrf_token %}
         <h2>Reserve your experience</h2>
         <p>Choose a payment plan, select any extras, then enter the amount you want to start with.</p>
@@ -149,36 +146,37 @@
         <div id="durationOptions" class="gg-plan-grid">
           {% for option in plan_options %}
           <button type="button" class="gg-plan-choice{% if forloop.first %} is-active{% endif %}" data-duration="{{ option.duration }}" onclick="selectDuration({{ option.duration }}, this)">
-            <strong>{{ option.duration }} months</strong><span class="plan-estimate">₦{{ option.monthly_display }} / month</span>
+            <strong>{{ option.duration }} months</strong><span class="plan-estimate">&#8358;{{ option.monthly_display }} / month</span>
           </button>
           {% endfor %}
         </div>
 
         <input type="hidden" name="my_doctor" id="my_doctor" value="off">
-        <label class="gg-check"><input type="checkbox" id="doctor-choice" onchange="toggleChoice('my_doctor', this.checked)"><span><strong>My Doctor &amp; I</strong> · ₦{{ addon_price|floatformat:0 }} per booking<br><small>Optional wellness experience</small></span></label>
+        <label class="gg-check"><input type="checkbox" id="doctor-choice" onchange="toggleChoice('my_doctor', this.checked)"><span><strong>My Doctor &amp; I</strong> &middot; &#8358;{{ addon_price|floatformat:0|intcomma }} per booking<br><small>Optional wellness experience</small></span></label>
 
         <input type="hidden" name="transportation" id="transportation" value="off">
-        <label class="gg-check"><input type="checkbox" id="transport-choice" onchange="toggleChoice('transportation', this.checked); togglePickup()"><span><strong>Request transportation</strong> · from ₦{{ transport_price|floatformat:0 }} per person<br><small>Final price depends on pickup location and arrangement.</small></span></label>
+        <label class="gg-check"><input type="checkbox" id="transport-choice" onchange="toggleChoice('transportation', this.checked); togglePickup()"><span><strong>Request transportation</strong> &middot; from &#8358;{{ transport_price|floatformat:0|intcomma }} per person<br><small>Final price depends on pickup location and arrangement.</small></span></label>
         <div class="gg-field" id="pickupField" hidden><label for="pickup_location">Pickup location</label><input id="pickup_location" name="transportation_pickup_location" placeholder="City or pickup address"></div>
         <input type="hidden" name="rest_forward" value="off">
 
         <div class="gg-summary" aria-live="polite">
-          <div class="gg-summary__row"><span>Experience</span><strong id="summary-package">₦{{ package_total|floatformat:0 }}</strong></div>
-          <div class="gg-summary__row"><span>Optional extras</span><strong id="summary-addons">₦0</strong></div>
-          <div class="gg-summary__row"><span>Installment charges</span><strong id="summary-fees">₦0</strong></div>
-          <div class="gg-summary__row gg-summary__row--total"><span>Total payable</span><strong id="summary-total">₦{{ package_total|floatformat:0 }}</strong></div>
+          <div class="gg-summary__row"><span>Experience</span><strong id="summary-package">&#8358;{{ package_total|floatformat:0|intcomma }}</strong></div>
+          <div class="gg-summary__row"><span>Optional extras</span><strong id="summary-addons">&#8358;0</strong></div>
+          <div class="gg-summary__row"><span>Installment charges</span><strong id="summary-fees">&#8358;0</strong></div>
+          <div class="gg-summary__row gg-summary__row--total"><span>Total payable</span><strong id="summary-total">&#8358;{{ package_total|floatformat:0|intcomma }}</strong></div>
           <div class="gg-summary__row"><span>Plan contribution</span><strong id="summary-monthly">—</strong></div>
         </div>
-        <div class="gg-field"><label for="initial_deposit">Your initial deposit (₦)</label><input id="initial_deposit" name="initial_deposit" type="number" min="1" step="1" value="" placeholder="Enter any amount to start" required></div>
+        <div class="gg-field"><label for="initial_deposit">Your initial deposit (&#8358;)</label><input id="initial_deposit" name="initial_deposit" type="number" min="1" step="1" value="" placeholder="Enter any amount to start" required></div>
         <button class="gg-submit" type="submit" id="submit-booking">Continue to secure payment</button>
       </form>
       {% endif %}
+      </details>
     </div>
   </div>
 </main>
 
-<script src="{% static 'js/group-gallery.js' %}?v=package-gallery-20261126" defer></script>
-<script src="{% static 'js/story-slider.js' %}?v=story-slider-auto-20261126" defer></script>
+<script src="{% static 'js/package-detail.js' %}?v=20261128" defer></script>
+<script src="{% static 'js/group-gallery.js' %}?v=package-review-20261128" defer></script>
 <script>
 const packageSlug = '{{ package.slug|escapejs }}';
 let selectedDuration = {{ durations.0|default:3 }};
@@ -271,6 +269,7 @@ async function refreshPlan() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+  if (!document.getElementById('party_size')) return;
   document.getElementById('party_size').addEventListener('input', refreshPlan);
   document.getElementById('initial_deposit').addEventListener('input', () => { depositEdited = true; });
   document.getElementById('initial_deposit').addEventListener('blur', function () {

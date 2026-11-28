@@ -853,6 +853,8 @@ class UnwinderStory(models.Model):
     name = models.CharField(max_length=160)
     headline = models.CharField(max_length=200)
     story = models.TextField()
+    package_excerpt = models.TextField(blank=True, help_text="Short first-person version for the package page. The original story is retained.")
+    experience_date = models.DateField(null=True, blank=True, help_text="Date of the participant's experience. Only month and year are displayed.")
     package_label = models.CharField(max_length=100, blank=True)
     display_order = models.PositiveSmallIntegerField(default=0, db_index=True)
     is_active = models.BooleanField(default=True)

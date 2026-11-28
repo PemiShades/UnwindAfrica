@@ -11,12 +11,15 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/secondary-experiences.css' %}">
 <link rel="stylesheet" href="{% static 'css/package-experiences.css' %}">
-<link rel="stylesheet" href="{% static 'css/group-package-showcase.css' %}?v=classic-photo-gallery-20261125">
+<link rel="stylesheet" href="{% static 'css/group-package-showcase.css' %}?v=photo-fit-20261128">
 <link rel="stylesheet" href="{% static 'css/group-getaway-page.css' %}?v=horizontal-choice-20261124">
+<link rel="stylesheet" href="{% static 'css/story-quotes.css' %}?v=package-review-20261128">
+<link rel="stylesheet" href="{% static 'css/experience-navigation.css' %}?v=20261128">
 {% endblock %}
 
 {% block content %}
 <main class="group-getaway-page">
+  <a class="experience-back" href="{% url 'packages' %}"><span aria-hidden="true">&#8592;</span> Unwind Experiences</a>
   <header class="group-getaway-page__heading">
     <p class="experience-kicker">GROUP GETAWAY</p>
     <h1>Choose your experience.</h1>
@@ -27,11 +30,11 @@
     {% for feature in group_choices %}
     <article class="group-package-story {% if feature.package.slug == 'classic-premium' %}group-package-story--premium{% else %}group-package-story--classic{% endif %}">
       <div class="group-package-story__intro">
-        <p class="group-package-story__eyebrow">{{ feature.eyebrow }}</p>
         <h2>{{ feature.package.name }}</h2>
         <p class="group-package-story__description">{{ feature.package.short_description }}</p>
       </div>
 
+      <p class="package-gallery-instruction"><strong>Explore the Experience</strong> &ndash; Swipe through the photographs to discover what is included in this package.</p>
       <div class="group-gallery" data-gallery id="{{ feature.gallery_id }}">
         <div class="group-gallery__viewport" data-gallery-rail tabindex="0" aria-label="{{ feature.package.name }} photo gallery. Swipe or use the controls to browse photos.">
           {% for photo in feature.gallery %}
@@ -53,6 +56,8 @@
         </div>
       </div>
 
+      {% include "Web/partials/package_testimonial.html" with testimonial=feature.testimonial %}
+
       <footer class="group-package-story__booking">
         <div class="group-package-story__price">
           <strong>&#8358;{{ feature.package.price_per_person|floatformat:0|intcomma }}</strong>
@@ -67,10 +72,9 @@
     <p class="group-getaway-page__empty">Group Getaway options are being prepared. Please check back soon.</p>
     {% endfor %}
   </section>
-  <a class="group-getaway-page__back" href="{% url 'packages' %}">Back to Unwind Experiences</a>
 </main>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/group-gallery.js' %}?v=classic-lightbox-20261125" defer></script>
+<script src="{% static 'js/group-gallery.js' %}?v=package-review-20261128" defer></script>
 {% endblock %}
